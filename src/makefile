@@ -92,5 +92,6 @@ $(INSTALLDIR)/simplecalculator : $(CALCULATOR)
 
 .PHONY:clean
 clean:
-	rm *.o 
+	rm *.o
+	rm shapelib/*.o
 
