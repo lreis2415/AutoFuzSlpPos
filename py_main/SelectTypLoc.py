@@ -42,5 +42,5 @@ def SelectTypLoc():
             for i in range(len(item[9])):
                 ExtconfigInfo.write("FuzInfShp\t%s\t%s\n" % (item[9][i][0],item[9][i][1]))
             ExtconfigInfo.close()
-        TauDEM.SelectTypLocSlpPos(item[1],item[7],inputProc,item[8],mpiexeDir=mpiexeDir,exeDir)
+        TauDEM.SelectTypLocSlpPos(item[1],item[7],inputProc,item[8],mpiexeDir=mpiexeDir,exeDir=exeDir)
     print "Typical Locations Selected Done!"

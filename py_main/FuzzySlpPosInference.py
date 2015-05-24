@@ -8,15 +8,15 @@ from Config import *
 def FuzzySlpPosInference():
     RPIExtInfo = [RdgExtractionInfo[0],ShdExtractionInfo[0],BksExtractionInfo[0],FtsExtractionInfo[0],VlyExtractionInfo[0]]
     tempw = RPIExtInfo[0][1] - RPIExtInfo[1][2]
-    RdgInferenceInfo.append(['RPI','S',tempw,2,0.5,1,0,1]) # Ridge:S: w1 = Rdg.min – Shd.max
+    RdgInferenceInfo.append(['RPI','S',tempw,2,0.5,1,0,1]) # Ridge:S: w1 = Rdg.min-Shd.max
     tempw = min(RPIExtInfo[1][1]-RPIExtInfo[2][2],RPIExtInfo[0][1]-RPIExtInfo[1][2])
-    ShdInferenceInfo.append(['RPI','B',tempw,2,0.5,tempw,2,0.5]) # Shoulder slope:B: w1 = w2 = min(Shd.min – Bks.max, Rdg.min – Shd.max)
+    ShdInferenceInfo.append(['RPI','B',tempw,2,0.5,tempw,2,0.5]) # Shoulder slope:B: w1 = w2 = min(Shd.min-Bks.max, Rdg.min-Shd.max)
     tempw = min(RPIExtInfo[2][1]-RPIExtInfo[3][2],RPIExtInfo[1][1]-RPIExtInfo[2][2])
-    BksInferenceInfo.append(['RPI','B',tempw,2,0.5,tempw,2,0.5]) # Back slope:B: w1 = w2 = min(Bks.min – Fts.max, Shd.min – Bks.max)
+    BksInferenceInfo.append(['RPI','B',tempw,2,0.5,tempw,2,0.5]) # Back slope:B: w1 = w2 = min(Bks.min-Fts.max, Shd.min-Bks.max)
     tempw = min(RPIExtInfo[3][1]-RPIExtInfo[4][2],RPIExtInfo[2][1]-RPIExtInfo[3][2])
-    FtsInferenceInfo.append(['RPI','B',tempw,2,0.5,tempw,2,0.5]) # Foot slope:B: w1 = w2 = min(Fts.min – Vly.max, Bks.min – Fts.max)
+    FtsInferenceInfo.append(['RPI','B',tempw,2,0.5,tempw,2,0.5]) # Foot slope:B: w1 = w2 = min(Fts.min-Vly.max, Bks.min-Fts.max)
     tempw = RPIExtInfo[3][1] - RPIExtInfo[4][2]
-    VlyInferenceInfo.append(['RPI','Z',1,0,1,tempw,2,0.5]) # Valley:Z: w2 = Fts.min – Vly.max
+    VlyInferenceInfo.append(['RPI','Z',1,0,1,tempw,2,0.5]) # Valley:Z: w2 = Fts.min-Vly.max
 
     SlpPosItems = [[RdgInfConfig,RdgTyp, RdgTag, RdgInferenceInfo,DistanceExponentForIDW, RdgInf, RdgInfRecommend],\
                     [ShdInfConfig,ShdTyp, ShdTag, ShdInferenceInfo,DistanceExponentForIDW, ShdInf, ShdInfRecommend],\
@@ -55,7 +55,7 @@ def FuzzySlpPosInference():
             configInfo.write("DistanceExponentForIDW\t%s\n" % str(SlpPosItem[4]))
             configInfo.write("OUTPUT\t%s\n" % SlpPosItem[5])
             configInfo.close()
-        TauDEM.FuzzySlpPosInference(SlpPosItem[0],inputProc,mpiexeDir=mpiexeDir,,exeDir)
+        TauDEM.FuzzySlpPosInference(SlpPosItem[0],inputProc,mpiexeDir=mpiexeDir,exeDir=exeDir)
 
     if not CalSecHardSlpPos:
         global SecHardenSlpPos

@@ -4,7 +4,8 @@
 import os,sys
 from osgeo import gdal
 from osgeo import osr
-from gdalconst import *
+import osgeo.gdalconst
+#from gdalconst import *
 import numpy
 from shutil import rmtree
 def currentPath():
