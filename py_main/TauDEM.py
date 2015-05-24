@@ -23,7 +23,7 @@ import sys
 import time
 import string
 import subprocess
-from Util import WriteLog
+from Util import WriteLog,WriteTimeLog
 from Nomenclature import Log_all,Log_runtime
 
 ## Basic Grid Analysis
@@ -42,8 +42,25 @@ def pitremove(inZfile,inputProc,outFile, mpiexeDir = None, exeDir=None):
     print "Command Line: "+cmd
     ##os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "PitRemove"
+    contentList.append('\n')
+    contentList.append("#### PitRemove ####")
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
 
 def D8FlowDir(fel,inputProc,p,sd8, mpiexeDir = None, exeDir=None):
     print "Calculating D8 flow direction......"
@@ -62,8 +79,26 @@ def D8FlowDir(fel,inputProc,p,sd8, mpiexeDir = None, exeDir=None):
     print "Command Line: "+cmd
     ##os.system(cmd)
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "D8FlowDir"
+    contentList.append('\n')
+    contentList.append("#### Calculating D8 flow direction ####")
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
+    
 
 def DinfFlowDir(fel,inputProc,ang,slp,mpiexeDir = None,  exeDir=None):
     print "Calculating D-infinity direction......"
@@ -82,8 +117,26 @@ def DinfFlowDir(fel,inputProc,ang,slp,mpiexeDir = None,  exeDir=None):
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "DinfFlowDir"
+    contentList.append('\n')
+    contentList.append("#### Calculating D-infinity direction ####")
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
+    
         
 def AreaD8(p,Shapefile,weightgrid,edgecontamination,inputProc,ad8,mpiexeDir = None,  exeDir=None):
     print "Calculating D8 contributing area......"
@@ -112,8 +165,26 @@ def AreaD8(p,Shapefile,weightgrid,edgecontamination,inputProc,ad8,mpiexeDir = No
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "D8 contributing area"
+    contentList.append('\n')
+    contentList.append("#### Calculating D8 contributing area ####")
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
+    
         
 def AreaDinf(ang,shapefile,weightgrid,edgecontamination,inputProc,sca,mpiexeDir = None,  exeDir=None):
     print "Calculating D-infinity contributing area......"
@@ -142,10 +213,25 @@ def AreaDinf(ang,shapefile,weightgrid,edgecontamination,inputProc,sca,mpiexeDir 
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "D-inf contributing area"
+    contentList.append('\n')
+    contentList.append("#### Calculating D-infinity contributing area ####")
     for line in process.stdout.readlines():
-        print line
-
-
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+ 
 ## Specialized grid analysis
 
 def DinfDistDown(ang,fel,src,statisticalmethod,distancemethod,edgecontamination,wg,inputProc,dd, mpiexeDir = None, exeDir=None):
@@ -191,8 +277,26 @@ def DinfDistDown(ang,fel,src,statisticalmethod,distancemethod,edgecontamination,
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "Calculating Dinf distance down"
+    contentList.append('\n')
+    contentList.append("#### Calculating distance down to stream based on D-infinity model ####")
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
+    
 
 
 def MoveOutletsToStreams(p,src,shapefile,maxdistance,inputProc,om, mpiexeDir = None, exeDir=None):
@@ -216,8 +320,26 @@ def MoveOutletsToStreams(p,src,shapefile,maxdistance,inputProc,om, mpiexeDir = N
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "Moving outlet point to streams"
+    contentList.append('\n')
+    contentList.append("#### Moving outlet point(s) to streams ####")
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
+    
 
 
 def Threshold(ssa,mask,threshold,inputProc,src, mpiexeDir = None, exeDir=None):
@@ -244,8 +366,26 @@ def Threshold(ssa,mask,threshold,inputProc,src, mpiexeDir = None, exeDir=None):
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "Threshold to define stream"
+    contentList.append('\n')
+    contentList.append("#### Stream definition according to threshold ####")
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
+    
 
 def DropAnalysis(fel,p,ad8,ssa,shapefile,minthresh,maxthresh,numthresh,logspace,inputProc,drp, mpiexeDir = None, exeDir=None):
     print "Stream drop analysis for the optimal threshold......"
@@ -277,8 +417,26 @@ def DropAnalysis(fel,p,ad8,ssa,shapefile,minthresh,maxthresh,numthresh,logspace,
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "Drop Analysis"
+    contentList.append('\n')
+    contentList.append("#### Stream drop analysis for the optimal threshold ####")
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
+    
 
 
 ####   Functions added by Liangjun Zhu    ####
@@ -312,8 +470,26 @@ def D8DistDownToStream(p,fel,src,dist,distancemethod,thresh,inputProc,mpiexeDir 
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "D8 distance down"
+    contentList.append('\n')
+    contentList.append("#### Calculating distance down to stream based on D8 model ####")
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
+    
 
 def D8DistUpToRidge(p,fel,du,distancemethod,statisticalmethod,inputProc,rdg=None,mpiexeDir = None, exeDir=None):
     print "Calculating distance up to ridges based on D8 model......"
@@ -355,8 +531,26 @@ def D8DistUpToRidge(p,fel,du,distancemethod,statisticalmethod,inputProc,rdg=None
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "D8 distance up"
+    contentList.append('\n')
+    contentList.append("#### Calculating distance up to ridges based on D8 model ####")
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
+    
 
 def DinfDistUpToRidge(ang,fel,slp,propthresh,statisticalmethod,distancemethod,edgecontamination,inputProc,du,rdg=None, mpiexeDir = None, exeDir=None):
     print "Calculating distance up to ridges based on D-infinity model......"
@@ -404,8 +598,26 @@ def DinfDistUpToRidge(ang,fel,slp,propthresh,statisticalmethod,distancemethod,ed
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "Dinf distance up"
+    contentList.append('\n')
+    contentList.append("#### Calculating distance up to ridges based on D-infinity model ####")
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
+    
 
 def Curvature(inputProc,fel,prof=None,plan=None,horiz=None,unspher=None,ave=None,max=None,min=None,mpiexeDir = None, exeDir=None):
     if exeDir is None:
@@ -445,8 +657,26 @@ def Curvature(inputProc,fel,prof=None,plan=None,horiz=None,unspher=None,ave=None
     print "Input Number of Processes: "+str(inputProc)
     #os.system(cmd)
     process = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "Curvature"
+    contentList.append('\n')
+    contentList.append("#### Curvature ####")
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
+    
 def SelectTypLocSlpPos(inputConf,outputConf,inputProc,outlog=None,mpiexeDir = None, exeDir=None):
     print "Selecting Typical Slope Position Location and Calculating Fuzzy Inference Parameters"
     print "    Input configuration file: "+inputConf
@@ -468,11 +698,24 @@ def SelectTypLocSlpPos(inputConf,outputConf,inputProc,outlog=None,mpiexeDir = No
     ##os.system(cmd)
     process = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
     contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "SelectTypLocSlpPos %s" % inputConf.rpartition(os.sep)[-1]
+    contentList.append('\n')
+    contentList.append("#### Select Typical Location of %s ####" % inputConf.rpartition(os.sep)[-1])
     for line in process.stdout.readlines():
         contentList.append(line.split('\r')[0])
-        print line
-    #print contentList
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
     WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
     
 def FuzzySlpPosInference(config,inputProc,mpiexeDir = None, exeDir=None):
     print "Fuzzy Slope Position Inference"
@@ -488,8 +731,26 @@ def FuzzySlpPosInference(config,inputProc,mpiexeDir = None, exeDir=None):
     print "Input Number of Processes: "+str(inputProc)
     ##os.system(cmd)
     process = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "FuzzySlpPosInference %s" % config.rpartition(os.sep)[-1]
+    contentList.append('\n')
+    contentList.append("#### Fuzzy Slope Position Inference of %s ####" % config.rpartition(os.sep)[-1])
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
+
     
 def HardenSlpPos(rdg,shd,bks,fts,vly,inputProc,hard,maxsimi,sechard=None,secsimi=None,spsim=None,spsi=None,mpiexeDir = None, exeDir=None):
     print "Harden Slope Position Inference"
@@ -519,8 +780,25 @@ def HardenSlpPos(rdg,shd,bks,fts,vly,inputProc,hard,maxsimi,sechard=None,secsimi
     print "Input Number of Processes: "+str(inputProc)
     ##os.system(cmd)
     process = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "HardenSlpPos"
+    contentList.append('\n')
+    contentList.append("#### Harden classification ####")
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
     
     
 def SimpleCalculator(inputa,inputb,output,operator,inputProc,mpiexeDir = None, exeDir=None):
@@ -535,7 +813,25 @@ def SimpleCalculator(inputa,inputb,output,operator,inputProc,mpiexeDir = None, e
     print "Input Number of Processes: "+str(inputProc)
     ##os.system(cmd)
     process = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "SimpleCalculator"
+    contentList.append('\n')
+    contentList.append("#### Simple Calculator ####")
     for line in process.stdout.readlines():
-        print line
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
+    
         
 ####           END DEFINITION             ####

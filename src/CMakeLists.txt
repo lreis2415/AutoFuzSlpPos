@@ -65,7 +65,6 @@ install(TARGETS aread8
                 d8flowdir
                 d8distdowntostream
                 dinfdistuptoridge
-                dinfdistup
                 dinfflowdir
                 dropanalysis
                 moveoutletstostreams

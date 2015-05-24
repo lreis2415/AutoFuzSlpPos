@@ -4,8 +4,8 @@
 import os,sys
 from osgeo import gdal
 from osgeo import osr
-import osgeo.gdalconst
-#from gdalconst import *
+from osgeo import gdalconst
+from gdalconst import *
 import numpy
 from shutil import rmtree
 def currentPath():
@@ -157,7 +157,16 @@ def WriteLog(logfile, contentlist):
         logStatus = open(logfile, 'w')
     for content in contentlist:
         logStatus.write("%s\n" % content)
-        #print "from util %s" % content
+    logStatus.flush()
+    logStatus.close()
+    
+def WriteTimeLog(logfile,time):
+    if os.path.exists(logfile):
+        logStatus = open(logfile, 'a')
+    else:
+        logStatus = open(logfile, 'w')
+        logStatus.write("Function Name\tRead Time\tCompute Time\tWrite Time\tTotal Time\t\n")
+    logStatus.write("%s\t%s\t%s\t%s\t%s\t\n" % (time['name'],time['readt'],time['computet'],time['writet'],time['totalt']))
     logStatus.flush()
     logStatus.close()
     
