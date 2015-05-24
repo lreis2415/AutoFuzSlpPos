@@ -27,7 +27,8 @@ CALCULATOR = SimpleCalculator.o SimpleCalculatormn.o $(OBJFILES)
 
 
 #The following are compiler flags common to all building rules
-MPI_DIR = /usr/
+#MPI_DIR = /usr/  # my laptop, ubuntu 14.04
+MPI_DIR = /opt/mpich2/gnu/  # linux cluster in dgpm
 CC = $(MPI_DIR)bin/mpic++
 CFLAGS=-O2
 CFLAGS=-g -Wall
