@@ -27,7 +27,7 @@ from Util import WriteLog
 from Nomenclature import Log_all,Log_runtime
 
 ## Basic Grid Analysis
-def pitremove(inZfile,inputProc,outFile, exeDir=None):
+def pitremove(inZfile,inputProc,outFile, mpiexeDir = None, exeDir=None):
     print "PitRemove......"
     print "Input Elevation file: "+inZfile
     print "Input Number of Processes: "+str(inputProc)

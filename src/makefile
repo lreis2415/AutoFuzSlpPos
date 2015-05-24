@@ -30,13 +30,13 @@ CALCULATOR = SimpleCalculator.o SimpleCalculatormn.o $(OBJFILES)
 # my laptop, ubuntu 14.04
 #MPI_DIR = /usr/
 # linux cluster in dgpm
-MPI_DIR = /opt/mpich2/gnu/
+MPI_DIR = /home/zhulj/mpich/
 CC = $(MPI_DIR)bin/mpic++
 CFLAGS=-O2
 CFLAGS=-g -Wall
 CFLAGS=-g -fopenmp -std=c++11
 LARGEFILEFLAG= -D_FILE_OFFSET_BITS=64
-INCDIRS=-I$(MPI_DIR)include/mpich
+INCDIRS=-I$(MPI_DIR)include
 INSTALLDIR=../exec_linux_x86
 
 
