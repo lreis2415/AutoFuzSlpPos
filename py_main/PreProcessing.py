@@ -25,15 +25,15 @@ def PreProcessing(model):
 #    NegativeDEM(dem,negDEM) 
     logStatus.write("[Preprocessing] [2/7] Removing pits...\n")
     logStatus.flush()
-    TauDEM.pitremove(rawdem,inputProc,demfil,exeDir)
+    TauDEM.pitremove(rawdem,inputProc,demfil,mpiexeDir=mpiexeDir,exeDir)
     #TauDEM.pitremove(negDEM,inputProc,negDEMfil,exeDir)
     logStatus.write("[Preprocessing] [3/7] Flow direction and slope in radian...\n")
     logStatus.flush()
-    TauDEM.D8FlowDir(demfil,inputProc,D8FlowDir,D8Slp,exeDir)
+    TauDEM.D8FlowDir(demfil,inputProc,D8FlowDir,D8Slp,mpiexeDir=mpiexeDir,exeDir)
 #    if model == 0:
 #        TauDEM.D8FlowDir(negDEMfil,inputProc,negD8FlowDir,negD8Slp,exeDir)
     if model == 1:
-        TauDEM.DinfFlowDir(demfil,inputProc,DinfFlowDir,DinfSlp,exeDir)
+        TauDEM.DinfFlowDir(demfil,inputProc,DinfFlowDir,DinfSlp,mpiexeDir=mpiexeDir,exeDir)
         #TauDEM.DinfFlowDir(negDEMfil,inputProc,negDinfFlowDir,negDinfSlp,exeDir)
     #logStatus.write("[Preprocessing] [4/7] Move outlet to initially stream and Generating flow accumulation with Peuker Douglas stream sources as weightgrid...\n")
     logStatus.write("[Preprocessing] [4/7] Move outlet to initially stream and Generating flow accumulation...\n")
@@ -41,15 +41,15 @@ def PreProcessing(model):
     #TauDEM.PeukerDouglas(demfil,centerweight,sideweight,diagonalweight,inputProc,PkrDglStream,exeDir)
     #TauDEM.PeukerDouglas(negDEMfil,centerweight,sideweight,diagonalweight,inputProc,negPkrDglStream,exeDir)
     #TauDEM.AreaD8(D8FlowDir,'',PkrDglStream,'false',inputProc,D8ContriArea,exeDir)
-    TauDEM.AreaD8(D8FlowDir,'','','false',inputProc,D8ContriArea,exeDir)
+    TauDEM.AreaD8(D8FlowDir,'','','false',inputProc,D8ContriArea,mpiexeDir=mpiexeDir,exeDir)
     maxAccum, minAccum, meanAccum, STDAccum = GetRasterStat(D8ContriArea)
-    TauDEM.Threshold(D8ContriArea,'',meanAccum,inputProc,D8Stream,exeDir)
-    TauDEM.MoveOutletsToStreams(D8FlowDir,D8Stream,outlet,maxMoveDist,inputProc,outletM, exeDir)
+    TauDEM.Threshold(D8ContriArea,'',meanAccum,inputProc,D8Stream,mpiexeDir=mpiexeDir,exeDir)
+    TauDEM.MoveOutletsToStreams(D8FlowDir,D8Stream,outlet,maxMoveDist,inputProc,outletM, mpiexeDir=mpiexeDir,exeDir)
 #    if model == 0:
 #        TauDEM.AreaD8(negD8FlowDir,'',negPkrDglStream,'false',inputProc,negD8ContriArea,exeDir)
     #TauDEM.AreaD8(D8FlowDir,outletM,PkrDglStream,'false',inputProc,D8ContriArea,exeDir)
     if model == 1:
-        TauDEM.AreaDinf(DinfFlowDir,'','','false',inputProc,DinfContriArea,exeDir)
+        TauDEM.AreaDinf(DinfFlowDir,'','','false',inputProc,DinfContriArea,mpiexeDir=mpiexeDir,exeDir)
         #TauDEM.AreaDinf(DinfFlowDir,outletM,PkrDglStream,'false',inputProc,DinfContriArea,exeDir)
         #TauDEM.AreaDinf(negDinfFlowDir,'',negPkrDglStream,'false',inputProc,negDinfContriArea,exeDir)
     if model ==0:
@@ -66,18 +66,18 @@ def PreProcessing(model):
         else:
             minthresh = meanAccum - STDAccum
         maxthresh = meanAccum + STDAccum
-        TauDEM.DropAnalysis(demfil,D8FlowDir,D8ContriArea,D8ContriArea,outletM,minthresh,maxthresh,numthresh,logspace,inputProc,drpFile, exeDir)
+        TauDEM.DropAnalysis(demfil,D8FlowDir,D8ContriArea,D8ContriArea,outletM,minthresh,maxthresh,numthresh,logspace,inputProc,drpFile, mpiexeDir=mpiexeDir,exeDir)
         drpf = open(drpFile,"r")
         tempContents=drpf.read()
         (beg,d8drpThreshold)=tempContents.rsplit(' ',1)
         drpf.close()
         D8StreamThreshold = d8drpThreshold
-    TauDEM.Threshold(D8ContriArea,'',D8StreamThreshold,inputProc,D8Stream,exeDir)
+    TauDEM.Threshold(D8ContriArea,'',D8StreamThreshold,inputProc,D8Stream,mpiexeDir=mpiexeDir,exeDir)
     if model == 1:
         global DinfStreamThreshold
         if DinfStreamThreshold == 0:
             DinfStreamThreshold = D8StreamThreshold
-        TauDEM.Threshold(DinfContriArea,'',DinfStreamThreshold,inputProc,DinfStream,exeDir)
+        TauDEM.Threshold(DinfContriArea,'',DinfStreamThreshold,inputProc,DinfStream,mpiexeDir=mpiexeDir,exeDir)
     #logStatus.write("[Preprocessing] [6/7] Delineating sub-basins...\n")
     #logStatus.flush()
     #TauDEM.StreamNet(demfil,D8FlowDir,D8ContriArea,D8Stream,outletM,'false',inputProc,D8StreamOrd,NetTree,NetCoord,D8StreamNet,SubBasin, exeDir)
@@ -96,20 +96,20 @@ def PreProcessing(model):
     logStatus.write("[Preprocessing] [6/7] Calculating RPI(Relative Position Index)...\n")
     logStatus.flush()
     if model == 0:
-        TauDEM.D8DistDownToStream(D8FlowDir,demfil,D8Stream,D8DistDown,D8DownMethod,D8StreamTag,inputProc,exeDir)
-        TauDEM.D8DistUpToRidge(D8FlowDir,demfil,D8DistUp,D8UpMethod,D8UpStats,inputProc,rdg=rdgsrc,exeDir=exeDir)
-        TauDEM.D8DistDownToStream(D8FlowDir,demfil,D8Stream,D8DistDown_V,'Vertical',D8StreamTag,inputProc,exeDir)
-        TauDEM.SimpleCalculator(D8DistDown,D8DistUp,RPID8,4,inputProc,exeDir)
+        TauDEM.D8DistDownToStream(D8FlowDir,demfil,D8Stream,D8DistDown,D8DownMethod,D8StreamTag,inputProc,mpiexeDir=mpiexeDir,exeDir)
+        TauDEM.D8DistUpToRidge(D8FlowDir,demfil,D8DistUp,D8UpMethod,D8UpStats,inputProc,rdg=rdgsrc,mpiexeDir=mpiexeDir,exeDir=exeDir)
+        TauDEM.D8DistDownToStream(D8FlowDir,demfil,D8Stream,D8DistDown_V,'Vertical',D8StreamTag,inputProc,mpiexeDir=mpiexeDir,exeDir)
+        TauDEM.SimpleCalculator(D8DistDown,D8DistUp,RPID8,4,inputProc,mpiexeDir=mpiexeDir,exeDir)
     elif model == 1:
         #TauDEM.DinfDistDown(DinfFlowDir,demfil,DinfStream,DinfDownStat,DinfDownMethod,'false',DinfDistDownWG,inputProc,DinfDistDown,exeDir)
-        TauDEM.DinfDistDown(DinfFlowDir,demfil,D8Stream,DinfDownStat,DinfDownMethod,'false',DinfDistDownWG,inputProc,DinfDistDown,exeDir)
-        TauDEM.DinfDistUpToRidge(DinfFlowDir,demfil,DinfSlp,propthresh,DinfUpStat,DinfUpMethod,'false',inputProc,DinfDistUp,rdg=rdgsrc,exeDir=exeDir)
-        TauDEM.DinfDistDown(DinfFlowDir,demfil,D8Stream,DinfDownStat,'Vertical','false',DinfDistDownWG,inputProc,DinfDistDown_V,exeDir)
-        TauDEM.SimpleCalculator(DinfDistDown, DinfDistUp, RPIDinf, 4,inputProc,exeDir)
+        TauDEM.DinfDistDown(DinfFlowDir,demfil,D8Stream,DinfDownStat,DinfDownMethod,'false',DinfDistDownWG,inputProc,DinfDistDown,mpiexeDir=mpiexeDir,exeDir)
+        TauDEM.DinfDistUpToRidge(DinfFlowDir,demfil,DinfSlp,propthresh,DinfUpStat,DinfUpMethod,'false',inputProc,DinfDistUp,rdg=rdgsrc,mpiexeDir=mpiexeDir,exeDir=exeDir)
+        TauDEM.DinfDistDown(DinfFlowDir,demfil,D8Stream,DinfDownStat,'Vertical','false',DinfDistDownWG,inputProc,DinfDistDown_V,mpiexeDir=mpiexeDir,exeDir)
+        TauDEM.SimpleCalculator(DinfDistDown, DinfDistUp, RPIDinf, 4,inputProc,mpiexeDir=mpiexeDir,exeDir)
 
     logStatus.write("[Preprocessing] [7/7] Calculating Plan Curvature and Profile Curvature...\n")
     logStatus.flush()
-    TauDEM.Curvature(inputProc,demfil,prof=ProfC,horiz=HorizC,exeDir=exeDir)
+    TauDEM.Curvature(inputProc,demfil,prof=ProfC,horiz=HorizC,mpiexeDir=mpiexeDir,exeDir=exeDir)
 
     if model == 0:
         copy2(D8Slp,Slope)

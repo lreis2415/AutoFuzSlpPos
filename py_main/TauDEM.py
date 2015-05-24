@@ -37,13 +37,15 @@ def pitremove(inZfile,inputProc,outFile, mpiexeDir = None, exeDir=None):
         cmd = 'mpiexec -n ' + str(inputProc) + ' pitremove -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"'
     else:
         cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'pitremove -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"'
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
     print "Command Line: "+cmd
     ##os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     for line in process.stdout.readlines():
         print line
 
-def D8FlowDir(fel,inputProc,p,sd8, exeDir=None):
+def D8FlowDir(fel,inputProc,p,sd8, mpiexeDir = None, exeDir=None):
     print "Calculating D8 flow direction......"
     print "Input Pit Filled Elevation file: "+fel
     print "Input Number of Processes: "+str(inputProc)
@@ -55,13 +57,15 @@ def D8FlowDir(fel,inputProc,p,sd8, exeDir=None):
         cmd = 'mpiexec -n ' + str(inputProc) + ' d8flowdir -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -sd8 ' + '"' + sd8 + '"'
     else:
         cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir  + os.sep + 'd8flowdir -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -sd8 ' + '"' + sd8 + '"'
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
     print "Command Line: "+cmd
     ##os.system(cmd)
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     for line in process.stdout.readlines():
         print line
 
-def DinfFlowDir(fel,inputProc,ang,slp, exeDir=None):
+def DinfFlowDir(fel,inputProc,ang,slp,mpiexeDir = None,  exeDir=None):
     print "Calculating D-infinity direction......"
     print "Input Pit Filled Elevation file: "+fel
     print "Input Number of Processes: "+str(inputProc)
@@ -72,13 +76,16 @@ def DinfFlowDir(fel,inputProc,ang,slp, exeDir=None):
         cmd = 'mpiexec -n ' + str(inputProc) + ' dinfflowdir -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + ' -slp ' + '"' + slp + '"'
     else:
         cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'dinfflowdir -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + ' -slp ' + '"' + slp + '"'
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
+    
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     for line in process.stdout.readlines():
         print line
         
-def AreaD8(p,Shapefile,weightgrid,edgecontamination,inputProc,ad8, exeDir=None):
+def AreaD8(p,Shapefile,weightgrid,edgecontamination,inputProc,ad8,mpiexeDir = None,  exeDir=None):
     print "Calculating D8 contributing area......"
     print "Input D8 Flow Direction file: "+p
     if os.path.exists(Shapefile):
@@ -99,13 +106,16 @@ def AreaD8(p,Shapefile,weightgrid,edgecontamination,inputProc,ad8, exeDir=None):
         cmd = cmd + ' -wg ' + '"' + weightgrid + '"'
     if edgecontamination == 'false':
         cmd = cmd + ' -nc '
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
+    
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     for line in process.stdout.readlines():
         print line
         
-def AreaDinf(ang,shapefile,weightgrid,edgecontamination,inputProc,sca, exeDir=None):
+def AreaDinf(ang,shapefile,weightgrid,edgecontamination,inputProc,sca,mpiexeDir = None,  exeDir=None):
     print "Calculating D-infinity contributing area......"
     print "Input Dinf Flow Direction file: "+ang
     if os.path.exists(shapefile):
@@ -126,143 +136,19 @@ def AreaDinf(ang,shapefile,weightgrid,edgecontamination,inputProc,sca, exeDir=No
         cmd = cmd + ' -wg ' + '"' + weightgrid + '"'
     if edgecontamination == 'false':
         cmd = cmd + ' -nc '
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
+    
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     for line in process.stdout.readlines():
         print line
 
-def GridNet(p,inputProc,shapefile,maskgrid,maskthreshold,gord,plen,tlen, exeDir=None):
-    print "Creating 1) the longest path, 2) the total path, and 3) the Strahler order number for each grid based on D8 model......."
-    print "Input D8 Flow Direction file: "+p
-    print "Input Number of Processes: "+str(inputProc)
-    if os.path.exists(shapefile):
-        print "Input Outlets Shapefile: "+shapefile
-    if os.path.exists(maskgrid):
-        print "Input Mask Grid: "+maskgrid
-    if maskthreshold:
-        print "Input Mask Threshold Value: "+maskthreshold
-    print "Output Strahler Network Order Grid: "+gord
-    print "Output Longest Upslope Length Grid: "+plen
-    print "Output Total Upslope Length Grid: "+tlen
-    # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' gridnet -p ' + '"' + p + '"' + ' -plen ' + '"' + plen + '"' + ' -tlen ' + '"' + tlen + '"' + ' -gord ' + '"' + gord + '"'
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'gridnet -p ' + '"' + p + '"' + ' -plen ' + '"' + plen + '"' + ' -tlen ' + '"' + tlen + '"' + ' -gord ' + '"' + gord + '"'
-    if os.path.exists(shapefile):
-        cmd = cmd + ' -o ' + '"' + shapefile + '"'
-    if os.path.exists(maskgrid):
-        cmd = cmd + ' -mask ' + '"' + maskgrid + '"' + ' -thresh ' + maskthreshold
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
 
 ## Specialized grid analysis
-def DinfAvalanche(fel,ang,ass,propthresh,alphthresh,pathdistancecode,inputProc,rz,dfs, exeDir=None):
-    print "Input Pit Filled Elevation Grid: "+fel
-    print "Input D-Infinity Flow Direction Grid: "+ang
-    print "Input Avalanche Source Site Grid: "+ass
-    print "Input Proportion Threshold: "+str(propthresh)
-    print "Input Alpha Angle Threshold: "+str(alphthresh)
-    if pathdistancecode == 1:
-        pathdistance = 'Flow Path'
-    else:
-        pathdistance = 'Straight Line'
-    print "Path Distance Method: "+pathdistance
-    print "Input Number of Processes: "+str(inputProc)
 
-    print "Output Runout Zone Grid: "+rz
-    print "Output Path Distance Grid: "+dfs
-
-    # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' DinfAvalanche -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + ' -ass ' + '"' + ass + '"' + ' -rz ' + '"' + rz + '"' + ' -dfs ' + '"' + dfs + '"' + ' -thresh ' + str(propthresh) + ' -alpha ' + str(alphthresh)
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'DinfAvalanche -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + ' -ass ' + '"' + ass + '"' + ' -rz ' + '"' + rz + '"' + ' -dfs ' + '"' + dfs + '"' + ' -thresh ' + str(propthresh) + ' -alpha ' + str(alphthresh)
-        
-    if pathdistance == 'Straight Line':
-        cmd = cmd + ' -direct '
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-        
-def DinfConcLimAccum(ang,wg,dg,dm,shapefile,concthresh,edgecontamination,inputProc,q,ctpt, exeDir=None):
-    print "Input D-Infinity Flow Direction Grid: "+ang
-    print "Input Effective Runoff Weight Grid: "+wg
-    print "Input Disturbance Indicator Grid: "+dg
-    print "Input Decay Multiplier Grid: "+dm
-    if os.path.exists(shapefile):
-        print "Input Outlets Shapefile: "+shapefile
-    print "Concentration Threshold: "+str(concthresh)
-    print "Edge Contamination: "+edgecontamination
-    print "Input Number of Processes: "+str(inputProc)
-
-    print "Output Overland Flow Specific Discharge Grid: "+q
-    print "Output Concentration Grid: "+ctpt
-
-    # Construct command 1
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' areadinf -ang ' + '"' + ang + '"' + ' -sca ' + '"' + q + '"' + ' -wg ' + '"' + wg + '"'
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'areadinf -ang ' + '"' + ang + '"' + ' -sca ' + '"' + q + '"' + ' -wg ' + '"' + wg + '"'
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-
-    # Construct command 2
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' DinfConcLimAccum -ang ' + '"' + ang + '"' + ' -dg ' + '"' + dg + '"' + ' -dm ' + '"' + dm + '"' + ' -ctpt ' + '"' + ctpt + '"' + ' -q ' + '"' + q + '"' + ' -csol ' + str(concthresh)
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) +  ' ' + exeDir + os.sep + 'DinfConcLimAccum -ang ' + '"' + ang + '"' + ' -dg ' + '"' + dg + '"' + ' -dm ' + '"' + dm + '"' + ' -ctpt ' + '"' + ctpt + '"' + ' -q ' + '"' + q + '"' + ' -csol ' + str(concthresh)
-        
-    if os.path.exists(shapefile):
-        cmd = cmd + ' -o ' + '"' + shapefile + '"'
-    if edgecontamination == 'false':
-        cmd = cmd + ' -nc '
-
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-def DinfDecayAccum(ang,dm,wg,shapefile,edgecontamination,inputProc,dsca, exeDir=None):
-    print "Input D-Infinity Flow Direction Grid: "+ang
-    print "Input Decay Multiplier Grid: "+dm
-    if os.path.exists(wg):
-        print "Input Weight Grid: "+wg
-    if os.path.exists(shapefile):
-        print "Input Outlets Shapefile: "+shapefile
-    print "Edge Contamination: "+edgecontamination
-    print "Input Number of Processes: "+str(inputProc)
-
-    print "Output Decayed Specific Catchment Area Grid: "+dsca
-
-    # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' DinfDecayAccum -ang ' + '"' + ang + '"' + ' -dsca ' + '"' + dsca + '"' + ' -dm ' + '"' + dm + '"'
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) +  ' ' + exeDir + os.sep + 'DinfDecayAccum -ang ' + '"' + ang + '"' + ' -dsca ' + '"' + dsca + '"' + ' -dm ' + '"' + dm + '"'
-        
-    if os.path.exists(shapefile):
-        cmd = cmd + ' -o ' + '"' + shapefile + '"'
-    if os.path.exists(wg):
-        cmd = cmd + ' -wg ' + '"' + wg + '"'
-    if edgecontamination == 'false':
-        cmd = cmd + ' -nc '
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-
-def DinfDistDown(ang,fel,src,statisticalmethod,distancemethod,edgecontamination,wg,inputProc,dd, exeDir=None):
+def DinfDistDown(ang,fel,src,statisticalmethod,distancemethod,edgecontamination,wg,inputProc,dd, mpiexeDir = None, exeDir=None):
     print "Calculating distance down to stream based on D-infinity model......"
     print "Input D-Infinity Flow Direction Grid: "+ang
     print "Input Pit Filled Elevation Grid: "+fel
@@ -299,67 +185,8 @@ def DinfDistDown(ang,fel,src,statisticalmethod,distancemethod,edgecontamination,
         cmd = cmd + ' -wg ' + '"' + wg + '"'
     if edgecontamination == 'false':
         cmd = cmd + ' -nc '
-
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-def DinfDistUp(ang,fel,slp,propthresh,statisticalmethod,distancemethod,edgecontamination,inputProc,du, exeDir=None):
-    print "Calculating distance up to ridges based on D-infinity model......"
-    print "Input D-Infinity Flow Direction Grid: "+ang
-    print "Input Pit Filled Elevation Grid: "+fel
-    print "Input Slope Grid: "+slp
-    print "Input Proportion Threshold: "+str(propthresh)
-    print "Statistical Method: "+statisticalmethod
-    print "Distance Method: "+distancemethod
-    print "Edge Contamination: "+edgecontamination
-    print "Input Number of Processes: "+str(inputProc)
-
-    print "Output D-Infinity Distance Up: "+du
-
-    # Construct command
-    if statisticalmethod == 'Average':
-        statmeth = 'ave'
-    if statisticalmethod == 'Maximum':
-        statmeth = 'max'
-    if statisticalmethod == 'Minimum':
-        statmeth = 'min'
-    if distancemethod == 'Horizontal':
-        distmeth = 'h'
-    if distancemethod == 'Vertical':
-        distmeth = 'v'
-    if distancemethod == 'Pythagoras':
-        distmeth = 'p'
-    if distancemethod == 'Surface':
-        distmeth = 's'
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' dinfdistup -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + ' -slp ' + '"' + slp + '"' + ' -du ' + '"' + du + '"' + ' -m ' + statmeth + ' ' + distmeth + ' -thresh ' + str(propthresh)
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'dinfdistup -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + ' -slp ' + '"' + slp + '"' + ' -du ' + '"' + du + '"' + ' -m ' + statmeth + ' ' + distmeth + ' -thresh ' + str(propthresh)
-        
-    if edgecontamination == 'false':
-        cmd = cmd + ' -nc '
-
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-        
-def DinfRevAccum(ang,dm,inputProc,racc,dmax, exeDir=None):
-    print "Input D-Infinity Flow Direction Grid: "+ang
-    print "Input Weight Grid: "+dm
-    print "Input Number of Processes: "+str(inputProc)
-
-    print "Output Reverse Accumulation Grid: "+racc
-    print "Output Maximum Downslope Grid: "+dmax
-
-    # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' DinfRevAccum -ang ' + '"' + ang + '"' + ' -wg ' + '"' + dm + '"' + ' -racc ' + '"' + racc + '"' + ' -dmax ' + '"' + dmax + '"'
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'DinfRevAccum -ang ' + '"' + ang + '"' + ' -wg ' + '"' + dm + '"' + ' -racc ' + '"' + racc + '"' + ' -dmax ' + '"' + dmax + '"'
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
     
     print "Command Line: "+cmd
     #os.system(cmd)
@@ -367,190 +194,8 @@ def DinfRevAccum(ang,dm,inputProc,racc,dmax, exeDir=None):
     for line in process.stdout.readlines():
         print line
 
-def DinfTransLimAccum(ang,tsup,tc,cs,shapefile,edgecontamination,inputProc,tla,tdep,ctpt, exeDir=None):
-    print "Input D-Infinity Flow Direction Grid: "+ang
-    print "Input Supply Grid: "+tsup
-    print "Input Transport Capacity Grid: "+tc
-    if os.path.exists(cs):
-        print "Input Concentration Grid: "+cs
-    if os.path.exists(shapefile):
-        print "Input Outlets Shapefile: "+shapefile
-    print "Edge Contamination: "+edgecontamination
-    print "Input Number of Processes: "+str(inputProc)
 
-    print "Output Transport Limited Accumulation Grid: "+tla
-    print "Output Deposition Grid: "+tdep
-    if os.path.exists(tc):
-        print "Output Concentration Grid: "+ctpt
-
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' DinfTransLimAccum -ang ' + '"' + ang + '"' + ' -tsup ' + '"' + tsup + '"' + ' -tc ' + '"' + tc + '"' + ' -tla ' + '"' + tla + '"' + ' -tdep ' + '"' + tdep + '"'
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'DinfTransLimAccum -ang ' + '"' + ang + '"' + ' -tsup ' + '"' + tsup + '"' + ' -tc ' + '"' + tc + '"' + ' -tla ' + '"' + tla + '"' + ' -tdep ' + '"' + tdep + '"'
-        
-    if os.path.exists(tc):
-        cmd = cmd + ' -cs ' + '"' + cs + '"' + ' -ctpt ' + '"' + ctpt + '"'
-    if os.path.exists(shapefile):
-        cmd = cmd + ' -o ' + '"' + shapefile + '"'
-    if edgecontamination == 'false':
-        cmd = cmd + ' -nc '
-
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-
-def DinfUpDependence(ang,dg,inputProc,dep, exeDir=None):
-    print "Input D-Infinity Flow Direction Grid: "+ang
-    print "Input Destination Grid: "+dg
-    print "Input Number of Processes: "+str(inputProc)
-
-    print "Output Upslope Dependence Grid: "+dep
-
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' DinfUpDependence -ang ' + '"' + ang + '"' + ' -dg ' + '"' + dg + '"' + ' -dep ' + '"' + dep + '"'
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'DinfUpDependence -ang ' + '"' + ang + '"' + ' -dg ' + '"' + dg + '"' + ' -dep ' + '"' + dep + '"'
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-
-def D8HDistToStrm(p,src,thresh,inputProc,dist, exeDir=None):
-    
-    print "Calculating distance down to stream based on D8 model......"
-    print "Input D8 Flow Direction Grid: "+p
-    print "Input Stream Raster Grid: "+src
-    print "Threshold: "+str(thresh)
-    print "Input Number of Processes: "+str(inputProc)
-
-    print "Output Distance To Streams: "+dist
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' D8HDistToStrm -p ' + '"' + p + '"' + ' -src ' + '"' + src + '"' + ' -dist ' + '"' + dist + '"' + ' -thresh ' + str(thresh)
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'D8HDistToStrm -p ' + '"' + p + '"' + ' -src ' + '"' + src + '"' + ' -dist ' + '"' + dist + '"' + ' -thresh ' + str(thresh)
-    
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-
-def SlopeAveDown(p,fel,distance,inputProc,slpd, exeDir=None):
-    print "Input D8 Flow Direction Grid: "+p
-    print "Input Pit Filled Elevation Grid: "+fel
-    print "Distance: "+str(distance)
-    print "Input Number of Processes: "+str(inputProc)
-
-    print "Output Slope Average Down Grid: "+slpd
-
-    # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' SlopeAveDown -p ' + '"' + p + '"' + ' -fel ' + '"' + fel + '"' + ' -slpd ' + '"' + slpd + '"' + ' -dn ' + str(distance)
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'SlopeAveDown -p ' + '"' + p + '"' + ' -fel ' + '"' + fel + '"' + ' -slpd ' + '"' + slpd + '"' + ' -dn ' + str(distance)
-    
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-
-def SlopeAreaRatio(slp,sca,inputProc,sar, exeDir=None):
-    print "Input Slope Grid: "+slp
-    print "Input Secific Catchment Area Grid: "+sca
-    print "Input Number of Processes: "+str(inputProc)
-
-    print "Output Slope Divided By Area Ratio Grid: "+sar
-    # Construct command 
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' SlopeAreaRatio -slp ' + '"' + slp + '"' + ' -sca ' + '"' + sca + '"' + ' -sar ' + '"' + sar + '"'
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'SlopeAreaRatio -slp ' + '"' + slp + '"' + ' -sca ' + '"' + sca + '"' + ' -sar ' + '"' + sar + '"'
-    
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-
-## Stream network analysis toolset
-def D8FlowPathExtremeUp(p,sa,maximumupslope,edgecontamination,shapefile,inputProc,ssa, exeDir=None):
-    print "Input D8 Flow Direction Grid: "+p
-    print "Input Value Grid: "+sa
-    print "Maximum Upslope: "+maximumupslope
-    print "Edge Contamination: "+edgecontamination
-    if os.path.exists(shapefile):
-        print "Input Outlets Shapefile: "+shapefile
-    print "Input Number of Processes: "+str(inputProc)
-
-    print "Output Extreme Value Grid: "+ssa
-    # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' D8FlowPathExtremeUp -p ' + '"' + p + '"' + ' -sa ' + '"' + sa + '"' + ' -ssa ' + '"' + ssa + '"'
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'D8FlowPathExtremeUp -p ' + '"' + p + '"' + ' -sa ' + '"' + sa + '"' + ' -ssa ' + '"' + ssa + '"'
-        
-    if os.path.exists(shapefile):
-        cmd = cmd + ' -o ' + '"' + shapefile + '"'
-    if maximumupslope == 'false':
-        cmd = cmd + ' -min '
-    if edgecontamination == 'false':
-        cmd = cmd + ' -nc '
-
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-
-def GageWatershed(p,shapefile,inputProc,gw,idf, exeDir=None):
-    print "Input D8 Flow Direction Grid: "+p    
-    print "Input Outlets Shapefile: "+shapefile
-    print "Input Number of Processes: "+str(inputProc)
-
-    print "Output GageWatershed Grid: "+gw
-    print "Output Downstream ID Text File: "+idf
-
-    # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' GageWatershed'
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'GageWatershed'
-    cmd = cmd+ ' -p ' + '"' + p + '"'
-    cmd = cmd + ' -o ' + '"' + shapefile + '"'
-    cmd = cmd + ' -gw ' + '"' + gw + '"'
-    if idf != '':
-        cmd=cmd + ' -id ' + '"' + idf + '"' 
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-
-def LengthArea(plen,ad8,threshold,exponent,inputProc,ss, exeDir=None):
-    print "Input Length Grid: "+plen
-    print "Input Contributing Area Grid: "+ad8
-    print "Threshold(M): "+str(threshold)
-    print "Exponent(y): "+str(exponent)
-    print "Input Number of Processes: "+str(inputProc)
-    print "Output Stream Source Grid: "+ss
-
-    # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' LengthArea -plen ' + '"' + plen + '"' + ' -ad8 ' + '"' + ad8 + '"' + ' -ss ' + '"' + ss + '"' + ' -par ' + str(threshold) + ' ' + str(exponent)
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'LengthArea -plen ' + '"' + plen + '"' + ' -ad8 ' + '"' + ad8 + '"' + ' -ss ' + '"' + ss + '"' + ' -par ' + str(threshold) + ' ' + str(exponent)
-        
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-        
-def MoveOutletsToStreams(p,src,shapefile,maxdistance,inputProc,om, exeDir=None):
+def MoveOutletsToStreams(p,src,shapefile,maxdistance,inputProc,om, mpiexeDir = None, exeDir=None):
     print "Moving outlet point(s) to streams......"
     print "Input D8 Flow Direction Grid: "+p
     print "Input Stream Raster Grid: "+src
@@ -565,28 +210,8 @@ def MoveOutletsToStreams(p,src,shapefile,maxdistance,inputProc,om, exeDir=None):
         cmd = 'mpiexec -n ' + str(inputProc) + ' moveoutletstostreams -p ' + '"' + p + '"' + ' -src ' + '"' + src + '"' + ' -o ' + '"' + shapefile + '"' + ' -om ' + '"' + om + '"' + ' -md ' + str(maxdistance)
     else:
         cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'moveoutletstostreams -p ' + '"' + p + '"' + ' -src ' + '"' + src + '"' + ' -o ' + '"' + shapefile + '"' + ' -om ' + '"' + om + '"' + ' -md ' + str(maxdistance)
-        
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-
-def PeukerDouglas(fel,centerweight,sideweight,diagonalweight,inputProc,ss, exeDir=None):
-    print "PeukerDouglas algrithm to dectect stream sources......"
-    print "Input Elevation file: "+fel
-    print "Center Smoothing Weight: "+str(centerweight)
-    print "Side Smoothing Weight: "+str(sideweight)
-    print "Diagonal Smoothing Weight: "+str(diagonalweight)
-    print "Input Number of Processes: "+str(inputProc)
-
-    print "Output Stream Source file: "+ss
-
-    # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' peukerdouglas -fel ' + '"' + fel + '"' + ' -ss ' + '"' + ss + '"' + ' -par ' + str(centerweight) + ' ' + str(sideweight) + ' ' + str(diagonalweight)
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) +  ' ' + exeDir + os.sep + 'peukerdouglas -fel ' + '"' + fel + '"' + ' -ss ' + '"' + ss + '"' + ' -par ' + str(centerweight) + ' ' + str(sideweight) + ' ' + str(diagonalweight)
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
     
     print "Command Line: "+cmd
     #os.system(cmd)
@@ -594,29 +219,8 @@ def PeukerDouglas(fel,centerweight,sideweight,diagonalweight,inputProc,ss, exeDi
     for line in process.stdout.readlines():
         print line
 
-def SlopeArea(slp,sca,slopeexponent,areaexponent,inputProc,sa, exeDir=None):
-    print "Calculating Slope-Area ratio for TWI......"
-    print "Input Slope Grid: "+slp
-    print "Input Area Grid: "+sca
-    print "Slope Exponent(m): "+str(slopeexponent)
-    print "Area Exponent(n): "+str(areaexponent)
-    print "Input Number of Processes: "+str(inputProc)
 
-    print "Output Slope Area Grid: "+sa
-
-    # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' slopearea -slp ' + '"' + slp + '"' + ' -sca ' + '"' + sca + '"' + ' -sa ' + '"' + sa + '"' + ' -par ' + str(slopeexponent) + ' ' + str(areaexponent)
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'slopearea -slp ' + '"' + slp + '"' + ' -sca ' + '"' + sca + '"' + ' -sa ' + '"' + sa + '"' + ' -par ' + str(slopeexponent) + ' ' + str(areaexponent)
-    
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-
-def Threshold(ssa,mask,threshold,inputProc,src, exeDir=None):
+def Threshold(ssa,mask,threshold,inputProc,src, mpiexeDir = None, exeDir=None):
     print "Stream definition according to threshold......"
     print "Input Accumulated Stream Source Grid: "+ssa
     if os.path.exists(mask):        
@@ -634,14 +238,16 @@ def Threshold(ssa,mask,threshold,inputProc,src, exeDir=None):
         
     if os.path.exists(mask):
         cmd = cmd + ' -mask ' + mask
-
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
+    
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     for line in process.stdout.readlines():
         print line
 
-def DropAnalysis(fel,p,ad8,ssa,shapefile,minthresh,maxthresh,numthresh,logspace,inputProc,drp, exeDir=None):
+def DropAnalysis(fel,p,ad8,ssa,shapefile,minthresh,maxthresh,numthresh,logspace,inputProc,drp, mpiexeDir = None, exeDir=None):
     print "Stream drop analysis for the optimal threshold......"
     print "Input Pit Filled Elevation Grid: "+fel
     print "Input D8 Flow Direction Grid: "+p
@@ -665,99 +271,19 @@ def DropAnalysis(fel,p,ad8,ssa,shapefile,minthresh,maxthresh,numthresh,logspace,
         cmd = cmd + '1'
     else:
         cmd = cmd + '0'
-
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-
-def StreamNet(fel,p,ad8,src,shapefile,delineate,inputProc,ord,tree,coord,net,w, exeDir=None):
-    print "Generating stream network ......"
-    print "Input Pit Filled Elevation Grid: "+fel
-    print "Input D8 Flow Direction Grid: "+p
-    print "Input D8 Drainage Area: "+ad8
-    print "Input Stream Raster Grid: "+src
-    if os.path.exists(shapefile):
-        print "Input Outlets Shapefile as Network Nodes: "+shapefile
-    print "Delineate Single Watershed: "+delineate
-    print "Input Number of Processes: "+str(inputProc)
-
-    print "Output Stream Order Grid: "+ord
-    print "Output Network Connectivity Tree: "+tree
-    print "Output Network Coordinates: "+coord
-    print "Output Stream Reach Shapefile: "+net
-    print "Output Watershed Grid: "+w
-
-    # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' streamnet -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -ad8 ' + '"' + ad8 + '"' + ' -src ' + '"' + src + '"' + ' -ord ' + '"' + ord + '"' + ' -tree ' + '"' + tree + '"' + ' -coord ' + '"' + coord + '"' + ' -net ' + '"' + net + '"' + ' -w ' + '"' + w + '"'
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'streamnet -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -ad8 ' + '"' + ad8 + '"' + ' -src ' + '"' + src + '"' + ' -ord ' + '"' + ord + '"' + ' -tree ' + '"' + tree + '"' + ' -coord ' + '"' + coord + '"' + ' -net ' + '"' + net + '"' + ' -w ' + '"' + w + '"'
-        
-    if os.path.exists(shapefile):
-        cmd = cmd + ' -o ' + '"' + shapefile + '"'
-    if delineate == 'true':
-        cmd = cmd + ' -sw '
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
     
-def StreamDefWithDropAnalysis(fel,p,ad8,ssa,shapefile,mask,minthresh,maxthresh,numthresh,logspace,inputProc,drp,src, exeDir=None):
-    print "Input Pit Filled Elevation Grid: "+fel
-    print "Input D8 Flow Direction Grid: "+p
-    print "Input D8 Contributing Area Grid: "+ad8
-    print "Input Accumulated Stream Source Grid: "+ssa
-    print "Input Outlets Shapefile: "+shapefile
-    if os.path.exists(mask):
-        print "Input Mask Grid: "+mask
-    print "Minimum Threshold Value: "+str(minthresh)
-    print "Maximum Threshold Value: "+str(maxthresh)
-    print "Number of Threshold Values: "+str(numthresh)
-    print "Logarithmic Spacing: "+logspace
-    print "Input Number of Processes: "+str(inputProc)
-    print "Output Drop Analysis Text File: "+drp
-    print "Output Stream Raster Grid: "+src
-
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' dropanalysis -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -ad8 ' + '"' + ad8 + '"' + ' -ssa ' + '"' + ssa + '"' + ' -o ' + '"' + shapefile + '"' + ' -drp ' + '"' + drp + '"' + ' -par ' + str(minthresh) + ' ' + str(maxthresh) + ' ' + str(numthresh) + ' '
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'dropanalysis -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -ad8 ' + '"' + ad8 + '"' + ' -ssa ' + '"' + ssa + '"' + ' -o ' + '"' + shapefile + '"' + ' -drp ' + '"' + drp + '"' + ' -par ' + str(minthresh) + ' ' + str(maxthresh) + ' ' + str(numthresh) + ' '
-        
-    if logspace == 'false':    
-        cmd = cmd + '1'
-    else:
-        cmd = cmd + '0'
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     for line in process.stdout.readlines():
         print line
-
-    drpfile = open(drp,"r")
-    theContents=drpfile.read()
-    (beg,threshold)=theContents.rsplit(' ',1)
-    drpfile.close()
-
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' Threshold -ssa ' + '"' + ssa + '"' + ' -src ' + '"' + src + '"' + ' -thresh ' + str(threshold)
-    else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'Threshold -ssa ' + '"' + ssa + '"' + ' -src ' + '"' + src + '"' + ' -thresh ' + str(threshold)
-    if os.path.exists( mask):
-        cmd = cmd + ' -mask ' + '"' + mask + '"'
-    print "Command Line: "+cmd
-    #os.system(cmd)
-    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    for line in process.stdout.readlines():
-        print line
-
 
 
 ####   Functions added by Liangjun Zhu    ####
 
-def D8DistDownToStream(p,fel,src,dist,distancemethod,thresh,inputProc,exeDir=None):
+def D8DistDownToStream(p,fel,src,dist,distancemethod,thresh,inputProc,mpiexeDir = None, exeDir=None):
     
     print "Calculating distance down to stream based on D8 model......"
     print "Input D8 Flow Direction Grid: "+p
@@ -780,6 +306,8 @@ def D8DistDownToStream(p,fel,src,dist,distancemethod,thresh,inputProc,exeDir=Non
         cmd = 'mpiexec -n ' + str(inputProc) + ' d8distdowntostream -p ' + '"' + p + '"' + ' -fel ' + '"' +fel+ '"' +' -src ' + '"' + src + '"' + ' -dist ' + '"' + dist + '"' +' -m '+distmeth+ ' -thresh ' + str(thresh)
     else:
         cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'd8distdowntostream -p ' + '"' + p + '"' + ' -fel ' + '"' +fel+ '"' +' -src ' + '"' + src + '"' + ' -dist ' + '"' + dist + '"' +' -m '+distmeth+ ' -thresh ' + str(thresh)
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
     
     print "Command Line: "+cmd
     #os.system(cmd)
@@ -787,7 +315,7 @@ def D8DistDownToStream(p,fel,src,dist,distancemethod,thresh,inputProc,exeDir=Non
     for line in process.stdout.readlines():
         print line
 
-def D8DistUpToRidge(p,fel,du,distancemethod,statisticalmethod,inputProc,rdg=None,exeDir=None):
+def D8DistUpToRidge(p,fel,du,distancemethod,statisticalmethod,inputProc,rdg=None,mpiexeDir = None, exeDir=None):
     print "Calculating distance up to ridges based on D8 model......"
     print "Input D8 Flow Direction Grid: "+p
     print "Input Pit Filled Elevation Grid: "+fel
@@ -821,14 +349,16 @@ def D8DistUpToRidge(p,fel,du,distancemethod,statisticalmethod,inputProc,rdg=None
         cmd = cmd + '"' + p + '"' +' -fel ' + '"' + fel + '"' + ' -rdg ' + '"' + rdg + '"' + ' -du ' + '"' + du + '"' + ' -m ' + statmeth + ' ' + distmeth
     else:
         cmd = cmd + '"' + p + '"' +' -fel ' + '"' + fel + '"' + ' -du ' + '"' + du + '"' + ' -m ' + statmeth + ' ' + distmeth
-
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
+    
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     for line in process.stdout.readlines():
         print line
 
-def DinfDistUpToRidge(ang,fel,slp,propthresh,statisticalmethod,distancemethod,edgecontamination,inputProc,du,rdg=None, exeDir=None):
+def DinfDistUpToRidge(ang,fel,slp,propthresh,statisticalmethod,distancemethod,edgecontamination,inputProc,du,rdg=None, mpiexeDir = None, exeDir=None):
     print "Calculating distance up to ridges based on D-infinity model......"
     print "Input D-Infinity Flow Direction Grid: "+ang
     print "Input Pit Filled Elevation Grid: "+fel
@@ -868,14 +398,16 @@ def DinfDistUpToRidge(ang,fel,slp,propthresh,statisticalmethod,distancemethod,ed
         cmd = cmd +' -ang ' + '"' + ang + '"'+' -fel '+ '"' + fel + '"' + ' -slp ' + '"' + slp + '"' + ' -du ' + '"' + du + '"' + ' -m ' + statmeth + ' ' + distmeth + ' -thresh ' + str(propthresh)
     if edgecontamination == 'false':
         cmd = cmd + ' -nc '
-
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
+    
     print "Command Line: "+cmd
     #os.system(cmd)
     process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     for line in process.stdout.readlines():
         print line
 
-def Curvature(inputProc,fel,prof=None,plan=None,horiz=None,unspher=None,ave=None,max=None,min=None,exeDir=None):
+def Curvature(inputProc,fel,prof=None,plan=None,horiz=None,unspher=None,ave=None,max=None,min=None,mpiexeDir = None, exeDir=None):
     if exeDir is None:
         cmd = 'mpiexec -n '+str(inputProc)+' curvature'
     else:
@@ -906,13 +438,16 @@ def Curvature(inputProc,fel,prof=None,plan=None,horiz=None,unspher=None,ave=None
     if not min is None:
         print "Output Minimum Curvature Grid: "+min
         cmd = cmd +' -min '+'"' + min + '" '
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
+    
     print "Command Line: "+cmd
     print "Input Number of Processes: "+str(inputProc)
     #os.system(cmd)
     process = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
     for line in process.stdout.readlines():
         print line
-def SelectTypLocSlpPos(inputConf,outputConf,inputProc,outlog=None,exeDir=None):
+def SelectTypLocSlpPos(inputConf,outputConf,inputProc,outlog=None,mpiexeDir = None, exeDir=None):
     print "Selecting Typical Slope Position Location and Calculating Fuzzy Inference Parameters"
     print "    Input configuration file: "+inputConf
     print "    Output configuration file: "+outputConf
@@ -925,6 +460,9 @@ def SelectTypLocSlpPos(inputConf,outputConf,inputProc,outlog=None,exeDir=None):
         cmd = 'mpiexec -n '+str(inputProc)+ ' ' + exeDir + os.sep + 'selecttyplocslppos ' + '"' + inputConf + '"' + ' "' + outputConf + '" '
     if outlog is not None:
         cmd = cmd + ' "' + outlog + '" '
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
+    
     print "Command Line: "+cmd
     print "Input Number of Processes: "+str(inputProc)
     ##os.system(cmd)
@@ -936,13 +474,16 @@ def SelectTypLocSlpPos(inputConf,outputConf,inputProc,outlog=None,exeDir=None):
     #print contentList
     WriteLog(Log_all,contentList)
     
-def FuzzySlpPosInference(config,inputProc,exeDir=None):
+def FuzzySlpPosInference(config,inputProc,mpiexeDir = None, exeDir=None):
     print "Fuzzy Slope Position Inference"
     print "    Configuration file: "+config
     if exeDir is None:
         cmd = 'mpiexec -n '+str(inputProc)+' fuzzyslpposinference ' + '"' + config + '"'
     else:
         cmd = 'mpiexec -n '+str(inputProc)+ ' ' + exeDir + os.sep + 'fuzzyslpposinference ' + '"' + config + '"'
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
+    
     print "Command Line: "+cmd
     print "Input Number of Processes: "+str(inputProc)
     ##os.system(cmd)
@@ -950,7 +491,7 @@ def FuzzySlpPosInference(config,inputProc,exeDir=None):
     for line in process.stdout.readlines():
         print line
     
-def HardenSlpPos(rdg,shd,bks,fts,vly,inputProc,hard,maxsimi,sechard=None,secsimi=None,spsim=None,spsi=None,exeDir=None):
+def HardenSlpPos(rdg,shd,bks,fts,vly,inputProc,hard,maxsimi,sechard=None,secsimi=None,spsim=None,spsi=None,mpiexeDir = None, exeDir=None):
     print "Harden Slope Position Inference"
     print "Ridge Similarity file: "+rdg
     print "Shoulder slope similarity file: "+shd
@@ -971,7 +512,9 @@ def HardenSlpPos(rdg,shd,bks,fts,vly,inputProc,hard,maxsimi,sechard=None,secsimi
         if (not spsim is None) and (not spsi is None):
             print "Slope Position Sequence Index: "+spsi
             cmd = cmd + ' -m '+str(spsim)+' "'+spsi+'"'
-        
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
+    
     print "Command Line: "+cmd
     print "Input Number of Processes: "+str(inputProc)
     ##os.system(cmd)
@@ -980,11 +523,14 @@ def HardenSlpPos(rdg,shd,bks,fts,vly,inputProc,hard,maxsimi,sechard=None,secsimi
         print line
     
     
-def SimpleCalculator(inputa,inputb,output,operator,inputProc,exeDir=None):
+def SimpleCalculator(inputa,inputb,output,operator,inputProc,mpiexeDir = None, exeDir=None):
     if exeDir is None:
         cmd = 'mpiexec -n '+str(inputProc)+' simplecalculator -in '+ '"' + inputa + '"' + ' "' + inputb + '"' +' -out '+ '"' + output + '"' + ' -op '+ str(operator)
     else:
         cmd = 'mpiexec -n '+str(inputProc)+ ' ' + exeDir + os.sep + 'simplecalculator -in '+ '"' + inputa + '"' + ' "' + inputb + '"' +' -out '+ '"' + output + '"' + ' -op '+ str(operator)
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
+    
     print "Command Line: "+cmd
     print "Input Number of Processes: "+str(inputProc)
     ##os.system(cmd)
