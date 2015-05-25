@@ -14,11 +14,11 @@ import os
 
 
 ## linux cluster in dgpm
-#mpiexeDir = r'/home/zhulj/mpich/bin'
-#exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86'
-#rootDir = r'/home/zhulj/PV_Dinf'
-#rawdem = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/pvdem.tif'
-#outlet = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/outlet.shp'
+mpiexeDir = r'/home/zhulj/mpich/bin'
+exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86'
+rootDir = r'/home/zhulj/PV_Dinf'
+rawdem = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/pvdem.tif'
+outlet = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/outlet.shp'
 
 ## ubuntu 14.04 in my laptop
 #mpiexeDir = None
@@ -28,17 +28,17 @@ import os
 #outlet = r'/home/zhulj/codes/AutoFuzSlpPos/data/PleasantValley/outlet.shp'
 
 ## windows 7
-mpiexeDir = None 
-exeDir = r'E:\github-zlj\AutoFuzSlpPos\src\build'
+#mpiexeDir = None 
+#exeDir = r'E:\github-zlj\AutoFuzSlpPos\src\build'
 #exeDir = r'E:\coding\Taudem5PCVS2010Soln_512\AutoFuzSlpPosVS2010\Release'
-rootDir = r'C:\AutoFuzSlpPos\data\PV_Dinf'
-rawdem = r'C:\AutoFuzSlpPos\data\PleasantValley\pvdem.tif'
-outlet = r'C:\AutoFuzSlpPos\data\PleasantValley\outlet.shp'
+#rootDir = r'C:\AutoFuzSlpPos\data\PV_Dinf'
+#rawdem = r'C:\AutoFuzSlpPos\data\PleasantValley\pvdem.tif'
+#outlet = r'C:\AutoFuzSlpPos\data\PleasantValley\outlet.shp'
   
                               
-preprocess = False                                        ## if preprocessing for parameters' grids is needed, and True by default.
-inputProc = 6                                            ## parallel processor's number
-FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
+preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
+inputProc = 16                                            ## parallel processor's number
+FlowModel = 0                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
 ## Selection of Typical Locations
                                                          ## TerrainAttrDict stores the terrain attributes' name and grid path. 'RPI' is required!

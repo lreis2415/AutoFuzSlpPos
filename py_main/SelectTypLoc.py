@@ -61,5 +61,5 @@ def SelectTypLoc():
                 baseInputParam = baseInputParam + str(p) + '\t'
             ExtconfigInfo.write(baseInputParam)
             ExtconfigInfo.close()
-        #TauDEM.SelectTypLocSlpPos(item[1],item[7],inputProc,item[8],mpiexeDir=mpiexeDir,exeDir=exeDir)
+        TauDEM.SelectTypLocSlpPos(item[1],item[7],inputProc,item[8],mpiexeDir=mpiexeDir,exeDir=exeDir)
     print "Typical Locations Selected Done!"
