@@ -94,6 +94,6 @@ def PreProcessing(model):
     logStatus.flush()
     endT = time.time()
     cost = (endT - startT)/60.
-    logStatus.write("Time consuming: %.1f min.\n" % cost)
+    logStatus.write("Time consuming: %.2f min.\n" % cost)
     logStatus.flush()
     logStatus.close()
