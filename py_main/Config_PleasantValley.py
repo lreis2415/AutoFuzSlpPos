@@ -7,38 +7,60 @@ import os
 ## Stage 0: Configuration 
     
 ####    Required    ####
-exeDir = r'E:\coding\Taudem5PCVS2010Soln_512\Taudem5PCVS2010\Release'  ## if the executable files' path has been exported to the environmental path, set exeDir to None
-rootDir = r'E:\data\DEMs\pleasantvalley_pre'                               ## workspace
-preprocess = True                                       ## if preprocessing for parameters' grids is needed, and True by default.
-inputProc = 6                                            ## parallel processor's number
-## Preprocessing for terrain attributes grid, need if preprocess is True
+## exeDir: if the executable files' path has been exported to the environmental path, set exeDir to None
+## rootDir: workspace to store results
+## rawdem: input dem, be caution! DEM file should have one cell buffer. If preprocess is False, rawdem could be None.
+## outlet: input outlet shapefile, be caution! The outlet point should locate at least one cell inner the DEM boundary. If preprocess is False, outlet could be None.
+
+
+## linux cluster in dgpm
+mpiexeDir = r'/home/zhulj/mpich/bin'
+exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86'
+rootDir = r'/home/zhulj/PV_Dinf'
+rawdem = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/pvdem.tif'
+outlet = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/outlet.shp'
+
+## ubuntu 14.04 in my laptop
+#mpiexeDir = None
+#exeDir = r'/home/zhulj/codes/AutoFuzSlpPos/exec_linux_x86'
+#rootDir = r'/home/zhulj/data/PV_Dinf'
+#rawdem = r'/home/zhulj/codes/AutoFuzSlpPos/data/PleasantValley/pvdem.tif'
+#outlet = r'/home/zhulj/codes/AutoFuzSlpPos/data/PleasantValley/outlet.shp'
+
+## windows 7
+#mpiexeDir = None 
+#exeDir = r'E:\github-zlj\AutoFuzSlpPos\exec_win_x86'
+#rootDir = r'C:\AutoFuzSlpPos\data\PV_Dinf'
+#rawdem = r'C:\AutoFuzSlpPos\data\PleasantValley\pvdem.tif'
+#outlet = r'C:\AutoFuzSlpPos\data\PleasantValley\outlet.shp'
+  
+                              
+preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
+inputProc = 32                                            ## parallel processor's number
 FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
-rawdem = r'E:\data\DEMs\pleasantvalley_pre\pvdem.tif'                                            ## input dem, be caution! DEM file should have one cell buffer
-outlet = r'E:\data\DEMs\pleasantvalley_pre\outlet.shp'                                             ## input outlet shapefile, be caution! The outlet point should locate at least one cell inner the DEM boundary
-#rawdem = None
-#outlet = None
+
 ## Selection of Typical Locations
                                                          ## TerrainAttrDict stores the terrain attributes' name and grid path. 'RPI' is required!
                                                          ## By default: TerrainAttrDict = {'RPI':RPI,'ProfC':ProfC_mask,'HorizC':HorizC_mask,'Slope':Slope}
-#'E:\data\DEMs\pleasantvalley_pre\DinfParams\RPI.tif'
+
 TerrainAttrDict = {'RPI':rootDir + os.sep + 'Params'+ os.sep + 'RPI.tif',\
                    'ProfC':rootDir + os.sep + 'Params'+ os.sep + 'ProfC.tif',\
                    'Slope':rootDir + os.sep + 'Params'+ os.sep + 'Slp.tif',\
                    'HAND':rootDir + os.sep + 'Params'+ os.sep + 'HAND.tif'}
 
-
+                                                         ## Predefined Fuzzy Membership Function Shape, Bell-shaped, S-shaped, Z-shaped and N means Not used.
 RdgFuzInfDefault = [['RPI','S'],['ProfC','S'],['Slope','Z'],['HAND','S']]
 ShdFuzInfDefault = [['RPI','B'],['ProfC','S'],['Slope','B'],['HAND','N']]
 BksFuzInfDefault = [['RPI','B'],['ProfC','B'],['Slope','S'],['HAND','N']]
 FtsFuzInfDefault = [['RPI','B'],['ProfC','ZB'],['Slope','ZB'],['HAND','N']]
 VlyFuzInfDefault = [['RPI','Z'],['ProfC','B'],['Slope','Z'],['HAND','Z']]
 AutoTypLocExtraction = True
-ModifyExtractConfFile = True        ## if user modified the configuration file
+ModifyExtractConfFile = True                                ## if user modified the configuration file
 AutoInfParams = True
-ModifyInfConfFile = True  ## modify the configuration file
+ModifyInfConfFile = True                                     ## modify the configuration file
 
 if AutoTypLocExtraction:
-    RdgExtractionInfo = [['RPI',0.95,1.0]]                   ## default RPI value range for Ridge, Shoulder, Back, Foot and valley.                                              
+    RdgExtractionInfo = [['RPI',0.95,1.0]]               ## default RPI value range for Ridge, Shoulder, Back, Foot and valley.                                              
     ShdExtractionInfo = [['RPI',0.8,0.9]]
     BksExtractionInfo = [['RPI',0.5,0.6]]
     FtsExtractionInfo = [['RPI',0.2,0.3]]
@@ -46,14 +68,12 @@ if AutoTypLocExtraction:
 
 ####    Optional    ####
 rdgsrc = None                                            ## if there is ridge source file, assign it here.
-centerweight = 0.4                                       ## Center Smoothing Weight, default is 0.4, for Peuker Douglas algorithm
-sideweight = 0.1                                         ## Side Smoothing Weight, default is 0.1, for Peuker Douglas algorithm
-diagonalweight = 0.05                                    ## Diagonal Smoothing Weight, default is 0.05, for Peuker Douglas algorithm
+
 maxMoveDist = 50                                         ## the maximum number of grid cells that the points in the input outlet shapefile will be moved before they are saved to the output outlet shapefile
 numthresh = 20                                           ## the number of steps to divide the search range into when looking for possible threshold values using drop analysis
 logspace = 'true'                                        ## 'true' means use logarithmic spacing for threshold values, 'false' means linear spacing
 
-D8StreamThreshold = 0                                  ## for D8 stream extraction from DEM, default is 0, which means the value is determined by drop analysis
+D8StreamThreshold = 0                                    ## for D8 stream extraction from DEM, default is 0, which means the value is determined by drop analysis
 negD8StreamThreshold = 0                                 ## for D8 ridge extraction from negative DEM, default is 0, which indicate that the value is equal to D8StreamThreshold
 
 D8DownMethod = 'Surface'                                 ## for D8DistDownToStream, it can be Horizontal, Vertical, Pythagoras and Surface, the default is 'Surface'
@@ -72,6 +92,19 @@ DinfUpStat = 'Average'                                   ## same as DinfDownStat
 DinfUpMethod = 'Surface'                                 ## same as DinfDownMethod
 
 ## Selection of Typical Locations
+
+# basic parameters
+ 
+# Default: MIN_FREQUENCY = 1, MIN_TYPLOC_NUM = 200,\
+#          MAX_TYPLOC_NUM = 2000, DEFAULT_SELECT_RATIO = 0.1,\
+#          DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.2,\
+#          MAX_LOOP_NUM_TYPLOC_SELECTION = 100
+RdgBaseParam = [1,200,2000,0.1,0.1,1.2,100]
+ShdBaseParam = [1,200,2000,0.1,0.1,1.2,100]
+BksBaseParam = [1,200,2000,0.1,0.1,1.2,100]
+FtsBaseParam = [1,200,2000,0.1,0.1,1.2,100]
+VlyBaseParam = [1,200,2000,0.1,0.1,1.2,100]
+
 RdgTag = 1
 ShdTag = 1
 BksTag = 1
@@ -81,7 +114,7 @@ VlyTag = 1
 ExtLog = True                                            
                                                         ## if AutoTypLocExtraction is false, please uncomment the following five lines, and modified by yourself.
 if not AutoTypLocExtraction:
-    RdgExtractionInfo = [['RPI',0.99,1.0],['ProfC',0.00,1.0],['Slope',0.0,1.0],['Elev',285.0,2000.0]]                                                    
+    RdgExtractionInfo = [['RPI',0.99,1.0],['ProfC',0.00,1.0],['Slope',0.0,1.0]]                                                    
     ShdExtractionInfo = [['RPI',0.9,0.95],['ProfC',0.005,1.0]]
     BksExtractionInfo = [['RPI',0.5,0.6],['ProfC',-0.0001,0.0001],['Slope',10.0,90.0]]
     FtsExtractionInfo = [['RPI',0.15,0.2],['ProfC',-1.0,-0.005]]

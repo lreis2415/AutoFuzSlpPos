@@ -29,12 +29,13 @@ def PreProcessing(model):
 
     if model == 1:
         TauDEM.DinfFlowDir(demfil,inputProc,DinfFlowDir,DinfSlp,mpiexeDir=mpiexeDir,exeDir=exeDir)
-    logStatus.write("[Preprocessing] [4/7] Move outlet to initially stream and Generating flow accumulation...\n")
+    logStatus.write("[Preprocessing] [4/7] Generating flow accumulation...\n")
     logStatus.flush()    
     TauDEM.AreaD8(D8FlowDir,'','','false',inputProc,D8ContriArea,mpiexeDir=mpiexeDir,exeDir=exeDir)
     maxAccum, minAccum, meanAccum, STDAccum = GetRasterStat(D8ContriArea)
     TauDEM.Threshold(D8ContriArea,'',meanAccum,inputProc,D8Stream,mpiexeDir=mpiexeDir,exeDir=exeDir)
-    TauDEM.MoveOutletsToStreams(D8FlowDir,D8Stream,outlet,maxMoveDist,inputProc,outletM, mpiexeDir=mpiexeDir,exeDir=exeDir)
+    if outlet is not None:
+        TauDEM.MoveOutletsToStreams(D8FlowDir,D8Stream,outlet,maxMoveDist,inputProc,outletM, mpiexeDir=mpiexeDir,exeDir=exeDir)
 
     if model == 1:
         TauDEM.AreaDinf(DinfFlowDir,'','','false',inputProc,DinfContriArea,mpiexeDir=mpiexeDir,exeDir=exeDir)
@@ -52,12 +53,15 @@ def PreProcessing(model):
         else:
             minthresh = meanAccum - STDAccum
         maxthresh = meanAccum + STDAccum
-        TauDEM.DropAnalysis(demfil,D8FlowDir,D8ContriArea,D8ContriArea,outletM,minthresh,maxthresh,numthresh,logspace,inputProc,drpFile, mpiexeDir=mpiexeDir,exeDir=exeDir)
-        drpf = open(drpFile,"r")
-        tempContents=drpf.read()
-        (beg,d8drpThreshold)=tempContents.rsplit(' ',1)
-        drpf.close()
-        D8StreamThreshold = d8drpThreshold
+        if outlet is not None:
+            TauDEM.DropAnalysis(demfil,D8FlowDir,D8ContriArea,D8ContriArea,outletM,minthresh,maxthresh,numthresh,logspace,inputProc,drpFile, mpiexeDir=mpiexeDir,exeDir=exeDir)
+            drpf = open(drpFile,"r")
+            tempContents=drpf.read()
+            (beg,d8drpThreshold)=tempContents.rsplit(' ',1)
+            drpf.close()
+            D8StreamThreshold = d8drpThreshold
+        else:
+            D8StreamThreshold = minthresh + (maxthresh - minthresh) * 0.1
     TauDEM.Threshold(D8ContriArea,'',D8StreamThreshold,inputProc,D8Stream,mpiexeDir=mpiexeDir,exeDir=exeDir)
     if model == 1:
         global DinfStreamThreshold
