@@ -37,8 +37,8 @@ outlet = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/outlet.shp'
   
                               
 preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
-inputProc = 16                                            ## parallel processor's number
-FlowModel = 0                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
+inputProc = 32                                            ## parallel processor's number
+FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
 ## Selection of Typical Locations
                                                          ## TerrainAttrDict stores the terrain attributes' name and grid path. 'RPI' is required!

@@ -38,7 +38,7 @@ if __name__ == '__main__':
     log = log + "Fuzzy Slope Position Inference Time-consuming: "
     FuzzySlpPosInference()
     endFuzInfT = time.time()
-    cost = (endSelectionT - endPreprocT)
+    cost = (endFuzInfT - endSelectionT )
     log = log + str(cost) + ' s\n'
     
     logf = open(Log_runtime, 'a')
