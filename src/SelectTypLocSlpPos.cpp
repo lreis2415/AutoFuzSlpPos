@@ -32,7 +32,7 @@ void dropParam(paramExtGRID &paramgrd)
 	paramgrd.w1 = MISSINGFLOAT;
 	paramgrd.w2 = MISSINGFLOAT;
 }
-int SetFuzFuncShape(paramExtGRID &paramgrd,ExtInfo &paramExt,char shape,int maxxIdx, float *allvalues)
+int SetFuzFuncShape(paramExtGRID &paramgrd,ExtInfo &paramExt,char shape,int maxxIdx, float *allvalues, float DEFAULT_SELECT_RATIO, float DEFAULT_SIGMA_MULTIPLIER)
 {
 	float k1_1 = 0.0, k1_2 = 0.0,k2_1 = 0.0, k2_2 = 0.0, w1 = 0.0, w2 = 0.0;
 	int i;
@@ -104,96 +104,7 @@ int SetFuzFuncShape(paramExtGRID &paramgrd,ExtInfo &paramExt,char shape,int maxx
 	else
 		return 1;
 }
-void SetBShaped(paramExtGRID &paramgrd,ExtInfo &paramExt,vector<float> &fit,float maxx, float interval)
-{
-	paramgrd.shape = 'B';
-	paramgrd.w1 =  fit[1];
-	paramgrd.w2 =  fit[2];
-	paramgrd.r1 = 2.0;
-	paramgrd.r2 = 2.0;
-	//float inner = abs(fit[0] - maxx);
-	float side = (paramExt.maxValue - paramExt.minValue) * 0.005;
-	paramgrd.maxTyp = maxx + side;
-	paramgrd.minTyp = maxx - side;
-	/*if(maxx >= fit[0])
-	{
-		paramgrd.maxTyp = maxx + side * interval;
-		paramgrd.minTyp = fit[0] - side * interval;
-	}
-	else
-	{
-		paramgrd.maxTyp = fit[0] + side * interval;
-		paramgrd.minTyp = maxx - side * interval;
-	}*/
-	float k1_1 = 0.0, k1_2 = 0.0,k2_1 = 0.0, k2_2 = 0.0;
-	int i;
-	for (i = 0; i < FREQUENCY_GROUP; i++)
-	{
-		if(paramExt.x[i] <= fit[0]-paramgrd.w1)
-			k1_2 += paramExt.y[i];
-		if(paramExt.x[i] <= fit[0])
-			k1_1 += paramExt.y[i];
-	}
-	//paramgrd.k1 = k1_2 / (k1_1 - k1_2);
-	paramgrd.k1 = k1_2 / (k1_1);
-	for (i = FREQUENCY_GROUP - 1; i >= 0; i--)
-	{
-		if(paramExt.x[i] >= fit[0] + paramgrd.w2)
-			k2_2 += paramExt.y[i];
-		if(paramExt.x[i] >= fit[0])
-			k2_1 += paramExt.y[i];
-	}
-	//paramgrd.k2 = k2_2 / (k2_1 - k2_2);
-	paramgrd.k2 = k2_2 / (k2_1);
-}
-void SetSShaped(paramExtGRID &paramgrd,ExtInfo &paramExt,float sigma, float maxx,float interval, float max_all_x)
-{
-	paramgrd.shape = 'S';
-	paramgrd.w2 = 1.0;
-	paramgrd.r2 = 0.0;
-	paramgrd.k2 = 1.0;
-	paramgrd.w1 =  sigma;
-	paramgrd.r1 = 2.0;
-	float side = (paramExt.maxValue - paramExt.minValue) * 0.005;
-	paramgrd.maxTyp = (maxx + side) > max_all_x ? max_all_x:  (maxx + side);
-	paramgrd.minTyp = maxx - side;
-	float k1_1 = 0.0, k1_2 = 0.0;
-	int i;
-	for (i = 0; i < FREQUENCY_GROUP; i++)
-	{
-		if(paramExt.x[i] <= maxx - paramgrd.w1)
-			k1_2 += paramExt.y[i];
-		if(paramExt.x[i] <= maxx)
-			k1_1 += paramExt.y[i];
-	}
-	paramgrd.k1 = k1_2 / (k1_1);
-	//paramgrd.k1 = k1_2 / (k1_1-k1_2);
-}
-void SetZShaped(paramExtGRID &paramgrd,ExtInfo &paramExt,float sigma, float maxx,float interval,float min_all_x)
-{
-	paramgrd.shape = 'Z';
-	paramgrd.w1 = 1.0;
-	paramgrd.r1 = 0.0;
-	paramgrd.k1 = 1.0;
-	paramgrd.w2 = sigma;
-	paramgrd.r2 = 2.0;
-	float side = (paramExt.maxValue - paramExt.minValue) * 0.005;
-
-	paramgrd.maxTyp = maxx + side;
-	paramgrd.minTyp = (maxx - side) < min_all_x ? min_all_x:  (maxx - side);
-	float k2_1 = 0.0, k2_2 = 0.0;
-	int i;
-	for (i = FREQUENCY_GROUP - 1; i >= 0; i--)
-	{
-		if(paramExt.x[i] >= maxx + paramgrd.w2)
-			k2_2 += paramExt.y[i];
-		if(paramExt.x[i] >= maxx)
-			k2_1 += paramExt.y[i];
-	}
-	paramgrd.k2 = k2_2 / (k2_1);
-	//paramgrd.k2 = k2_2 / (k2_1-k2_2);
-}
-int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtGRID *paramsgrd,int addparamsNum,paramExtGRID *addparamgrd,vector<DefaultFuzInf> fuzinf,char *typlocfile,char *outconffile,bool writelog,char *logfile)
+int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtGRID *paramsgrd,int addparamsNum,paramExtGRID *addparamgrd,vector<DefaultFuzInf> fuzinf,float *baseInputParameters,char *typlocfile,char *outconffile,bool writelog,char *logfile)
 {
 	MPI_Init(NULL,NULL);
 	{
@@ -210,6 +121,18 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 				temp++;
 		if (temp == paramsNum)
 			autoSel = false;
+		int MIN_FREQUENCY = 1, MIN_TYPLOC_NUM = 200, MAX_TYPLOC_NUM = 2000, MAX_LOOP_NUM_TYPLOC_SELECTION = 100;
+		float DEFAULT_SELECT_RATIO = 0.1,DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.2;
+		if (baseInputParameters != NULL)
+		{
+			MIN_FREQUENCY = int(baseInputParameters[0]);
+			MIN_TYPLOC_NUM = int(baseInputParameters[1]);
+			MAX_TYPLOC_NUM = int(baseInputParameters[2]);
+			DEFAULT_SELECT_RATIO = baseInputParameters[3];
+			DEFAULT_INCREMENT_RATIO = baseInputParameters[4];
+			DEFAULT_SIGMA_MULTIPLIER = baseInputParameters[5];
+			MAX_LOOP_NUM_TYPLOC_SELECTION = int(baseInputParameters[6]);
+		}
 		if(rank == 0)
 		{
 			printf("SelectTypLocSlpPos -h version %s, added by Liangjun Zhu, Apr 24, 2015\n",TDVERSION);
@@ -520,7 +443,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 						
 						if(priorShape.size() == 1 && priorShape[0] != 'N') // if defined only one shape
 						{
-							if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,AllCellValues[num]))!= 0)
+							if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
 								return 1;
 						}
 						else if (priorShape.size() == 1 && priorShape[0] == 'N')
@@ -637,7 +560,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 							if (priorShape.empty() && fitShape == 'N') // if no shape predefined
 								dropParam(paramsgrd[num]);
 							else if(priorShape.empty() && fitShape != 'N'){
-								if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],fitShape,max_freq_idx_origin,AllCellValues[num]))!= 0)
+								if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],fitShape,max_freq_idx_origin,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
 									return 1;
 							}
 							else if(priorShape.size() > 1)
@@ -646,130 +569,20 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 								for (i = 0; i<priorShape.size(); i++)
 								{
 									if(priorShape[i] == fitShape){
-										if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],fitShape,max_freq_idx_origin,AllCellValues[num]))!= 0)
+										if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],fitShape,max_freq_idx_origin,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
 											return 1;
 										match = true;
 										break;
 									}
 								}
 								if(!match){
-									if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,AllCellValues[num]))!= 0)
+									if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
 										return 1;
 								}
 							}
 							else
 								dropParam(paramsgrd[num]);
-							
 						}
-#pragma region Old Version of BiGaussian
-						//  BiGaussian Fitting 
-						//vector<float> sigma_ratio_limit;
-						//sigma_ratio_limit.push_back(0.001);
-						//sigma_ratio_limit.push_back(1000.0);
-						//float bandwidth = 0.5;
-						//float power = 1.0;
-						//int esti_method = 0; // Two possible values: 0:"moment" and 1:"EM".
-						//float eliminate = 0.05;
-						//int max_iter = 30;
-						//vector<vector<float> > bigauss_results;
-						//// Be sure that x,y are ascend
-						//int bigauss = BiGaussianMix(tempx,tempy,sigma_ratio_limit,bandwidth,power,esti_method,eliminate,max_iter, bigauss_results);
-						//if (bigauss == 1)
-						//{
-						//	// calculate the distance between peak center and maximum of frequencies
-						//	vector<float>::iterator max_freq_y = max_element(tempy.begin(),tempy.end());
-						//	int max_freq_idx = distance(tempy.begin(),max_freq_y);
-						//	float dist2center,dist2end,accFreqRatio = 0.0,disthalf2end,sigma_all = 0.0,max_freq_x,mean_all = 0.0;
-						//	int accFreq = 0, validNum = 0;
-						//	if(bigauss_results.size() > 1) // drop this parameter
-						//	{
-						//		dropParam(paramsgrd[num]);
-						//	}
-						//	else if(bigauss_results.size() == 1)
-						//	{
-						//		if (writelog)
-						//		{
-						//			ofstream logf;
-						//			logf.open(logfile,ios_base::app|ios_base::out);
-						//			logf<<endl<<endl;
-						//			logf<<"BiGaussian Fitting results: "<<endl;
-						//			logf<<"Peak Center: "<<bigauss_results[0][0]<<",";
-						//			logf<<"Left Sigma: "<<bigauss_results[0][1]<<",";
-						//			logf<<"Right Sigma: "<<bigauss_results[0][2]<<",";
-						//			logf<<"Delta: "<<bigauss_results[0][3]<<",";
-						//			logf<<"Nash Coef: "<<bigauss_results[0][4]<<endl<<endl;
-						//			logf.close();
-						//		}
-						//		max_freq_x = tempx[max_freq_idx];
-						//		dist2center = abs(max_freq_x - bigauss_results[0][0])/paramsExtInfo[num].interval;
-						//		validNum = accumulate(tempy.begin(),tempy.end(),0);
-						//		if (dist2center < 0.05 * FREQUENCY_GROUP)  // it is the B-shaped function
-						//		{
-						//			SetBShaped(paramsgrd[num],paramsExtInfo[num],bigauss_results[0],max_freq_x,paramsExtInfo[num].interval);
-						//		}
-						//		else // it means that the fitted result is not satisfied.
-						//		{
-						//			mean_all = accumulate(tempx.begin(),tempx.end(),0.0);
-						//			mean_all /= tempx.size();
-						//			dist2end = abs(max_freq_x - paramsExtInfo[num].maxValue)/paramsExtInfo[num].interval;
-						//			for (i = 0; i < tempx.size(); i++)
-						//			{
-						//				accFreq += tempy[i];
-						//				sigma_all += (tempx[i]-mean_all)*(tempx[i]-mean_all);
-						//				if(accFreqRatio < 0.5){
-						//					accFreqRatio = (float)accFreq / validNum;
-						//					disthalf2end = abs(tempx[i] - paramsExtInfo[num].maxValue)/paramsExtInfo[num].interval;
-						//				}
-						//			}
-						//			sigma_all = sqrt(sigma_all / tempx.size());
-						//			if(dist2end < 0.05 * FREQUENCY_GROUP && disthalf2end < 0.2 * FREQUENCY_GROUP) // it is the S-shaped function
-						//			{
-						//				SetSShaped(paramsgrd[num],paramsExtInfo[num],sigma_all, max_freq_x,paramsExtInfo[num].interval,paramsExtInfo[num].maxValue);
-						//			}
-						//			else if (dist2end > 0.95 * FREQUENCY_GROUP && disthalf2end > 0.8 * FREQUENCY_GROUP) // it is the Z-shaped function
-						//			{
-						//				SetZShaped(paramsgrd[num],paramsExtInfo[num],sigma_all, max_freq_x,paramsExtInfo[num].interval,paramsExtInfo[num].minValue);
-						//			}
-						//			else
-						//				dropParam(paramsgrd[num]);
-						//		}
-						//	}
-						//	else // (bigauss_results.size() == 0
-						//	{
-						//		max_freq_x = tempx[max_freq_idx];
-						//		dist2center = abs(max_freq_x - bigauss_results[0][0])/paramsExtInfo[num].interval;
-						//		validNum = accumulate(tempy.begin(),tempy.end(),0);
-						//		mean_all = accumulate(tempx.begin(),tempx.end(),0.0);
-						//		mean_all /= tempx.size();
-						//		dist2end = abs(max_freq_x - paramsExtInfo[num].maxValue)/paramsExtInfo[num].interval;
-						//		for (i = 0; i < tempx.size(); i++)
-						//		{
-						//			accFreq += tempy[i];
-						//			sigma_all += (tempx[i]-mean_all)*(tempx[i]-mean_all);
-						//			if(accFreqRatio < 0.5){
-						//				accFreqRatio = (float)accFreq / validNum;
-						//				disthalf2end = abs(tempx[i] - paramsExtInfo[num].maxValue)/paramsExtInfo[num].interval;
-						//			}
-						//		}
-						//		sigma_all = sqrt(sigma_all / tempx.size());
-						//		if(dist2end < 0.05 * FREQUENCY_GROUP && disthalf2end < 0.2 * FREQUENCY_GROUP) // it is the S-shaped function
-						//		{
-						//			SetSShaped(paramsgrd[num],paramsExtInfo[num],sigma_all, max_freq_x,paramsExtInfo[num].interval,paramsExtInfo[num].maxValue);
-						//		}
-						//		else if (dist2end > 0.95 * FREQUENCY_GROUP && disthalf2end > 0.8 * FREQUENCY_GROUP) // it is the Z-shaped function
-						//		{
-						//			SetZShaped(paramsgrd[num],paramsExtInfo[num],sigma_all, max_freq_x,paramsExtInfo[num].interval,paramsExtInfo[num].minValue);
-						//		}
-						//		else
-						//			dropParam(paramsgrd[num]);
-						//	}
-						//}
-						//else
-						//	dropParam(paramsgrd[num]);
-
-						//  End Gaussian Fitting
-#pragma endregion Old Version of BiGaussian
-						
 					}
 				}
 			}
@@ -805,11 +618,11 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 				if (paramsgrd[num].shape != 'D'&& paramsgrd[num].maxTyp > paramsgrd[num].minTyp)
 					selectedNum++;
 			//Debug code block
-			//cout<<"Loop:"<<LoopNum<<","<<"Nums:"<<TypLocCountAll<<endl;
-			//for(num = 0; num < paramsNum; num++)
-			//cout<<"Parameters"<<"\t"<<paramsgrd[num].name<<"\t"<<paramsgrd[num].shape<<"\t"<<paramsgrd[num].minTyp<<"\t"<<paramsgrd[num].maxTyp<<endl;
-			//for(num = 0; num < addparamsNum; num++)
-			//cout<<"Additional"<<"\t"<<addparamgrd[num].name<<"\t"<<addparamgrd[num].shape<<"\t"<<addparamgrd[num].minTyp<<"\t"<<addparamgrd[num].maxTyp<<endl;
+			/*cout<<"Loop:"<<LoopNum<<","<<"Nums:"<<TypLocCountAll<<endl;
+			for(num = 0; num < paramsNum; num++)
+			cout<<"Parameters"<<"\t"<<paramsgrd[num].name<<"\t"<<paramsgrd[num].shape<<"\t"<<paramsgrd[num].minTyp<<"\t"<<paramsgrd[num].maxTyp<<endl;
+			for(num = 0; num < addparamsNum; num++)
+			cout<<"Additional"<<"\t"<<addparamgrd[num].name<<"\t"<<addparamgrd[num].shape<<"\t"<<addparamgrd[num].minTyp<<"\t"<<addparamgrd[num].maxTyp<<endl;*/
 			//
 			TypLocCount = 0;
 			previousTypLocCountAll = TypLocCountAll;

@@ -36,13 +36,13 @@ int main(int argc, char **argv)
 	char inconfigfile[MAXLN],outconfigfile[MAXLN],logfile[MAXLN];
 	char typlocfile[MAXLN];
 	int prototag = 1; // by default, the tag of prototype GRID is 1, it can also be assigned by user.
-	//int autoCal = 1; // by default, the autCal is 1, which means calculate typical locations from RPI range automatically.
 	bool writeLog = false;
 	int paramsNum,lineNum = 0,i,err;
 	paramExtGRID *paramsgrd;
 	int addparamsNum = 0;
 	paramExtGRID *addparamgrd;
-	vector<DefaultFuzInf> fuzinf;  //// Prior knowledge of fuzzy membership function shape of slope positions
+	vector<DefaultFuzInf> fuzinf;  // Prior knowledge of fuzzy membership function shape of slope positions
+	float baseInputParameters[8];  // Base input parameters
 	char cfglines[30][MAXLN];
 	if(argc == 1)
 	{  
@@ -93,6 +93,13 @@ int main(int argc, char **argv)
 				strcpy(tempFuzInf.param,dest[1]);
 				strcpy(tempFuzInf.shape,dest[2]);
 				fuzinf.push_back(tempFuzInf);
+				row++;
+			}
+			else if (strcmp(dest[0],"BaseInput")==0 && num == 8)
+			{
+				for(i = 0; i < 7; i++)
+					sscanf(dest[i+1],"%f",&baseInputParameters[i]);
+				row++;
 			}
 			else row++;
 		}
@@ -126,6 +133,8 @@ int main(int argc, char **argv)
 	else goto errexit;
 	//for(i=0;i<fuzinf.size();i++)
 	//	printf("%s,%s\n",fuzinf[i].param,fuzinf[i].shape);
+	//for(i = 0; i < 7; i++)
+	//	printf("%f\n",baseInputParameters[i]);
 	for (i = 0; i < paramsNum; i++)
 		if(paramsgrd[i].minTyp > paramsgrd[i].maxTyp)
 			goto errexit;
@@ -142,7 +151,7 @@ int main(int argc, char **argv)
 	//printf("Output: %s\n",typlocfile);
 	//printf("Output Configuration File: %s\n",outconfigfile);
 	//printf("Automatically: %d\n",autoCal);
-	if((err=SelectTypLocSlpPos(inconfigfile,prototag,paramsNum, paramsgrd,addparamsNum,addparamgrd,fuzinf, typlocfile, outconfigfile,writeLog,logfile))!= 0)
+	if((err=SelectTypLocSlpPos(inconfigfile,prototag,paramsNum, paramsgrd,addparamsNum,addparamgrd,fuzinf,baseInputParameters, typlocfile, outconfigfile,writeLog,logfile))!= 0)
 		printf("Error %d\n",err); 
 	//system("pause");
 	return 0;

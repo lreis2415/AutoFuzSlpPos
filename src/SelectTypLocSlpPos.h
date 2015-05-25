@@ -7,15 +7,15 @@
 	Apr 9, 2015
 */
 #include "commonLib.h"
+// update 2015/5/25 set these parameters as input variables.
 #define FREQUENCY_GROUP 100  // used to calculate frequency of cell values
-#define MIN_FREQUENCY 1 // used to eliminate frequencies.
-#define MIN_TYPLOC_NUM 200
-#define MAX_TYPLOC_NUM 2000
-#define MIN_SINGLE_TYPLOC_NUM 500
-#define DEFAULT_INCREMENT_RATIO 0.1 // 
-#define DEFAULT_SELECT_RATIO 0.1
-#define DEFAULT_SIGMA_MULTIPLIER 1.2
-#define MAX_LOOP_NUM_TYPLOC_SELECTION 100
+//#define MIN_FREQUENCY 1 // used to eliminate frequencies.
+//#define MIN_TYPLOC_NUM 200
+//#define MAX_TYPLOC_NUM 2000
+//#define DEFAULT_SELECT_RATIO 0.1
+//#define DEFAULT_INCREMENT_RATIO 0.1 // 
+//#define DEFAULT_SIGMA_MULTIPLIER 1.2
+//#define MAX_LOOP_NUM_TYPLOC_SELECTION 100
 
 typedef struct paramExtGRID
 {
@@ -48,7 +48,7 @@ typedef struct DefaultFuzInf
 	char param[10]; // terrain attribute name
 	char shape[4];  // 
 };
-int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtGRID *paramsgrd,int addparamsNum,paramExtGRID *addparamgrd,vector<DefaultFuzInf> fuzinf,char *typlocfile,char *outconffile,bool writelog,char *logfile);
+int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtGRID *paramsgrd,int addparamsNum,paramExtGRID *addparamgrd,vector<DefaultFuzInf> fuzinf,float *baseInputParameters,char *typlocfile,char *outconffile,bool writelog,char *logfile);
 void dropParam(paramExtGRID &paramgrd);
 void SetBShaped(paramExtGRID &paramgrd,vector<float> &fit,float maxx, float interval);
 void SetSShaped(paramExtGRID &paramgrd,float sigma, float maxx,float interval, float max_all_x);

@@ -24,4 +24,4 @@ if __name__ == '__main__':
     ## Stage 2: Selection of Typical Locations and Calculation of Inference Parameters
     SelectTypLoc()
     ## Stage 3: Fuzzy slope position inference
-    FuzzySlpPosInference()
+    #FuzzySlpPosInference()

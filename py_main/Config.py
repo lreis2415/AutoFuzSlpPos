@@ -36,7 +36,7 @@ rawdem = r'C:\AutoFuzSlpPos\data\PleasantValley\pvdem.tif'
 outlet = r'C:\AutoFuzSlpPos\data\PleasantValley\outlet.shp'
   
                               
-preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
+preprocess = False                                        ## if preprocessing for parameters' grids is needed, and True by default.
 inputProc = 6                                            ## parallel processor's number
 FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
@@ -94,6 +94,17 @@ DinfUpMethod = 'Surface'                                 ## same as DinfDownMeth
 
 ## Selection of Typical Locations
 
+# basic parameters
+ 
+# Default: MIN_FREQUENCY = 1, MIN_TYPLOC_NUM = 200,\
+#          MAX_TYPLOC_NUM = 2000, DEFAULT_SELECT_RATIO = 0.1,\
+#          DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.2,\
+#          MAX_LOOP_NUM_TYPLOC_SELECTION = 100
+RdgBaseParam = [1,200,2000,0.1,0.1,1.2,100]
+ShdBaseParam = [1,200,2000,0.1,0.1,1.2,100]
+BksBaseParam = [1,200,2000,0.1,0.1,1.2,100]
+FtsBaseParam = [1,200,2000,0.1,0.1,1.2,100]
+VlyBaseParam = [1,200,2000,0.1,0.1,1.2,100]
 
 RdgTag = 1
 ShdTag = 1
@@ -104,7 +115,7 @@ VlyTag = 1
 ExtLog = True                                            
                                                         ## if AutoTypLocExtraction is false, please uncomment the following five lines, and modified by yourself.
 if not AutoTypLocExtraction:
-    RdgExtractionInfo = [['RPI',0.99,1.0],['ProfC',0.00,1.0],['Slope',0.0,1.0],['Elev',285.0,2000.0]]                                                    
+    RdgExtractionInfo = [['RPI',0.99,1.0],['ProfC',0.00,1.0],['Slope',0.0,1.0]]                                                    
     ShdExtractionInfo = [['RPI',0.9,0.95],['ProfC',0.005,1.0]]
     BksExtractionInfo = [['RPI',0.5,0.6],['ProfC',-0.0001,0.0001],['Slope',10.0,90.0]]
     FtsExtractionInfo = [['RPI',0.15,0.2],['ProfC',-1.0,-0.005]]

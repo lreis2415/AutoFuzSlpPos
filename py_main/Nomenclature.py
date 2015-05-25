@@ -66,6 +66,8 @@ ProfC = ParamDir + os.sep + 'ProfC.tif'
 RPI = ParamDir + os.sep + 'RPI.tif'
 HAND = ParamDir + os.sep + 'HAND.tif'
 HANDDict = {'Name':'HAND','Path':HAND,'Min':0.0,'Ave':0.0,'Max':0.0,'STD':0.0}
+# TerrainRestrict contains Name,Path,MinValue,MaxValue
+# for HANDDict, users can change 'Ave', 'Min', 'Max' to numbers.
 RdgTerrainRestrict = [[HANDDict,'Name','Path','Ave','Max']]
 ShdTerrainRestrict = [[HANDDict,'Name','Path','Ave','Max']]
 BksTerrainRestrict = None
