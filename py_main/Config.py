@@ -29,14 +29,15 @@ outlet = None
 
 ## windows 7
 #mpiexeDir = None 
-#exeDir = r'E:\github-zlj\AutoFuzSlpPos\exec_win_x86'
+##exeDir = r'E:\github-zlj\AutoFuzSlpPos\exec_win_x86'
+#exeDir = r'E:\coding\Taudem5PCVS2010Soln_512\AutoFuzSlpPosVS2010\Release'
 #rootDir = r'C:\AutoFuzSlpPos\data\Sanxia_Dinf'
 #rawdem = r'E:\data\DEMs\sanxia\newraw.tif'
 #outlet = None
   
                               
 preprocess = False                                        ## if preprocessing for parameters' grids is needed, and True by default.
-inputProc = 28                                            ## parallel processor's number
+inputProc = 6                                            ## parallel processor's number
 FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
 ## Selection of Typical Locations
@@ -60,11 +61,11 @@ AutoInfParams = True
 ModifyInfConfFile = True                                     ## modify the configuration file
 
 if AutoTypLocExtraction:
-    RdgExtractionInfo = [['RPI',0.95,1.0]]               ## default RPI value range for Ridge, Shoulder, Back, Foot and valley.                                              
-    ShdExtractionInfo = [['RPI',0.85,0.9]]
+    RdgExtractionInfo = [['RPI',0.99,1.0]]               ## default RPI value range for Ridge, Shoulder, Back, Foot and valley.                                              
+    ShdExtractionInfo = [['RPI',0.9,0.95]]
     BksExtractionInfo = [['RPI',0.5,0.6]]
-    FtsExtractionInfo = [['RPI',0.2,0.3]]
-    VlyExtractionInfo = [['RPI',0.0,0.1]]
+    FtsExtractionInfo = [['RPI',0.15,0.2]]
+    VlyExtractionInfo = [['RPI',0.0,0.05]]
 
 ####    Optional    ####
 rdgsrc = None                                            ## if there is ridge source file, assign it here.
@@ -99,11 +100,11 @@ DinfUpMethod = 'Surface'                                 ## same as DinfDownMeth
 #          MAX_TYPLOC_NUM = 2000, DEFAULT_SELECT_RATIO = 0.1,\
 #          DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.2,\
 #          MAX_LOOP_NUM_TYPLOC_SELECTION = 100
-RdgBaseParam = [1,500,2000,0.1,0.1,1.2,100]
-ShdBaseParam = [1,500,2000,0.1,0.1,1.2,100]
-BksBaseParam = [1,500,2000,0.1,0.1,1.2,100]
-FtsBaseParam = [1,500,2000,0.1,0.1,1.2,100]
-VlyBaseParam = [1,500,2000,0.1,0.1,1.2,100]
+RdgBaseParam = [1,500,2000,0.1,0.3,1.2,100]
+ShdBaseParam = [1,500,2000,0.1,0.3,1.2,100]
+BksBaseParam = [1,500,2000,0.1,0.3,1.2,100]
+FtsBaseParam = [1,500,2000,0.1,0.3,1.2,100]
+VlyBaseParam = [1,500,2000,0.1,0.3,1.2,100]
 
 RdgTag = 1
 ShdTag = 1

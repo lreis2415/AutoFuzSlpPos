@@ -353,9 +353,10 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 				//MPI_Allgatherv(CellValues[num],CellCount[num],MPI_FLOAT,AllCellValues[num],localCellCount,displs,MPI_FLOAT,MCW);
 				MPI_Gatherv(CellValues[num],CellCount[num],MPI_FLOAT,AllCellValues[num],localCellCount,displs,MPI_FLOAT,0,MCW);
 			}
-			//for (int i = 0;i < paramsNum;i++)
-			//	printf("%s:%d,min:%f,max:%f\n",paramsgrd[i].name,CellCount[i],minValue[i],maxValue[i]);
-
+			for (int i = 0;i < paramsNum;i++)
+				printf("%s:%d,min:%f,max:%f\n",paramsgrd[i].name,CellCount[i],minValue[i],maxValue[i]);
+			for(num = 0; num < paramsNum; num++)
+				cout<<paramsgrd[num].name<<","<<paramsgrd[num].shape<<","<<paramsgrd[num].minTyp<<","<<paramsgrd[num].maxTyp<<endl;
 			if (rank == 0)  // TODO: allocate compute mission to every processor
 			{
 				for (num = 0; num < paramsNum; num++)
@@ -518,14 +519,16 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 								{
 									if(priorShape[0] != 'N')
 									{
-										if(priorShape[0] == fitShape)
+										if(priorShape[0] == fitShape || (priorShape[0] != fitShape && bigauss_results[0][4] >= 0.6))
 										{
 											if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,bigauss_results[0][0],AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
 												return 1;
 										}
 										else
+										{
 											if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,MISSINGFLOAT,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
 												return 1;
+										}
 									}
 									else
 										dropParam(paramsgrd[num]);
@@ -645,7 +648,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 
 		// Now extract typical location according to maxTyp and minTyp
 		//for(num = 0; num < paramsNum; num++)
-		//	cout<<paramsgrd[num].name<<","<<paramsgrd[num].shape<<endl;
+		//	cout<<paramsgrd[num].name<<","<<paramsgrd[num].shape<<","<<paramsgrd[num].minTyp<<","<<paramsgrd[num].maxTyp<<endl;
 		tdpartition *typloc;
 		typloc = CreateNewPartition(SHORT_TYPE,totalX,totalY,dx,dy,MISSINGSHORT);
 		int selectedNum = 0;
@@ -660,11 +663,14 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 				if (paramsgrd[num].shape != 'D'&& paramsgrd[num].maxTyp > paramsgrd[num].minTyp)
 					selectedNum++;
 			//Debug code block
-			//cout<<"Loop:"<<LoopNum<<","<<"Nums:"<<TypLocCountAll<<endl;
-			//for(num = 0; num < paramsNum; num++)
-			//	cout<<"Parameters"<<"\t"<<paramsgrd[num].name<<"\t"<<paramsgrd[num].shape<<"\t"<<paramsgrd[num].minTyp<<"\t"<<paramsgrd[num].maxTyp<<endl;
-			//for(num = 0; num < addparamsNum; num++)
-			//	cout<<"Additional"<<"\t"<<addparamgrd[num].name<<"\t"<<addparamgrd[num].shape<<"\t"<<addparamgrd[num].minTyp<<"\t"<<addparamgrd[num].maxTyp<<endl;
+			//if (rank == 0)
+			//{
+			//	cout<<"Loop:"<<LoopNum<<","<<"Nums:"<<TypLocCountAll<<endl;
+			//	for(num = 0; num < paramsNum; num++)
+			//		cout<<"Parameters"<<"\t"<<paramsgrd[num].name<<"\t"<<paramsgrd[num].shape<<"\t"<<paramsgrd[num].minTyp<<"\t"<<paramsgrd[num].maxTyp<<"\t"<<paramsgrd[num].w1<<"\t"<<paramsgrd[num].w2<<endl;
+			//	for(num = 0; num < addparamsNum; num++)
+			//		cout<<"Additional"<<"\t"<<addparamgrd[num].name<<"\t"<<addparamgrd[num].shape<<"\t"<<addparamgrd[num].minTyp<<"\t"<<addparamgrd[num].maxTyp<<endl;
+			//}
 			
 			TypLocCount = 0;
 			previousTypLocCountAll = TypLocCountAll;
@@ -716,7 +722,9 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 				for(num = 0; num < paramsNum; num++){
 					if (paramsgrd[num].shape != 'D'&& paramsgrd[num].maxTyp > paramsgrd[num].minTyp && strcmp(paramsgrd[num].name,"RPI") != 0)
 					{
-						if (paramsgrd[num].shape == 'B')
+						float oldMaxTyp = paramsgrd[num].maxTyp;
+						float oldMinTyp = paramsgrd[num].minTyp;
+						if (paramsgrd[num].shape == 'B' && (paramsgrd[num].w1 + paramsgrd[num].w2) > ZERO)
 						{
 							if (autoSel)
 							{
@@ -743,6 +751,11 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 						}
 						paramsgrd[num].maxTyp = min(paramsgrd[num].maxTyp,paramsExtInfo[num].maxValue);
 						paramsgrd[num].minTyp = max(paramsgrd[num].minTyp,paramsExtInfo[num].minValue);
+						if(paramsgrd[num].minTyp >= paramsgrd[num].maxTyp)
+						{
+							paramsgrd[num].minTyp = oldMinTyp;
+							paramsgrd[num].maxTyp = oldMaxTyp;
+						}
 					}
 				}
 				LoopNum++;
@@ -752,11 +765,11 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 				for(num = 0; num < paramsNum; num++){
 					if (paramsgrd[num].shape != 'D'&& paramsgrd[num].maxTyp > paramsgrd[num].minTyp && strcmp(paramsgrd[num].name,"RPI") != 0)
 					{
+						float oldMaxTyp = paramsgrd[num].maxTyp;
+						float oldMinTyp = paramsgrd[num].minTyp;
 						if (paramsgrd[num].shape == 'B')
 						{
-							float oldMaxTyp = paramsgrd[num].maxTyp;
-							float oldMinTyp = paramsgrd[num].minTyp;
-							if (autoSel)
+							if (autoSel && (paramsgrd[num].w1 + paramsgrd[num].w2) > ZERO)
 							{
 								paramsgrd[num].maxTyp -= abs(paramsgrd[num].maxTyp * DEFAULT_INCREMENT_RATIO * paramsgrd[num].w2 / (paramsgrd[num].w1 + paramsgrd[num].w2));
 								paramsgrd[num].minTyp += abs(paramsgrd[num].minTyp * DEFAULT_INCREMENT_RATIO * paramsgrd[num].w1 / (paramsgrd[num].w1 + paramsgrd[num].w2));
@@ -766,11 +779,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 								paramsgrd[num].maxTyp -= abs(paramsgrd[num].maxTyp * DEFAULT_INCREMENT_RATIO / 2.0);
 								paramsgrd[num].minTyp += abs(paramsgrd[num].minTyp * DEFAULT_INCREMENT_RATIO / 2.0);
 							}
-							if(paramsgrd[num].minTyp >= paramsgrd[num].maxTyp)
-							{
-								paramsgrd[num].minTyp = oldMinTyp;
-								paramsgrd[num].maxTyp = oldMaxTyp;
-							}
+							
 						}
 						else if (paramsgrd[num].shape == 'S'){
 							if(paramsgrd[num].minTyp < ZERO)
@@ -786,16 +795,22 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 						}
 						paramsgrd[num].maxTyp = min(paramsgrd[num].maxTyp,paramsExtInfo[num].maxValue);
 						paramsgrd[num].minTyp = max(paramsgrd[num].minTyp,paramsExtInfo[num].minValue);
+						if(paramsgrd[num].minTyp >= paramsgrd[num].maxTyp)
+						{
+							paramsgrd[num].minTyp = oldMinTyp;
+							paramsgrd[num].maxTyp = oldMaxTyp;
+						}
 					}
 				}
+				LoopNum++;
 			}
 			if (LoopNum >= 1)
 			{
 			// ReCalculate Parameters of Fuzzy Membership Function
 				for (num = 0; num < paramsNum; num++)
 				{
-					if(paramsgrd[num].maxTyp <= paramsgrd[num].minTyp)
-						paramsgrd[num].shape = 'D';
+					//if(paramsgrd[num].maxTyp <= paramsgrd[num].minTyp)
+					//	paramsgrd[num].shape = 'D';
 					if (paramsgrd[num].shape == 'B')
 					{
 						paramsgrd[num].w1 = DEFAULT_SIGMA_MULTIPLIER*STDcal(AllCellValues[num], paramsExtInfo[num].num, false, paramsgrd[num].maxTyp);
@@ -813,6 +828,10 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 				{
 					LoopNum = MAX_LOOP_NUM_TYPLOC_SELECTION; 
 					// do another loop
+				}
+				if (previousTypLocCountAll == TypLocCountAll)
+				{
+					LoopNum = MAX_LOOP_NUM_TYPLOC_SELECTION;
 				}
 			}
 		}
