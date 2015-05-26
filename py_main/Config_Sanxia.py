@@ -16,9 +16,9 @@ import os
 ## linux cluster in dgpm
 mpiexeDir = r'/home/zhulj/mpich/bin'
 exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86'
-rootDir = r'/home/zhulj/PV_Dinf'
-rawdem = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/pvdem.tif'
-outlet = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/outlet.shp'
+rootDir = r'/home/zhulj/Sanxia_Dinf'
+rawdem = r'/home/zhulj/AutoFuzSlpPos/data/Sanxia/dem.tif'
+outlet = None
 
 ## ubuntu 14.04 in my laptop
 #mpiexeDir = None
@@ -30,13 +30,13 @@ outlet = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/outlet.shp'
 ## windows 7
 #mpiexeDir = None 
 #exeDir = r'E:\github-zlj\AutoFuzSlpPos\exec_win_x86'
-#rootDir = r'C:\AutoFuzSlpPos\data\PV_Dinf'
-#rawdem = r'C:\AutoFuzSlpPos\data\PleasantValley\pvdem.tif'
-#outlet = r'C:\AutoFuzSlpPos\data\PleasantValley\outlet.shp'
+#rootDir = r'C:\AutoFuzSlpPos\data\Sanxia_Dinf'
+#rawdem = r'E:\data\DEMs\sanxia\newraw.tif'
+#outlet = None
   
                               
-preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
-inputProc = 32                                            ## parallel processor's number
+preprocess = False                                        ## if preprocessing for parameters' grids is needed, and True by default.
+inputProc = 28                                            ## parallel processor's number
 FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
 ## Selection of Typical Locations
@@ -61,7 +61,7 @@ ModifyInfConfFile = True                                     ## modify the confi
 
 if AutoTypLocExtraction:
     RdgExtractionInfo = [['RPI',0.95,1.0]]               ## default RPI value range for Ridge, Shoulder, Back, Foot and valley.                                              
-    ShdExtractionInfo = [['RPI',0.8,0.9]]
+    ShdExtractionInfo = [['RPI',0.85,0.9]]
     BksExtractionInfo = [['RPI',0.5,0.6]]
     FtsExtractionInfo = [['RPI',0.2,0.3]]
     VlyExtractionInfo = [['RPI',0.0,0.1]]
@@ -99,11 +99,11 @@ DinfUpMethod = 'Surface'                                 ## same as DinfDownMeth
 #          MAX_TYPLOC_NUM = 2000, DEFAULT_SELECT_RATIO = 0.1,\
 #          DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.2,\
 #          MAX_LOOP_NUM_TYPLOC_SELECTION = 100
-RdgBaseParam = [1,200,2000,0.1,0.1,1.2,100]
-ShdBaseParam = [1,200,2000,0.1,0.1,1.2,100]
-BksBaseParam = [1,200,2000,0.1,0.1,1.2,100]
-FtsBaseParam = [1,200,2000,0.1,0.1,1.2,100]
-VlyBaseParam = [1,200,2000,0.1,0.1,1.2,100]
+RdgBaseParam = [1,500,2000,0.1,0.1,1.2,1]
+ShdBaseParam = [1,500,2000,0.1,0.1,1.2,1]
+BksBaseParam = [1,500,2000,0.1,0.1,1.2,1]
+FtsBaseParam = [1,500,2000,0.1,0.1,1.2,1]
+VlyBaseParam = [1,500,2000,0.1,0.1,1.2,1]
 
 RdgTag = 1
 ShdTag = 1
