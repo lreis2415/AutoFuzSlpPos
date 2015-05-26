@@ -87,11 +87,13 @@ def PreProcessing(model):
     TauDEM.Curvature(inputProc,demfil,prof=ProfC,horiz=HorizC,mpiexeDir=mpiexeDir,exeDir=exeDir)
 
     if model == 0:
-        copy2(D8Slp,Slope)
+        slopeTrans(D8Slp,Slope)
+        #copy2(D8Slp,Slope)
         copy2(RPID8,RPI)
         copy2(D8DistDown_V,HAND)
     elif model == 1:
-        copy2(DinfSlp,Slope)
+        slopeTrans(DinfSlp,Slope)
+        #copy2(DinfSlp,Slope)
         copy2(RPIDinf,RPI)
         copy2(DinfDistDown_V,HAND)
     logStatus.write("[Preprocessing] Preprocessing succeed!\n")

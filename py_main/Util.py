@@ -138,6 +138,11 @@ def RPICal(distDown, distUp, RPI):
     rpiData = numpy.where(temp,down.noDataValue,down.data / (down.data + up.data))
     WriteGTiffFile(RPI, down.nRows, down.nCols, rpiData, down.geotrans, down.srs, down.noDataValue, gdal.GDT_Float32)
     
+def slopeTrans(tanslp,slp):
+    origin = ReadRaster(tanslp)
+    temp = origin.data == origin.noDataValue
+    slpdata = numpy.where(temp,origin.noDataValue,numpy.arctan(origin.data) * 180. / numpy.pi)
+    WriteGTiffFile(slp, origin.nRows, origin.nCols, slpdata, origin.geotrans, origin.srs, origin.noDataValue, gdal.GDT_Float32)
 def NegativeDEM(DEM, negDEM):
     origin = ReadRaster(DEM)
     max = numpy.max(origin.data)
@@ -170,3 +175,8 @@ def WriteTimeLog(logfile,time):
     logStatus.flush()
     logStatus.close()
     
+## test code ##
+if __name__ == '__main__':
+    tanslp = r'C:\Users\ZhuLJ\Desktop\test\DinfSlp.tif'
+    slp = r'C:\Users\ZhuLJ\Desktop\test\Slp.tif'
+    slopeTrans(tanslp,slp)
