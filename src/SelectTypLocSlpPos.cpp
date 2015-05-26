@@ -724,9 +724,9 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 					{
 						float oldMaxTyp = paramsgrd[num].maxTyp;
 						float oldMinTyp = paramsgrd[num].minTyp;
-						if (paramsgrd[num].shape == 'B' && (paramsgrd[num].w1 + paramsgrd[num].w2) > ZERO)
+						if (paramsgrd[num].shape == 'B')
 						{
-							if (autoSel)
+							if (autoSel && (paramsgrd[num].w1 + paramsgrd[num].w2) > ZERO)
 							{
 								paramsgrd[num].maxTyp += abs(paramsgrd[num].maxTyp * DEFAULT_INCREMENT_RATIO * paramsgrd[num].w2 / (paramsgrd[num].w1 + paramsgrd[num].w2));
 								paramsgrd[num].minTyp -= abs(paramsgrd[num].minTyp * DEFAULT_INCREMENT_RATIO * paramsgrd[num].w1 / (paramsgrd[num].w1 + paramsgrd[num].w2));
