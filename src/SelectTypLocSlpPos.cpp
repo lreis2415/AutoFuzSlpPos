@@ -83,7 +83,7 @@ int SetFuzFuncShape(paramExtGRID &paramgrd,ExtInfo &paramExt,char shape,int maxx
 		paramgrd.r2 = 0.0;
 		paramgrd.k2 = 1.0;
 		paramgrd.maxTyp = paramExt.maxValue;
-		paramgrd.minTyp = max((float)(maxx - (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO),paramExt.minValue);
+		paramgrd.minTyp = min((float)(maxx + (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO),paramgrd.maxTyp);
 		paramgrd.w1 =DEFAULT_SIGMA_MULTIPLIER* STDcal(allvalues, paramExt.num, false, paramgrd.maxTyp);
 		return 0;
 	}
@@ -96,8 +96,8 @@ int SetFuzFuncShape(paramExtGRID &paramgrd,ExtInfo &paramExt,char shape,int maxx
 		paramgrd.w1 = 1.0;
 		paramgrd.r1 = 0.0;
 		paramgrd.k1 = 1.0;
-		paramgrd.maxTyp = min((float)(maxx + (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO),paramExt.maxValue);
 		paramgrd.minTyp = paramExt.minValue;
+		paramgrd.maxTyp = max((float)(maxx - (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO),paramgrd.minTyp);
 		paramgrd.w2 = DEFAULT_SIGMA_MULTIPLIER*STDcal(allvalues, paramExt.num, true, paramgrd.minTyp);
 		return 0;
 	}
