@@ -49,11 +49,11 @@ TerrainAttrDict = {'RPI':rootDir + os.sep + 'Params'+ os.sep + 'RPI.tif',\
                    'HAND':rootDir + os.sep + 'Params'+ os.sep + 'HAND.tif'}
 
                                                          ## Predefined Fuzzy Membership Function Shape, Bell-shaped, S-shaped, Z-shaped and N means Not used.
-RdgFuzInfDefault = [['RPI','S'],['ProfC','S'],['Slope','Z'],['HAND','S']]
+RdgFuzInfDefault = [['RPI','S'],['ProfC','S'],['Slope','Z'],['HAND','N']]
 ShdFuzInfDefault = [['RPI','B'],['ProfC','S'],['Slope','B'],['HAND','N']]
 BksFuzInfDefault = [['RPI','B'],['ProfC','B'],['Slope','S'],['HAND','N']]
-FtsFuzInfDefault = [['RPI','B'],['ProfC','ZB'],['Slope','ZB'],['HAND','N']]
-VlyFuzInfDefault = [['RPI','Z'],['ProfC','B'],['Slope','Z'],['HAND','Z']]
+FtsFuzInfDefault = [['RPI','B'],['ProfC','ZB'],['Slope','B'],['HAND','N']]
+VlyFuzInfDefault = [['RPI','Z'],['ProfC','B'],['Slope','Z'],['HAND','N']]
 AutoTypLocExtraction = True
 ModifyExtractConfFile = True                                ## if user modified the configuration file
 AutoInfParams = True
@@ -99,11 +99,11 @@ DinfUpMethod = 'Surface'                                 ## same as DinfDownMeth
 #          MAX_TYPLOC_NUM = 2000, DEFAULT_SELECT_RATIO = 0.1,\
 #          DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.2,\
 #          MAX_LOOP_NUM_TYPLOC_SELECTION = 100
-RdgBaseParam = [1,500,2000,0.1,0.1,1.2,1]
-ShdBaseParam = [1,500,2000,0.1,0.1,1.2,1]
-BksBaseParam = [1,500,2000,0.1,0.1,1.2,1]
-FtsBaseParam = [1,500,2000,0.1,0.1,1.2,1]
-VlyBaseParam = [1,500,2000,0.1,0.1,1.2,1]
+RdgBaseParam = [1,500,2000,0.1,0.1,1.2,100]
+ShdBaseParam = [1,500,2000,0.1,0.1,1.2,100]
+BksBaseParam = [1,500,2000,0.1,0.1,1.2,100]
+FtsBaseParam = [1,500,2000,0.1,0.1,1.2,100]
+VlyBaseParam = [1,500,2000,0.1,0.1,1.2,100]
 
 RdgTag = 1
 ShdTag = 1

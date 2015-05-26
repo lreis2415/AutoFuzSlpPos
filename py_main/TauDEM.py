@@ -704,7 +704,7 @@ def SelectTypLocSlpPos(inputConf,outputConf,inputProc,outlog=None,mpiexeDir = No
     contentList.append("#### Select Typical Location of %s ####" % inputConf.rpartition(os.sep)[-1])
     for line in process.stdout.readlines():
         contentList.append(line.split('\r')[0])
-        #print line
+        print line
         if line.find("Read time") >= 0:
             timeDict['readt'] = line.split('\r')[0].split(':')[-1]
         elif line.find("Compute time") >= 0:

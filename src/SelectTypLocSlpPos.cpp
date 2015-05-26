@@ -660,11 +660,11 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 				if (paramsgrd[num].shape != 'D'&& paramsgrd[num].maxTyp > paramsgrd[num].minTyp)
 					selectedNum++;
 			//Debug code block
-			cout<<"Loop:"<<LoopNum<<","<<"Nums:"<<TypLocCountAll<<endl;
-			for(num = 0; num < paramsNum; num++)
-				cout<<"Parameters"<<"\t"<<paramsgrd[num].name<<"\t"<<paramsgrd[num].shape<<"\t"<<paramsgrd[num].minTyp<<"\t"<<paramsgrd[num].maxTyp<<endl;
-			for(num = 0; num < addparamsNum; num++)
-				cout<<"Additional"<<"\t"<<addparamgrd[num].name<<"\t"<<addparamgrd[num].shape<<"\t"<<addparamgrd[num].minTyp<<"\t"<<addparamgrd[num].maxTyp<<endl;
+			//cout<<"Loop:"<<LoopNum<<","<<"Nums:"<<TypLocCountAll<<endl;
+			//for(num = 0; num < paramsNum; num++)
+			//	cout<<"Parameters"<<"\t"<<paramsgrd[num].name<<"\t"<<paramsgrd[num].shape<<"\t"<<paramsgrd[num].minTyp<<"\t"<<paramsgrd[num].maxTyp<<endl;
+			//for(num = 0; num < addparamsNum; num++)
+			//	cout<<"Additional"<<"\t"<<addparamgrd[num].name<<"\t"<<addparamgrd[num].shape<<"\t"<<addparamgrd[num].minTyp<<"\t"<<addparamgrd[num].maxTyp<<endl;
 			
 			TypLocCount = 0;
 			previousTypLocCountAll = TypLocCountAll;
