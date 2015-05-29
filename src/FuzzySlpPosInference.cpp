@@ -142,127 +142,15 @@ int FuzzySlpPosInf(char *protofile,int prototag, int paramsNum, paramInfGRID *pa
 		}
 		LocTypLocNums[size-1] *= (2 + paramsNum);
 		MPI_Allgatherv(LocTypLocAttr,LocTypLocNum * (2 + paramsNum),MPI_FLOAT,AllTypLocAttr,LocTypLocNums,displs,MPI_FLOAT,MCW);
-		// Now,calculate similarity among the typical locations
-		// choose the locations which similarity to all others is greater than 0.99.
-		//printf("AllTypLocNum:%d\n",AllTypLocNum);
-		//int NewLocTypLocNum,k;
-		queue<TypLocAttr> NewLocTypLocAttrQue;
-		if (AllTypLocNum >= 20000) // there is no need to do this...
-		{
-			for(i = 0; i < LocTypLocNum; i++)
-			{
-				TypLocAttr tempTypLoc;
-				tempTypLoc.Value = new float[paramsNum];
-				tempTypLoc.col = LocTypLocAttr[i * (2 + paramsNum)];
-				tempTypLoc.row = LocTypLocAttr[i * (2 + paramsNum) + 1];
-				for (locNum = 0; locNum < paramsNum; locNum++)
-					tempTypLoc.Value[locNum] = LocTypLocAttr[i * (2 + paramsNum) + 2 + locNum];
 
-				float dSijtv,dSij = 0.0,dij = 0.0,dDist_ijt = 0.0,tempSijt; // temp variables
-				for (k = 0; k < AllTypLocNum; k++)  // Loop every prototype point except itself
-				{
-				
-					int tempX = (int)AllTypLocAttr[k * (2 + paramsNum)];
-					int tempY = (int)AllTypLocAttr[k * (2 + paramsNum) + 1];
-					if (!(tempX == tempTypLoc.col && tempY == tempTypLoc.row))
-					{
-						tempSijt = -(float)MISSINGSHORT;
-						dSijtv = (float)0.0;
-						for(num = 0; num < paramsNum; num++) // Loop terrain parameters, v
-						{
-							float tempValue = (float)AllTypLocAttr[k * (2 + paramsNum) + 2 + num];
-							tempAttr = tempTypLoc.Value[num];
-							if (tempAttr == tempValue)
-								dSijtv = (float)1.0;
-							else if (tempAttr < tempValue)
-								if (paramsgrd[num].k1 == 1.0) // Z-shaped function
-									dSijtv = (float)1.0;
-								else
-									dSijtv = (float)exp(pow((abs(tempAttr-tempValue)/paramsgrd[num].w1),paramsgrd[num].r1)*log(paramsgrd[num].k1));
-							else   // tempAttr > tempValue
-								if(paramsgrd[num].k2 == 1.0)  // S-shaped function
-									dSijtv = (float)1.0;
-								else
-									dSijtv = (float)exp(pow((abs(tempAttr-tempValue)/paramsgrd[num].w2),paramsgrd[num].r2)*log(paramsgrd[num].k2));
-							if (tempSijt >= dSijtv) tempSijt = dSijtv;
-						}
-						// tempSijt is the minimum of similarity between cell P(i,j) and prototype cell T(tempX,tempY)
-						// now calculate inverse distance weight
-						dDist_ijt = (float)pow(sqrt((float)(tempTypLoc.col-tempX)*(tempTypLoc.col-tempX)+(float)(tempTypLoc.row-tempY)*(tempTypLoc.row-tempY))*(float)dx,-exponent);
-						dSij += dDist_ijt * tempSijt;
-						dij += dDist_ijt;
-					}
-				}
-				// now calculate overall similarity of P(i,j) to Slope position C.
-				float Sij = (float)(dSij/dij);
-				if (Sij >= 0.99)
-					NewLocTypLocAttrQue.push(tempTypLoc);
-			}
-			delete[] LocTypLocAttr;
-			LocTypLocAttr = NULL;
-			LocTypLocAttr = new float[NewLocTypLocAttrQue.size() * (2 + paramsNum)];
-			LocTypLocNum = 0;
-			while(!NewLocTypLocAttrQue.empty())
-			{ 
-				TypLocAttr temp;
-				temp = NewLocTypLocAttrQue.front();
-				NewLocTypLocAttrQue.pop();
-				LocTypLocAttr[LocTypLocNum * (2 + paramsNum)] = (float)temp.col;
-				LocTypLocAttr[LocTypLocNum * (2 + paramsNum) + 1] = (float)temp.row;
-				for (locNum = 0; locNum < paramsNum; locNum++)
-					LocTypLocAttr[LocTypLocNum * (2 + paramsNum) + 2 + locNum] = temp.Value[locNum];
-				LocTypLocNum++;
-			}
-			MPI_Allreduce(&LocTypLocNum,&AllTypLocNum,1,MPI_INT,MPI_SUM,MCW);
-			delete[] LocTypLocNums;
-			LocTypLocNums = NULL;
-			LocTypLocNums = new int[size];
-			MPI_Allgather(&LocTypLocNum,1,MPI_INT,LocTypLocNums,1,MPI_INT,MCW);
-			delete[] AllTypLocAttr;
-			AllTypLocAttr = NULL;
-			AllTypLocAttr = new float[AllTypLocNum * (2 + paramsNum)];
-			delete[] displs;
-			displs = NULL;
-			displs = new int[size];
-			displs[0] = 0;
-			for (i = 1; i < size; i++)
-			{
-				displs[i] = (displs[i-1] + LocTypLocNums[i-1] * (2 + paramsNum));
-				LocTypLocNums[i-1] *= (2 + paramsNum);
-			}
-			LocTypLocNums[size-1] *= (2 + paramsNum);
-			MPI_Allgatherv(LocTypLocAttr,LocTypLocNum * (2 + paramsNum),MPI_FLOAT,AllTypLocAttr,LocTypLocNums,displs,MPI_FLOAT,MCW);
-			//printf("%d\n",NewLocTypLocNum);
-			/*int NewAllTypLocNum;
-			int *NewLocalTypLocNums = new int[size];
-			MPI_Allreduce(&NewLocTypLocNum,&NewAllTypLocNum,1,MPI_INT,MPI_SUM,MCW);
-			MPI_Allgather(&NewLocTypLocNum,1,MPI_INT,NewLocalTypLocNums,1,MPI_INT,MCW);
-			float *NewAllTypLocAttr = new float[NewAllTypLocNum * (2 + paramsNum)];
-			int *Newdispls = new int[size];
-			Newdispls[0] = 0;
-			for (i = 1; i < size; i++)
-			{
-				Newdispls[i] = (Newdispls[i-1] + NewLocalTypLocNums[i-1] * (2 + paramsNum));
-				NewLocalTypLocNums[i-1] *= (2 + paramsNum);
-			}
-			NewLocalTypLocNums[size-1] *= (2 + paramsNum);
-			MPI_Allgatherv(NewLocTypLocAttr,NewLocTypLocNum * (2 + paramsNum),MPI_FLOAT,NewAllTypLocAttr,NewLocalTypLocNums,Newdispls,MPI_FLOAT,MCW);*/
-			//printf("%d\n",NewAllTypLocNum);
-		}
-		// To this, every processor has store all the Typical location and it's attributes in *NewAllTypLocAttr, and total number is NewAllTypLocNums.
-		// Now, clean some useless variables
+
 		delete[] LocTypLocAttr;
 		LocTypLocAttr = NULL;
 		delete[] LocTypLocNums;
 		LocTypLocNums = NULL;
 		delete[] displs;
 		displs = NULL;
-		/*delete[] NewLocTypLocAttr;
-		NewLocTypLocAttr = NULL;
-		delete[] NewLocalTypLocNums;
-		NewLocalTypLocNums = NULL;
-		delete[] Newdispls;
-		Newdispls = NULL;*/
+
 		// Next, calculate every cell's similarity to all typical locations
 		// create empty partition to store similarity result 
 		// define intermediate variables
@@ -338,7 +226,7 @@ int FuzzySlpPosInf(char *protofile,int prototag, int paramsNum, paramInfGRID *pa
 			int tempY = (int)AllTypLocAttr[k * (2 + paramsNum) + 1];
 			int locali,localj;
 			proto->globalToLocal(tempX,tempY,locali,localj);
-			simi->setData(i,j,(float)1.0);
+			simi->setData(locali,localj,(float)1.0);
 		}
 		double computet = MPI_Wtime(); // record computing time
 		// create and write tiff

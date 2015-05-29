@@ -717,7 +717,7 @@ def SelectTypLocSlpPos(inputConf,outputConf,inputProc,outlog=None,mpiexeDir = No
     WriteTimeLog(Log_runtime,timeDict)
     
     
-def FuzzySlpPosInference(config,inputProc,mpiexeDir = None, exeDir=None):
+def FuzzySlpPosInference(config,inputProc,values = None, mpiexeDir = None, exeDir=None):
     print "Fuzzy Slope Position Inference"
     print "    Configuration file: "+config
     if exeDir is None:
@@ -726,6 +726,8 @@ def FuzzySlpPosInference(config,inputProc,mpiexeDir = None, exeDir=None):
         cmd = 'mpiexec -n '+str(inputProc)+ ' ' + exeDir + os.sep + 'fuzzyslpposinference ' + '"' + config + '"'
     if mpiexeDir is not None:
         cmd = mpiexeDir + os.sep + cmd
+    if values is not None:
+        cmd = cmd + ' -val ' + '"' + values + '"'
     
     print "Command Line: "+cmd
     print "Input Number of Processes: "+str(inputProc)

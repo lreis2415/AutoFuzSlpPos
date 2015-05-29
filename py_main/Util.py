@@ -47,10 +47,10 @@ def makeResultFolders(rootdir,model,preprocess):
         mkdir(PreprocessDir)
         #mkdir(negDEMDir)
     mkdir(ParamDir)
-    rmmkdir(outputDir)
+    mkdir(outputDir)
     rmmkdir(logDir)
-    rmmkdir(TypLocDir)
-    rmmkdir(ConfDir)
+    mkdir(TypLocDir)
+    mkdir(ConfDir)
     return (PreprocessDir, ParamDir,logDir, TypLocDir,ConfDir,outputDir)
 
 class Raster:

@@ -353,10 +353,10 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 				//MPI_Allgatherv(CellValues[num],CellCount[num],MPI_FLOAT,AllCellValues[num],localCellCount,displs,MPI_FLOAT,MCW);
 				MPI_Gatherv(CellValues[num],CellCount[num],MPI_FLOAT,AllCellValues[num],localCellCount,displs,MPI_FLOAT,0,MCW);
 			}
-			for (int i = 0;i < paramsNum;i++)
-				printf("%s:%d,min:%f,max:%f\n",paramsgrd[i].name,CellCount[i],minValue[i],maxValue[i]);
-			for(num = 0; num < paramsNum; num++)
-				cout<<paramsgrd[num].name<<","<<paramsgrd[num].shape<<","<<paramsgrd[num].minTyp<<","<<paramsgrd[num].maxTyp<<endl;
+			//for (int i = 0;i < paramsNum;i++)
+			//	printf("%s:%d,min:%f,max:%f\n",paramsgrd[i].name,CellCount[i],minValue[i],maxValue[i]);
+			//for(num = 0; num < paramsNum; num++)
+			//	cout<<paramsgrd[num].name<<","<<paramsgrd[num].shape<<","<<paramsgrd[num].minTyp<<","<<paramsgrd[num].maxTyp<<endl;
 			if (rank == 0)  // TODO: allocate compute mission to every processor
 			{
 				for (num = 0; num < paramsNum; num++)
@@ -724,9 +724,9 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 					{
 						float oldMaxTyp = paramsgrd[num].maxTyp;
 						float oldMinTyp = paramsgrd[num].minTyp;
-						if (paramsgrd[num].shape == 'B' && (paramsgrd[num].w1 + paramsgrd[num].w2) > ZERO)
+						if (paramsgrd[num].shape == 'B')
 						{
-							if (autoSel)
+							if (autoSel && (paramsgrd[num].w1 + paramsgrd[num].w2) > ZERO)
 							{
 								paramsgrd[num].maxTyp += abs(paramsgrd[num].maxTyp * DEFAULT_INCREMENT_RATIO * paramsgrd[num].w2 / (paramsgrd[num].w1 + paramsgrd[num].w2));
 								paramsgrd[num].minTyp -= abs(paramsgrd[num].minTyp * DEFAULT_INCREMENT_RATIO * paramsgrd[num].w1 / (paramsgrd[num].w1 + paramsgrd[num].w2));
@@ -829,13 +829,81 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 					LoopNum = MAX_LOOP_NUM_TYPLOC_SELECTION; 
 					// do another loop
 				}
-				if (previousTypLocCountAll == TypLocCountAll)
+				if (previousTypLocCountAll == TypLocCountAll && TypLocCountAll != 0)
 				{
 					LoopNum = MAX_LOOP_NUM_TYPLOC_SELECTION;
 				}
 			}
 		}
 		// End
+		//// calculate fuzzy inference parameters for every typical locations
+		//float **FuzInfParam = new float*[paramsNum];
+		//for(num = 0; num < paramsNum; num++)
+		//	FuzInfParam[num] = new float [TypLocCount*6];
+		//selectedNum = 0;
+		//for(num = 0; num < paramsNum; num++)
+		//	if (paramsgrd[num].shape != 'D'&& paramsgrd[num].maxTyp > paramsgrd[num].minTyp)
+		//		selectedNum++;
+		//int tempTypLoc = 0,globalx,globaly;
+		//for (j = 0; j < ny; j++) // rows
+		//{
+		//	for (i = 0; i < nx; i++) // cols
+		//	{
+		//		validCount = 0;
+		//		validCountAdd = 0;
+		//		for(num = 0; num < paramsNum; num++)
+		//		{
+		//			if(!params[num].isNodata(i,j))
+		//			{
+		//				if (paramsgrd[num].shape != 'D'&& paramsgrd[num].maxTyp > paramsgrd[num].minTyp)
+		//				{
+		//					params[num].getData(i,j,tempAttr);
+		//					if(tempAttr >= paramsgrd[num].minTyp && tempAttr <= paramsgrd[num].maxTyp)
+		//						validCount++;
+		//				}
+		//			}
+		//		}
+		//		for(num = 0; num < addparamsNum; num++)
+		//		{
+		//			if(!addparams[num].isNodata(i,j))
+		//			{
+		//				if (addparamgrd[num].maxTyp > addparamgrd[num].minTyp)
+		//				{
+		//					addparams[num].getData(i,j,tempAttr);
+		//					if(tempAttr >= addparamgrd[num].minTyp && tempAttr <= addparamgrd[num].maxTyp)
+		//						validCountAdd++;
+		//				}
+		//			}
+		//		}
+		//		if(validCount == selectedNum && validCountAdd == addparamsNum){
+		//			typloc->localToGlobal(i,j,globalx,globaly);
+		//			FuzInfParam[num][tempTypLoc*6] = globalx;
+		//			FuzInfParam[num][tempTypLoc*6+1] = globaly;
+		//			FuzInfParam[num][tempTypLoc*6+2] = tempAttr;
+		//			if (paramsgrd[num].shape == 'B')
+		//			{
+		//				FuzInfParam[num][tempTypLoc*6+3] = 0;
+		//				FuzInfParam[num][tempTypLoc*6+4] = DEFAULT_SIGMA_MULTIPLIER* STDcal(AllCellValues[num], paramsExtInfo[num].num, false, tempAttr);//w1
+		//				FuzInfParam[num][tempTypLoc*6+5] = DEFAULT_SIGMA_MULTIPLIER* STDcal(AllCellValues[num], paramsExtInfo[num].num, true, tempAttr);//w2
+		//			}
+		//			else if (paramsgrd[num].shape == 'S')
+		//			{
+		//				FuzInfParam[num][tempTypLoc*6+3] = 0;
+		//				FuzInfParam[num][tempTypLoc*6+4] = DEFAULT_SIGMA_MULTIPLIER* STDcal(AllCellValues[num], paramsExtInfo[num].num, false, tempAttr);//w1
+		//				FuzInfParam[num][tempTypLoc*6+5] = 1;//w2
+		//			}
+		//			else if (paramsgrd[num].shape == 'Z')
+		//			{
+		//				FuzInfParam[num][tempTypLoc*6+3] = 0;
+		//				FuzInfParam[num][tempTypLoc*6+4] = 1;//w1
+		//				FuzInfParam[num][tempTypLoc*6+5] = DEFAULT_SIGMA_MULTIPLIER* STDcal(AllCellValues[num], paramsExtInfo[num].num, true, tempAttr);//w2
+		//			}
+		//			tempTypLoc++;
+		//		}
+		//	}
+		//}
+
+		
 		double computet = MPI_Wtime(); // record computing time
 		// write inference information into output configuration file, exclude RPI
 		if (rank == 0 && autoSel)
@@ -849,7 +917,6 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 					fs<<"Parameters\t"<<paramsgrd[num].path<<"\t"<<paramsgrd[num].shape<<"\t"<<paramsgrd[num].w1<<"\t"<<paramsgrd[num].r1<<"\t"<<paramsgrd[num].k1<<"\t"<<paramsgrd[num].w2<<"\t"<<paramsgrd[num].r2<<"\t"<<paramsgrd[num].k2<<endl;
 				}
 			}
-
 			fs.close();
 
 			fs.open(inconfigfile,ios_base::out);
@@ -866,6 +933,25 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 			}
 			fs<<"OUTPUT"<<"\t"<<typlocfile<<endl;
 			fs.close();
+
+			//// write AllCellValues to logfile
+			//if (writelog)
+			//{
+			//	ofstream logf;
+			//	logf.open(logfile,ios_base::app|ios_base::out);
+			//	logf<<endl<<endl;
+			//	for (num = 0; num < paramsNum; num++)
+			//	{
+			//		if (num != RPIindex)
+			//		{
+			//			logf<<"Values\t"<<paramsgrd[num].name<<"\t"<<paramsExtInfo[num].num<<endl;
+			//			for(i = 0; i < paramsExtInfo[num].num; i++)
+			//				logf<<AllCellValues[num][i]<<endl;
+			//			logf<<endl;
+			//		}
+			//	}
+			//	logf.close();
+			//}
 		}
 		//// create and write tiff
 		int nodata = MISSINGSHORT;

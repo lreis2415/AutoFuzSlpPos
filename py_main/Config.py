@@ -14,11 +14,11 @@ import os
 
 
 ## linux cluster in dgpm
-mpiexeDir = r'/home/zhulj/mpich/bin'
-exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86'
-rootDir = r'/home/zhulj/Sanxia_Dinf'
-rawdem = r'/home/zhulj/AutoFuzSlpPos/data/Sanxia/dem.tif'
-outlet = None
+#mpiexeDir = r'/home/zhulj/mpich/bin'
+#exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86'
+#rootDir = r'/home/zhulj/PV_Dinf'
+#rawdem = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/pvdem.tif'
+#outlet = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/outlet.shp'
 
 ## ubuntu 14.04 in my laptop
 #mpiexeDir = None
@@ -28,17 +28,17 @@ outlet = None
 #outlet = r'/home/zhulj/codes/AutoFuzSlpPos/data/PleasantValley/outlet.shp'
 
 ## windows 7
-#mpiexeDir = None 
-##exeDir = r'E:\github-zlj\AutoFuzSlpPos\exec_win_x86'
-#exeDir = r'E:\coding\Taudem5PCVS2010Soln_512\AutoFuzSlpPosVS2010\Release'
-#rootDir = r'C:\AutoFuzSlpPos\data\Sanxia_Dinf'
-#rawdem = r'E:\data\DEMs\sanxia\newraw.tif'
-#outlet = None
+mpiexeDir = None 
+#exeDir = r'E:\github-zlj\AutoFuzSlpPos\exec_win_x86'
+exeDir = r'E:\coding\Taudem5PCVS2010Soln_512\AutoFuzSlpPosVS2010\Release'
+rootDir = r'C:\AutoFuzSlpPos\data\PV_D8'
+rawdem = r'C:\AutoFuzSlpPos\data\PleasantValley\pvdemfil.tif'
+outlet = r'C:\AutoFuzSlpPos\data\PleasantValley\outlet.shp'
   
                               
-preprocess = False                                        ## if preprocessing for parameters' grids is needed, and True by default.
+preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
 inputProc = 6                                            ## parallel processor's number
-FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
+FlowModel = 0                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
 ## Selection of Typical Locations
                                                          ## TerrainAttrDict stores the terrain attributes' name and grid path. 'RPI' is required!
@@ -50,22 +50,22 @@ TerrainAttrDict = {'RPI':rootDir + os.sep + 'Params'+ os.sep + 'RPI.tif',\
                    'HAND':rootDir + os.sep + 'Params'+ os.sep + 'HAND.tif'}
 
                                                          ## Predefined Fuzzy Membership Function Shape, Bell-shaped, S-shaped, Z-shaped and N means Not used.
-RdgFuzInfDefault = [['RPI','S'],['ProfC','S'],['Slope','Z'],['HAND','N']]
+RdgFuzInfDefault = [['RPI','S'],['ProfC','S'],['Slope','Z'],['HAND','S']]
 ShdFuzInfDefault = [['RPI','B'],['ProfC','S'],['Slope','B'],['HAND','N']]
 BksFuzInfDefault = [['RPI','B'],['ProfC','B'],['Slope','S'],['HAND','N']]
-FtsFuzInfDefault = [['RPI','B'],['ProfC','ZB'],['Slope','B'],['HAND','N']]
-VlyFuzInfDefault = [['RPI','Z'],['ProfC','B'],['Slope','Z'],['HAND','N']]
+FtsFuzInfDefault = [['RPI','B'],['ProfC','ZB'],['Slope','Z'],['HAND','N']]
+VlyFuzInfDefault = [['RPI','Z'],['ProfC','B'],['Slope','Z'],['HAND','Z']]
 AutoTypLocExtraction = True
 ModifyExtractConfFile = True                                ## if user modified the configuration file
 AutoInfParams = True
 ModifyInfConfFile = True                                     ## modify the configuration file
 
 if AutoTypLocExtraction:
-    RdgExtractionInfo = [['RPI',0.99,1.0]]               ## default RPI value range for Ridge, Shoulder, Back, Foot and valley.                                              
-    ShdExtractionInfo = [['RPI',0.9,0.95]]
+    RdgExtractionInfo = [['RPI',0.95,1.0]]               ## default RPI value range for Ridge, Shoulder, Back, Foot and valley.                                              
+    ShdExtractionInfo = [['RPI',0.8,0.9]]
     BksExtractionInfo = [['RPI',0.5,0.6]]
-    FtsExtractionInfo = [['RPI',0.15,0.2]]
-    VlyExtractionInfo = [['RPI',0.0,0.05]]
+    FtsExtractionInfo = [['RPI',0.2,0.3]]
+    VlyExtractionInfo = [['RPI',0.0,0.1]]
 
 ####    Optional    ####
 rdgsrc = None                                            ## if there is ridge source file, assign it here.
@@ -100,11 +100,11 @@ DinfUpMethod = 'Surface'                                 ## same as DinfDownMeth
 #          MAX_TYPLOC_NUM = 2000, DEFAULT_SELECT_RATIO = 0.1,\
 #          DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.2,\
 #          MAX_LOOP_NUM_TYPLOC_SELECTION = 100
-RdgBaseParam = [1,500,2000,0.1,0.3,1.2,100]
-ShdBaseParam = [1,500,2000,0.1,0.3,1.2,100]
-BksBaseParam = [1,500,2000,0.1,0.3,1.2,100]
-FtsBaseParam = [1,500,2000,0.1,0.3,1.2,100]
-VlyBaseParam = [1,500,2000,0.1,0.3,1.2,100]
+RdgBaseParam = [1,200,2000,0.1,0.1,2,100]
+ShdBaseParam = [1,200,2000,0.1,0.1,2,100]
+BksBaseParam = [1,200,2000,0.1,0.1,2,100]
+FtsBaseParam = [1,200,2000,0.1,0.1,2,100]
+VlyBaseParam = [1,200,2000,0.1,0.1,2,100]
 
 RdgTag = 1
 ShdTag = 1
@@ -124,6 +124,7 @@ if not AutoTypLocExtraction:
 
     
 ## Fuzzy slope position inference
+#UnifiedFuzInfParam = True                                ## use unified fuzzy inference parameters for every typical locations or not
                                                          ## when AutoInfParams is Ture, the program will generate inference parameters automatically.
                                                          ## if AutoInfParams is False, it means users can edit either the InferenceInfo below or the InfConfig.dat in Config Folder. 
 # Default	w1	r1	k1	w2	r2	k2

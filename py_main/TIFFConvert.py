@@ -3,7 +3,7 @@
 
 from Util import *
 import TauDEM
-rawdem = r'E:\data\liyang\fuzzyslppos\demrect1.tif'
+rawdem = r'E:\data\DEMs\heshan\dem_heshan1.tif'
 #dem  = r'E:\Anhui\FuzzySlpPosNew\preparedParams\dem_10.tif'
 #demfil = r'E:\Anhui\FuzzySlpPosNew\preparedParams\dem_10_fil.tif'
 #exeDir = r'E:\coding\Taudem5PCVS2010Soln_512\Taudem5PCVS2010\Release'
@@ -11,7 +11,7 @@ rawdem = r'E:\data\liyang\fuzzyslppos\demrect1.tif'
 #HorizC = r'E:\Anhui\FuzzySlpPosNew\preparedParams\horizc_ori.tif'
 #SubBasin = r'E:\Anhui\FuzzySlpPosNew\preparedParams\slope.tif'
 HorizC_mask = r'E:\Anhui\FuzzySlpPosNew\preparedParams\horizc.tif'
-ProfC_mask = r'E:\data\liyang\fuzzyslppos\dem_big.tif'
+ProfC_mask = r'E:\data\DEMs\heshan\dem_heshan.tif'
 TIFF2GeoTIFF(rawdem, ProfC_mask)
 #inputProc = 8
 #TauDEM.pitremove(dem,inputProc,demfil,exeDir)
