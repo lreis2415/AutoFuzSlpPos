@@ -29,16 +29,16 @@ import os
 
 ## windows 7
 mpiexeDir = None 
-#exeDir = r'E:\github-zlj\AutoFuzSlpPos\exec_win_x86'
-exeDir = r'E:\coding\Taudem5PCVS2010Soln_512\AutoFuzSlpPosVS2010\Release'
-rootDir = r'C:\AutoFuzSlpPos\data\PV_D8'
-rawdem = r'C:\AutoFuzSlpPos\data\PleasantValley\pvdemfil.tif'
+exeDir = r'E:\github-zlj\AutoFuzSlpPos\exec_win_x86'
+#exeDir = r'E:\coding\Taudem5PCVS2010Soln_512\AutoFuzSlpPosVS2010\Release'
+rootDir = r'C:\AutoFuzSlpPos\data\PV_Dinf'
+rawdem = r'C:\AutoFuzSlpPos\data\PleasantValley\pvdem.tif'
 outlet = r'C:\AutoFuzSlpPos\data\PleasantValley\outlet.shp'
   
                               
 preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
 inputProc = 6                                            ## parallel processor's number
-FlowModel = 0                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
+FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
 ## Selection of Typical Locations
                                                          ## TerrainAttrDict stores the terrain attributes' name and grid path. 'RPI' is required!
@@ -69,7 +69,7 @@ if AutoTypLocExtraction:
 
 ####    Optional    ####
 rdgsrc = None                                            ## if there is ridge source file, assign it here.
-
+deltaElev = 0.000000001
 maxMoveDist = 50                                         ## the maximum number of grid cells that the points in the input outlet shapefile will be moved before they are saved to the output outlet shapefile
 numthresh = 20                                           ## the number of steps to divide the search range into when looking for possible threshold values using drop analysis
 logspace = 'true'                                        ## 'true' means use logarithmic spacing for threshold values, 'false' means linear spacing

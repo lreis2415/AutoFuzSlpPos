@@ -60,7 +60,42 @@ def pitremove(inZfile,inputProc,outFile, mpiexeDir = None, exeDir=None):
             timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
+def pitremoveplanchon(inZfile,deltaElev,inputProc,outFile,mpiexeDir=None,exeDir=None):
+    print "PitRemove(Planchon and Darboux, 2001)......"
+    print "Input Elevation file: "+inZfile
+    print "Input Number of Processes: "+str(inputProc)
+    print "Mininum increment of elevation when filling depression: "+str(deltaElev)
+    print "Output Pit Removed Elevation file: "+outFile
+    if exeDir is None:
+        cmd = 'mpiexec -n ' + str(inputProc) + ' pitremoveplanchon -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"' + ' -delta ' + str(deltaElev)
+    else:
+        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'pitremoveplanchon -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"'+ ' -delta ' + str(deltaElev)
+    if mpiexeDir is not None:
+        cmd = mpiexeDir + os.sep + cmd
+    print "Command Line: "+cmd
+    ##os.system(cmd)
+    process=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    contentList = []
+    timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+    timeDict['name'] = "PitRemove"
+    contentList.append('\n')
+    contentList.append("#### PitRemove(Planchon and Darboux, 2001) ####")
     
+    for line in process.stdout.readlines():
+        contentList.append(line.split('\r')[0])
+        #print line
+        if line.find("Read time") >= 0:
+            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+    WriteLog(Log_all,contentList)
+    WriteTimeLog(Log_runtime,timeDict)
+    
+       
 
 def D8FlowDir(fel,inputProc,p,sd8, mpiexeDir = None, exeDir=None):
     print "Calculating D8 flow direction......"

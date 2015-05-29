@@ -22,7 +22,8 @@ def PreProcessing(model):
     TIFF2GeoTIFF(rawdem, dem)
     logStatus.write("[Preprocessing] [2/7] Removing pits...\n")
     logStatus.flush()
-    TauDEM.pitremove(rawdem,inputProc,demfil,mpiexeDir=mpiexeDir,exeDir=exeDir)
+    #TauDEM.pitremove(rawdem,inputProc,demfil,mpiexeDir=mpiexeDir,exeDir=exeDir) # pitremove in TauDEM
+    TauDEM.pitremoveplanchon(rawdem,deltaElev,inputProc,demfil,mpiexeDir=mpiexeDir,exeDir=exeDir)
     logStatus.write("[Preprocessing] [3/7] Flow direction and slope in radian...\n")
     logStatus.flush()
     TauDEM.D8FlowDir(demfil,inputProc,D8FlowDir,D8Slp,mpiexeDir=mpiexeDir,exeDir=exeDir)
