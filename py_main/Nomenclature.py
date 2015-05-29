@@ -70,7 +70,7 @@ HANDDict = {'Name':'HAND','Path':HAND,'Min':0.0,'Ave':0.0,'Max':0.0,'STD':0.0}
 # for HANDDict, users can change 'Ave', 'Min', 'Max' to numbers.
 RdgTerrainRestrict = [[HANDDict,'Name','Path','Ave','Max']]
 ShdTerrainRestrict = [[HANDDict,'Name','Path','Ave','Max']]
-BksTerrainRestrict = None
+BksTerrainRestrict = None #[[HANDDict,'Name','Path',5,'Max']]
 FtsTerrainRestrict = None
 VlyTerrainRestrict = [[HANDDict,'Name','Path','Min','Ave']]
 

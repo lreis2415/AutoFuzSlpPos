@@ -24,7 +24,7 @@ FUZSLPPOSINF = FuzzySlpPosInference.o FuzzySlpPosInferencemn.o $(OBJFILES)
 HARDENSLPPOS = HardenSlpPos.o HardenSlpPosmn.o $(OBJFILES)
 TYPLOCSEL = stats.o SelectTypLocSlpPos.o SelectTypLocSlpPosmn.o $(OBJFILES)
 CALCULATOR = SimpleCalculator.o SimpleCalculatormn.o $(OBJFILES)
-
+PITREMOVEPD = pitremoveplanchon.o pitremoveplanchonmn.o $(OBJFILES)
 
 #The following are compiler flags common to all building rules
 # my laptop, ubuntu 14.04
@@ -42,7 +42,7 @@ INSTALLDIR=../exec_linux_x86
 
 #Rules: when and how to make a file
 
-all : $(SHAPEFILES) $(INSTALLDIR)/aread8 $(INSTALLDIR)/areadinf $(INSTALLDIR)/d8flowdir $(INSTALLDIR)/d8distdowntostream $(INSTALLDIR)/dinfdistuptoridge $(INSTALLDIR)/dinfdistdown $(INSTALLDIR)/dinfflowdir $(INSTALLDIR)/dropanalysis $(INSTALLDIR)/moveoutletstostreams $(INSTALLDIR)/pitremove $(INSTALLDIR)/threshold $(INSTALLDIR)/curvature $(INSTALLDIR)/d8distuptoridge $(INSTALLDIR)/fuzzyslpposinference $(INSTALLDIR)/hardenslppos $(INSTALLDIR)/selecttyplocslppos $(INSTALLDIR)/simplecalculator clean 
+all : $(SHAPEFILES) $(INSTALLDIR)/aread8 $(INSTALLDIR)/areadinf $(INSTALLDIR)/d8flowdir $(INSTALLDIR)/d8distdowntostream $(INSTALLDIR)/dinfdistuptoridge $(INSTALLDIR)/dinfdistdown $(INSTALLDIR)/dinfflowdir $(INSTALLDIR)/dropanalysis $(INSTALLDIR)/moveoutletstostreams $(INSTALLDIR)/pitremove $(INSTALLDIR)/threshold $(INSTALLDIR)/curvature $(INSTALLDIR)/d8distuptoridge $(INSTALLDIR)/fuzzyslpposinference $(INSTALLDIR)/hardenslppos $(INSTALLDIR)/selecttyplocslppos $(INSTALLDIR)/simplecalculator $(INSTALLDIR)/pitremoveplanchon clean 
 
 $(INSTALLDIR)/aread8 : $(D8FILES)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(D8FILES) $(LDLIBS) $(LDFLAGS)
@@ -89,6 +89,8 @@ $(INSTALLDIR)/selecttyplocslppos : $(TYPLOCSEL)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(TYPLOCSEL) $(LDLIBS) $(LDFLAGS)
 $(INSTALLDIR)/simplecalculator : $(CALCULATOR)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(CALCULATOR) $(LDLIBS) $(LDFLAGS)
+$(INSTALLDIR)/pitremoveplanchon : $(PITREMOVEPD)
+	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(PITREMOVEPD) $(LDLIBS) $(LDFLAGS)
 #Inference rule - states a general rule for compiling .o files
 %.o : %.cpp
 	$(CC) $(CFLAGS) $(INCDIRS) -c $<

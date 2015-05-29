@@ -40,9 +40,11 @@ void split(char *src, const char *separator, char **dest,int *num)
 
 int main(int argc, char **argv)
 {
-	char protogrd[MAXLN],configfile[MAXLN],simfile[MAXLN];
+	char protogrd[MAXLN],configfile[MAXLN],simfile[MAXLN],valuefile[MAXLN];
 	int prototag = 1; // by default, the tag of prototype GRID is 1, it can also be assigned by user.
 	int paramsNum,lineNum = 0,i,err;
+	//float **AllCellValues;
+	//int *AllCellValuesNum;
 	float exponent;
 	paramInfGRID *paramsgrd;
 	char cfglines[20][MAXLN];
@@ -52,7 +54,7 @@ int main(int argc, char **argv)
 		printf("the Usage with Specific file names option\n");
 		goto errexit;
 	}
-	else if (argc == 2)
+	else if (argc >= 2)
 	{
 		strcpy(configfile,argv[1]);
 		//printf("%s\n",configfile);
@@ -115,6 +117,26 @@ int main(int argc, char **argv)
 				goto errexit;
 			i++;
 		}
+		/*if (argc == 4 && strcmp(argv[2],"-val")==0)
+		{
+		strcpy(valuefile,argv[3]);
+		printf("%s\n",valuefile);
+		AllCellValues = new float *[paramsNum];
+		AllCellValuesNum = new int[paramsNum];
+		ifstream cfg(valuefile,ios::in);
+		while (!cfg.eof())
+		{
+		char *dest[-1*MISSINGLONG];
+
+		cfg.getline(valuelines,'\n');
+		split(valuelines,"\t",dest,&num);
+		if (strcmp(dest[0],"Values")==0)
+		{
+		printf("%s\n",valuelines)
+		}
+		}
+		cfg.close();
+		}*/
 	}
 	else goto errexit;
 

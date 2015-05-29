@@ -39,6 +39,7 @@ set (FUZSLPPOSINF FuzzySlpPosInference.cpp FuzzySlpPosInferencemn.cpp ${common_s
 set (HARDENSLPPOS HardenSlpPos.cpp HardenSlpPosmn.cpp ${common_srcs})
 set (TYPLOCSEL stats.cpp SelectTypLocSlpPos.cpp SelectTypLocSlpPosmn.cpp ${common_srcs})
 set (CALCULATOR SimpleCalculator.cpp SimpleCalculatormn.cpp ${common_srcs})
+set (PITREMOVEPD PitRemovePlanchon.cpp PitRemovePlanchonmn.cpp ${common_srcs})
 
 
 add_executable (aread8 ${D8FILES})
@@ -58,6 +59,7 @@ add_executable (fuzzyslpposinference ${FUZSLPPOSINF})
 add_executable (hardenslppos ${HARDENSLPPOS})
 add_executable (selecttyplocslppos ${TYPLOCSEL})
 add_executable (simplecalculator ${CALCULATOR})
+add_executable (pitremoveplanchon ${PITREMOVEPD})
 
 
 install(TARGETS aread8 
@@ -76,5 +78,6 @@ install(TARGETS aread8
 				hardenslppos
 				selecttyplocslppos
 				simplecalculator
+				pitremoveplanchon
         DESTINATION bin)
 
