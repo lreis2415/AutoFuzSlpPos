@@ -1,1 +1,2 @@
-2015/5/22	0.1-beta	First released version. Basic functions accomplished. Tested on windows 7 and CentOS 6.2.
+2015/5/29	0.2-beta	Bug fixed version. Use pit remove algorithm of Planchon and Darboux(2001). Other improvement on SelectTypLocSlpPos.
+2015/5/22	0.1-beta	First released version. Basic functions accomplished. Tested on windows 7, CentOS 6.2 and Ubuntu 14.04.
