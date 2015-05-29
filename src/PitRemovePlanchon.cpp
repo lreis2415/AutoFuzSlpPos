@@ -36,7 +36,7 @@ int pitremove(char *demfile,char *filleddem,float dDeltaElev)
 		long totalY = srcf.getTotalY();
 		double dx = srcf.getdx();
 		double dy = srcf.getdy();
-
+		//cout<<totalX<<","<<totalY<<endl;
 		// read tiff data into partition
 		tdpartition *demsrc;
 		demsrc = CreateNewPartition(srcf.getDatatype(),totalX,totalY,dx,dy,srcf.getNodata());
@@ -56,8 +56,8 @@ int pitremove(char *demfile,char *filleddem,float dDeltaElev)
 		pDEM.init(totalX,totalY,dx,dy,MPI_FLOAT,MISSINGFLOAT);*/
 		//share information
 		demsrc->share();
-		pNewDEM.share();
-		int i,j,k,iScan;
+		//pNewDEM.share();
+		int i,j,k;
 		float tempV;
 		// COMPUTING CODE BLOCK
 
@@ -112,41 +112,42 @@ int pitremove(char *demfile,char *filleddem,float dDeltaElev)
 		int count = 0;
 		float tempVNew,tempVNew2;
 		int iAll,jAll;
-		while (flag)
+		int changed = 0;
+		bool flagAll = true;
+		while (flagAll)
 		{
+			changed = 0;
 			count++;
 			flag = false;
-			pNewDEM.share();
 			for (j = 0; j < ny; j++) // rows
 			{
-				for (i = 1; i < nx-1; i++) // cols
+				demsrc->localToGlobal(0,j,iAll,jAll);
+				if (jAll != 0 && jAll != totalY-1)
 				{
-					demsrc->localToGlobal(i,j,iAll,jAll);
-					if (jAll != 0 && jAll != totalY)
+					for (i = 1; i < nx-1; i++) // cols
 					{
 						if (!demsrc->isNodata(i,j))
 						{
-							demsrc->getData(i,j,tempV);
-							pNewDEM.getData(i,j,tempVNew);
-							if (tempVNew > tempV)
+							if (pNewDEM.getData(i,j,tempVNew) > demsrc->getData(i,j,tempV))
 							{
 								int tempN = 0;
 								for (k = 1; k < 9; k++)
 								{
 									if (demsrc->hasAccess(i+d1[k],j+d2[k]) && !demsrc->isNodata(i+d1[k],j+d2[k]))
 									{
-										pNewDEM.getData(i+d1[k],j+d2[k],tempVNew2);
-										if (tempV >= tempVNew2+dDeltaElev)
+										if (demsrc->getData(i,j,tempV) >= pNewDEM.getData(i+d1[k],j+d2[k],tempVNew2)+dDeltaElev)
 										{
-											pNewDEM.setData(i,j,tempV);
+											pNewDEM.setData(i,j,demsrc->getData(i,j,tempV));
 											flag = true;
+											changed++;
 										}
 										else
 										{
-											if (tempVNew > tempVNew2+dDeltaElev)
+											if (pNewDEM.getData(i,j,tempVNew) > pNewDEM.getData(i+d1[k],j+d2[k],tempVNew2)+dDeltaElev)
 											{
-												pNewDEM.setData(i,j,tempVNew2+dDeltaElev);
+												pNewDEM.setData(i,j,pNewDEM.getData(i+d1[k],j+d2[k],tempVNew2)+dDeltaElev);
 												flag = true;
+												changed++;
 											}
 										}
 									}
@@ -165,8 +166,11 @@ int pitremove(char *demfile,char *filleddem,float dDeltaElev)
 				}
 			}
 			pNewDEM.share();
+			MPI_Allreduce(&flag,&flagAll,1,MPI_C_BOOL,MPI_LOR,MCW);
+			//cout<<"Running rank: "<<rank<<", count is "<<count<<", changed num   "<<changed<<", flag is "<<flagAll<<endl;
 		}
-		cout<<"  Succeed! rank: "<<rank<<", count is "<<count<<endl;
+		pNewDEM.share();
+		//cout<<"  Succeed! rank: "<<rank<<", count is "<<count<<endl;
 		// END COMPUTING CODE BLOCK
 		double computet = MPI_Wtime(); // record computing time
 		// create and write TIFF file
@@ -191,8 +195,8 @@ int pitremove(char *demfile,char *filleddem,float dDeltaElev)
 		total = tempd / size;
 
 		if (rank == 0)
-			printf("Processors: %d\nRead time: %f\nCompute time: %f\nWrite time: %f\nTotal time: %f\n",
-			size, dataRead, compute, write,total);
+			printf("Loop Num.: %d\nProcessors: %d\nRead time: %f\nCompute time: %f\nWrite time: %f\nTotal time: %f\n",
+			count,size, dataRead, compute, write,total);
 	}
 	MPI_Finalize();
 	return 0;

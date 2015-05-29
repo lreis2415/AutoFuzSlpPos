@@ -24,7 +24,7 @@ FUZSLPPOSINF = FuzzySlpPosInference.o FuzzySlpPosInferencemn.o $(OBJFILES)
 HARDENSLPPOS = HardenSlpPos.o HardenSlpPosmn.o $(OBJFILES)
 TYPLOCSEL = stats.o SelectTypLocSlpPos.o SelectTypLocSlpPosmn.o $(OBJFILES)
 CALCULATOR = SimpleCalculator.o SimpleCalculatormn.o $(OBJFILES)
-PITREMOVEPD = pitremoveplanchon.o pitremoveplanchonmn.o $(OBJFILES)
+PITREMOVEPD = PitRemovePlanchon.o PitRemovePlanchonmn.o $(OBJFILES)
 
 #The following are compiler flags common to all building rules
 # my laptop, ubuntu 14.04
