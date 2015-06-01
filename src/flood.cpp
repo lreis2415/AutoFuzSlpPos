@@ -515,8 +515,8 @@ int flood( char* demfile, char* felfile, char *sfdrfile, int usesfdr, bool verbo
 	total = temp/size;
 
 	if( rank == 0)
-		printf("Processes: %d\nHeader read time: %f\nData read time: %f\nCompute time: %f\nWrite time: %f\nTotal time: %f\n",
-		  size,headerRead , dataRead, compute, write,total);
+		printf("Processes: %d\nRead time: %f\nCompute time: %f\nWrite time: %f\nTotal time: %f\n",
+		  size,headerRead+dataRead, compute, write,total);
 
 
 	//Brackets force MPI-dependent objects to go out of scope before Finalize is called

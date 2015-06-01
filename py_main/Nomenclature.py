@@ -9,6 +9,7 @@ from Config import *
 PreDir, ParamDir,LogDir, TypLocDir, ConfDir, FSPDir = makeResultFolders(rootDir,FlowModel,preprocess)
 ####  Stage 1: Preprocessing from DEMsrc  ####
 dem = PreDir + os.sep + 'dem.tif'
+demfilpre = PreDir + os.sep + 'demfilpre.tif'
 demfil = PreDir + os.sep + 'demfil.tif'
 log_preproc = LogDir + os.sep + 'log_preprocessing.txt'                   ## log file is used to record the process
 Log_all = LogDir + os.sep + 'log_all.txt'

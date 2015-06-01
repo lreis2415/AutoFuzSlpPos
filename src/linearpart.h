@@ -105,7 +105,6 @@ class linearpart : public tdpartition {
 		//int *before2;
 		//int *after1;
 		//int *after2;
-
 };
 
 

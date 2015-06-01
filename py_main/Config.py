@@ -69,7 +69,7 @@ if AutoTypLocExtraction:
 
 ####    Optional    ####
 rdgsrc = None                                            ## if there is ridge source file, assign it here.
-deltaElev = 0.000000001
+deltaElev = 0.01
 maxMoveDist = 50                                         ## the maximum number of grid cells that the points in the input outlet shapefile will be moved before they are saved to the output outlet shapefile
 numthresh = 20                                           ## the number of steps to divide the search range into when looking for possible threshold values using drop analysis
 logspace = 'true'                                        ## 'true' means use logarithmic spacing for threshold values, 'false' means linear spacing

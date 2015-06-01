@@ -16,7 +16,7 @@
 int main(int argc,char **argv)
 {
 	char demfile[MAXLN],filleddem[MAXLN];
-	float deltaElev = 0.000000001;
+	float delta = 0.01;
 	int err,i;
 
 	if(argc < 2)
@@ -62,7 +62,7 @@ int main(int argc,char **argv)
 			i++;
 			if(argc > i)
 			{
-				sscanf(argv[i],"%f",&deltaElev);
+				sscanf(argv[i],"%f",&delta);
 				i++;
 			}
 			else goto errexit;
@@ -80,18 +80,19 @@ int main(int argc,char **argv)
 	//printf("Filled File %s\n",filleddem);
 	//printf("Delta Elev. %f\n",deltaElev);
 	
-	if((err=pitremove(demfile,filleddem,deltaElev)) != 0)
-		printf("PitRemove error %d\n",err);
+	if((err=pitremove(demfile,filleddem,delta)) != 0)
+		printf("PitRemove(Planchon/Darboux, 2001) error %d\n",err);
 	return 0;
 
 errexit:
 	printf("Simple Usage:\n %s <basefilename>\n",argv[0]);
 	printf("Usage with specific file names:\n %s -z <demfile>\n",argv[0]);
-	printf("-fel <filleddem> [-delta <delta elevation>]\n");
+	printf("-fel <filleddem> [-delta <minimum slope>]\n");
 	printf("<basefilename> is the name of the raw digital elevation model.\n");
 	printf("<demfile> is the name of the input elevation grid file.\n");
 	printf("<filleddem> is the output elevation grid with pits filled.\n");
-	printf("<delta elevation> is a increment used in filling elevation, the default is 0.01.\n");
+	printf("<minimum slope> minimum slope angle preserved from one cell to the next, zero results in flat areas [Degree], the default is 0.01.\n");
+	//printf("<delta elevation> is a increment used in filling elevation, the default is 0.01.\n");
 	printf("The following are appended to the file names\n");
 	printf("before the files are opened:\n");
 	printf("fel    output elevation grid with pits filled.\n\n");

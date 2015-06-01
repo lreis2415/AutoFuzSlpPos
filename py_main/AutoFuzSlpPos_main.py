@@ -20,30 +20,31 @@ from FuzzySlpPosInference import FuzzySlpPosInference
 if __name__ == '__main__':
     startT = time.time()
     log = ''
+    allcost = 0
     ## Stage 1: Preprocessing if needed
     if preprocess:
-        log = log + "Preprocessing Time-consuming: "
         PreProcessing(FlowModel)
         endPreprocT = time.time()
         cost = (endPreprocT - startT)
-        log = log + str(cost) + ' s\n'
+        log = log + "Preprocessing Time-consuming: " + str(cost) + ' s\n'
+        allcost = allcost + cost
     startSelectionT = time.time()
     ## Stage 2: Selection of Typical Locations and Calculation of Inference Parameters
-    log = log + "Selection of Typical Locations Time-consuming: "
     SelectTypLoc()
     endSelectionT = time.time()
     if preprocess:
         cost = (endSelectionT - endPreprocT)
     else:
         cost = (endSelectionT - startT)
-    log = log + str(cost) + ' s\n'
+    allcost = allcost + cost
+    log = log + "Selection of Typical Locations Time-consuming: " + str(cost) + ' s\n'
     ## Stage 3: Fuzzy Slope Position Inference
-    log = log + "Fuzzy Slope Position Inference Time-consuming: "
     FuzzySlpPosInference()
     endFuzInfT = time.time()
     cost = (endFuzInfT - endSelectionT )
-    log = log + str(cost) + ' s\n'
-    
+    log = log + "Fuzzy Slope Position Inference Time-consuming: "+ str(cost) + ' s\n'
+    allcost = allcost + cost
+    log = log + "All mission time-consuming: " + str(allcost) + ' s\n'
     logf = open(Log_runtime, 'a')
     logf.write(log)
     logf.close()

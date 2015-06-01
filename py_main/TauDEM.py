@@ -67,9 +67,9 @@ def pitremoveplanchon(inZfile,deltaElev,inputProc,outFile,mpiexeDir=None,exeDir=
     print "Mininum increment of elevation when filling depression: "+str(deltaElev)
     print "Output Pit Removed Elevation file: "+outFile
     if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' pitremoveplanchon -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"' + ' -delta ' + str(deltaElev)
+        cmd = 'mpiexec -n ' + str(1) + ' pitremoveplanchon -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"' + ' -delta ' + str(deltaElev)
     else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'pitremoveplanchon -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"'+ ' -delta ' + str(deltaElev)
+        cmd = 'mpiexec -n ' + str(1) + ' ' + exeDir + os.sep + 'pitremoveplanchon -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"'+ ' -delta ' + str(deltaElev)
     if mpiexeDir is not None:
         cmd = mpiexeDir + os.sep + cmd
     print "Command Line: "+cmd
