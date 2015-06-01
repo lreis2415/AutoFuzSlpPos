@@ -29,3 +29,9 @@
 
 # Python project file
 *.pyc
+
+# temporary files
+*.cpp~
+*.pyc~
+*.h~
+*.py~
