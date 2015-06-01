@@ -189,38 +189,35 @@ bool CFillSinks::On_Execute(void)
 			C = C0[scan];
 			//cout<<scan<<","<<R<<","<<C<<endl;
 			something_done = false;
-			if (!pDEM.isNodata(C,R))
+			do 
 			{
-				do 
+				//cout<<R<<","<<C<<endl;
+				if (!pDEM.isNodata(C,R) && (pW.getData(C,R,wz) > pDEM.getData(C,R,z)))
 				{
-					//cout<<R<<","<<C<<endl;
-					if (pW.getData(C,R,wz) > pDEM.getData(C,R,z))
+					for (i = 0; i < 8; i++)
 					{
-						for (i = 0; i < 8; i++)
+						ix = C + dCol[i];
+						iy = R + dRow[i];
+						if (pDEM.hasAccess(ix,iy))
 						{
-							ix = C + dCol[i];
-							iy = R + dRow[i];
-							if (pDEM.hasAccess(ix,iy))
+							if (z >= (pW.getData(ix,iy,wzn)+epsilon[i])) // Operation 1
 							{
-								if (z >= (pW.getData(ix,iy,wzn)+epsilon[i])) // Operation 1
-								{
-									pW.setData(C,R,z);
-									something_done = true;
-									Dry_upward_cell(C,R);
-									break;
-								}
-								if(pW.getData(C,R,wz) > (pW.getData(ix,iy,wzn)+epsilon[i]))  // Operation 2
-								{
-									pW.setData(C,R,wzn+epsilon[i]);
-									something_done = true;
-								}
+								pW.setData(C,R,z);
+								something_done = true;
+								Dry_upward_cell(C,R);
+								break;
+							}
+							if(pW.getData(C,R,wz) > (pW.getData(ix,iy,wzn)+epsilon[i]))  // Operation 2
+							{
+								pW.setData(C,R,wzn+epsilon[i]);
+								something_done = true;
 							}
 						}
 					}
-				} while(Next_Cell(scan));// (Next_Cell(scan));
-				if (!something_done)
-					break;
-			}
+				}
+			} while(Next_Cell(scan));// (Next_Cell(scan));
+			if (!something_done)
+				break;
 		}
 			//if(!something_done)
 			//	break;
