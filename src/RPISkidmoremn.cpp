@@ -24,6 +24,7 @@ int main(int argc, char **argv)
 	char vlysrcfile[MAXLN],rdgsrcfile[MAXLN],dist2vlyfile[MAXLN],dist2rdgfile[MAXLN],rpifile[MAXLN];
 	int vlytag = 1, rdgtag = 1;/// by default, the tag of ridge and valley GRID is 1, it can also be assigned by user.
 	int i,err;
+	bool dist2vlyExport=false,dist2rdgExport=false;
 	if(argc < 7)
 	{  
 		printf("Error: To run this program, see the Usage option below\n");
@@ -35,7 +36,7 @@ int main(int argc, char **argv)
 	}
 	while(argc > i)
 	{
-		if (strcmp(argv[i],"-vly") == 0)
+		if ((argc > i) && strcmp(argv[i],"-vly") == 0)
 		{
 			i++;
 			if (argc > i)
@@ -45,7 +46,7 @@ int main(int argc, char **argv)
 			}
 			else goto errexit;
 		}
-		if (strcmp(argv[i],"-rdg") == 0)
+		if ((argc > i) && strcmp(argv[i],"-rdg") == 0)
 		{
 			i++;
 			if (argc > i)
@@ -55,7 +56,7 @@ int main(int argc, char **argv)
 			}
 			else goto errexit;
 		}
-		if (strcmp(argv[i],"-rpi") == 0)
+		if ((argc > i) && strcmp(argv[i],"-rpi") == 0)
 		{
 			i++;
 			if (argc > i)
@@ -65,7 +66,7 @@ int main(int argc, char **argv)
 			}
 			else goto errexit;
 		}
-		if (strcmp(argv[i],"-vlytag") == 0)
+		if ((argc > i) && strcmp(argv[i],"-vlytag") == 0)
 		{
 			i++;
 			if (argc > i)
@@ -75,7 +76,7 @@ int main(int argc, char **argv)
 			}
 			else goto errexit;
 		}
-		if (strcmp(argv[i],"-rdgtag") == 0)
+		if ((argc > i) && strcmp(argv[i],"-rdgtag") == 0)
 		{
 			i++;
 			if (argc > i)
@@ -85,28 +86,30 @@ int main(int argc, char **argv)
 			}
 			else goto errexit;
 		}
-		if (strcmp(argv[i],"-dist2vly") == 0)
+		if ((argc > i) && strcmp(argv[i],"-dist2vly") == 0)
 		{
 			i++;
 			if (argc > i)
 			{
 				strcpy(dist2vlyfile,argv[i]);
+				dist2vlyExport=true;
 				i++;
 			}
 			else goto errexit;
 		}
-		if (strcmp(argv[i],"-dist2rdg") == 0)
+		if ((argc > i) && strcmp(argv[i],"-dist2rdg") == 0)
 		{
 			i++;
 			if (argc > i)
 			{
 				strcpy(dist2rdgfile,argv[i]);
+				dist2rdgExport=true;
 				i++;
 			}
 			else goto errexit;
 		}
 	}
-	if((err=RPISkidmore(vlysrcfile,rdgsrcfile, vlytag, rdgtag, rpifile,dist2vlyfile,dist2rdgfile))!= 0)
+	if((err=RPISkidmore(vlysrcfile,rdgsrcfile, vlytag, rdgtag, rpifile,dist2vlyfile,dist2rdgfile,dist2vlyExport,dist2rdgExport))!= 0)
 		printf("Error %d\n",err); 
 	//system("pause");
 	return 0;

@@ -20,7 +20,7 @@
 #include "RPISkidmore.h"
 using namespace std;
 
-int RPISkidmore(char *vlysrcfile,char *rdgsrcfile,int vlytag, int rdgtag, char *rpifile,char *dist2vlyfile,char *dist2rdgfile)
+int RPISkidmore(char *vlysrcfile,char *rdgsrcfile,int vlytag, int rdgtag, char *rpifile,char *dist2vlyfile,char *dist2rdgfile,bool dist2vlyExport,bool dist2rdgExport)
 {
 	MPI_Init(NULL,NULL);
 	{
@@ -28,11 +28,6 @@ int RPISkidmore(char *vlysrcfile,char *rdgsrcfile,int vlytag, int rdgtag, char *
 		MPI_Comm_rank(MCW,&rank);
 		MPI_Comm_size(MCW,&size);
 		//MPI_Status status;
-		bool dist2rdgExport = true, dist2vlyExport = true;
-		if(dist2rdgfile == NULL)
-			dist2rdgExport = false;
-		if(dist2vlyfile == NULL)
-			dist2vlyExport = false;
 		if(rank == 0)
 		{
 			printf("RPISkidmore version %s, added by Liangjun Zhu, Jun.17, 2015\n",TDVERSION);
