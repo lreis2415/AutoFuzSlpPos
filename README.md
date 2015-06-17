@@ -1,5 +1,4 @@
 # Welcome to AutoFuzSlpPos
-==========
 ----------
 AutoFuzSlpPos (short for "**Automated Extraction of Fuzzy Slope Position**") is developed by PhD candidate Liangjun Zhu and **Prof.** Chengzhi Qin.
 
@@ -88,8 +87,14 @@ TO BE CONTINUE
 ## Case Study
 ------
 ![hardenmap](data/PleasantValley/map.jpg)
+
 **Fig.1 HardenMap of Study Area**
+
 ![maxsimilarity](data/PleasantValley/maxsim.jpg)
+
 **Fig.2 Maximum Similarity to Slope Position**
+
 ![maxsimilarity](data/PleasantValley/similarityMapDinf.jpg)
+
 **Fig.3 Similarity to Each Slope Position**
+
