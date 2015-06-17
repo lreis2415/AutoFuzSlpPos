@@ -1,5 +1,3 @@
-#  This file used for make on the CSDMS system
-#
 cmake_minimum_required(VERSION 2.6)
 project(AutoFuzSlpPos)
 set (BUILD_SHARED_LIBS OFF)
@@ -32,7 +30,7 @@ set (MVOUTLETSTOSTRMFILES moveoutletstostrm.cpp moveoutletstostrmmn.cpp
      ${common_srcs} ${shape_srcs})
 set (PITREMOVE flood.cpp PitRemovemn.cpp ${common_srcs})
 set (THRESHOLD Threshold.cpp Thresholdmn.cpp ${common_srcs})
-#Added by Liangjun Zhu, 2015/5/21
+# Added by Liangjun Zhu, 2015/5/21
 set (CURVATURE Curvature.cpp Curvaturemn.cpp ${common_srcs})
 set (D8DISTUP D8DistUpToRidge.cpp D8DistUpToRidgemn.cpp ${common_srcs})
 set (FUZSLPPOSINF FuzzySlpPosInference.cpp FuzzySlpPosInferencemn.cpp ${common_srcs})
@@ -40,6 +38,8 @@ set (HARDENSLPPOS HardenSlpPos.cpp HardenSlpPosmn.cpp ${common_srcs})
 set (TYPLOCSEL stats.cpp SelectTypLocSlpPos.cpp SelectTypLocSlpPosmn.cpp ${common_srcs})
 set (CALCULATOR SimpleCalculator.cpp SimpleCalculatormn.cpp ${common_srcs})
 set (PITREMOVEPD PitRemovePlanchon.cpp PitRemovePlanchonmn.cpp ${common_srcs})
+# Add original algorithm for RPI after skidmore 1990, By Liangjun Zhu, 2015/6/17
+set (RPISKIDMORE RPISkidmore.cpp RPISkidmoremn.cpp ${common_srcs})
 
 
 add_executable (aread8 ${D8FILES})
@@ -60,6 +60,7 @@ add_executable (hardenslppos ${HARDENSLPPOS})
 add_executable (selecttyplocslppos ${TYPLOCSEL})
 add_executable (simplecalculator ${CALCULATOR})
 add_executable (pitremoveplanchon ${PITREMOVEPD})
+add_executable (rpiskidmore ${RPISKIDMORE})
 
 
 install(TARGETS aread8 
@@ -79,5 +80,6 @@ install(TARGETS aread8
 				selecttyplocslppos
 				simplecalculator
 				pitremoveplanchon
+				rpiskidmore
         DESTINATION bin)
 
