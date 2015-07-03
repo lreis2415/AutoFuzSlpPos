@@ -160,7 +160,16 @@ int aread8( char* pfile, char* afile, char *shfile, char *wfile, int useOutlets,
 
 	node temp;
 	queue<node> que;
-
+	//! If useOutlets is 0, then we need to initialize the outletsX and outletsY.
+	//! Otherwise, initNeighborD8up will get an error message.
+	//! Modified by ZhuLJ, 2015/6/20
+	if (useOutlets != 1)
+	{
+		outletsX = new int[1];
+		outletsY = new int[1];
+		outletsX[0] = 0;
+		outletsY[0] = 0;
+	}
 	initNeighborD8up(neighbor,flowData,&que,nx, ny, useOutlets, outletsX, outletsY, numOutlets);
 	
 	finished = false;
