@@ -3,7 +3,7 @@
 
 # This file contains all configuration for running the Fuzzy Slope Postion workflow.
 # from Nomenclature import *
-import os
+import os,platform
 ## Stage 0: Configuration 
     
 ####    Required    ####
@@ -12,29 +12,25 @@ import os
 ## rawdem: input dem, be caution! DEM file should have one cell buffer. If preprocess is False, rawdem could be None.
 ## outlet: input outlet shapefile, be caution! The outlet point should locate at least one cell inner the DEM boundary. If preprocess is False, outlet could be None.
 
-
-## linux cluster in dgpm
-#mpiexeDir = r'/home/zhulj/mpich/bin'
-#exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86'
-#rootDir = r'/home/zhulj/PV_Dinf'
-#rawdem = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/pvdem.tif'
-#outlet = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/outlet.shp'
-
-## ubuntu 14.04 in my laptop
-#mpiexeDir = None
-#exeDir = r'/home/zhulj/codes/AutoFuzSlpPos/exec_linux_x86'
-#rootDir = r'/home/zhulj/data/PV_Dinf'
-#rawdem = r'/home/zhulj/codes/AutoFuzSlpPos/data/PleasantValley/pvdem.tif'
-#outlet = r'/home/zhulj/codes/AutoFuzSlpPos/data/PleasantValley/outlet.shp'
-
-## windows 7
-mpiexeDir = None 
-exeDir = r'E:\github-zlj\AutoFuzSlpPos\exec_win_x86'
-#exeDir = r'E:\coding\Taudem5PCVS2010Soln_512\AutoFuzSlpPosVS2010\Release'
-rootDir = r'C:\AutoFuzSlpPos\data\PV_Dinf'
-rawdem = r'C:\AutoFuzSlpPos\data\PleasantValley\pvdem.tif'
-outlet = r'C:\AutoFuzSlpPos\data\PleasantValley\outlet.shp'
-rdgsrc = None                                            ## if there is ridge source file, assign it here.  
+sysstr = platform.system()
+if sysstr == "Linux":
+    ## linux cluster
+    mpiexeDir = r'/home/zhulj/mpich/bin'
+    exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86'
+    rootDir = r'/home/zhulj/PV_Dinf'
+    rawdem = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/pvdem.tif'
+    outlet = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/outlet.shp'
+    vlysrc = None
+    rdgsrc = None
+elif sysstr == "Windows":
+    ## windows 7
+    mpiexeDir = None 
+    exeDir = r'E:\github-zlj\AutoFuzSlpPos\exec_win_x86'
+    rootDir = r'C:\AutoFuzSlpPos\data\PV_Dinf'
+    rawdem = r'C:\AutoFuzSlpPos\data\PleasantValley\pvdem.tif'
+    outlet = r'C:\AutoFuzSlpPos\data\PleasantValley\outlet.shp'
+    vlysrc = None
+    rdgsrc = None                                        ## if there is ridge or valley source file, assign it here.  
                               
 preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
 inputProc = 6                                            ## parallel processor's number
@@ -113,7 +109,7 @@ FtsTag = 1
 VlyTag = 1
 
 ExtLog = True                                            
-                                                        ## if AutoTypLocExtraction is false, please uncomment the following five lines, and modified by yourself.
+
 if not AutoTypLocExtraction:
     RdgExtractionInfo = [['RPI',0.99,1.0],['ProfC',0.00,1.0],['Slope',0.0,1.0]]                                                    
     ShdExtractionInfo = [['RPI',0.9,0.95],['ProfC',0.005,1.0]]

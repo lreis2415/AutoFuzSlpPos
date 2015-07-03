@@ -18,13 +18,19 @@
 #
 
 # Import modules
-import os
+import os,platform
 import sys
 import time
 import string
 import subprocess
 from Util import WriteLog,WriteTimeLog
 from Nomenclature import Log_all,Log_runtime
+
+sysstr = platform.system()
+if sysstr == "Windows":
+    LF = '\r'
+elif sysstr == "Linux":
+    LF = '\n'
 
 ## Basic Grid Analysis
 def pitremove(inZfile,inputProc,outFile, mpiexeDir = None, exeDir=None):
@@ -48,16 +54,16 @@ def pitremove(inZfile,inputProc,outFile, mpiexeDir = None, exeDir=None):
     contentList.append('\n')
     contentList.append("#### PitRemove ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
 def pitremoveplanchon(inZfile,deltaElev,inputProc,outFile,mpiexeDir=None,exeDir=None):
@@ -82,16 +88,16 @@ def pitremoveplanchon(inZfile,deltaElev,inputProc,outFile,mpiexeDir=None,exeDir=
     contentList.append("#### PitRemove(Planchon and Darboux, 2001) ####")
     
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -120,16 +126,16 @@ def D8FlowDir(fel,inputProc,p,sd8, mpiexeDir = None, exeDir=None):
     contentList.append('\n')
     contentList.append("#### Calculating D8 flow direction ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -158,16 +164,16 @@ def DinfFlowDir(fel,inputProc,ang,slp,mpiexeDir = None,  exeDir=None):
     contentList.append('\n')
     contentList.append("#### Calculating D-infinity direction ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -206,16 +212,16 @@ def AreaD8(p,Shapefile,weightgrid,edgecontamination,inputProc,ad8,mpiexeDir = No
     contentList.append('\n')
     contentList.append("#### Calculating D8 contributing area ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -254,16 +260,16 @@ def AreaDinf(ang,shapefile,weightgrid,edgecontamination,inputProc,sca,mpiexeDir 
     contentList.append('\n')
     contentList.append("#### Calculating D-infinity contributing area ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
  
@@ -318,16 +324,16 @@ def DinfDistDown(ang,fel,src,statisticalmethod,distancemethod,edgecontamination,
     contentList.append('\n')
     contentList.append("#### Calculating distance down to stream based on D-infinity model ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -361,16 +367,16 @@ def MoveOutletsToStreams(p,src,shapefile,maxdistance,inputProc,om, mpiexeDir = N
     contentList.append('\n')
     contentList.append("#### Moving outlet point(s) to streams ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -407,16 +413,16 @@ def Threshold(ssa,mask,threshold,inputProc,src, mpiexeDir = None, exeDir=None):
     contentList.append('\n')
     contentList.append("#### Stream definition according to threshold ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -458,16 +464,16 @@ def DropAnalysis(fel,p,ad8,ssa,shapefile,minthresh,maxthresh,numthresh,logspace,
     contentList.append('\n')
     contentList.append("#### Stream drop analysis for the optimal threshold ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -511,16 +517,16 @@ def D8DistDownToStream(p,fel,src,dist,distancemethod,thresh,inputProc,mpiexeDir 
     contentList.append('\n')
     contentList.append("#### Calculating distance down to stream based on D8 model ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -572,16 +578,16 @@ def D8DistUpToRidge(p,fel,du,distancemethod,statisticalmethod,inputProc,rdg=None
     contentList.append('\n')
     contentList.append("#### Calculating distance up to ridges based on D8 model ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -639,16 +645,16 @@ def DinfDistUpToRidge(ang,fel,slp,propthresh,statisticalmethod,distancemethod,ed
     contentList.append('\n')
     contentList.append("#### Calculating distance up to ridges based on D-infinity model ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -698,16 +704,16 @@ def Curvature(inputProc,fel,prof=None,plan=None,horiz=None,unspher=None,ave=None
     contentList.append('\n')
     contentList.append("#### Curvature ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -738,16 +744,16 @@ def SelectTypLocSlpPos(inputConf,outputConf,inputProc,outlog=None,mpiexeDir = No
     contentList.append('\n')
     contentList.append("#### Select Typical Location of %s ####" % inputConf.rpartition(os.sep)[-1])
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -774,16 +780,16 @@ def FuzzySlpPosInference(config,inputProc,values = None, mpiexeDir = None, exeDi
     contentList.append('\n')
     contentList.append("#### Fuzzy Slope Position Inference of %s ####" % config.rpartition(os.sep)[-1])
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -823,16 +829,16 @@ def HardenSlpPos(rdg,shd,bks,fts,vly,inputProc,hard,maxsimi,sechard=None,secsimi
     contentList.append('\n')
     contentList.append("#### Harden classification ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
@@ -856,16 +862,16 @@ def SimpleCalculator(inputa,inputb,output,operator,inputProc,mpiexeDir = None, e
     contentList.append('\n')
     contentList.append("#### Simple Calculator ####")
     for line in process.stdout.readlines():
-        contentList.append(line.split('\r')[0])
+        contentList.append(line.split(LF)[0])
         #print line
         if line.find("Read time") >= 0:
-            timeDict['readt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['readt'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
-            timeDict['computet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['computet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Write time") >= 0:
-            timeDict['writet'] = line.split('\r')[0].split(':')[-1]
+            timeDict['writet'] = line.split(LF)[0].split(':')[-1]
         elif line.find("Total time") >= 0:
-            timeDict['totalt'] = line.split('\r')[0].split(':')[-1]
+            timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
