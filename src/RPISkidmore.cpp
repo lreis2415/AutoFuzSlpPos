@@ -62,7 +62,7 @@ int RPISkidmore(char *vlysrcfile,char *rdgsrcfile,int vlytag, int rdgtag, char *
 		tiffIO rdgsrc(rdgsrcfile,FLOAT_TYPE);
 		if(!vlysrc.compareTiff(rdgsrc))
 		{
-			printf("File size do not match\n%s\n",rdgsrc);
+			printf("File size do not match\n%s\n", rdgsrcfile);
 			MPI_Abort(MCW,5);
 			return 1;
 		}
