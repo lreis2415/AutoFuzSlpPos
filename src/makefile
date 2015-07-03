@@ -26,7 +26,7 @@ TYPLOCSEL = stats.o SelectTypLocSlpPos.o SelectTypLocSlpPosmn.o $(OBJFILES)
 CALCULATOR = SimpleCalculator.o SimpleCalculatormn.o $(OBJFILES)
 PITREMOVEPD = PitRemovePlanchon.o PitRemovePlanchonmn.o $(OBJFILES)
 # Add original algorithm for RPI after skidmore 1990, By Liangjun Zhu, 2015/6/17
-RPISKIDMORE = RPISkidmore.o RPISkidmoremn.o ${OBJFILES})
+RPISKIDMORE = RPISkidmore.o RPISkidmoremn.o $(OBJFILES)
 
 #The following are compiler flags common to all building rules
 # my laptop, ubuntu 14.04
