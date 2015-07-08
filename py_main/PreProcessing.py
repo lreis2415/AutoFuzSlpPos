@@ -36,6 +36,7 @@ def PreProcessing(model):
     TauDEM.AreaD8(D8FlowDir,'','','false',inputProc,D8ContriArea,mpiexeDir=mpiexeDir,exeDir=exeDir)
     maxAccum, minAccum, meanAccum, STDAccum = GetRasterStat(D8ContriArea)
     TauDEM.Threshold(D8ContriArea,'',meanAccum,inputProc,D8Stream,mpiexeDir=mpiexeDir,exeDir=exeDir)
+    global outlet
     if outlet is None:
         TauDEM.ConnectDown(D8ContriArea,outletpre,inputProc,mpiexeDir=mpiexeDir,exeDir=exeDir)
         outlet = outletpre
