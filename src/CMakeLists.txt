@@ -18,6 +18,7 @@ set (shape_srcs
 #OBJFILES includes classes, structures, and constants common to all files
 set (common_srcs commonLib.cpp tiffIO.cpp)
 
+set (CONNECTDOWNFILES connectdownmn.cpp connectdown.cpp ${common_srcs} ${shape_srcs})
 set (D8FILES aread8mn.cpp aread8.cpp ${common_srcs} ${shape_srcs})
 set (DINFFILES areadinfmn.cpp areadinf.cpp ${common_srcs} ${shape_srcs})
 set (D8 D8FlowDirmn.cpp d8.cpp Node.cpp ${common_srcs} ${shape_srcs})
@@ -44,6 +45,7 @@ set (RPISKIDMORE RPISkidmore.cpp RPISkidmoremn.cpp ${common_srcs})
 
 add_executable (aread8 ${D8FILES})
 add_executable (areadinf ${DINFFILES})
+add_executable (connectdown ${CONNECTDOWNFILES})
 add_executable (d8flowdir ${D8})
 add_executable (d8distdowntostream ${D8DISTDOWN})
 add_executable (dinfdistdown ${DINFDISTDOWN})
@@ -65,6 +67,7 @@ add_executable (rpiskidmore ${RPISKIDMORE})
 
 install(TARGETS aread8 
                 areadinf
+                connectdown
                 d8flowdir
                 d8distdowntostream
                 dinfdistuptoridge

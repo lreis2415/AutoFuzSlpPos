@@ -10,7 +10,9 @@ import os,platform
 ## exeDir: if the executable files' path has been exported to the environmental path, set exeDir to None
 ## rootDir: workspace to store results
 ## rawdem: input dem, be caution! DEM file should have one cell buffer. If preprocess is False, rawdem could be None.
-## outlet: input outlet shapefile, be caution! The outlet point should locate at least one cell inner the DEM boundary. If preprocess is False, outlet could be None.
+## outlet: input outlet shapefile, be caution! The outlet point should locate at least one cell inner the DEM boundary.
+##         If outlet is None, then the maximum of Contributing Area will be identified as outlet.
+##         Also, if preprocess is False, outlet could be None.
 
 sysstr = platform.system()
 if sysstr == "Linux":
@@ -19,7 +21,7 @@ if sysstr == "Linux":
     exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86'
     rootDir = r'/home/zhulj/PV_Dinf'
     rawdem = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/pvdem.tif'
-    outlet = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/outlet.shp'
+    outlet = None
     vlysrc = None
     rdgsrc = None
 elif sysstr == "Windows":
@@ -28,7 +30,7 @@ elif sysstr == "Windows":
     exeDir = r'E:\github-zlj\AutoFuzSlpPos\exec_win_x86'
     rootDir = r'C:\AutoFuzSlpPos\data\PV_Dinf'
     rawdem = r'C:\AutoFuzSlpPos\data\PleasantValley\pvdem.tif'
-    outlet = r'C:\AutoFuzSlpPos\data\PleasantValley\outlet.shp'
+    outlet = None
     vlysrc = None
     rdgsrc = None                                        ## if there is ridge or valley source file, assign it here.  
                               
@@ -94,13 +96,13 @@ DinfUpMethod = 'Surface'                                 ## same as DinfDownMeth
  
 # Default: MIN_FREQUENCY = 1, MIN_TYPLOC_NUM = 200,\
 #          MAX_TYPLOC_NUM = 2000, DEFAULT_SELECT_RATIO = 0.1,\
-#          DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.2,\
+#          DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.414,\
 #          MAX_LOOP_NUM_TYPLOC_SELECTION = 100
-RdgBaseParam = [1,200,2000,0.1,0.1,2,100]
-ShdBaseParam = [1,200,2000,0.1,0.1,2,100]
-BksBaseParam = [1,200,2000,0.1,0.1,2,100]
-FtsBaseParam = [1,200,2000,0.1,0.1,2,100]
-VlyBaseParam = [1,200,2000,0.1,0.1,2,100]
+RdgBaseParam = [1,200,2000,0.1,0.1,1.414,100]
+ShdBaseParam = [1,200,2000,0.1,0.1,1.414,100]
+BksBaseParam = [1,200,2000,0.1,0.1,1.414,100]
+FtsBaseParam = [1,200,2000,0.1,0.1,1.414,100]
+VlyBaseParam = [1,200,2000,0.1,0.1,1.414,100]
 
 RdgTag = 1
 ShdTag = 1

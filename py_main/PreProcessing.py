@@ -22,8 +22,9 @@ def PreProcessing(model):
     TIFF2GeoTIFF(rawdem, dem)
     logStatus.write("[Preprocessing] [2/7] Removing pits...\n")
     logStatus.flush()
-    TauDEM.pitremoveplanchon(rawdem,deltaElev,1,demfilpre,mpiexeDir=mpiexeDir,exeDir=exeDir)
-    TauDEM.pitremove(demfilpre,inputProc,demfil,mpiexeDir=mpiexeDir,exeDir=exeDir) # pitremove in TauDEM
+    #TauDEM.pitremoveplanchon(rawdem,deltaElev,1,demfilpre,mpiexeDir=mpiexeDir,exeDir=exeDir)
+    #TauDEM.pitremove(demfilpre,inputProc,demfil,mpiexeDir=mpiexeDir,exeDir=exeDir) # pitremove in TauDEM
+    TauDEM.pitremove(rawdem,inputProc,demfil,mpiexeDir=mpiexeDir,exeDir=exeDir) # pitremove in TauDEM
     logStatus.write("[Preprocessing] [3/7] Flow direction and slope in radian...\n")
     logStatus.flush()
     TauDEM.D8FlowDir(demfil,inputProc,D8FlowDir,D8Slp,mpiexeDir=mpiexeDir,exeDir=exeDir)
@@ -31,12 +32,14 @@ def PreProcessing(model):
     if model == 1:
         TauDEM.DinfFlowDir(demfil,inputProc,DinfFlowDir,DinfSlp,mpiexeDir=mpiexeDir,exeDir=exeDir)
     logStatus.write("[Preprocessing] [4/7] Generating flow accumulation...\n")
-    logStatus.flush()    
+    logStatus.flush()  
     TauDEM.AreaD8(D8FlowDir,'','','false',inputProc,D8ContriArea,mpiexeDir=mpiexeDir,exeDir=exeDir)
     maxAccum, minAccum, meanAccum, STDAccum = GetRasterStat(D8ContriArea)
     TauDEM.Threshold(D8ContriArea,'',meanAccum,inputProc,D8Stream,mpiexeDir=mpiexeDir,exeDir=exeDir)
     if outlet is not None:
-        TauDEM.MoveOutletsToStreams(D8FlowDir,D8Stream,outlet,maxMoveDist,inputProc,outletM, mpiexeDir=mpiexeDir,exeDir=exeDir)
+        TauDEM.ConnectDown(D8ContriArea,outletpre,inputProc,mpiexeDir=mpiexeDir,exeDir=exeDir)
+        outlet = outletpre
+    TauDEM.MoveOutletsToStreams(D8FlowDir,D8Stream,outlet,maxMoveDist,inputProc,outletM, mpiexeDir=mpiexeDir,exeDir=exeDir)
 
     if model == 1:
         TauDEM.AreaDinf(DinfFlowDir,'','','false',inputProc,DinfContriArea,mpiexeDir=mpiexeDir,exeDir=exeDir)

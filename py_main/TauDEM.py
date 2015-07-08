@@ -101,6 +101,41 @@ def pitremoveplanchon(inZfile,deltaElev,inputProc,outFile,mpiexeDir=None,exeDir=
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
+def ConnectDown(ad8,outlet,inputProc,mpiexeDir = None, exeDir=None):
+   print "Generating outlet shapefile from areaD8......"
+   print "Input areaD8 file: "+ad8
+   print "Input Number of Processes: "+str(inputProc)
+   print "Output outlet File: "+outlet
+
+   # Construct command
+    
+   if exeDir is None:
+       cmd = 'mpiexec -n ' + str(inputProc) + ' connectdown -ad8 ' + '"' + ad8 + '"' + ' -o ' + '"' + outlet + '"'
+   else:
+       cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir  + os.sep + 'connectdown -ad8 ' + '"' + ad8 + '"' + ' -o ' + '"' + outlet + '"'
+   if mpiexeDir is not None:
+       cmd = mpiexeDir + os.sep + cmd
+   print "Command Line: "+cmd
+   ##os.system(cmd)
+   process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+   contentList = []
+   timeDict = {'name':None,'readt':0,'writet':0,'computet':0,'totalt':0}
+   timeDict['name'] = "ConnectDown"
+   contentList.append('\n')
+   contentList.append("#### Generating outlet shapefile from areaD8 ####")
+   for line in process.stdout.readlines():
+       contentList.append(line.split(LF)[0])
+       #print line
+       if line.find("Read time") >= 0:
+           timeDict['readt'] = line.split(LF)[0].split(':')[-1]
+       elif line.find("Compute time") >= 0:
+           timeDict['computet'] = line.split(LF)[0].split(':')[-1]
+       elif line.find("Write time") >= 0:
+           timeDict['writet'] = line.split(LF)[0].split(':')[-1]
+       elif line.find("Total time") >= 0:
+           timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
+   WriteLog(Log_all,contentList)
+   WriteTimeLog(Log_runtime,timeDict)
        
 
 def D8FlowDir(fel,inputProc,p,sd8, mpiexeDir = None, exeDir=None):

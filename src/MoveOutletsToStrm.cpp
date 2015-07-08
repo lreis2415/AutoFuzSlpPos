@@ -16,7 +16,7 @@
   a.	A stream raster grid cell is encountered before traversing the max_dist number of grid cells.  
    The point is moved and 'dist_moved' field is assigned a value indicating how many grid cells the 
    point was moved.
-  b.	More thanthe max_number of grid cells are traversed, or the traversal ends up going out of 
+  b.	More than the max_number of grid cells are traversed, or the traversal ends up going out of 
   the domain (encountering a no data D8 flow direction value).  The point is not moved and the 
   'dist_moved' field is assigned a value of -1.
 

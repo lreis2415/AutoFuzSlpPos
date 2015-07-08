@@ -5,7 +5,7 @@ SHAPEFILES = shapelib/dbfopen.o shapelib/safileio.o shapelib/shpopen.o \
              shapelib/shptree.o ReadOutlets.o
 #OBJFILES includes classes, structures, and constants common to all files
 OBJFILES = commonLib.o tiffIO.o
-
+CONNECTDOWNFILES = connectdownmn.o connectdown.o $(OBJFILES) $(SHAPEFILES)
 D8FILES = aread8mn.o aread8.o $(OBJFILES) $(SHAPEFILES)
 DINFFILES = areadinfmn.o areadinf.o $(OBJFILES) $(SHAPEFILES)
 D8 = D8FlowDirmn.o d8.o Node.o $(OBJFILES) $(SHAPEFILES)
@@ -44,7 +44,7 @@ INSTALLDIR=../exec_linux_x86
 
 #Rules: when and how to make a file
 
-all : $(SHAPEFILES) $(INSTALLDIR)/aread8 $(INSTALLDIR)/areadinf $(INSTALLDIR)/d8flowdir $(INSTALLDIR)/d8distdowntostream $(INSTALLDIR)/dinfdistuptoridge $(INSTALLDIR)/dinfdistdown $(INSTALLDIR)/dinfflowdir $(INSTALLDIR)/dropanalysis $(INSTALLDIR)/moveoutletstostreams $(INSTALLDIR)/pitremove $(INSTALLDIR)/threshold $(INSTALLDIR)/curvature $(INSTALLDIR)/d8distuptoridge $(INSTALLDIR)/fuzzyslpposinference $(INSTALLDIR)/hardenslppos $(INSTALLDIR)/selecttyplocslppos $(INSTALLDIR)/simplecalculator $(INSTALLDIR)/pitremoveplanchon $(INSTALLDIR)/rpiskidmore clean 
+all : $(SHAPEFILES) $(INSTALLDIR)/aread8 $(INSTALLDIR)/areadinf $(INSTALLDIR)/connectdown $(INSTALLDIR)/d8flowdir $(INSTALLDIR)/d8distdowntostream $(INSTALLDIR)/dinfdistuptoridge $(INSTALLDIR)/dinfdistdown $(INSTALLDIR)/dinfflowdir $(INSTALLDIR)/dropanalysis $(INSTALLDIR)/moveoutletstostreams $(INSTALLDIR)/pitremove $(INSTALLDIR)/threshold $(INSTALLDIR)/curvature $(INSTALLDIR)/d8distuptoridge $(INSTALLDIR)/fuzzyslpposinference $(INSTALLDIR)/hardenslppos $(INSTALLDIR)/selecttyplocslppos $(INSTALLDIR)/simplecalculator $(INSTALLDIR)/pitremoveplanchon $(INSTALLDIR)/rpiskidmore clean 
 
 $(INSTALLDIR)/aread8 : $(D8FILES)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(D8FILES) $(LDLIBS) $(LDFLAGS)
@@ -52,6 +52,9 @@ $(INSTALLDIR)/aread8 : $(D8FILES)
 $(INSTALLDIR)/areadinf : $(DINFFILES)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(DINFFILES) $(LDLIBS) $(LDFLAGS)
 
+$(INSTALLDIR)/connectdown : $(CONNECTDOWNFILES)
+	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(CONNECTDOWNFILES) $(LDLIBS) $(LDFLAGS)
+	
 $(INSTALLDIR)/d8flowdir : $(D8)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(D8) $(LDLIBS) $(LDFLAGS)
 

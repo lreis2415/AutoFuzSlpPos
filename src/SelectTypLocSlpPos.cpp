@@ -32,18 +32,18 @@ void dropParam(paramExtGRID &paramgrd)
 	paramgrd.w1 = MISSINGFLOAT;
 	paramgrd.w2 = MISSINGFLOAT;
 }
-int SetFuzFuncShape(paramExtGRID &paramgrd,ExtInfo &paramExt,char shape,int maxxIdx,float fitedCenter, float *allvalues, float DEFAULT_SELECT_RATIO, float DEFAULT_SIGMA_MULTIPLIER)
+int SetFuzFuncShape(paramExtGRID &paramgrd,ExtInfo &paramExt,char shape,int maxxIdx,float fittedCenter, float *allvalues, float DEFAULT_SELECT_RATIO, float DEFAULT_SIGMA_MULTIPLIER)
 {
 	float k1_2 = 0.0, k2_2 = 0.0, maxx = 0.0;
 	int i;
 	// update 2015/5/26 
-	if(fitedCenter == MISSINGFLOAT)
+	if(fittedCenter == MISSINGFLOAT)
 	{
 		maxx = paramExt.x[maxxIdx];
 	}
 	else
 	{
-		maxx = fitedCenter;
+		maxx = fittedCenter;
 		for (i = 1; i < FREQUENCY_GROUP; i++)
 		{
 			if(maxx >= paramExt.XRange[i-1] && maxx <= paramExt.XRange[i])
@@ -458,7 +458,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 						sigma_ratio_limit.push_back(10);
 						float bandwidth = 0.5;
 						float power = 1.0;
-						int esti_method = 0; // Two possible values: 0:"moment" and 1:"EM".
+						int esti_method = 0; // Two possible values: 0:"moment" and 1:"EM", currently only "moment" has been implemented.
 						float eliminate = 0.05;
 						int max_iter = 30;
 						vector<vector<float> > bigauss_results;
