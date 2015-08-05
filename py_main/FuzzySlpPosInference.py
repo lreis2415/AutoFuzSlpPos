@@ -55,7 +55,7 @@ def FuzzySlpPosInference():
             configInfo.write("DistanceExponentForIDW\t%s\n" % str(SlpPosItem[4]))
             configInfo.write("OUTPUT\t%s\n" % SlpPosItem[5])
             configInfo.close()
-        TauDEM.FuzzySlpPosInference(SlpPosItem[0],inputProc,mpiexeDir=mpiexeDir,exeDir=exeDir)
+        TauDEM.FuzzySlpPosInference(SlpPosItem[0],inputProc,mpiexeDir=mpiexeDir,exeDir=exeDir,hostfile=hostfile)
 
     if not CalSecHardSlpPos:
         global SecHardenSlpPos
@@ -65,5 +65,5 @@ def FuzzySlpPosInference():
         if not CalSPSI:
             global SPSIfile
             SPSIfile=None
-    TauDEM.HardenSlpPos(RdgInf,ShdInf,BksInf,FtsInf,VlyInf,inputProc,HardenSlpPos,MaxSimilarity,sechard=SecHardenSlpPos,secsimi=SecMaxSimilarity,spsim=SPSImethod,spsi=SPSIfile,mpiexeDir=mpiexeDir,exeDir=exeDir)
+    TauDEM.HardenSlpPos(RdgInf,ShdInf,BksInf,FtsInf,VlyInf,inputProc,HardenSlpPos,MaxSimilarity,sechard=SecHardenSlpPos,secsimi=SecMaxSimilarity,spsim=SPSImethod,spsi=SPSIfile,mpiexeDir=mpiexeDir,exeDir=exeDir,hostfile=hostfile)
     

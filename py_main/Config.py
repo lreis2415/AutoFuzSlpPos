@@ -19,7 +19,8 @@ if sysstr == "Linux":
     ## linux cluster
     mpiexeDir = r'/home/zhulj/mpich/bin'
     exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86'
-    rootDir = r'/home/zhulj/PV_Dinf/6'
+    hostfile = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86/dgpm'
+    rootDir = r'/home/zhulj/PV_Dinf/16'
     rawdem = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/pvdem.tif'
     outlet = None
     vlysrc = None
@@ -28,13 +29,14 @@ elif sysstr == "Windows":
     ## windows 7
     mpiexeDir = None 
     exeDir = r'E:\github-zlj\AutoFuzSlpPos\exec_win_x86'
+    hostfile = None
     rootDir = r'C:\AutoFuzSlpPos\data\PV_Dinf'
     rawdem = r'C:\AutoFuzSlpPos\data\PleasantValley\pvdem.tif'
     outlet = None
     vlysrc = None
     rdgsrc = None                                        ## if there is ridge or valley source file, assign it here.  
                               
-preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
+preprocess = False                                        ## if preprocessing for parameters' grids is needed, and True by default.
 inputProc = 6                                            ## parallel processor's number
 FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
@@ -105,10 +107,10 @@ FtsBaseParam = [1,200,2000,0.1,0.1,1.414,100]
 VlyBaseParam = [1,200,2000,0.1,0.1,1.414,100]
 
 RdgTag = 1
-ShdTag = 1
-BksTag = 1
-FtsTag = 1
-VlyTag = 1
+ShdTag = 2
+BksTag = 4
+FtsTag = 8
+VlyTag = 16
 
 ExtLog = True                                            
 

@@ -39,7 +39,7 @@ if __name__ == '__main__':
     allcost = allcost + cost
     log = log + "Selection of Typical Locations Time-consuming: " + str(cost) + ' s\n'
     ## Stage 3: Fuzzy Slope Position Inference
-    FuzzySlpPosInference()
+    #FuzzySlpPosInference()
     endFuzInfT = time.time()
     cost = (endFuzInfT - endSelectionT )
     log = log + "Fuzzy Slope Position Inference Time-consuming: "+ str(cost) + ' s\n'

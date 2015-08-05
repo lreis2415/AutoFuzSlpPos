@@ -33,16 +33,20 @@ elif sysstr == "Linux":
     LF = '\n'
 
 ## Basic Grid Analysis
-def pitremove(inZfile,inputProc,outFile, mpiexeDir = None, exeDir=None):
+def pitremove(inZfile,inputProc,outFile, mpiexeDir = None, exeDir=None, hostfile=None):
     print "PitRemove......"
     print "Input Elevation file: "+inZfile
     print "Input Number of Processes: "+str(inputProc)
     print "Output Pit Removed Elevation file: "+outFile
     # Construct the taudem command line.  Put quotes around file names in case there are spaces
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' pitremove -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"'
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
     else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'pitremove -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"'
+        cmd = 'mpiexec -n '
+    if exeDir is None:
+        cmd = cmd + str(inputProc) + ' pitremove -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"'
+    else:
+        cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'pitremove -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"'
     if mpiexeDir is not None:
         cmd = mpiexeDir + os.sep + cmd
     print "Command Line: "+cmd
@@ -101,18 +105,22 @@ def pitremoveplanchon(inZfile,deltaElev,inputProc,outFile,mpiexeDir=None,exeDir=
     WriteLog(Log_all,contentList)
     WriteTimeLog(Log_runtime,timeDict)
     
-def ConnectDown(ad8,outlet,inputProc,mpiexeDir = None, exeDir=None):
+def ConnectDown(ad8,outlet,inputProc,mpiexeDir = None, exeDir=None, hostfile=None):
    print "Generating outlet shapefile from areaD8......"
    print "Input areaD8 file: "+ad8
    print "Input Number of Processes: "+str(inputProc)
    print "Output outlet File: "+outlet
 
    # Construct command
-    
-   if exeDir is None:
-       cmd = 'mpiexec -n ' + str(inputProc) + ' connectdown -ad8 ' + '"' + ad8 + '"' + ' -o ' + '"' + outlet + '"'
+
+   if inputProc > 8 and hostfile is not None:
+       cmd = 'mpiexec -f ' + hostfile + ' -n '
    else:
-       cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir  + os.sep + 'connectdown -ad8 ' + '"' + ad8 + '"' + ' -o ' + '"' + outlet + '"'
+       cmd = 'mpiexec -n '  
+   if exeDir is None:
+       cmd = cmd + str(inputProc) + ' connectdown -ad8 ' + '"' + ad8 + '"' + ' -o ' + '"' + outlet + '"'
+   else:
+       cmd = cmd + str(inputProc) + ' ' + exeDir  + os.sep + 'connectdown -ad8 ' + '"' + ad8 + '"' + ' -o ' + '"' + outlet + '"'
    if mpiexeDir is not None:
        cmd = mpiexeDir + os.sep + cmd
    print "Command Line: "+cmd
@@ -138,18 +146,22 @@ def ConnectDown(ad8,outlet,inputProc,mpiexeDir = None, exeDir=None):
    WriteTimeLog(Log_runtime,timeDict)
        
 
-def D8FlowDir(fel,inputProc,p,sd8, mpiexeDir = None, exeDir=None):
+def D8FlowDir(fel,inputProc,p,sd8, mpiexeDir = None, exeDir=None, hostfile=None):
     print "Calculating D8 flow direction......"
     print "Input Pit Filled Elevation file: "+fel
     print "Input Number of Processes: "+str(inputProc)
     print "Output D8 Flow Direction File: "+p
     print "Output D8 Slope File: "+sd8
     # Construct command
-     
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' d8flowdir -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -sd8 ' + '"' + sd8 + '"'
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
     else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir  + os.sep + 'd8flowdir -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -sd8 ' + '"' + sd8 + '"'
+        cmd = 'mpiexec -n '  
+
+    if exeDir is None:
+        cmd = cmd + str(inputProc) + ' d8flowdir -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -sd8 ' + '"' + sd8 + '"'
+    else:
+        cmd = cmd + str(inputProc) + ' ' + exeDir  + os.sep + 'd8flowdir -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -sd8 ' + '"' + sd8 + '"'
     if mpiexeDir is not None:
         cmd = mpiexeDir + os.sep + cmd
     print "Command Line: "+cmd
@@ -176,17 +188,22 @@ def D8FlowDir(fel,inputProc,p,sd8, mpiexeDir = None, exeDir=None):
     
     
 
-def DinfFlowDir(fel,inputProc,ang,slp,mpiexeDir = None,  exeDir=None):
+def DinfFlowDir(fel,inputProc,ang,slp,mpiexeDir = None, exeDir=None, hostfile=None):
     print "Calculating D-infinity direction......"
     print "Input Pit Filled Elevation file: "+fel
     print "Input Number of Processes: "+str(inputProc)
     print "Output Dinf Flow Direction File: "+ang
     print "Output Dinf Slope File: "+slp
     # Construct command 
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' dinfflowdir -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + ' -slp ' + '"' + slp + '"'
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
     else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'dinfflowdir -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + ' -slp ' + '"' + slp + '"'
+        cmd = 'mpiexec -n '  
+    
+    if exeDir is None:
+        cmd = cmd + str(inputProc) + ' dinfflowdir -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + ' -slp ' + '"' + slp + '"'
+    else:
+        cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'dinfflowdir -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + ' -slp ' + '"' + slp + '"'
     if mpiexeDir is not None:
         cmd = mpiexeDir + os.sep + cmd
     
@@ -214,7 +231,7 @@ def DinfFlowDir(fel,inputProc,ang,slp,mpiexeDir = None,  exeDir=None):
     
     
         
-def AreaD8(p,Shapefile,weightgrid,edgecontamination,inputProc,ad8,mpiexeDir = None,  exeDir=None):
+def AreaD8(p,Shapefile,weightgrid,edgecontamination,inputProc,ad8,mpiexeDir = None, exeDir=None, hostfile=None):
     print "Calculating D8 contributing area......"
     print "Input D8 Flow Direction file: "+p
     if os.path.exists(Shapefile):
@@ -225,10 +242,15 @@ def AreaD8(p,Shapefile,weightgrid,edgecontamination,inputProc,ad8,mpiexeDir = No
     print "Input Number of Processes: "+str(inputProc)
     print "Output D8 Contributing Area Grid: "+ad8
     # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' aread8 -p ' + '"' + p + '"' + ' -ad8 ' + '"' + ad8 + '"'
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
     else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'aread8 -p ' + '"' + p + '"' + ' -ad8 ' + '"' + ad8 + '"'
+        cmd = 'mpiexec -n '  
+    
+    if exeDir is None:
+        cmd = cmd + str(inputProc) + ' aread8 -p ' + '"' + p + '"' + ' -ad8 ' + '"' + ad8 + '"'
+    else:
+        cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'aread8 -p ' + '"' + p + '"' + ' -ad8 ' + '"' + ad8 + '"'
     if os.path.exists(Shapefile):
         cmd = cmd + ' -o ' + '"' + Shapefile + '"'
     if os.path.exists(weightgrid):
@@ -262,7 +284,7 @@ def AreaD8(p,Shapefile,weightgrid,edgecontamination,inputProc,ad8,mpiexeDir = No
     
     
         
-def AreaDinf(ang,shapefile,weightgrid,edgecontamination,inputProc,sca,mpiexeDir = None,  exeDir=None):
+def AreaDinf(ang,shapefile,weightgrid,edgecontamination,inputProc,sca,mpiexeDir = None, exeDir=None, hostfile=None):
     print "Calculating D-infinity contributing area......"
     print "Input Dinf Flow Direction file: "+ang
     if os.path.exists(shapefile):
@@ -273,10 +295,15 @@ def AreaDinf(ang,shapefile,weightgrid,edgecontamination,inputProc,sca,mpiexeDir 
     print "Input Number of Processes: "+str(inputProc)
     print "Output Dinf Specific Catchment Area Grid: "+sca
     # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' areadinf -ang ' + '"' + ang + '"' + ' -sca ' + '"' + sca + '"'
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
     else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'areadinf -ang ' + '"' + ang + '"' + ' -sca ' + '"' + sca + '"'
+        cmd = 'mpiexec -n '  
+    
+    if exeDir is None:
+        cmd = cmd + str(inputProc) + ' areadinf -ang ' + '"' + ang + '"' + ' -sca ' + '"' + sca + '"'
+    else:
+        cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'areadinf -ang ' + '"' + ang + '"' + ' -sca ' + '"' + sca + '"'
     if os.path.exists(shapefile):
         cmd = cmd + ' -o ' + '"' + shapefile + '"'
     if os.path.exists(weightgrid):
@@ -310,7 +337,7 @@ def AreaDinf(ang,shapefile,weightgrid,edgecontamination,inputProc,sca,mpiexeDir 
  
 ## Specialized grid analysis
 
-def DinfDistDown(ang,fel,src,statisticalmethod,distancemethod,edgecontamination,wg,inputProc,dd, mpiexeDir = None, exeDir=None):
+def DinfDistDown(ang,fel,src,statisticalmethod,distancemethod,edgecontamination,wg,inputProc,dd, mpiexeDir = None, exeDir=None, hostfile=None):
     print "Calculating distance down to stream based on D-infinity model......"
     print "Input D-Infinity Flow Direction Grid: "+ang
     print "Input Pit Filled Elevation Grid: "+fel
@@ -338,10 +365,15 @@ def DinfDistDown(ang,fel,src,statisticalmethod,distancemethod,edgecontamination,
         distmeth = 'p'
     if distancemethod == 'Surface':
         distmeth = 's'
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' dinfdistdown -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + ' -src ' + '"' + src + '"' + ' -dd ' + '"' + dd + '"' + ' -m ' + statmeth + ' ' + distmeth
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
     else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'dinfdistdown -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + ' -src ' + '"' + src + '"' + ' -dd ' + '"' + dd + '"' + ' -m ' + statmeth + ' ' + distmeth
+        cmd = 'mpiexec -n '  
+    
+    if exeDir is None:
+        cmd = cmd + str(inputProc) + ' dinfdistdown -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + ' -src ' + '"' + src + '"' + ' -dd ' + '"' + dd + '"' + ' -m ' + statmeth + ' ' + distmeth
+    else:
+        cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'dinfdistdown -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + ' -src ' + '"' + src + '"' + ' -dd ' + '"' + dd + '"' + ' -m ' + statmeth + ' ' + distmeth
         
     if os.path.exists(wg):
         cmd = cmd + ' -wg ' + '"' + wg + '"'
@@ -375,7 +407,7 @@ def DinfDistDown(ang,fel,src,statisticalmethod,distancemethod,edgecontamination,
     
 
 
-def MoveOutletsToStreams(p,src,shapefile,maxdistance,inputProc,om, mpiexeDir = None, exeDir=None):
+def MoveOutletsToStreams(p,src,shapefile,maxdistance,inputProc,om, mpiexeDir = None, exeDir=None, hostfile=None):
     print "Moving outlet point(s) to streams......"
     print "Input D8 Flow Direction Grid: "+p
     print "Input Stream Raster Grid: "+src
@@ -386,10 +418,15 @@ def MoveOutletsToStreams(p,src,shapefile,maxdistance,inputProc,om, mpiexeDir = N
     print "Output Outlet Shapefile: "+om
 
     # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' moveoutletstostreams -p ' + '"' + p + '"' + ' -src ' + '"' + src + '"' + ' -o ' + '"' + shapefile + '"' + ' -om ' + '"' + om + '"' + ' -md ' + str(maxdistance)
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
     else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'moveoutletstostreams -p ' + '"' + p + '"' + ' -src ' + '"' + src + '"' + ' -o ' + '"' + shapefile + '"' + ' -om ' + '"' + om + '"' + ' -md ' + str(maxdistance)
+        cmd = 'mpiexec -n '  
+    
+    if exeDir is None:
+        cmd = cmd + str(inputProc) + ' moveoutletstostreams -p ' + '"' + p + '"' + ' -src ' + '"' + src + '"' + ' -o ' + '"' + shapefile + '"' + ' -om ' + '"' + om + '"' + ' -md ' + str(maxdistance)
+    else:
+        cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'moveoutletstostreams -p ' + '"' + p + '"' + ' -src ' + '"' + src + '"' + ' -o ' + '"' + shapefile + '"' + ' -om ' + '"' + om + '"' + ' -md ' + str(maxdistance)
     if mpiexeDir is not None:
         cmd = mpiexeDir + os.sep + cmd
     
@@ -418,7 +455,7 @@ def MoveOutletsToStreams(p,src,shapefile,maxdistance,inputProc,om, mpiexeDir = N
     
 
 
-def Threshold(ssa,mask,threshold,inputProc,src, mpiexeDir = None, exeDir=None):
+def Threshold(ssa,mask,threshold,inputProc,src, mpiexeDir = None, exeDir=None, hostfile=None):
     print "Stream definition according to threshold......"
     print "Input Accumulated Stream Source Grid: "+ssa
     if os.path.exists(mask):        
@@ -429,10 +466,15 @@ def Threshold(ssa,mask,threshold,inputProc,src, mpiexeDir = None, exeDir=None):
     print "Output Stream Raster Grid: "+src
 
     # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' threshold -ssa ' + '"' + ssa + '"' + ' -src ' + '"' + src + '"' + ' -thresh ' + str(threshold)
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
     else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'threshold -ssa ' + '"' + ssa + '"' + ' -src ' + '"' + src + '"' + ' -thresh ' + str(threshold)
+        cmd = 'mpiexec -n '  
+    
+    if exeDir is None:
+        cmd = cmd + str(inputProc) + ' threshold -ssa ' + '"' + ssa + '"' + ' -src ' + '"' + src + '"' + ' -thresh ' + str(threshold)
+    else:
+        cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'threshold -ssa ' + '"' + ssa + '"' + ' -src ' + '"' + src + '"' + ' -thresh ' + str(threshold)
         
     if os.path.exists(mask):
         cmd = cmd + ' -mask ' + mask
@@ -463,7 +505,7 @@ def Threshold(ssa,mask,threshold,inputProc,src, mpiexeDir = None, exeDir=None):
     
     
 
-def DropAnalysis(fel,p,ad8,ssa,shapefile,minthresh,maxthresh,numthresh,logspace,inputProc,drp, mpiexeDir = None, exeDir=None):
+def DropAnalysis(fel,p,ad8,ssa,shapefile,minthresh,maxthresh,numthresh,logspace,inputProc,drp, mpiexeDir = None, exeDir=None, hostfile=None):
     print "Stream drop analysis for the optimal threshold......"
     print "Input Pit Filled Elevation Grid: "+fel
     print "Input D8 Flow Direction Grid: "+p
@@ -479,10 +521,15 @@ def DropAnalysis(fel,p,ad8,ssa,shapefile,minthresh,maxthresh,numthresh,logspace,
     print "Output Drop Analysis Text File: "+drp
 
     # Construct command
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' dropanalysis -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -ad8 ' + '"' + ad8 + '"' + ' -ssa ' + '"' + ssa + '"' + ' -o ' + '"' + shapefile + '"' + ' -drp ' + '"' + drp + '"' + ' -par ' + str(minthresh) + ' ' + str(maxthresh) + ' ' + str(numthresh) + ' '
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
     else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'dropanalysis -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -ad8 ' + '"' + ad8 + '"' + ' -ssa ' + '"' + ssa + '"' + ' -o ' + '"' + shapefile + '"' + ' -drp ' + '"' + drp + '"' + ' -par ' + str(minthresh) + ' ' + str(maxthresh) + ' ' + str(numthresh) + ' '
+        cmd = 'mpiexec -n '  
+    
+    if exeDir is None:
+        cmd = cmd + str(inputProc) + ' dropanalysis -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -ad8 ' + '"' + ad8 + '"' + ' -ssa ' + '"' + ssa + '"' + ' -o ' + '"' + shapefile + '"' + ' -drp ' + '"' + drp + '"' + ' -par ' + str(minthresh) + ' ' + str(maxthresh) + ' ' + str(numthresh) + ' '
+    else:
+        cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'dropanalysis -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -ad8 ' + '"' + ad8 + '"' + ' -ssa ' + '"' + ssa + '"' + ' -o ' + '"' + shapefile + '"' + ' -drp ' + '"' + drp + '"' + ' -par ' + str(minthresh) + ' ' + str(maxthresh) + ' ' + str(numthresh) + ' '
     if logspace == 'false':    
         cmd = cmd + '1'
     else:
@@ -517,7 +564,7 @@ def DropAnalysis(fel,p,ad8,ssa,shapefile,minthresh,maxthresh,numthresh,logspace,
 
 ####   Functions added by Liangjun Zhu    ####
 
-def D8DistDownToStream(p,fel,src,dist,distancemethod,thresh,inputProc,mpiexeDir = None, exeDir=None):
+def D8DistDownToStream(p,fel,src,dist,distancemethod,thresh,inputProc,mpiexeDir = None, exeDir=None, hostfile=None):
     
     print "Calculating distance down to stream based on D8 model......"
     print "Input D8 Flow Direction Grid: "+p
@@ -536,10 +583,15 @@ def D8DistDownToStream(p,fel,src,dist,distancemethod,thresh,inputProc,mpiexeDir 
         distmeth = 'p'
     if distancemethod == 'Surface':
         distmeth = 's'
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' d8distdowntostream -p ' + '"' + p + '"' + ' -fel ' + '"' +fel+ '"' +' -src ' + '"' + src + '"' + ' -dist ' + '"' + dist + '"' +' -m '+distmeth+ ' -thresh ' + str(thresh)
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
     else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'd8distdowntostream -p ' + '"' + p + '"' + ' -fel ' + '"' +fel+ '"' +' -src ' + '"' + src + '"' + ' -dist ' + '"' + dist + '"' +' -m '+distmeth+ ' -thresh ' + str(thresh)
+        cmd = 'mpiexec -n '  
+    
+    if exeDir is None:
+        cmd = cmd + str(inputProc) + ' d8distdowntostream -p ' + '"' + p + '"' + ' -fel ' + '"' +fel+ '"' +' -src ' + '"' + src + '"' + ' -dist ' + '"' + dist + '"' +' -m '+distmeth+ ' -thresh ' + str(thresh)
+    else:
+        cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'd8distdowntostream -p ' + '"' + p + '"' + ' -fel ' + '"' +fel+ '"' +' -src ' + '"' + src + '"' + ' -dist ' + '"' + dist + '"' +' -m '+distmeth+ ' -thresh ' + str(thresh)
     if mpiexeDir is not None:
         cmd = mpiexeDir + os.sep + cmd
     
@@ -567,7 +619,7 @@ def D8DistDownToStream(p,fel,src,dist,distancemethod,thresh,inputProc,mpiexeDir 
     
     
 
-def D8DistUpToRidge(p,fel,du,distancemethod,statisticalmethod,inputProc,rdg=None,mpiexeDir = None, exeDir=None):
+def D8DistUpToRidge(p,fel,du,distancemethod,statisticalmethod,inputProc,rdg=None,mpiexeDir = None, exeDir=None, hostfile=None):
     print "Calculating distance up to ridges based on D8 model......"
     print "Input D8 Flow Direction Grid: "+p
     print "Input Pit Filled Elevation Grid: "+fel
@@ -594,9 +646,9 @@ def D8DistUpToRidge(p,fel,du,distancemethod,statisticalmethod,inputProc,rdg=None
     if distancemethod == 'Surface':
         distmeth = 's'
     if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' d8distuptoridge -p '
+        cmd = cmd + str(inputProc) + ' d8distuptoridge -p '
     else:
-        cmd = 'mpiexec -n ' + str(inputProc) +  ' ' + exeDir + os.sep + 'd8distuptoridge -p '
+        cmd = cmd + str(inputProc) +  ' ' + exeDir + os.sep + 'd8distuptoridge -p '
     if not rdg is None:
         cmd = cmd + '"' + p + '"' +' -fel ' + '"' + fel + '"' + ' -rdg ' + '"' + rdg + '"' + ' -du ' + '"' + du + '"' + ' -m ' + statmeth + ' ' + distmeth
     else:
@@ -628,7 +680,7 @@ def D8DistUpToRidge(p,fel,du,distancemethod,statisticalmethod,inputProc,rdg=None
     
     
 
-def DinfDistUpToRidge(ang,fel,slp,propthresh,statisticalmethod,distancemethod,edgecontamination,inputProc,du,rdg=None, mpiexeDir = None, exeDir=None):
+def DinfDistUpToRidge(ang,fel,slp,propthresh,statisticalmethod,distancemethod,edgecontamination,inputProc,du,rdg=None, mpiexeDir = None, exeDir=None, hostfile=None):
     print "Calculating distance up to ridges based on D-infinity model......"
     print "Input D-Infinity Flow Direction Grid: "+ang
     print "Input Pit Filled Elevation Grid: "+fel
@@ -658,10 +710,15 @@ def DinfDistUpToRidge(ang,fel,slp,propthresh,statisticalmethod,distancemethod,ed
         distmeth = 'p'
     if distancemethod == 'Surface':
         distmeth = 's'
-    if exeDir is None:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' dinfdistuptoridge '
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
     else:
-        cmd = 'mpiexec -n ' + str(inputProc) + ' ' + exeDir + os.sep + 'dinfdistuptoridge '
+        cmd = 'mpiexec -n '  
+    
+    if exeDir is None:
+        cmd = cmd + str(inputProc) + ' dinfdistuptoridge '
+    else:
+        cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'dinfdistuptoridge '
     if not rdg is None:
         cmd = cmd +' -ang ' + '"' + ang + '"'+' -fel '+ '"' + fel + '"' + ' -slp ' + '"' + slp + '"' +' -rdg ' + '"' + rdg + '"' +  ' -du ' + '"' + du + '"' + ' -m ' + statmeth + ' ' + distmeth + ' -thresh ' + str(propthresh)
     else:
@@ -695,11 +752,16 @@ def DinfDistUpToRidge(ang,fel,slp,propthresh,statisticalmethod,distancemethod,ed
     
     
 
-def Curvature(inputProc,fel,prof=None,plan=None,horiz=None,unspher=None,ave=None,max=None,min=None,mpiexeDir = None, exeDir=None):
-    if exeDir is None:
-        cmd = 'mpiexec -n '+str(inputProc)+' curvature'
+def Curvature(inputProc,fel,prof=None,plan=None,horiz=None,unspher=None,ave=None,max=None,min=None,mpiexeDir = None, exeDir=None, hostfile=None):
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
     else:
-        cmd = 'mpiexec -n '+str(inputProc)+ ' ' + exeDir + os.sep + 'curvature'
+        cmd = 'mpiexec -n '  
+    
+    if exeDir is None:
+        cmd = cmd + str(inputProc)+' curvature'
+    else:
+        cmd = cmd + str(inputProc)+ ' ' + exeDir + os.sep + 'curvature'
     if prof is None and plan is None and horiz is None and unspher is None and ave is None and max is None and min is None:
         cmd = cmd +' -fel ' + '"' + fel + '"'
     else:
@@ -753,17 +815,21 @@ def Curvature(inputProc,fel,prof=None,plan=None,horiz=None,unspher=None,ave=None
     WriteTimeLog(Log_runtime,timeDict)
     
     
-def SelectTypLocSlpPos(inputConf,outputConf,inputProc,outlog=None,mpiexeDir = None, exeDir=None):
+def SelectTypLocSlpPos(inputConf,outputConf,inputProc,outlog=None,mpiexeDir = None, exeDir=None, hostfile=None):
     print "Selecting Typical Slope Position Location and Calculating Fuzzy Inference Parameters"
     print "    Input configuration file: "+inputConf
     print "    Output configuration file: "+outputConf
     if outlog is not None:
         print "    Output Log file: "+outlog
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
+    else:
+        cmd = 'mpiexec -n '  
     
     if exeDir is None:
-        cmd = 'mpiexec -n '+str(inputProc)+' selecttyplocslppos ' + '"' + inputConf + '"' + ' "' + outputConf + '" '
+        cmd = cmd + str(inputProc)+' selecttyplocslppos ' + '"' + inputConf + '"' + ' "' + outputConf + '" '
     else:
-        cmd = 'mpiexec -n '+str(inputProc)+ ' ' + exeDir + os.sep + 'selecttyplocslppos ' + '"' + inputConf + '"' + ' "' + outputConf + '" '
+        cmd = cmd + str(inputProc)+ ' ' + exeDir + os.sep + 'selecttyplocslppos ' + '"' + inputConf + '"' + ' "' + outputConf + '" '
     if outlog is not None:
         cmd = cmd + ' "' + outlog + '" '
     if mpiexeDir is not None:
@@ -793,13 +859,18 @@ def SelectTypLocSlpPos(inputConf,outputConf,inputProc,outlog=None,mpiexeDir = No
     WriteTimeLog(Log_runtime,timeDict)
     
     
-def FuzzySlpPosInference(config,inputProc,values = None, mpiexeDir = None, exeDir=None):
+def FuzzySlpPosInference(config,inputProc,values = None, mpiexeDir = None, exeDir=None, hostfile=None):
     print "Fuzzy Slope Position Inference"
     print "    Configuration file: "+config
-    if exeDir is None:
-        cmd = 'mpiexec -n '+str(inputProc)+' fuzzyslpposinference ' + '"' + config + '"'
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
     else:
-        cmd = 'mpiexec -n '+str(inputProc)+ ' ' + exeDir + os.sep + 'fuzzyslpposinference ' + '"' + config + '"'
+        cmd = 'mpiexec -n '  
+    
+    if exeDir is None:
+        cmd = cmd + str(inputProc)+' fuzzyslpposinference ' + '"' + config + '"'
+    else:
+        cmd = cmd + str(inputProc)+ ' ' + exeDir + os.sep + 'fuzzyslpposinference ' + '"' + config + '"'
     if mpiexeDir is not None:
         cmd = mpiexeDir + os.sep + cmd
     if values is not None:
@@ -830,7 +901,7 @@ def FuzzySlpPosInference(config,inputProc,values = None, mpiexeDir = None, exeDi
     
 
     
-def HardenSlpPos(rdg,shd,bks,fts,vly,inputProc,hard,maxsimi,sechard=None,secsimi=None,spsim=None,spsi=None,mpiexeDir = None, exeDir=None):
+def HardenSlpPos(rdg,shd,bks,fts,vly,inputProc,hard,maxsimi,sechard=None,secsimi=None,spsim=None,spsi=None,mpiexeDir = None, exeDir=None, hostfile=None):
     print "Harden Slope Position Inference"
     print "Ridge Similarity file: "+rdg
     print "Shoulder slope similarity file: "+shd
@@ -839,11 +910,15 @@ def HardenSlpPos(rdg,shd,bks,fts,vly,inputProc,hard,maxsimi,sechard=None,secsimi
     print "Valley similarity file: "+vly
     print "Hard slope position file: "+hard
     print "Maximum similarity: "+maxsimi
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
+    else:
+        cmd = 'mpiexec -n '  
     
     if exeDir is None:
-        cmd = 'mpiexec -n '+str(inputProc)+' hardenslppos -rdg ' + '"' + rdg + '"' + ' -shd ' + '"' + shd + '"' + ' -bks ' + '"' + bks + '"' + ' -fts ' + '"' + fts + '"' + ' -vly ' + '"' + vly + '"' + ' -maxS ' + '"' + hard + '" ' + '"' + maxsimi + '"'
+        cmd = cmd + str(inputProc)+' hardenslppos -rdg ' + '"' + rdg + '"' + ' -shd ' + '"' + shd + '"' + ' -bks ' + '"' + bks + '"' + ' -fts ' + '"' + fts + '"' + ' -vly ' + '"' + vly + '"' + ' -maxS ' + '"' + hard + '" ' + '"' + maxsimi + '"'
     else:
-        cmd = 'mpiexec -n '+str(inputProc)+ ' ' + exeDir + os.sep + 'hardenslppos -rdg ' + '"' + rdg + '"' + ' -shd ' + '"' + shd + '"' + ' -bks ' + '"' + bks + '"' + ' -fts ' + '"' + fts + '"' + ' -vly ' + '"' + vly + '"' + ' -maxS ' + '"' + hard + '" ' + '"' + maxsimi + '"'
+        cmd = cmd + str(inputProc)+ ' ' + exeDir + os.sep + 'hardenslppos -rdg ' + '"' + rdg + '"' + ' -shd ' + '"' + shd + '"' + ' -bks ' + '"' + bks + '"' + ' -fts ' + '"' + fts + '"' + ' -vly ' + '"' + vly + '"' + ' -maxS ' + '"' + hard + '" ' + '"' + maxsimi + '"'
     if (not sechard is None) and (not secsimi is None):
         print "Second Hard slope position file: "+sechard
         print "Second Maximum similarity: "+secsimi
@@ -879,11 +954,16 @@ def HardenSlpPos(rdg,shd,bks,fts,vly,inputProc,hard,maxsimi,sechard=None,secsimi
     
     
     
-def SimpleCalculator(inputa,inputb,output,operator,inputProc,mpiexeDir = None, exeDir=None):
-    if exeDir is None:
-        cmd = 'mpiexec -n '+str(inputProc)+' simplecalculator -in '+ '"' + inputa + '"' + ' "' + inputb + '"' +' -out '+ '"' + output + '"' + ' -op '+ str(operator)
+def SimpleCalculator(inputa,inputb,output,operator,inputProc,mpiexeDir = None, exeDir=None, hostfile=None):
+    if inputProc > 8 and hostfile is not None:
+        cmd = 'mpiexec -f ' + hostfile + ' -n '
     else:
-        cmd = 'mpiexec -n '+str(inputProc)+ ' ' + exeDir + os.sep + 'simplecalculator -in '+ '"' + inputa + '"' + ' "' + inputb + '"' +' -out '+ '"' + output + '"' + ' -op '+ str(operator)
+        cmd = 'mpiexec -n '  
+    
+    if exeDir is None:
+        cmd = cmd + str(inputProc)+' simplecalculator -in '+ '"' + inputa + '"' + ' "' + inputb + '"' +' -out '+ '"' + output + '"' + ' -op '+ str(operator)
+    else:
+        cmd = cmd + str(inputProc)+ ' ' + exeDir + os.sep + 'simplecalculator -in '+ '"' + inputa + '"' + ' "' + inputb + '"' +' -out '+ '"' + output + '"' + ' -op '+ str(operator)
     if mpiexeDir is not None:
         cmd = mpiexeDir + os.sep + cmd
     
