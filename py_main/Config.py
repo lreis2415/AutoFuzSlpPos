@@ -20,7 +20,7 @@ if sysstr == "Linux":
     mpiexeDir = r'/home/zhulj/mpich/bin'
     exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86'
     hostfile = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86/dgpm'
-    rootDir = r'/home/zhulj/PV_Dinf/16'
+    rootDir = r'/home/zhulj/PV_Dinf/1'
     rawdem = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/pvdem.tif'
     outlet = None
     vlysrc = None
@@ -36,8 +36,8 @@ elif sysstr == "Windows":
     vlysrc = None
     rdgsrc = None                                        ## if there is ridge or valley source file, assign it here.  
                               
-preprocess = False                                        ## if preprocessing for parameters' grids is needed, and True by default.
-inputProc = 6                                            ## parallel processor's number
+preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
+inputProc = 1                                           ## parallel processor's number
 FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
 ## Selection of Typical Locations
