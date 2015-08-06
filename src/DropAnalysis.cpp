@@ -181,7 +181,7 @@ int dropan(char *areafile, char *dirfile, char *elevfile, char *ssafile, char *d
 	bool finished;
 	long n1,n2;
 	bool optnotset=true;
-	
+
 	double begint = MPI_Wtime();
 
 	//  *** initiate fssada grid partition from ssafile
