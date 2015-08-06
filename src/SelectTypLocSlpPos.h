@@ -8,16 +8,17 @@
 */
 #include "commonLib.h"
 // update 2015/5/25 set these parameters as input variables.
-#define FREQUENCY_GROUP 100  // used to calculate frequency of cell values
-//#define MIN_FREQUENCY 1 // used to eliminate frequencies.
+#define FREQUENCY_GROUP 100  /// used to calculate frequency of cell values
+//#define MIN_FREQUENCY 1 /// used to eliminate frequencies to obtain a better fitting result of Bi-Gaussian model
 //#define MIN_TYPLOC_NUM 200
 //#define MAX_TYPLOC_NUM 2000
 //#define DEFAULT_SELECT_RATIO 0.1
-//#define DEFAULT_INCREMENT_RATIO 0.1 // 
+//#define DEFAULT_INCREMENT_RATIO 0.1
 //#define DEFAULT_SIGMA_MULTIPLIER 1.2
 //#define MAX_LOOP_NUM_TYPLOC_SELECTION 100
+//#define BiGaussian_RATIO 4.0
 
-typedef struct paramExtGRID
+typedef struct paramExtGRID /// Constructs parameters for finding typical locations and fuzzy inference
 {
 	char name[10];
 	char path[MAXLN];
@@ -31,7 +32,7 @@ typedef struct paramExtGRID
 	float r2;
 	float k2;
 };
-typedef struct ExtInfo
+typedef struct ExtInfo /// Constructs frequency distribution array, and store other statistics values
 {
 	int num; // number of terrain attributes values 
 	float maxValue; // maximum value
@@ -43,10 +44,10 @@ typedef struct ExtInfo
 	float y[FREQUENCY_GROUP];  // y[i] = value count that fall in [XRange[i],XRange[i+1]]
 	float XRange[FREQUENCY_GROUP+1]; // XRange[i] = minValue + interval * i
 };
-typedef struct DefaultFuzInf
+typedef struct DefaultFuzInf /// prior expert knowledge of curve shape for fuzzy inference model for a specific topographic attribute
 {
-	char param[10]; // terrain attribute name
-	char shape[4];  // 
+	char param[10]; /// name of topographic attribute
+	char shape[4];  /// prior expert knowledge of curve shape for fuzzy inference model 
 };
 int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtGRID *paramsgrd,int addparamsNum,paramExtGRID *addparamgrd,vector<DefaultFuzInf> fuzinf,float *baseInputParameters,char *typlocfile,char *outconffile,bool writelog,char *logfile);
 void dropParam(paramExtGRID &paramgrd);

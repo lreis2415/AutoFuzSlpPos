@@ -1067,11 +1067,11 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
 			for (i = 0; i < results_group[sel2]; i++)
 			{
 				fit_results[i].resize(5);
-				fit_results[i][0] = results[sel2][i][0]; // m : peak center
-				fit_results[i][1] = results[sel2][i][1]; // s1: sigma1 (left)
-				fit_results[i][2] = results[sel2][i][2]; // s2: sigma2 (right)
-				fit_results[i][3] = results[sel2][i][3]; // delta
-				fit_results[i][4] = nash_coef[sel2];     // nash: nash-sutcliffe coefficient
+				fit_results[i][0] = results[sel2][i][0]; /// m : peak center
+				fit_results[i][1] = results[sel2][i][1]; /// s1: sigma1 (left)
+				fit_results[i][2] = results[sel2][i][2]; /// s2: sigma2 (right)
+				fit_results[i][3] = results[sel2][i][3]; /// delta
+				fit_results[i][4] = nash_coef[sel2];     /// nash: nash-sutcliffe coefficient
 			}
 			return 1;
 		}

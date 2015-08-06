@@ -121,7 +121,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 		if (temp == paramsNum)
 			autoSel = false;
 		int MIN_FREQUENCY = 1, MIN_TYPLOC_NUM = 200, MAX_TYPLOC_NUM = 2000, MAX_LOOP_NUM_TYPLOC_SELECTION = 100;
-		float DEFAULT_SELECT_RATIO = 0.1,DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.2;
+		float DEFAULT_SELECT_RATIO = 0.1,DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.2, DEFAULT_BiGaussian_Ratio = 4.0;
 		if (baseInputParameters != NULL)
 		{
 			MIN_FREQUENCY = int(baseInputParameters[0]);
@@ -131,6 +131,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 			DEFAULT_INCREMENT_RATIO = baseInputParameters[4];
 			DEFAULT_SIGMA_MULTIPLIER = baseInputParameters[5];
 			MAX_LOOP_NUM_TYPLOC_SELECTION = int(baseInputParameters[6]);
+			DEFAULT_BiGaussian_Ratio = baseInputParameters[7];
 		}
 		if(rank == 0)
 		{
@@ -244,22 +245,19 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 		delete rpi,RPIf; // to release memory
 		double readt = MPI_Wtime(); // record reading time
 		unsigned int i,j;
-		//int *tempCellCount = new int[paramsNum];  // old code: int tempCellCount = 0;
 		float tempRPI,tempAttr;
 		int err;
-		float **AllCellValues = new float *[paramsNum];
+		float **AllCellValues = new float *[paramsNum]; /// used to store all cell values from all processors selected of each topographic attributes
 		ExtInfo *paramsExtInfo = new ExtInfo[paramsNum];
 		if (autoSel) // determine the value range according to RPI and additional parameters
 		{
-			//float minTypValue,maxTypValue;
-			float *minTypValue = new float[addparamsNum+1];
-			float *maxTypValue = new float[addparamsNum+1];//update 2015/5/18
-			int *CellCount = new int[paramsNum];
-			float **CellValues = new float*[paramsNum];
-			queue<float> *tempCellValues = new queue<float>[paramsNum];
-			//old code: queue<float> tempCellValues;
-			float *maxValue = new float[paramsNum];
-			float *minValue = new float[paramsNum];
+			float *minTypValue = new float[addparamsNum+1];/// RPI value range and additional topographic attributes' value ranges
+			float *maxTypValue = new float[addparamsNum+1];/// update 2015/5/18
+			int *CellCount = new int[paramsNum]; /// selected cell numbers
+			float **CellValues = new float*[paramsNum]; /// store cell values selected of each topographic attributes for current processor
+			queue<float> *tempCellValues = new queue<float>[paramsNum]; /// dynamic queue to store temp cell values selected for current processor
+			float *maxValue = new float[paramsNum]; /// maximum topographic attribute
+			float *minValue = new float[paramsNum]; /// minimum topographic attribute
 			for (i = 0; i < addparamsNum; i++)
 			{
 				minTypValue[i] = addparamgrd[i].minTyp;
@@ -267,15 +265,15 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 			}
 			minTypValue[addparamsNum] = paramsgrd[RPIindex].minTyp;
 			maxTypValue[addparamsNum] = paramsgrd[RPIindex].maxTyp;
-			//float tempminTyp,tempmaxTyp;
+
 			for (num = 0; num < paramsNum; num++){
 				maxValue[num] = MISSINGFLOAT;
 				minValue[num] = -1*MISSINGFLOAT;
 			}
-			
-			for (j = 0; j < ny; j++) // rows
+			/// extract candidate attribute values according to RPI range and additional attribute
+			for (j = 0; j < ny; j++) /// rows
 			{
-				for (i = 0; i < nx; i++) // cols
+				for (i = 0; i < nx; i++) /// cols
 				{
 					bool selected = true;
 					if(!params[RPIindex].isNodata(i,j))
@@ -315,6 +313,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 					}
 				}
 			}
+			/// dump cell values from tempCellValues to CellValues
 			for (num = 0; num < paramsNum; num++)
 			{
 				if (num != RPIindex)
@@ -329,16 +328,17 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 						tempCellCount--;
 					}
 				}
-				else
+				else /// special handing for RPI
 				{
 					CellCount[num] = 1;
 					CellValues[num] = new float[1];
 					CellValues[num][0] = 0.0;
 				}
 			}
-			for (num = 0; num < paramsNum; num++)   // use rank0 as root process to gather all cell values and calculate Gaussian Fitting.
+			/// use a single processor(rank = 0) as root process to gather all cell values and calculate Gaussian Fitting.
+			for (num = 0; num < paramsNum; num++)
 			{
-				int *localCellCount = new int[size];
+				int *localCellCount = new int[size]; /// cell numbers in each processor
 				MPI_Allreduce(&maxValue[num],&paramsExtInfo[num].maxValue,1,MPI_FLOAT,MPI_MAX,MCW);
 				MPI_Allreduce(&minValue[num],&paramsExtInfo[num].minValue,1,MPI_FLOAT,MPI_MIN,MCW);
 				MPI_Allreduce(&CellCount[num],&paramsExtInfo[num].num,1,MPI_INT,MPI_SUM,MCW);
@@ -350,19 +350,23 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 				{
 					displs[i] = displs[i-1] + localCellCount[i-1];
 				}
-				//MPI_Allgatherv(CellValues[num],CellCount[num],MPI_FLOAT,AllCellValues[num],localCellCount,displs,MPI_FLOAT,MCW);
+				//MPI_Allgatherv(CellValues[num],CellCount[num],MPI_FLOAT,AllCellValues[num],localCellCount,displs,MPI_FLOAT,MCW); /// this is gather to all processor
 				MPI_Gatherv(CellValues[num],CellCount[num],MPI_FLOAT,AllCellValues[num],localCellCount,displs,MPI_FLOAT,0,MCW);
 			}
+			/// test code
 			//for (int i = 0;i < paramsNum;i++)
 			//	printf("%s:%d,min:%f,max:%f\n",paramsgrd[i].name,CellCount[i],minValue[i],maxValue[i]);
 			//for(num = 0; num < paramsNum; num++)
 			//	cout<<paramsgrd[num].name<<","<<paramsgrd[num].shape<<","<<paramsgrd[num].minTyp<<","<<paramsgrd[num].maxTyp<<endl;
-			if (rank == 0)  // TODO: allocate compute mission to every processor
+			/// end test code
+
+			/// do Bi-Gaussian mixed model and set parameters for finding typical locations and fuzzy inference
+			if (rank == 0)
 			{
 				for (num = 0; num < paramsNum; num++)
 				{
 					paramsExtInfo[num].interval = 0.0;
-					if (num == RPIindex)
+					if (num == RPIindex) /// set default 
 					{
 						paramsgrd[num].shape = 'B';
 						paramsgrd[num].w1 = 6.0;
@@ -372,7 +376,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 						paramsgrd[num].k2 = 0.5;
 						paramsgrd[num].r2 = 2.0;
 					}
-					for (i = 0; i < FREQUENCY_GROUP; i++)
+					for (i = 0; i < FREQUENCY_GROUP; i++) /// initialize frequency distribution arrays
 					{
 						paramsExtInfo[num].x[i] = 0.0;
 						paramsExtInfo[num].y[i] = 0.0;
@@ -394,20 +398,17 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 							paramsExtInfo[num].y[(int)floor((AllCellValues[num][i] - paramsExtInfo[num].minValue)/paramsExtInfo[num].interval)]++;
 						}
 						vector<float> tempx,tempy;
-						//int validNum = 0;
 						for (j = 0; j < FREQUENCY_GROUP; j++)
 						{
-							if (paramsExtInfo[num].y[j] >= MIN_FREQUENCY)
+							if (paramsExtInfo[num].y[j] >= MIN_FREQUENCY) /// eliminate frequency which less than MIN_FREQUENCY
 							{
-								//paramsExtInfo[num].y[j] /= paramsExtInfo[num].num;
 								tempx.push_back(paramsExtInfo[num].x[j]);
 								tempy.push_back(paramsExtInfo[num].y[j]);
-								//validNum++;
 							}
 						}
-						vector<float> (tempy).swap(tempy);
+						vector<float> (tempy).swap(tempy); /// swap to save memory
 						vector<float> (tempx).swap(tempx);
-						if (writelog)
+						if (writelog) /// append frequency distribution values to log file
 						{
 							ofstream logf;
 							logf.open(logfile,ios_base::app|ios_base::out);
@@ -416,7 +417,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 								logf<<tempx[j]<<","<<tempy[j]<<endl;
 							logf.close();
 						}
-						// update: 2015/5/14, use the prior defined shape of fuzzy membership function
+						/// update: 2015/5/14, use the prior defined shape of fuzzy membership function
 						vector<char> priorShape;
 						for(i=0;i<fuzinf.size();i++)
 						{
@@ -440,166 +441,88 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 						}
 						//printf("%f,%f\n",tempx[max_freq_idx],tempy[max_freq_idx]);
 						
-						
-						//if(priorShape.size() == 1 && priorShape[0] != 'N') // if defined only one shape
-						//{
-						//	if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
-						//		return 1;
-						//}
-						//else if (priorShape.size() == 1 && priorShape[0] == 'N')
-						//{
-						//	dropParam(paramsgrd[num]);
-						//}
-						//else // if defined more than one shape or no shape predefined
-						//{
-						// use BiGaussian Fitting to Select Parameters Automatically
+						/// use BiGaussian Fitting to Select Parameters Automatically
+						/// these settings are default, and it is good enough to run BiGaussian model. Rewrite from R by Yu and Peng (2010)
 						vector<float> sigma_ratio_limit;
 						sigma_ratio_limit.push_back(0.1);
 						sigma_ratio_limit.push_back(10);
 						float bandwidth = 0.5;
 						float power = 1.0;
-						int esti_method = 0; // Two possible values: 0:"moment" and 1:"EM", currently only "moment" has been implemented.
+						int esti_method = 0; /// Two possible values: 0:"moment" and 1:"EM", currently only "moment" has been implemented.
 						float eliminate = 0.05;
 						int max_iter = 30;
-						vector<vector<float> > bigauss_results;
-						// Be sure that x,y are ascend
+						vector<vector<float> > bigauss_results; 
+						/// Be sure that x,y are ascend
 						int bigauss = BiGaussianMix(tempx,tempy,sigma_ratio_limit,bandwidth,power,esti_method,eliminate,max_iter, bigauss_results);
-						// End BiGaussian Fitting
-						char fitShape = 'N'; // Fuzzy membership function shape Recommended by BiGaussian Fitting, 'N' means no recommended.
-						float dist2end_default = 0.1f, dist2center_default = 0.05f, disthalf2end_default = 0.5f;
-						if (bigauss == 1)  // fitting succeed.
+						/// End BiGaussian Fitting
+						char fitShape = 'N'; /// Fuzzy inference function shape recommended by BiGaussian Fitting, 'N' means no recommended.
+						float dist2end_default = 0.1f, dist2center_default = 0.05f, disthalf2end_default = 0.5f; /// simple rules to figure out which curve shape should be
+						if (bigauss == 1 && bigauss_results.size() == 1)  /// Only one fitted BiGaussian model returned
 						{
-							float dist2center,dist2end,accFreqRatio = 0.0,disthalf2end,max_freq_x;
-							int accFreq = 0, validNum = 0;
-							if(bigauss_results.size() == 1) // one BiGaussian Model is returned.
+							float peakCenter = bigauss_results[0][0]; /// fitted central value
+							float sigmaLeftFitted = bigauss_results[0][1]; /// fitted left sigma
+							float sigmaRightFitted = bigauss_results[0][2]; /// fitted right sigma
+							float deltaFitted = bigauss_results[0][3]; /// fitted delta
+							float nashCoefFitted = bigauss_results[0][4]; /// fitted nash-sutcliffe coefficient, -infinity ~ 1
+							float max_freq_x; /// x value of maximum frequency
+							float dist2center; /// distance from fitted central value to max_freq_x
+							
+							max_freq_x = tempx[max_freq_idx];
+							dist2center = abs(max_freq_x - peakCenter)/paramsExtInfo[num].interval;
+							if (dist2center < dist2center_default * FREQUENCY_GROUP)  /// this means the fitted result is quite good
 							{
-								if (writelog)
-								{
-									ofstream logf;
-									logf.open(logfile,ios_base::app|ios_base::out);
-									logf<<endl<<endl;
-									logf<<"BiGaussian Fitting results: "<<endl;
-									logf<<"Peak Center: "<<bigauss_results[0][0]<<",";
-									logf<<"Left Sigma: "<<bigauss_results[0][1]<<",";
-									logf<<"Right Sigma: "<<bigauss_results[0][2]<<",";
-									logf<<"Delta: "<<bigauss_results[0][3]<<",";
-									logf<<"Nash Coef: "<<bigauss_results[0][4]<<endl<<endl;
-									logf.close();
-								}
-								max_freq_x = tempx[max_freq_idx];
-								dist2center = abs(max_freq_x - bigauss_results[0][0])/paramsExtInfo[num].interval;
-								validNum = accumulate(tempy.begin(),tempy.end(),0);
-								if (dist2center < dist2center_default * FREQUENCY_GROUP)  // it is the B-shaped function
-								{
-									fitShape = 'B';
-								}
-								else // it means that the fitted result is not satisfied.
-								{
-									dist2end = abs(max_freq_x - paramsExtInfo[num].maxValue)/paramsExtInfo[num].interval;
-									for (i = 0; i < tempx.size(); i++)
-									{
-										accFreq += (int)tempy[i];
-										if(accFreqRatio < 0.5){
-											accFreqRatio = (float)accFreq / validNum;
-											disthalf2end = abs(tempx[i] - paramsExtInfo[num].maxValue)/paramsExtInfo[num].interval;
-										}
-									}
-									if(dist2end < dist2end_default * FREQUENCY_GROUP && disthalf2end < disthalf2end_default * FREQUENCY_GROUP) // it is the S-shaped function
-									{
-										fitShape = 'S';
-									}
-									else if (dist2end > (1-dist2end_default) * FREQUENCY_GROUP && disthalf2end > (1-disthalf2end_default) * FREQUENCY_GROUP) // it is the Z-shaped function
-									{
-										fitShape = 'Z';
-									}
-									else
-										fitShape = 'N';
-								}
-								if(priorShape.size() == 1) // if defined only one shape
-								{
-									if(priorShape[0] != 'N')
-									{
-										if(priorShape[0] == fitShape || (priorShape[0] != fitShape && bigauss_results[0][4] >= 0.6))
-										{
-											if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,bigauss_results[0][0],AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
-												return 1;
-										}
-										else
-										{
-											if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,MISSINGFLOAT,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
-												return 1;
-										}
-									}
-									else
-										dropParam(paramsgrd[num]);
-								}
-								else if(priorShape.size() > 1)
-								{
-									bool match = false;
-									for (i = 0; i < priorShape.size(); i++)
-									{
-										if(priorShape[i] == fitShape){
-											if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],fitShape,max_freq_idx_origin,bigauss_results[0][0],AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
-												return 1;
-											match = true;
-											break;
-										}
-									}
-									if(!match){
-										if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,MISSINGFLOAT,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
-											return 1;
-									}
-								}
-								else
-									dropParam(paramsgrd[num]);
-							}
-							else // (bigauss_results.size() == 0 or bigauss_results.size() > 1) 
-							{
-								dist2end = abs(max_freq_x - paramsExtInfo[num].maxValue)/paramsExtInfo[num].interval;
-								for (i = 0; i < tempx.size(); i++)
-								{
-									accFreq += (int)tempy[i];
-									if(accFreqRatio < 0.5){
-										if (validNum == 0)
-											accFreqRatio = 0.0;
-										else
-											accFreqRatio = (float)accFreq / validNum;
-										disthalf2end = abs(tempx[i] - paramsExtInfo[num].maxValue)/paramsExtInfo[num].interval;
-									}
-								}
-								if(dist2end < disthalf2end_default * FREQUENCY_GROUP && disthalf2end < disthalf2end_default * FREQUENCY_GROUP) // it is the S-shaped function
+								if (sigmaLeftFitted / sigmaRightFitted >= DEFAULT_BiGaussian_Ratio) /// regard as s-shaped
 								{
 									fitShape = 'S';
 								}
-								else if (dist2end > (1-dist2end_default) * FREQUENCY_GROUP && disthalf2end > (1-disthalf2end_default) * FREQUENCY_GROUP) // it is the Z-shaped function
+								else if (sigmaRightFitted / sigmaLeftFitted >= DEFAULT_BiGaussian_Ratio) /// regard as z-shaped
 								{
 									fitShape = 'Z';
 								}
 								else
-									fitShape = 'N';
-								if(priorShape.size() == 1) // if defined only one shape
+									fitShape = 'B';
+							}
+							else /// it means that the fitted result is not satisfied, use simple rules to figure out fitShape
+							{
+								float dist2end; /// distance from max_freq_x to the maximum attribute value
+								int accFreq = 0; /// accumulated frequency
+								int validNum = 0; /// all frequency number
+								float accFreqRatio = 0.0; /// accumulated frequency divided by validNum
+								float disthalf2end; /// distance from accFreqRatio >= 0.5 to the maximum attribute value
+								validNum = accumulate(tempy.begin(),tempy.end(),0);
+								dist2end = abs(max_freq_x - paramsExtInfo[num].maxValue) / paramsExtInfo[num].interval;
+								for (i = 0; i < tempx.size(); i++)
 								{
-									if(priorShape[0] != 'N')
-									{
-										if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,MISSINGFLOAT,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
-												return 1;
+									accFreq += (int)tempy[i];
+									if(accFreqRatio < 0.5){
+										accFreqRatio = (float)accFreq / validNum;
+										disthalf2end = abs(tempx[i] - paramsExtInfo[num].maxValue)/paramsExtInfo[num].interval;
 									}
 									else
-										dropParam(paramsgrd[num]);
+										break;
 								}
-								else if(priorShape.size() > 1)
+								if(dist2end <= dist2end_default * FREQUENCY_GROUP && disthalf2end <= disthalf2end_default * FREQUENCY_GROUP) /// it is the S-shaped function
 								{
-									bool match = false;
-									for (i = 0; i < priorShape.size(); i++)
+									fitShape = 'S';
+								}
+								else if (dist2end >= (1-dist2end_default) * FREQUENCY_GROUP && disthalf2end >= (1-disthalf2end_default) * FREQUENCY_GROUP) /// it is the Z-shaped function
+								{
+									fitShape = 'Z';
+								}
+								else
+									fitShape = 'B';
+							}
+							if(priorShape.size() == 1) /// if defined only one shape
+							{
+								if(priorShape[0] != 'N')
+								{
+									if(priorShape[0] == fitShape || (priorShape[0] != fitShape && nashCoefFitted >= 0.6))
 									{
-										if(priorShape[i] == fitShape){
-											if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],fitShape,max_freq_idx_origin,MISSINGFLOAT,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
-												return 1;
-											match = true;
-											break;
-										}
+										if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,peakCenter,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
+											return 1;
 									}
-									if(!match){
+									else
+									{
 										if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,MISSINGFLOAT,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
 											return 1;
 									}
@@ -607,10 +530,43 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 								else
 									dropParam(paramsgrd[num]);
 							}
+							else if(priorShape.size() > 1)
+							{
+								bool match = false;
+								for (i = 0; i < priorShape.size(); i++)
+								{
+									if(priorShape[i] == fitShape){
+										if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],fitShape,max_freq_idx_origin,peakCenter,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
+											return 1;
+										match = true;
+										break;
+									}
+								}
+								if(!match){ /// if fitShape does not match prior expert knowledge, take the first prior curve shape.
+									if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,MISSINGFLOAT,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
+										return 1;
+								}
+							}
+							else
+								dropParam(paramsgrd[num]);
+							if (writelog) /// append fitting result to log file
+							{
+								ofstream logf;
+								logf.open(logfile,ios_base::app|ios_base::out);
+								logf<<endl<<endl;
+								logf<<"BiGaussian model Fitting result: "<<endl;
+								logf<<"Peak Center: "<<peakCenter<<",";
+								logf<<"Left Sigma: "<<sigmaLeftFitted<<",";
+								logf<<"Right Sigma: "<<sigmaRightFitted<<",";
+								logf<<"Delta: "<<deltaFitted<<",";
+								logf<<"Nash Coef: "<<nashCoefFitted<<endl;
+								logf<<"Fitted curve shape: "<<fitShape<<endl<<endl;
+								logf.close();
+							}
 						}
-						else
+						else /// if predefined one or more curve shape, take the first one.
 						{
-							if(priorShape.size() == 1) // if defined only one shape
+							if(priorShape.size() >= 1) 
 							{
 								if(priorShape[0] != 'N')
 								{
@@ -620,18 +576,13 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 								else
 									dropParam(paramsgrd[num]);
 							}
-							else if(priorShape.size() > 1)
-							{
-								if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,MISSINGFLOAT,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
-										return 1;
-							}
 							else
 								dropParam(paramsgrd[num]);
 						}
 					}
 				}
 			}
-			// Broadcast the extracted parameters to all ranks
+			/// Broadcast the extracted parameters to all processors
 			for(num = 0; num < paramsNum; num++)
 			{	
 				MPI_Bcast(&paramsgrd[num].shape,1,MPI_CHAR,0,MCW);
@@ -646,16 +597,20 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 			}
 		}
 
-		// Now extract typical location according to maxTyp and minTyp
+		/// Now extract typical location according to maxTyp and minTyp of each topographic attribute
 		//for(num = 0; num < paramsNum; num++)
 		//	cout<<paramsgrd[num].name<<","<<paramsgrd[num].shape<<","<<paramsgrd[num].minTyp<<","<<paramsgrd[num].maxTyp<<endl;
-		tdpartition *typloc;
+		tdpartition *typloc; 
 		typloc = CreateNewPartition(SHORT_TYPE,totalX,totalY,dx,dy,MISSINGSHORT);
-		int selectedNum = 0;
 		
-		int validCount,validCountAdd, TypLocCount = 0, TypLocCountAll = 0;
-		int LoopNum = 0;
-		int previousTypLocCountAll;
+		int selectedNum = 0; /// number of selected topographic attributes
+		int validCount; /// to figure out if all topographic attributes are located in the typical value ranges
+		int validCountAdd; /// to figure out if all the additional topographic attributes are located in the typical value ranges
+		int TypLocCount = 0; /// cell number of typical locations from current processor
+		int TypLocCountAll = 0; /// cell number of typical locations from all processors
+		int LoopNum = 0; /// record loop number to avoid endless loop
+		int previousTypLocCountAll; /// cell number of typical locations from last loop, this is aimed to judge when to stop.
+
 		while ((TypLocCountAll <= MIN_TYPLOC_NUM || TypLocCountAll >= MAX_TYPLOC_NUM) && LoopNum <= MAX_LOOP_NUM_TYPLOC_SELECTION)
 		{
 			selectedNum = 0;
@@ -676,9 +631,9 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 			previousTypLocCountAll = TypLocCountAll;
 			TypLocCountAll = 0;
 			typloc->init(totalX,totalY,dx,dy,MPI_SHORT,MISSINGSHORT);
-			for (j = 0; j < ny; j++) // rows
+			for (j = 0; j < ny; j++) /// rows
 			{
-				for (i = 0; i < nx; i++) // cols
+				for (i = 0; i < nx; i++) /// cols
 				{
 					validCount = 0;
 					validCountAdd = 0;
@@ -717,7 +672,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 			MPI_Allreduce(&TypLocCount,&TypLocCountAll,1,MPI_INT,MPI_SUM,MCW);
 			//printf("%d\n",TypLocCountAll);
 			
-			if (TypLocCountAll <= MIN_TYPLOC_NUM)
+			if (TypLocCountAll < MIN_TYPLOC_NUM) /// if selected cell number is less than MIN_TYPLOC_NUM
 			{
 				for(num = 0; num < paramsNum; num++){
 					if (paramsgrd[num].shape != 'D'&& paramsgrd[num].maxTyp > paramsgrd[num].minTyp && strcmp(paramsgrd[num].name,"RPI") != 0)
@@ -760,7 +715,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 				}
 				LoopNum++;
 			}
-			else if (TypLocCountAll >= MAX_TYPLOC_NUM)
+			else if (TypLocCountAll > MAX_TYPLOC_NUM) /// if selected cell number is greater than MIN_TYPLOC_NUM
 			{
 				for(num = 0; num < paramsNum; num++){
 					if (paramsgrd[num].shape != 'D'&& paramsgrd[num].maxTyp > paramsgrd[num].minTyp && strcmp(paramsgrd[num].name,"RPI") != 0)
@@ -809,8 +764,6 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 			// ReCalculate Parameters of Fuzzy Membership Function
 				for (num = 0; num < paramsNum; num++)
 				{
-					//if(paramsgrd[num].maxTyp <= paramsgrd[num].minTyp)
-					//	paramsgrd[num].shape = 'D';
 					if (paramsgrd[num].shape == 'B')
 					{
 						paramsgrd[num].w1 = DEFAULT_SIGMA_MULTIPLIER*STDcal(AllCellValues[num], paramsExtInfo[num].num, false, paramsgrd[num].maxTyp);
@@ -824,86 +777,19 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 			}
 			if(LoopNum >= 2 && LoopNum < MAX_LOOP_NUM_TYPLOC_SELECTION)
 			{
-				if ((previousTypLocCountAll >= MAX_TYPLOC_NUM && TypLocCountAll <= MIN_TYPLOC_NUM) || (previousTypLocCountAll <= MIN_TYPLOC_NUM && TypLocCountAll >= MAX_TYPLOC_NUM))
+				if ((previousTypLocCountAll >= MAX_TYPLOC_NUM && TypLocCountAll <= MIN_TYPLOC_NUM))
 				{
 					LoopNum = MAX_LOOP_NUM_TYPLOC_SELECTION; 
 					// do another loop
 				}
-				if (previousTypLocCountAll == TypLocCountAll && TypLocCountAll != 0)
+				if ((previousTypLocCountAll <= MIN_TYPLOC_NUM && TypLocCountAll >= MAX_TYPLOC_NUM) || (previousTypLocCountAll == TypLocCountAll && TypLocCountAll != 0))
 				{
-					LoopNum = MAX_LOOP_NUM_TYPLOC_SELECTION;
+					LoopNum = MAX_LOOP_NUM_TYPLOC_SELECTION + 1;
 				}
 			}
 		}
-		// End
-		//// calculate fuzzy inference parameters for every typical locations
-		//float **FuzInfParam = new float*[paramsNum];
-		//for(num = 0; num < paramsNum; num++)
-		//	FuzInfParam[num] = new float [TypLocCount*6];
-		//selectedNum = 0;
-		//for(num = 0; num < paramsNum; num++)
-		//	if (paramsgrd[num].shape != 'D'&& paramsgrd[num].maxTyp > paramsgrd[num].minTyp)
-		//		selectedNum++;
-		//int tempTypLoc = 0,globalx,globaly;
-		//for (j = 0; j < ny; j++) // rows
-		//{
-		//	for (i = 0; i < nx; i++) // cols
-		//	{
-		//		validCount = 0;
-		//		validCountAdd = 0;
-		//		for(num = 0; num < paramsNum; num++)
-		//		{
-		//			if(!params[num].isNodata(i,j))
-		//			{
-		//				if (paramsgrd[num].shape != 'D'&& paramsgrd[num].maxTyp > paramsgrd[num].minTyp)
-		//				{
-		//					params[num].getData(i,j,tempAttr);
-		//					if(tempAttr >= paramsgrd[num].minTyp && tempAttr <= paramsgrd[num].maxTyp)
-		//						validCount++;
-		//				}
-		//			}
-		//		}
-		//		for(num = 0; num < addparamsNum; num++)
-		//		{
-		//			if(!addparams[num].isNodata(i,j))
-		//			{
-		//				if (addparamgrd[num].maxTyp > addparamgrd[num].minTyp)
-		//				{
-		//					addparams[num].getData(i,j,tempAttr);
-		//					if(tempAttr >= addparamgrd[num].minTyp && tempAttr <= addparamgrd[num].maxTyp)
-		//						validCountAdd++;
-		//				}
-		//			}
-		//		}
-		//		if(validCount == selectedNum && validCountAdd == addparamsNum){
-		//			typloc->localToGlobal(i,j,globalx,globaly);
-		//			FuzInfParam[num][tempTypLoc*6] = globalx;
-		//			FuzInfParam[num][tempTypLoc*6+1] = globaly;
-		//			FuzInfParam[num][tempTypLoc*6+2] = tempAttr;
-		//			if (paramsgrd[num].shape == 'B')
-		//			{
-		//				FuzInfParam[num][tempTypLoc*6+3] = 0;
-		//				FuzInfParam[num][tempTypLoc*6+4] = DEFAULT_SIGMA_MULTIPLIER* STDcal(AllCellValues[num], paramsExtInfo[num].num, false, tempAttr);//w1
-		//				FuzInfParam[num][tempTypLoc*6+5] = DEFAULT_SIGMA_MULTIPLIER* STDcal(AllCellValues[num], paramsExtInfo[num].num, true, tempAttr);//w2
-		//			}
-		//			else if (paramsgrd[num].shape == 'S')
-		//			{
-		//				FuzInfParam[num][tempTypLoc*6+3] = 0;
-		//				FuzInfParam[num][tempTypLoc*6+4] = DEFAULT_SIGMA_MULTIPLIER* STDcal(AllCellValues[num], paramsExtInfo[num].num, false, tempAttr);//w1
-		//				FuzInfParam[num][tempTypLoc*6+5] = 1;//w2
-		//			}
-		//			else if (paramsgrd[num].shape == 'Z')
-		//			{
-		//				FuzInfParam[num][tempTypLoc*6+3] = 0;
-		//				FuzInfParam[num][tempTypLoc*6+4] = 1;//w1
-		//				FuzInfParam[num][tempTypLoc*6+5] = DEFAULT_SIGMA_MULTIPLIER* STDcal(AllCellValues[num], paramsExtInfo[num].num, true, tempAttr);//w2
-		//			}
-		//			tempTypLoc++;
-		//		}
-		//	}
-		//}
-
-		
+		/// End Finding typical locations and determining the parameters for fuzzy inference
+				
 		double computet = MPI_Wtime(); // record computing time
 		// write inference information into output configuration file, exclude RPI
 		if (rank == 0 && autoSel)
@@ -933,25 +819,6 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 			}
 			fs<<"OUTPUT"<<"\t"<<typlocfile<<endl;
 			fs.close();
-
-			//// write AllCellValues to logfile
-			//if (writelog)
-			//{
-			//	ofstream logf;
-			//	logf.open(logfile,ios_base::app|ios_base::out);
-			//	logf<<endl<<endl;
-			//	for (num = 0; num < paramsNum; num++)
-			//	{
-			//		if (num != RPIindex)
-			//		{
-			//			logf<<"Values\t"<<paramsgrd[num].name<<"\t"<<paramsExtInfo[num].num<<endl;
-			//			for(i = 0; i < paramsExtInfo[num].num; i++)
-			//				logf<<AllCellValues[num][i]<<endl;
-			//			logf<<endl;
-			//		}
-			//	}
-			//	logf.close();
-			//}
 		}
 		//// create and write tiff
 		int nodata = MISSINGSHORT;

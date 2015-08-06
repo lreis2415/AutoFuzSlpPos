@@ -41,8 +41,8 @@ int main(int argc, char **argv)
 	paramExtGRID *paramsgrd;
 	int addparamsNum = 0;
 	paramExtGRID *addparamgrd;
-	vector<DefaultFuzInf> fuzinf;  // Prior knowledge of fuzzy membership function shape of slope positions
-	float baseInputParameters[8];  // Base input parameters
+	vector<DefaultFuzInf> fuzinf;  // Prior expert knowledge of curve shape of fuzzy inference model
+	float baseInputParameters[9];  // Base input parameters
 	char cfglines[30][MAXLN];
 	if(argc == 1)
 	{  
@@ -95,9 +95,9 @@ int main(int argc, char **argv)
 				fuzinf.push_back(tempFuzInf);
 				row++;
 			}
-			else if (strcmp(dest[0],"BaseInput")==0 && num == 8)
+			else if (strcmp(dest[0],"BaseInput")==0 && num == 9)
 			{
-				for(i = 0; i < 7; i++)
+				for(i = 0; i < 8; i++)
 					sscanf(dest[i+1],"%f",&baseInputParameters[i]);
 				row++;
 			}
@@ -133,7 +133,7 @@ int main(int argc, char **argv)
 	else goto errexit;
 	//for(i=0;i<fuzinf.size();i++)
 	//	printf("%s,%s\n",fuzinf[i].param,fuzinf[i].shape);
-	//for(i = 0; i < 7; i++)
+	//for(i = 0; i < 8; i++)
 	//	printf("%f\n",baseInputParameters[i]);
 	for (i = 0; i < paramsNum; i++)
 		if(paramsgrd[i].minTyp > paramsgrd[i].maxTyp)

@@ -43,7 +43,7 @@ FlowModel = 1                                            ## 0 represents D8 flow
 ## Selection of Typical Locations
                                                          ## TerrainAttrDict stores the terrain attributes' name and grid path. 'RPI' is required!
                                                          ## By default: TerrainAttrDict = {'RPI':RPI,'ProfC':ProfC_mask,'HorizC':HorizC_mask,'Slope':Slope}
-
+## Be caution, 'RPI' is required!
 TerrainAttrDict = {'RPI':rootDir + os.sep + 'Params'+ os.sep + 'RPI.tif',\
                    'ProfC':rootDir + os.sep + 'Params'+ os.sep + 'ProfC.tif',\
                    'Slope':rootDir + os.sep + 'Params'+ os.sep + 'Slp.tif',\
@@ -99,12 +99,12 @@ DinfUpMethod = 'Surface'                                 ## same as DinfDownMeth
 # Default: MIN_FREQUENCY = 1, MIN_TYPLOC_NUM = 200,\
 #          MAX_TYPLOC_NUM = 2000, DEFAULT_SELECT_RATIO = 0.1,\
 #          DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.414,\
-#          MAX_LOOP_NUM_TYPLOC_SELECTION = 100
-RdgBaseParam = [1,200,2000,0.1,0.1,1.414,100]
-ShdBaseParam = [1,200,2000,0.1,0.1,1.414,100]
-BksBaseParam = [1,200,2000,0.1,0.1,1.414,100]
-FtsBaseParam = [1,200,2000,0.1,0.1,1.414,100]
-VlyBaseParam = [1,200,2000,0.1,0.1,1.414,100]
+#          MAX_LOOP_NUM_TYPLOC_SELECTION = 100, DEFAULT_BiGaussian_Ratio = 4.0
+RdgBaseParam = [1,200,2000,0.1,0.1,1.414,100,4.0]
+ShdBaseParam = [1,200,2000,0.1,0.1,1.414,100,4.0]
+BksBaseParam = [1,200,2000,0.1,0.1,1.414,100,4.0]
+FtsBaseParam = [1,200,2000,0.1,0.1,1.414,100,4.0]
+VlyBaseParam = [1,200,2000,0.1,0.1,1.414,100,4.0]
 
 RdgTag = 1
 ShdTag = 2
