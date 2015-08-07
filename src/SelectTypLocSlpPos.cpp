@@ -127,8 +127,8 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 		if (baseInputParameters != NULL)
 		{
 			MIN_FREQUENCY = int(baseInputParameters[0]);
-			MIN_TYPLOC_NUM_PECENT = int(baseInputParameters[1]);
-			MAX_TYPLOC_NUM_PECENT = int(baseInputParameters[2]);
+			MIN_TYPLOC_NUM_PECENT = baseInputParameters[1];
+			MAX_TYPLOC_NUM_PECENT = baseInputParameters[2];
 			DEFAULT_SELECT_RATIO = baseInputParameters[3];
 			DEFAULT_INCREMENT_RATIO = baseInputParameters[4];
 			DEFAULT_SIGMA_MULTIPLIER = baseInputParameters[5];
