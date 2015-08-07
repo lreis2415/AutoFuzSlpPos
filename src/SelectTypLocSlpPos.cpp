@@ -456,7 +456,8 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 						int bigauss = BiGaussianMix(tempx,tempy,sigma_ratio_limit,bandwidth,power,esti_method,eliminate,max_iter, bigauss_results);
 						/// End BiGaussian Fitting
 						char fitShape = 'N'; /// Fuzzy inference function shape recommended by BiGaussian Fitting, 'N' means no recommended.
-						float dist2end_default = 0.1f, dist2center_default = 0.05f, disthalf2end_default = 0.5f; /// simple rules to figure out which curve shape should be
+						char finalShape = 'N';
+						float acc2maxFreq_default = 0.25f, dist2center_default = 0.05f, disthalf2end_default = 0.5f; /// simple rules to figure out which curve shape should be
 						if (bigauss == 1 && bigauss_results.size() == 1)  /// Only one fitted BiGaussian model returned
 						{
 							float peakCenter = bigauss_results[0][0]; /// fitted central value
@@ -484,30 +485,32 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 							}
 							else /// it means that the fitted result is not satisfied, use simple rules to figure out fitShape
 							{
-								float dist2end; /// distance from max_freq_x to the maximum attribute value
+								 
+								//float dist2end; /// distance from max_freq_x to the maximum attribute value
 								int accFreq = 0; /// accumulated frequency
 								int validNum = 0; /// all frequency number
-								float accFreqRatio = 0.0; /// accumulated frequency divided by validNum
+								float accFreqRatio = 0.f; /// accumulated frequency divided by validNum
+								float acc2MaxFreq = 0.f; /// accumulated frequency to max_freq divided validNum
 								float disthalf2end; /// distance from accFreqRatio >= 0.5 to the maximum attribute value
 								validNum = accumulate(tempy.begin(),tempy.end(),0);
-								dist2end = abs(max_freq_x - paramsExtInfo[num].maxValue) / paramsExtInfo[num].interval;
+								//dist2end = abs(max_freq_x - paramsExtInfo[num].maxValue) / paramsExtInfo[num].interval;
 								for (i = 0; i < tempx.size(); i++)
 								{
 									accFreq += (int)tempy[i];
+									if(i == max_freq_idx)
+										acc2MaxFreq = accFreq / validNum;
 									if(accFreqRatio < 0.5){
 										accFreqRatio = (float)accFreq / validNum;
 										disthalf2end = abs(tempx[i] - paramsExtInfo[num].maxValue)/paramsExtInfo[num].interval;
 									}
-									else
-										break;
 								}
-								if(dist2end <= dist2end_default * FREQUENCY_GROUP && disthalf2end <= disthalf2end_default * FREQUENCY_GROUP) /// it is the S-shaped function
-								{
-									fitShape = 'S';
-								}
-								else if (dist2end >= (1-dist2end_default) * FREQUENCY_GROUP && disthalf2end >= (1-disthalf2end_default) * FREQUENCY_GROUP) /// it is the Z-shaped function
+								if(acc2MaxFreq <= acc2maxFreq_default * FREQUENCY_GROUP && disthalf2end <= disthalf2end_default * FREQUENCY_GROUP) /// it is the S-shaped function
 								{
 									fitShape = 'Z';
+								}
+								else if (acc2MaxFreq >= (1-acc2maxFreq_default) * FREQUENCY_GROUP && disthalf2end >= (1-disthalf2end_default) * FREQUENCY_GROUP) /// it is the Z-shaped function
+								{
+									fitShape = 'S';
 								}
 								else
 									fitShape = 'B';
@@ -516,19 +519,30 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 							{
 								if(priorShape[0] != 'N')
 								{
-									if(priorShape[0] == fitShape || (priorShape[0] != fitShape && nashCoefFitted >= 0.6))
+									if(priorShape[0] == fitShape)
 									{
+										finalShape = fitShape;
+										if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,peakCenter,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
+											return 1;
+									}
+									else if(priorShape[0] != fitShape && nashCoefFitted >= 0.5)
+									{
+										finalShape = priorShape[0];
 										if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,peakCenter,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
 											return 1;
 									}
 									else
 									{
+										finalShape = priorShape[0];
 										if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,MISSINGFLOAT,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
 											return 1;
 									}
 								}
 								else
+								{
+									finalShape = 'N';
 									dropParam(paramsgrd[num]);
+								}
 							}
 							else if(priorShape.size() > 1)
 							{
@@ -536,6 +550,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 								for (i = 0; i < priorShape.size(); i++)
 								{
 									if(priorShape[i] == fitShape){
+										finalShape = fitShape;
 										if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],fitShape,max_freq_idx_origin,peakCenter,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
 											return 1;
 										match = true;
@@ -543,6 +558,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 									}
 								}
 								if(!match){ /// if fitShape does not match prior expert knowledge, take the first prior curve shape.
+									finalShape = priorShape[0];
 									if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],max_freq_idx_origin,MISSINGFLOAT,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
 										return 1;
 								}
@@ -560,7 +576,8 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 								logf<<"Right Sigma: "<<sigmaRightFitted<<",";
 								logf<<"Delta: "<<deltaFitted<<",";
 								logf<<"Nash Coef: "<<nashCoefFitted<<endl;
-								logf<<"Fitted curve shape: "<<fitShape<<endl<<endl;
+								logf<<"Fitted curve shape: "<<fitShape<<endl;
+								logf<<"Final curve shape: "<<finalShape<<endl<<endl;
 								logf.close();
 							}
 						}
