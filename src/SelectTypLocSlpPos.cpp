@@ -121,12 +121,14 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 		if (temp == paramsNum)
 			autoSel = false;
 		int MIN_FREQUENCY = 1, MIN_TYPLOC_NUM = 200, MAX_TYPLOC_NUM = 2000, MAX_LOOP_NUM_TYPLOC_SELECTION = 100;
+		float MIN_TYPLOC_NUM_PECENT = 0.f;
+		float MAX_TYPLOC_NUM_PECENT = 0.f;
 		float DEFAULT_SELECT_RATIO = 0.1,DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.2, DEFAULT_BiGaussian_Ratio = 4.0;
 		if (baseInputParameters != NULL)
 		{
 			MIN_FREQUENCY = int(baseInputParameters[0]);
-			MIN_TYPLOC_NUM = int(baseInputParameters[1]);
-			MAX_TYPLOC_NUM = int(baseInputParameters[2]);
+			MIN_TYPLOC_NUM_PECENT = int(baseInputParameters[1]);
+			MAX_TYPLOC_NUM_PECENT = int(baseInputParameters[2]);
 			DEFAULT_SELECT_RATIO = baseInputParameters[3];
 			DEFAULT_INCREMENT_RATIO = baseInputParameters[4];
 			DEFAULT_SIGMA_MULTIPLIER = baseInputParameters[5];
@@ -301,12 +303,15 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 							{
 								if (num != RPIindex)
 								{
-									params[num].getData(i,j,tempAttr);
-									if(tempAttr < minValue[num])
-										minValue[num] = tempAttr;
-									else if(tempAttr > maxValue[num])
-										maxValue[num] = tempAttr;
-									tempCellValues[num].push(tempAttr);
+									if (!params[num].isNodata(i,j))
+									{
+										params[num].getData(i,j,tempAttr);
+										if(tempAttr < minValue[num])
+											minValue[num] = tempAttr;
+										else if(tempAttr > maxValue[num])
+											maxValue[num] = tempAttr;
+										tempCellValues[num].push(tempAttr);
+									}
 								}
 							}
 						}
@@ -353,6 +358,14 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 				//MPI_Allgatherv(CellValues[num],CellCount[num],MPI_FLOAT,AllCellValues[num],localCellCount,displs,MPI_FLOAT,MCW); /// this is gather to all processor
 				MPI_Gatherv(CellValues[num],CellCount[num],MPI_FLOAT,AllCellValues[num],localCellCount,displs,MPI_FLOAT,0,MCW);
 			}
+			int maxCellCount = 0;
+			for (num = 0; num < paramsNum; num++)
+			{
+				if (paramsExtInfo[num].num > maxCellCount)
+					maxCellCount = paramsExtInfo[num].num;
+			}
+			MAX_TYPLOC_NUM = int(MAX_TYPLOC_NUM_PECENT * maxCellCount);
+			MIN_TYPLOC_NUM = int(MIN_TYPLOC_NUM_PECENT * maxCellCount); /// update 2015/08/07
 			/// test code
 			//for (int i = 0;i < paramsNum;i++)
 			//	printf("%s:%d,min:%f,max:%f\n",paramsgrd[i].name,CellCount[i],minValue[i],maxValue[i]);
@@ -363,6 +376,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 			/// do Bi-Gaussian mixed model and set parameters for finding typical locations and fuzzy inference
 			if (rank == 0)
 			{
+				
 				for (num = 0; num < paramsNum; num++)
 				{
 					paramsExtInfo[num].interval = 0.0;

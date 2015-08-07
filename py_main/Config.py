@@ -20,7 +20,7 @@ if sysstr == "Linux":
     mpiexeDir = r'/home/zhulj/mpich/bin'
     exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86'
     hostfile = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86/dgpm'
-    rootDir = r'/home/zhulj/PV_Dinf/1'
+    rootDir = r'/home/zhulj/PV_Dinf/16'
     rawdem = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/pvdem.tif'
     outlet = None
     vlysrc = None
@@ -36,8 +36,8 @@ elif sysstr == "Windows":
     vlysrc = None
     rdgsrc = None                                        ## if there is ridge or valley source file, assign it here.  
                               
-preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
-inputProc = 1                                           ## parallel processor's number
+preprocess = False                                        ## if preprocessing for parameters' grids is needed, and True by default.
+inputProc = 16                                           ## parallel processor's number
 FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
 ## Selection of Typical Locations
@@ -69,7 +69,7 @@ if AutoTypLocExtraction:
 
 ####    Optional    ####
 
-deltaElev = 0.01
+##deltaElev = 0.01
 maxMoveDist = 50                                         ## the maximum number of grid cells that the points in the input outlet shapefile will be moved before they are saved to the output outlet shapefile
 numthresh = 20                                           ## the number of steps to divide the search range into when looking for possible threshold values using drop analysis
 logspace = 'true'                                        ## 'true' means use logarithmic spacing for threshold values, 'false' means linear spacing
@@ -96,15 +96,15 @@ DinfUpMethod = 'Surface'                                 ## same as DinfDownMeth
 
 # basic parameters
  
-# Default: MIN_FREQUENCY = 1, MIN_TYPLOC_NUM = 200,\
-#          MAX_TYPLOC_NUM = 2000, DEFAULT_SELECT_RATIO = 0.1,\
+# Default: MIN_FREQUENCY = 1, MIN_TYPLOC_NUM_PECENT = 0.01,\
+#          MAX_TYPLOC_NUM_PERCENT = 0.1, DEFAULT_SELECT_RATIO = 0.1,\
 #          DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.414,\
 #          MAX_LOOP_NUM_TYPLOC_SELECTION = 100, DEFAULT_BiGaussian_Ratio = 4.0
-RdgBaseParam = [1,200,2000,0.1,0.1,1.414,100,4.0]
-ShdBaseParam = [1,200,2000,0.1,0.1,1.414,100,4.0]
-BksBaseParam = [1,200,2000,0.1,0.1,1.414,100,4.0]
-FtsBaseParam = [1,200,2000,0.1,0.1,1.414,100,4.0]
-VlyBaseParam = [1,200,2000,0.1,0.1,1.414,100,4.0]
+RdgBaseParam = [1,0.01,0.1,0.1,0.1,1.414,100,4.0]
+ShdBaseParam = [1,0.01,0.1,0.1,0.1,1.414,100,4.0]
+BksBaseParam = [1,0.01,0.1,0.1,0.1,1.414,100,4.0]
+FtsBaseParam = [1,0.01,0.1,0.1,0.1,1.414,100,4.0]
+VlyBaseParam = [1,0.01,0.1,0.1,0.1,1.414,100,4.0]
 
 RdgTag = 1
 ShdTag = 2
