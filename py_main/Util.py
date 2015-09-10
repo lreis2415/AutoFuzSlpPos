@@ -4,9 +4,11 @@
 import os,sys
 from osgeo import gdal
 from osgeo import osr
+from osgeo import ogr
 from osgeo import gdalconst
 from gdalconst import *
 import numpy
+import math
 from shutil import rmtree
 def currentPath():
     path = sys.path[0]
@@ -52,6 +54,10 @@ def makeResultFolders(rootdir,model,preprocess):
     mkdir(TypLocDir)
     mkdir(ConfDir)
     return (PreprocessDir, ParamDir,logDir, TypLocDir,ConfDir,outputDir)
+
+DELTA = 0.000001
+def FloatEqual(a, b):
+    return abs(a - b) < DELTA
 
 class Raster:
     def __init__(self, nRows, nCols, data, noDataValue=None, geotransform=None, srs=None):
@@ -174,7 +180,123 @@ def WriteTimeLog(logfile,time):
     logStatus.write("%s\t%s\t%s\t%s\t%s\t\n" % (time['name'],time['readt'],time['computet'],time['writet'],time['totalt']))
     logStatus.flush()
     logStatus.close()
-    
+## D8 flow directions in TauDEM, value(DELTA_row, DELTA_col)
+DIR_ITEMS = {1:(0,1),
+             2:(-1,1),
+             3:(-1,0),
+             4:(-1,-1),
+             5:(0,-1),
+             6:(1,-1),
+             7:(1,0),
+             8:(1,1)}
+DIR_VALUES = [1,2,3,4,5,6,7,8]
+## corresponding to ArcGIS
+## DIR_VALUES = [1,128,64,32,16,8,4,2]
+drow = [0,-1,-1,-1, 0, 1,1,1] ## row, not include itself
+dcol = [1, 1, 0,-1,-1,-1,0,1] ## col
+
+
+## find downslope coordinate for D8 and D-inf flow models
+def downstream_index(DIR_VALUE, i, j):
+    drow, dcol = DIR_ITEMS[DIR_VALUE]
+    return i+drow, j+dcol
+# D-inf flow model
+e = 0
+ne = math.pi * 0.25
+n  = math.pi * 0.5
+nw = math.pi * 0.75
+w  = math.pi 
+sw = math.pi * 1.25
+s  = math.pi * 1.5
+se = math.pi * 1.75
+angleList = [e, ne, n, nw, w, sw, s, se]
+
+def CheckOrtho(a):
+    if FloatEqual(a, e):
+        return 1
+    elif FloatEqual(a, ne):
+        return 2
+    elif FloatEqual(a, n):
+        return 3 
+    elif FloatEqual(a, nw):
+        return 4 
+    elif FloatEqual(a, w):
+        return 5 
+    elif FloatEqual(a, sw):
+        return 6
+    elif FloatEqual(a, s):
+        return 7
+    elif FloatEqual(a, se):
+        return 8
+    else:
+        return 0
+
+def AssignDirCode(a):
+    d = CheckOrtho(a)
+    if d != 0:
+        down = [d]
+        return down
+    else:
+        if a < ne: ## 129 = 1+128
+            down = [1,2]
+        elif a < n: ## 192 = 128+64
+            down = [2,3]
+        elif a < nw: ## 96 = 64+32
+            down = [3,4] 
+        elif a < w: ## 48 = 32+16
+            down = [4,5] 
+        elif a < sw: ## 24 = 16+8
+            down = [5,6] 
+        elif a < s: ## 12 = 8+4
+            down = [6,7] 
+        elif a < se: ## 6 = 4+2
+            down = [7,8]
+        else: ## 3 = 2+1
+            down = [8,1] 
+        return down
+
+def downstream_index_dinf(dinfDir, i, j):
+    downDirs = AssignDirCode(dinfDir)
+    #print dinfDir,i,j,downDirs
+    downCoors = []
+    for dir in downDirs:
+        row, col = downstream_index(dir, i, j)
+        downCoors.append([row, col])        
+    return downCoors
+
+## Export ESRI Shapefile -- Line feature
+def WriteLineShp(lineList,outShp):
+    print "Write line shapefile: %s" % outShp
+    driver = ogr.GetDriverByName("ESRI Shapefile")
+    if driver is None:
+        print "ESRI Shapefile driver not available."
+        sys.exit(1)
+    if os.path.exists(outShp):
+        driver.DeleteDataSource(outShp)
+    ds = driver.CreateDataSource(outShp.rpartition(os.sep)[0])
+    if ds is None:
+        print "ERROR Output: Creation of output file failed."
+        sys.exit(1)
+    lyr = ds.CreateLayer(outShp.rpartition(os.sep)[2].split('.')[0],None,ogr.wkbLineString)
+#    for field in fields:
+#        fieldDefn = ogr.FieldDefn(field,ogr.OFTString)
+#        fieldDefn.SetWidth(255)
+#        lyr.CreateField(fieldDefn)
+    for l in lineList:
+#        defn = lyr.GetLayerDefn()
+#        featureFields = ogr.Feature(defn)
+#        for field in fields:
+#            featureFields.SetField(field,"test")
+        line = ogr.Geometry(ogr.wkbLineString)
+        for i in l:
+            line.AddPoint(i[0],i[1])
+        templine = ogr.CreateGeometryFromJson(line.ExportToJson())
+        feature = ogr.Feature(lyr.GetLayerDefn())
+        feature.SetGeometry(templine)
+        lyr.CreateFeature(feature)
+        feature.Destroy()
+    ds.Destroy()
+
 ## test code ##
 if __name__ == '__main__':
     tanslp = r'C:\Users\ZhuLJ\Desktop\test\DinfSlp.tif'

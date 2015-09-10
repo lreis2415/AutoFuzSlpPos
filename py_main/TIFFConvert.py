@@ -3,6 +3,9 @@
 
 from Util import *
 import TauDEM
-rawdem = r'E:\research\fuzzyslppos\AutoFuzSlpPos\PV_Dinf_1m\dem1m.tif'
-dem  = r'E:\research\fuzzyslppos\AutoFuzSlpPos\PV_Dinf_1m\dem1meter.tif'
+## TIFFConvert
+## Convert other grid format to GeoTIFF
+## Any Grid format supported by GDAL is permitted
+rawdem = r'E:\data\DEMs\pvdem.asc'
+dem  = r'E:\test\test.tif'
 TIFF2GeoTIFF(rawdem, dem)

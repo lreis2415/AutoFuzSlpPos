@@ -36,8 +36,8 @@ elif sysstr == "Windows":
     vlysrc = None
     rdgsrc = None                                        ## if there is ridge or valley source file, assign it here.  
                               
-preprocess = False                                        ## if preprocessing for parameters' grids is needed, and True by default.
-inputProc = 16                                           ## parallel processor's number
+preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
+inputProc = 6                                           ## parallel processor's number
 FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
 ## Selection of Typical Locations
@@ -54,7 +54,7 @@ RdgFuzInfDefault = [['RPI','S'],['ProfC','S'],['Slope','Z'],['HAND','S']]
 ShdFuzInfDefault = [['RPI','B'],['ProfC','S'],['Slope','B'],['HAND','N']]
 BksFuzInfDefault = [['RPI','B'],['ProfC','B'],['Slope','S'],['HAND','N']]
 FtsFuzInfDefault = [['RPI','B'],['ProfC','ZB'],['Slope','Z'],['HAND','N']]
-VlyFuzInfDefault = [['RPI','Z'],['ProfC','B'],['Slope','Z'],['HAND','Z']]
+VlyFuzInfDefault = [['RPI','Z'],['ProfC','B'],['Slope','Z'],['HAND','N']]
 AutoTypLocExtraction = True
 ModifyExtractConfFile = True                                ## if user modified the configuration file
 AutoInfParams = True
@@ -96,15 +96,15 @@ DinfUpMethod = 'Surface'                                 ## same as DinfDownMeth
 
 # basic parameters
  
-# Default: MIN_FREQUENCY = 1, MIN_TYPLOC_NUM_PECENT = 0.01,\
-#          MAX_TYPLOC_NUM_PERCENT = 0.1, DEFAULT_SELECT_RATIO = 0.1,\
+# Default: MIN_FREQUENCY = 1, MIN_TYPLOC_NUM_PECENT = 0.05,\
+#          MAX_TYPLOC_NUM_PERCENT = 0.2, DEFAULT_SELECT_RATIO = 0.1,\
 #          DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.414,\
 #          MAX_LOOP_NUM_TYPLOC_SELECTION = 100, DEFAULT_BiGaussian_Ratio = 4.0
-RdgBaseParam = [1,0.01,0.1,0.1,0.1,1.414,100,4.0]
-ShdBaseParam = [1,0.01,0.1,0.1,0.1,1.414,100,4.0]
-BksBaseParam = [1,0.01,0.1,0.1,0.1,1.414,100,4.0]
-FtsBaseParam = [1,0.01,0.1,0.1,0.1,1.414,100,4.0]
-VlyBaseParam = [1,0.01,0.1,0.1,0.1,1.414,100,4.0]
+RdgBaseParam = [1,0.05,0.2,0.1,0.1,1.414,100,4.0]
+ShdBaseParam = [1,0.05,0.2,0.1,0.1,1.414,100,4.0]
+BksBaseParam = [1,0.05,0.2,0.1,0.1,1.414,100,4.0]
+FtsBaseParam = [1,0.05,0.2,0.1,0.1,1.414,100,4.0]
+VlyBaseParam = [1,0.05,0.2,0.1,0.1,1.414,100,4.0]
 
 RdgTag = 1
 ShdTag = 2
