@@ -166,7 +166,7 @@ errexit:
    printf("<ad8file> is the name of the input contributing area file used in calculations of drainage density. \n");
    printf("<dirfile> is the name of the input D8 flow directions file.\n");
    printf("<elevfile> is the name of the input elevation file.\n");
-   printf("<ssafile> is the name of the accumulated stream source file.  This needs to have the property that it is\n");
+   printf("<ssafile> is the name of the accumulative stream source file.  This needs to have the property that it is\n");
    printf("monotonically increasing downstream along the D8 flow directions.\n");
    printf("<outletsshapefile> is the name of the shapefile containing input outlets.\n");
    printf("<dropfile> a text file for drop analysis tabular output.\n");

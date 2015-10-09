@@ -36,7 +36,7 @@ elif sysstr == "Windows":
     vlysrc = None
     rdgsrc = None                                        ## if there is ridge or valley source file, assign it here.  
                               
-preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
+preprocess = False                                        ## if preprocessing for parameters' grids is needed, and True by default.
 inputProc = 6                                           ## parallel processor's number
 FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
@@ -53,7 +53,7 @@ TerrainAttrDict = {'RPI':rootDir + os.sep + 'Params'+ os.sep + 'RPI.tif',\
 RdgFuzInfDefault = [['RPI','S'],['ProfC','S'],['Slope','Z'],['HAND','S']]
 ShdFuzInfDefault = [['RPI','B'],['ProfC','S'],['Slope','B'],['HAND','N']]
 BksFuzInfDefault = [['RPI','B'],['ProfC','B'],['Slope','S'],['HAND','N']]
-FtsFuzInfDefault = [['RPI','B'],['ProfC','ZB'],['Slope','Z'],['HAND','N']]
+FtsFuzInfDefault = [['RPI','B'],['ProfC','ZB'],['Slope','ZB'],['HAND','N']]
 VlyFuzInfDefault = [['RPI','Z'],['ProfC','B'],['Slope','Z'],['HAND','N']]
 AutoTypLocExtraction = True
 ModifyExtractConfFile = True                                ## if user modified the configuration file
@@ -64,7 +64,7 @@ if AutoTypLocExtraction:
     RdgExtractionInfo = [['RPI',0.95,1.0]]               ## default RPI value range for Ridge, Shoulder, Back, Foot and valley.                                              
     ShdExtractionInfo = [['RPI',0.8,0.9]]
     BksExtractionInfo = [['RPI',0.5,0.6]]
-    FtsExtractionInfo = [['RPI',0.2,0.3]]
+    FtsExtractionInfo = [['RPI',0.15,0.25]]
     VlyExtractionInfo = [['RPI',0.0,0.1]]
 
 ####    Optional    ####

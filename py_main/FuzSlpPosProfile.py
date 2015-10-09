@@ -83,7 +83,7 @@ def fuzSlpPosProfile(rdgCoors, d8flowdir, d8stream, shpfile):
         tempPathCoor.append([geo[0] + (col + 0.5) * geo[1], geo[3]-(row+0.5)*geo[1]])
 
         curLength = len(tempPath)
-        if curLength > 25:
+        if curLength > 10:
             profileCoorList.append(tempPathCoor)
             cellsizeList.append(tempCellsize)
         count = count + 1
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     ## output file: rdg_taudem, ProfileFuzSlpPos
     ## step 1
     rdgsrc = findRidge(1,DinfFlowDir, rdg_taudem)
-    print rdgsrc
+    #print rdgsrc
     ## step 2
     #attrList = [demfil, RdgInf, ShdInf, BksInf, FtsInf, VlyInf, MaxSimilarity, HardenSlpPos]
     fuzSlpPosProfile(rdgsrc, D8FlowDir, D8Stream, ProfileFuzSlpPos)
