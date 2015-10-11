@@ -141,6 +141,7 @@ int main(int argc, char **argv)
 	for (i = 0; i < addparamsNum; i++)
 		if(addparamgrd[i].minTyp > addparamgrd[i].maxTyp)
 			goto errexit;
+
 	// test 
 	//printf("ProtoTag: %d\n",prototag);
 	//printf("ParamNum: %d\n",paramsNum);
