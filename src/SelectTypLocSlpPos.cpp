@@ -455,7 +455,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 								break;
 							}
 						}
-						max_freq_idx = max_freq_idx_origin;
+
 						//printf("%f,%f\n",tempx[max_freq_idx],tempy[max_freq_idx]);
 						
 						/// use BiGaussian Fitting to Select Parameters Automatically
@@ -978,6 +978,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 		total = tempd / size;
 		if (rank == 0)
 		{
+			printf("Typical location number is: %d\n",TypLocCountAll);
 			printf("Processor:%d\n    Read time:%f\n    Compute time:%f\n    Write time:%f\n    Total time:%f\n",size,dataRead,compute,write,total);
 			fflush(stdout);
 		}

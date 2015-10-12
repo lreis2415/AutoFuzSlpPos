@@ -30,14 +30,14 @@ elif sysstr == "Windows":
     mpiexeDir = None 
     exeDir = r'E:\github-zlj\AutoFuzSlpPos\exec_win_x86'
     hostfile = None
-    rootDir = r'C:\AutoFuzSlpPos\data\PV_Dinf\1'
+    rootDir = r'C:\AutoFuzSlpPos\data\PV_Dinf\6'
     rawdem = r'C:\AutoFuzSlpPos\data\PleasantValley\pvdem.tif'
     outlet = None
     vlysrc = None
     rdgsrc = None                                        ## if there is ridge or valley source file, assign it here.  
                               
 preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
-inputProc = 1                                           ## parallel processor's number
+inputProc = 6                                           ## parallel processor's number
 FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
 ## Selection of Typical Locations
