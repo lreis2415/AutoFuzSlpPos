@@ -30,13 +30,13 @@ elif sysstr == "Windows":
     mpiexeDir = None 
     exeDir = r'D:\Compile\AutoFuzSlpPos\Release'
     hostfile = None
-    rootDir = r'E:\data_m\AutoFuzSlpPos\20160127Default'
+    rootDir = r'E:\data_m\AutoFuzSlpPos\20160127_T2400'
     rawdem = r'E:\data_m\AutoFuzSlpPos\pv-elev-meter.tif'
     outlet = None
     vlysrc = None
     rdgsrc = None                                        ## if there is ridge or valley source file, assign it here.  
                               
-preprocess = False                                        ## if preprocessing for parameters' grids is needed, and True by default.
+preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
 inputProc = 6                                           ## parallel processor's number
 FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
@@ -74,7 +74,7 @@ maxMoveDist = 50                                         ## the maximum number o
 numthresh = 20                                           ## the number of steps to divide the search range into when looking for possible threshold values using drop analysis
 logspace = 'true'                                        ## 'true' means use logarithmic spacing for threshold values, 'false' means linear spacing
 
-D8StreamThreshold = 0                                    ## for D8 stream extraction from DEM, default is 0, which means the value is determined by drop analysis
+D8StreamThreshold = 2400                                    ## for D8 stream extraction from DEM, default is 0, which means the value is determined by drop analysis
 negD8StreamThreshold = 0                                 ## for D8 ridge extraction from negative DEM, default is 0, which indicate that the value is equal to D8StreamThreshold
 
 D8DownMethod = 'Surface'                                 ## for D8DistDownToStream, it can be Horizontal, Vertical, Pythagoras and Surface, the default is 'Surface'
