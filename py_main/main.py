@@ -1,14 +1,14 @@
 #! /usr/bin/env python
-#coding=utf-8
+# coding=utf-8
 # Program: Fuzzy slope position extraction based on D-8 and D-infinity algorithms
 # 
 # Created By:  Liangjun Zhu
 # Date From :  3/20/15
 # Version   :  5/7/15  v0.1-beta first released version for test.
-               
+
 # Email     :  zlj@lreis.ac.cn
 #
-import os,sys,time
+import os, sys, time
 import TauDEM
 from Nomenclature import *
 from Config import *
@@ -16,6 +16,7 @@ from Util import *
 from PreProcessing import PreProcessing
 from SelectTypLoc import SelectTypLoc
 from FuzzySlpPosInference import FuzzySlpPosInference
+from ParasComb import ParametersCombination
 
 if __name__ == '__main__':
     startT = time.time()
@@ -41,10 +42,12 @@ if __name__ == '__main__':
     ## Stage 3: Fuzzy Slope Position Inference
     FuzzySlpPosInference()
     endFuzInfT = time.time()
-    cost = (endFuzInfT - endSelectionT )
-    log = log + "Fuzzy Slope Position Inference Time-consuming: "+ str(cost) + ' s\n'
+    cost = (endFuzInfT - endSelectionT)
+    log = log + "Fuzzy Slope Position Inference Time-consuming: " + str(cost) + ' s\n'
     allcost = allcost + cost
     log = log + "All mission time-consuming: " + str(allcost) + ' s\n'
     logf = open(Log_runtime, 'a')
     logf.write(log)
     logf.close()
+    ## Combine the config files into TypLocExtConf.dat and FuzInfConf.dat
+    ParametersCombination()

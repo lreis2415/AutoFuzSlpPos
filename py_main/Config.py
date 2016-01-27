@@ -28,15 +28,15 @@ if sysstr == "Linux":
 elif sysstr == "Windows":
     ## windows 7
     mpiexeDir = None 
-    exeDir = r'E:\github-zlj\AutoFuzSlpPos\exec_win_x86'
+    exeDir = r'D:\Compile\AutoFuzSlpPos\Release'
     hostfile = None
-    rootDir = r'C:\AutoFuzSlpPos\data\PV_Dinf\6'
-    rawdem = r'C:\AutoFuzSlpPos\data\PleasantValley\pvdem.tif'
+    rootDir = r'E:\data_m\AutoFuzSlpPos\20160127Default'
+    rawdem = r'E:\data_m\AutoFuzSlpPos\pv-elev-meter.tif'
     outlet = None
     vlysrc = None
     rdgsrc = None                                        ## if there is ridge or valley source file, assign it here.  
                               
-preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
+preprocess = False                                        ## if preprocessing for parameters' grids is needed, and True by default.
 inputProc = 6                                           ## parallel processor's number
 FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
@@ -61,10 +61,10 @@ AutoInfParams = True
 ModifyInfConfFile = True                                     ## modify the configuration file
 
 if AutoTypLocExtraction:
-    RdgExtractionInfo = [['RPI',0.95,1.0]]               ## default RPI value range for Ridge, Shoulder, Back, Foot and valley.                                              
-    ShdExtractionInfo = [['RPI',0.8,0.9]]
+    RdgExtractionInfo = [['RPI',0.99,1.0]]               ## default RPI value range for Ridge, Shoulder, Back, Foot and valley.
+    ShdExtractionInfo = [['RPI',0.9,0.95]]
     BksExtractionInfo = [['RPI',0.5,0.6]]
-    FtsExtractionInfo = [['RPI',0.15,0.25]]
+    FtsExtractionInfo = [['RPI',0.15,0.2]]
     VlyExtractionInfo = [['RPI',0.0,0.1]]
 
 ####    Optional    ####

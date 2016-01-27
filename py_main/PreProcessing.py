@@ -8,7 +8,7 @@ import TauDEM
 import time
 from Config import *
 from shutil import copy2
-# Stage 1: Preprocessing for Slope, Curvature, RPI
+# Stage 1: Preprocessing for Slope, Curvature, RPI, HAND
 def PreProcessing(model):
     startT = time.time()
     logStatus = open(log_preproc, 'w')

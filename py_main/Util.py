@@ -118,9 +118,11 @@ NODATA_VALUE %f
         f.write("\n")
     f.close()
 
-def TIFF2GeoTIFF(tif,geotif, gdalType=gdal.GDT_Float32):
+def TIFF2GeoTIFF(tif,geotif, unitConvert = False,gdalType=gdal.GDT_Float32):
     print "Convering TIFF format to GeoTIFF..."
     rstFile = ReadRaster(tif)
+    if(unitConvert):
+        rstFile.data *= 0.3048 # Convert feet to meter
     WriteGTiffFile(geotif, rstFile.nRows, rstFile.nCols, rstFile.data, rstFile.geotrans, rstFile.srs, rstFile.noDataValue, gdalType)
 
 def GetRasterStat(rasterFile):

@@ -115,7 +115,7 @@ BksInfRecommend = ConfDir + os.sep + "BksInfRecommend.dat"
 FtsInfRecommend = ConfDir + os.sep + "FtsInfRecommend.dat"
 VlyInfRecommend = ConfDir + os.sep + "VlyInfRecommend.dat"
 
-
+ExtConfig = ConfDir + os.sep + "ExtConfig.dat"
 ####   Stage 3: Fuzzy slope position inference  ####
 
 RdgInfConfig = ConfDir + os.sep + "RdgInfConfig.dat"
@@ -123,7 +123,7 @@ ShdInfConfig = ConfDir + os.sep + "ShdInfConfig.dat"
 BksInfConfig = ConfDir + os.sep + "BksInfConfig.dat"
 FtsInfConfig = ConfDir + os.sep + "FtsInfConfig.dat"
 VlyInfConfig = ConfDir + os.sep + "VlyInfConfig.dat"
-
+InfConfig = ConfDir + os.sep + "InfConfig.dat"
 RdgInf = FSPDir + os.sep + "RdgInf.tif"
 ShdInf = FSPDir + os.sep + "ShdInf.tif"
 BksInf = FSPDir + os.sep + "BksInf.tif"

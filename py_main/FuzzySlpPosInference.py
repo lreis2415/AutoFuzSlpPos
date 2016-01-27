@@ -34,7 +34,7 @@ def FuzzySlpPosInference():
                 configInfo.write("ProtoTag\t%s\n" % str(SlpPosItem[2]))
                 configInfo.write("ParametersNUM\t%s\n" % str(len(SlpPosItem[3])))
                 for param in SlpPosItem[3]:
-                    configInfo.write("Parameters\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % (TerrainAttrDict.get(param[0]),param[1],str(param[2]),str(param[3]),str(param[4]),str(param[5]),str(param[6]),str(param[7])))
+                    configInfo.write("Parameters\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % (param[0],TerrainAttrDict.get(param[0]),param[1],str(param[2]),str(param[3]),str(param[4]),str(param[5]),str(param[6]),str(param[7])))
                 configInfo.write("DistanceExponentForIDW\t%s\n" % str(SlpPosItem[4]))
                 configInfo.write("OUTPUT\t%s\n" % SlpPosItem[5])
                 configInfo.flush()
@@ -49,7 +49,7 @@ def FuzzySlpPosInference():
             configInfo.write("ParametersNUM\t%s\n" % str(len(paramsConfList)+1))
             for param in SlpPosItem[3]:
                 if param[0] == 'RPI':
-                    configInfo.write("Parameters\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % (TerrainAttrDict.get(param[0]),param[1],str(param[2]),str(param[3]),str(param[4]),str(param[5]),str(param[6]),str(param[7])))
+                    configInfo.write("Parameters\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % (param[0],TerrainAttrDict.get(param[0]),param[1],str(param[2]),str(param[3]),str(param[4]),str(param[5]),str(param[6]),str(param[7])))
             for paramline in paramsConfList:
                 configInfo.write("%s" % paramline)
             configInfo.write("DistanceExponentForIDW\t%s\n" % str(SlpPosItem[4]))

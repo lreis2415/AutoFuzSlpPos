@@ -93,14 +93,14 @@ int main(int argc, char **argv)
 		for (row = paramline; row < paramline + paramsNum; row++)
 		{
 			split(cfglines[row],"\t",dest,&num);
-			strcpy(paramsgrd[i].path,dest[1]);
-			strcpy(paramsgrd[i].shape,dest[2]);
-			sscanf(dest[3],"%f",&paramsgrd[i].w1);
-			sscanf(dest[4],"%f",&paramsgrd[i].r1);
-			sscanf(dest[5],"%f",&paramsgrd[i].k1);
-			sscanf(dest[6],"%f",&paramsgrd[i].w2);
-			sscanf(dest[7],"%f",&paramsgrd[i].r2);
-			sscanf(dest[8],"%f",&paramsgrd[i].k2);
+			strcpy(paramsgrd[i].path,dest[2]);
+			strcpy(paramsgrd[i].shape,dest[3]);
+			sscanf(dest[4],"%f",&paramsgrd[i].w1);
+			sscanf(dest[5],"%f",&paramsgrd[i].r1);
+			sscanf(dest[6],"%f",&paramsgrd[i].k1);
+			sscanf(dest[7],"%f",&paramsgrd[i].w2);
+			sscanf(dest[8],"%f",&paramsgrd[i].r2);
+			sscanf(dest[9],"%f",&paramsgrd[i].k2);
 			if (strcmp(paramsgrd[i].shape,"S")==0)
 				if (!(paramsgrd[i].k1 != 1.0 && paramsgrd[i].k2 == 1.0 ))
 				{
@@ -150,7 +150,7 @@ errexit:
 	printf("PrototypeGRID	path of prototype grid\n");
 	printf("ProtoTag	tag of prototype grid\n");
 	printf("ParametersNUM	number of parameters grid\n");
-	printf("Parameters	path of parameters grid	similarity function type	w1	r1	k1	w2	r2	k2\n");
+	printf("Parameters	ParameterName path of parameters grid	similarity function type	w1	r1	k1	w2	r2	k2\n");
 	printf("DistanceExponentForIDW	float number\n");
 	printf("OUTPUT	path of output similarity grid\n");
 	exit(0);
