@@ -9,10 +9,10 @@ Update date: 2016-1-29
 
 1. [Introduction](#1-introduction)
 2. [Installation](#2-installation)	
-	- [Code structure](#2.1-code-structure)
-	- [Installation on Windows](#2.2-installation-on-windows)
-	- [Installation on Linux/Unix](#2.3-installation-on-linuxunix)
-	- [Configuration](#2.4-configuration) 
+	- [Code structure](#21-code-structure)
+	- [Installation on Windows](#22-installation-on-windows)
+	- [Installation on Linux/Unix](#23-installation-on-linuxunix)
+	- [Configuration](#24-configuration) 
 3. [Run AutoFuzSlpPos](#3-run-autofuzslppos)
 
 
@@ -23,7 +23,8 @@ AutoFuzSlpPos is an automatic approach with only one required input data (i.e., 
 The prototype-based method consists three major steps, i.e., preparing topographic attributes, extracting typical locations, and calculating similarity for each slope position.
 
 The preliminary implementation employs the system of five basic slope positions, such as Fig.1.
-![doc/schematic_of_slope_positions.png](img/schematic_of_slope_positions.png "Schematic of the five slope positions")
+
+![](doc/schematic_of_slope_positions.png)
 **Fig.1 Schematic of the five slope positions**
 
 AutoFuzSlpPos V1.0 is developed under the [TauDEM parallelized framework](http://hydrology.usu.edu/taudem/taudem5/index.html "TauDEM") and programmed using C++ and Python language. 
