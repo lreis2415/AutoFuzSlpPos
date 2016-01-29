@@ -7,13 +7,13 @@ AutoFuzSlpPos (short for "**Automated for Fuzzy Slope Position**") is developed 
 Contact and support email: zlj@lreis.ac.cn
 Update date: 2016-1-29
 
-1. [Introduction](#Introduction)
-2. [Installation](#Installation)	
-	- [Code structure](2.1 Code structure)
-	- [Installation on Windows](2.2 Installation on Windows)
-	- [Installation on Linux/Unix](2.3 Installation on Linux/Unix)
-	- [Configuration](2.4 Configuration) 
-3. [Run AutoFuzSlpPos](3 Run AutoFuzSlpPos)
+1. [Introduction](#1 Introduction)
+2. [Installation](#2 Installation)	
+	- [Code structure](#2.1 Code structure)
+	- [Installation on Windows](#2.2 Installation on Windows)
+	- [Installation on Linux/Unix](#2.3 Installation on Linux/Unix)
+	- [Configuration](#2.4 Configuration) 
+3. [Run AutoFuzSlpPos](#3 Run AutoFuzSlpPos)
 
 
 # 1 Introduction
@@ -23,7 +23,7 @@ AutoFuzSlpPos is an automatic approach with only one required input data (i.e., 
 The prototype-based method consists three major steps, i.e., preparing topographic attributes, extracting typical locations, and calculating similarity for each slope position.
 
 The preliminary implementation employs the system of five basic slope positions, such as Fig.1.
-[img/schematic_of_slope_positions.jpg](img/schematic_of_slope_positions.png "Schematic of the five slope positions")
+[doc/schematic_of_slope_positions.jpg](img/schematic_of_slope_positions.png "Schematic of the five slope positions")
 **Fig.1 Schematic of the five slope positions**
 
 AutoFuzSlpPos V1.0 is developed under the [TauDEM parallelized framework](http://hydrology.usu.edu/taudem/taudem5/index.html "TauDEM") and programmed using C++ and Python language. 
