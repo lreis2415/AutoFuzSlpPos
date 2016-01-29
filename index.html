@@ -4,11 +4,11 @@
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="Autofuzslppos : ">
+    <meta name="description" content="AutoFuzSlpPos : Automatic for Deriving Fuzzy Slope Positions">
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <title>Autofuzslppos</title>
+    <title>AutoFuzSlpPos</title>
   </head>
 
   <body>
@@ -18,8 +18,8 @@
         <header class="inner">
           <a id="forkme_banner" href="https://github.com/crazyzlj/AutoFuzSlpPos">View on GitHub</a>
 
-          <h1 id="project_title">Autofuzslppos</h1>
-          <h2 id="project_tagline"></h2>
+          <h1 id="project_title">AutoFuzSlpPos</h1>
+          <h2 id="project_tagline">Automatic for Deriving Fuzzy Slope Positions</h2>
 
             <section id="downloads">
               <a class="zip_download_link" href="https://github.com/crazyzlj/AutoFuzSlpPos/zipball/master">Download this project as a .zip file</a>
@@ -36,147 +36,222 @@
 
 <hr>
 
-<p>AutoFuzSlpPos (short for "<strong>Automated Extraction of Fuzzy Slope Position</strong>") is developed by PhD candidate Liangjun Zhu and <strong>Prof.</strong> Chengzhi Qin.</p>
+<p>AutoFuzSlpPos (short for "<strong>Automated for Fuzzy Slope Position</strong>") is developed by PhD candidate Liang-Jun Zhu and <strong>Prof.</strong> Cheng-Zhi Qin in Lreis, IGSNRR, CAS, China.</p>
+
+<p>Contact and support email: <a href="mailto:zlj@lreis.ac.cn">zlj@lreis.ac.cn</a>
+Update date: 2016-1-29</p>
+
+<ol>
+<li><a href="#1-introduction">Introduction</a></li>
+<li>
+<a href="#2-installation">Installation</a><br>
 
 <ul>
-<li>Manual in <a href="README_CN.md">Chinese</a>.</li>
+<li><a href="#21-code-structure">Code structure</a></li>
+<li><a href="#22-installation-on-windows">Installation on Windows</a></li>
+<li><a href="#23-installation-on-linuxunix">Installation on Linux/Unix</a></li>
 <li>
-<a href="ChangeLog.md">ChangeLog</a> Information</li>
+<a href="#24-configuration">Configuration</a> </li>
+</ul>
+</li>
+<li><a href="#3-run-autofuzslppos">Run AutoFuzSlpPos</a></li>
+</ol>
+
+<h1>
+<a id="1-introduction" class="anchor" href="#1-introduction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>1 Introduction</h1>
+
+<p>AutoFuzSlpPos is an automatic approach with only one required input data (i.e., a gridded DEM of the study area) to deriving fuzzy slope positions based on the prototype-based method proposed by Qin <em>et al</em>. (2009. Quantification of spatial gradation of slope positions. Geomorphology 110, 152-161.). </p>
+
+<p>The prototype-based method consists three major steps, i.e., preparing topographic attributes, extracting typical locations, and calculating similarity for each slope position.</p>
+
+<p>The preliminary implementation employs the system of five basic slope positions.</p>
+
+<p>AutoFuzSlpPos V1.0 is developed under the <a href="http://hydrology.usu.edu/taudem/taudem5/index.html" title="TauDEM">TauDEM parallelized framework</a> and programmed using C++ and Python language. </p>
+
+<p>The program is capable with Windows and Linux/Unix, e.g., Windows 7/8/10, CentOS 6.2, and Ubuntu 14.04. The  prerequisites environment of the compilation  and configuration of AutoFuzSlpPos is as follows:</p>
+
+<ul>
+<li>For PC, <a href="https://www.microsoft.com/en-us/download/details.aspx?id=14632">Microsoft Visual C++ Redistributable</a> (e.g., VS 2010), <a href="https://www.microsoft.com/en-US/download/details.aspx?id=14737">Microsoft HPC Pack 2012 MS-MPI Redistributable Package</a>, CMAKE</li>
+<li>For Linux/Unix, GCC 4.7+, MAKE, and MPICH or OpenMPI</li>
+<li>Python 2.7+ packaged with Numpy 1.6+ and GDAL 1.9+.</li>
 </ul>
 
-<p>Contact and support email: <a href="mailto:zlj@lreis.ac.cn">zlj@lreis.ac.cn</a></p>
+<h1>
+<a id="2-installation" class="anchor" href="#2-installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2 Installation</h1>
 
-<p>AutoFuzSlpPos is designed to extract fuzzy slope position information in hillslope scale based on the method proposed by Qin et al.(2009) and Qin et al.(2012).</p>
-
-<pre><code>References:
-Qin, C.Z., Zhu, A.X., Shi, X., Li, B.L., Pei, T., Zhou, C.H., 2009. Quantification of spatial gradation of slope positions. Geomorphology 110, 152-161.
-Qin, C.-Z., Zhu, A.-X., Qiu, W.-L., Lu, Y.-J., Li, B.-L., Pei, T., 2012. Mapping soil organic matter in small low-relief catchments using fuzzy slope position information. Geoderma 171, 64-74.
-</code></pre>
-
-<p>AutoFuzSlpPos is based on <a href="http://hydrology.usu.edu/taudem/taudem5/index.html">TauDEM</a> parallelized framework and submitted to TauDEM LICENSE.</p>
-
-<p>Several functions of TauDEM are used to accomplish the preprocessing from DEM, include <code>Pitremove</code>, <code>D8FlowDir</code>, <code>DinfFlowDir</code>, <code>AreaD8</code>, <code>Threshold</code>, <code>MoveOutletsToStreams</code>, <code>AreaDinf</code>, <code>DinfDistDown</code>.</p>
-
-<p>Also, some functions revised from TauDEM are developed, include <code>D8DistDownToStream</code>, <code>D8DistUpToRidge</code>, <code>DinfDistUpToRidge</code>.</p>
-
-<p>Besides, new functions are designed, include <code>Curvature</code>, <code>SelectTypLocSlpPos</code>, <code>FuzzySlpPosInference</code> and <code>HardenSlpPos</code>.</p>
-
-<p>AutoFuzSlpPos is programmed using C++ and Python. It can be compiled by Microsoft Visual Studio on Windows and GCC 4.7+ compiler on Linux/Unix. </p>
-
-<p>We have tested on Windows 7, CentOS 6.2 and Ubuntu 14.04. </p>
+<p>If you want to install from source code, please follow <a href="2.2%20Installation%20on%20Windows">Installation on Windows</a> or <a href="2.3%20Installation%20on%20Linux/Unix">Installation on Linux/Unix</a>. If you want to use AutoFuzSlpPos directly with the compiled executable files, please refers to <a href="2.4%20Configuration">Configuration</a>.</p>
 
 <h2>
-<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>INSTALLATION</h2>
+<a id="21-code-structure" class="anchor" href="#21-code-structure" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2.1 Code structure</h2>
 
-<hr>
+<p>The source code consists of two parts: 1) the C++ source code located in <code>../&lt;source-code&gt;/src</code>, and 2) python scripts located in <code>../source-code/src</code>. </p>
 
-<h3>
-<a id="1-compile-with-cmake-and-nmake-visual-studio-on-windows-platform" class="anchor" href="#1-compile-with-cmake-and-nmake-visual-studio-on-windows-platform" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><strong>1. Compile with CMAKE and nmake (Visual Studio) on Windows Platform</strong>
-</h3>
+<p>C++ code will be compiled as separated executable files, such as "<strong>SelectTypLocSlpPos</strong>" which is used for extracting typical locations and setting parameters for fuzzy inference of each slope position.</p>
 
-<ul>
-<li>Check the MPI Library path in CMakeLists.txt to make sure they are correct for your environment.</li>
-</ul>
+<p>Python script is to organize the whole work-flow with a configurable script for users’ customizing optional parameters, such as follows.</p>
 
-<pre><code>i.e.
-include_directories("C:/Program Files/Microsoft HPC Pack 2012/Inc")
+<table>
+<thead>
+<tr>
+<th>Script</th>
+<th>Functionality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>main.py</code></td>
+<td>The entrance of AutoFuzSlpPos</td>
+</tr>
+<tr>
+<td><code>Config.py</code></td>
+<td>The configuration file for user customization</td>
+</tr>
+<tr>
+<td><code>Nomenclature.py</code></td>
+<td>Predefined filenames</td>
+</tr>
+<tr>
+<td><code>TauDEM.py</code></td>
+<td>Functions  based  on  TauDEM  and  the  extension  functions,  e.g., SelectTypLocSlpPos</td>
+</tr>
+<tr>
+<td><code>Util.py</code></td>
+<td>Some fundamental functions, e.g., functions for the Input/Output of raster data</td>
+</tr>
+<tr>
+<td><code>PreProcessing.py</code></td>
+<td>Preprocessing  for  topographic  attributes,  such  as  relative  position index (RPI), profile curvature</td>
+</tr>
+<tr>
+<td><code>SelectTypLoc.py</code></td>
+<td>Prepare input files for typical location extraction</td>
+</tr>
+<tr>
+<td><code>FuzzySlpPosInference.py</code></td>
+<td>Prepare input files for fuzzy inference of each slope position</td>
+</tr>
+</tbody>
+</table>
+
+<h2>
+<a id="22-installation-on-windows" class="anchor" href="#22-installation-on-windows" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2.2 Installation on Windows</h2>
+
+<p>The MPI library used for PC is <a href="https://technet.microsoft.com/en-us/library/cc514029.aspx" title="MS-MPI">Microsoft HPC Pack 2012 MS-MPI Redistributable Package</a>. Please make sure that CMAKE and nmake (installed with Visual Studio, such as VS2010) have been installed on your PC. It is highly recommended to check the MPI Library path in <code>../&lt;source-code&gt;/src/CMakeLists.txt</code> to make sure they are correct for user’s environment:</p>
+
+<pre><code>include_directories("C:/Program Files/Microsoft HPC Pack 2012/Inc")
 link_directories("C:/Program Files/Microsoft HPC Pack 2012/Lib/i386")
 link_libraries("C:/Program Files/Microsoft HPC Pack 2012/Lib/i386/msmpi.lib")
 </code></pre>
 
-<ul>
-<li>From Start menu, run "Visual Studio Command Prompt (2010)" as administrator.</li>
-</ul>
+<p>Then, open “Visual Studio Command Prompt” from Start menu (as administrator), and run the following commands:</p>
 
-<pre><code>cd &lt;Destination_Build_Path&gt;
-cmake &lt;Source_Path&gt;
-i.e. 
+<pre><code>cd &lt;Build_Path&gt;
+cmake -G "NMake Makefiles" &lt;Source_Path&gt;
+nmake
+
+e.g.,
 cd C:\AutoFuzSlpPos\build
-cmake C:\AutoFuzSlpPos\src
-</code></pre>
-
-<p>This will this will generate Visual Studio Project. Then you can edit or compile through VS.</p>
-
-<ul>
-<li>As an alternative selection, We recommend this method to compile executable files directly.</li>
-</ul>
-
-<pre><code>cmake -G "NMake Makefiles" &lt;Source_Path&gt;
+cmake -G "NMake Makefiles" C:\source-code\src
 nmake
 </code></pre>
 
-<h3>
-<a id="2-compile-with-makefile-on-linuxunix-platform" class="anchor" href="#2-compile-with-makefile-on-linuxunix-platform" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><strong>2. Compile with makefile on Linux/Unix Platform</strong>
-</h3>
+<p>The executable files will be compiled and saved in <code>&lt;Build_Path&gt;</code>.</p>
 
-<ul>
-<li>compile <a href="http://www.mpich.org/downloads/">MPICH</a>
-</li>
-<li>Check the MPI_DIR in makefile to make sure it is correct for you.</li>
-</ul>
+<h2>
+<a id="23-installation-on-linuxunix" class="anchor" href="#23-installation-on-linuxunix" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2.3 Installation on Linux/Unix</h2>
 
-<pre><code>i.e.
-MPI_DIR = /home/zhulj/mpich/
+<p>Unlike the MPI version for PC, the implementation of <a href="http://www.mpich.org/downloads/" title="MPICH">MPICH</a> is adopted for Linux/Unix platform.</p>
+
+<p>Firstly, check the MPI Library path in <code>../&lt;source-code&gt;/src/makefile</code> to make sure that it is correct for your environment:</p>
+
+<pre><code>MPI_DIR = /home/zhulj/mpich/
 </code></pre>
 
-<ul>
-<li>Then, type this</li>
-</ul>
+<p>Then, assign the installation path:</p>
 
-<pre><code>cd &lt;Soource_Path/src&gt;
+<pre><code>INSTALLDIR=/home/zhulj/AutoFuzSlpPos/exec_linux
+</code></pre>
+
+<p>Lastly, run the following commands:</p>
+
+<pre><code>cd &lt;Source_Path/src&gt;
 make
 </code></pre>
 
-<ul>
-<li>By default, the executable file will be located in <code>../exec_linux_x86</code>. You can change <code>INSTALLDIR</code> to control it.</li>
-</ul>
+<p>The executable files will be generated in <code>INSTALLDIR</code>.</p>
 
-<pre><code>i.e.
-INSTALLDIR=../exec_linux_x86
+<h2>
+<a id="24-configuration" class="anchor" href="#24-configuration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2.4 Configuration</h2>
+
+<p>A script program of Python language is implemented to organize the work-flow of deriving fuzzy slope positions.
+You can configure the environment of AutoFuzSlpPos through the configuration file <code>../source-code/py_main/Config.py</code>. The path of the executable files must be set as follows:</p>
+
+<pre><code>mpiexeDir = r'/home/zhulj/mpich/bin' or None
+exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux'
+hostfile = r'/home/zhulj/AutoFuzSlpPos/exec_linux/dgpm' or None
 </code></pre>
 
-<h2>
-<a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuration</h2>
+<p>Note that, if the path of MPI is ENVIRONMENT PATH in your system, the mpiexeDir could be set as <code>None</code>. The <code>hostfile</code> is used to specify the hosts on which the MPI jobs will be run. If you does not know how to prepare the <code>hostfile</code>, just leave it as <code>hostfile = None</code>.</p>
 
-<hr>
+<p>After that, you can run AutoFuzSlpPos program for a specific study area.</p>
 
-<p>TO BE CONTINUE</p>
+<h1>
+<a id="3-run-autofuzslppos" class="anchor" href="#3-run-autofuzslppos" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>3 Run AutoFuzSlpPos</h1>
 
-<p>Now, you are ready to run the program through </p>
+<p>The only required data is the digital elevation model (DEM) of the study area. The first step of running AutoFuzSlpPos program is to assign your DEM path to <code>rawdem</code>. Then, the workspace <code>rootDir</code> needs to be set.</p>
 
-<pre><code>py_main/AutoFuzSlpPos_main.py
+<p>Other parameters can be left as default. These optional parameters are briefly introduced in the configuration script <code>../&lt;source-code&gt;/py_main/Config.py</code>.</p>
+
+<p>The following command is used to run AutoFuzSlpPos:</p>
+
+<pre><code>python ../&lt;source-code&gt;/py_main/main.py
 </code></pre>
 
-<h2>
-<a id="run-autofuzslppos" class="anchor" href="#run-autofuzslppos" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Run AutoFuzSlpPos</h2>
+<p>The following table gives a brief introduction to the result files.</p>
 
-<hr>
+<table>
+<thead>
+<tr>
+<th>Result Folder</th>
+<th>Introduction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FuzzySlpPos</td>
+<td>Similarity maps of each slope position, as well as the hardened map of slope positions and the corresponding maximum similarity map</td>
+</tr>
+<tr>
+<td>DinfpreDir</td>
+<td>Intermediate files in preparing topographic attributes</td>
+</tr>
+<tr>
+<td>Params</td>
+<td>GRID  of  topographic  attributes,  including  RPI  (Relative  Position  Index), profile curvature, slope gradient, and HAND (Height Above the Nearest Drainage), by default.</td>
+</tr>
+<tr>
+<td>Config</td>
+<td>Configuration files of the extraction of typical locations and fuzzy inference for each slope positions</td>
+</tr>
+<tr>
+<td>TypLoc</td>
+<td>Typical locations of each slope positions</td>
+</tr>
+<tr>
+<td>Log</td>
+<td>Log files which record information such as runtime, etc.</td>
+</tr>
+</tbody>
+</table>
 
-<p>TO BE CONTINUE</p>
-
-<h2>
-<a id="case-study" class="anchor" href="#case-study" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Case Study</h2>
-
-<hr>
-
-<p><img src="data/PleasantValley/map.jpg" alt="hardenmap"></p>
-
-<p><strong>Fig.1 HardenMap of Study Area</strong></p>
-
-<p><img src="data/PleasantValley/maxsim.jpg" alt="maxsimilarity"></p>
-
-<p><strong>Fig.2 Maximum Similarity to Slope Position</strong></p>
-
-<p><img src="data/PleasantValley/similarityMapDinf.jpg" alt="maxsimilarity"></p>
-
-<p><strong>Fig.3 Similarity to Each Slope Position</strong></p>
+<p>Note that in the current implementation a system of five basic slope positions is used, i.e., ridge(RDG), shoulder slope (SHD), backslope (BKS), footslope (FTS), and valley (VLY).</p>
       </section>
     </div>
 
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
-        <p class="copyright">Autofuzslppos maintained by <a href="https://github.com/crazyzlj">crazyzlj</a></p>
+        <p class="copyright">AutoFuzSlpPos maintained by <a href="https://github.com/crazyzlj">crazyzlj</a></p>
         <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
