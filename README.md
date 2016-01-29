@@ -3,17 +3,16 @@
 AutoFuzSlpPos (short for "**Automated Extraction of Fuzzy Slope Position**") is developed by PhD candidate Liangjun Zhu and **Prof.** Chengzhi Qin.
 
 + Manual in [Chinese](README_CN.md).
-+ [ChangeLog](ChangeLog.md) Information
 
 Contact and support email: zlj@lreis.ac.cn
 
-AutoFuzSlpPos is designed to extract fuzzy slope position information in hillslope scale based on the method proposed by Qin et al.(2009) and Qin et al.(2012).
+AutoFuzSlpPos is designed to extract fuzzy slope position information in hillslope scale based on the method proposed by Qin *et al*.(2009) and Qin *et al*.(2012).
 
 
 ~~~
-References:
-Qin, C.Z., Zhu, A.X., Shi, X., Li, B.L., Pei, T., Zhou, C.H., 2009. Quantification of spatial gradation of slope positions. Geomorphology 110, 152-161.
-Qin, C.-Z., Zhu, A.-X., Qiu, W.-L., Lu, Y.-J., Li, B.-L., Pei, T., 2012. Mapping soil organic matter in small low-relief catchments using fuzzy slope position information. Geoderma 171, 64-74.
+    References:
+    Qin, C.Z., Zhu, A.X., Shi, X., Li, B.L., Pei, T., Zhou, C.H., 2009. Quantification of spatial gradation of slope positions. Geomorphology 110, 152-161.
+    Qin, C.-Z., Zhu, A.-X., Qiu, W.-L., Lu, Y.-J., Li, B.-L., Pei, T., 2012. Mapping soil organic matter in small low-relief catchments using fuzzy slope position information. Geoderma 171, 64-74.
 ~~~
 
 AutoFuzSlpPos is based on [TauDEM](http://hydrology.usu.edu/taudem/taudem5/index.html) parallelized framework and submitted to TauDEM LICENSE.
@@ -33,10 +32,10 @@ We have tested on Windows 7, CentOS 6.2 and Ubuntu 14.04.
 
   + Check the MPI Library path in CMakeLists.txt to make sure they are correct for your environment.
 ~~~
-i.e.
-include_directories("C:/Program Files/Microsoft HPC Pack 2012/Inc")
-link_directories("C:/Program Files/Microsoft HPC Pack 2012/Lib/i386")
-link_libraries("C:/Program Files/Microsoft HPC Pack 2012/Lib/i386/msmpi.lib")
+    i.e.
+    include_directories("C:/Program Files/Microsoft HPC Pack 2012/Inc")
+    link_directories("C:/Program Files/Microsoft HPC Pack 2012/Lib/i386")
+    link_libraries("C:/Program Files/Microsoft HPC Pack 2012/Lib/i386/msmpi.lib")
 ~~~
   + From Start menu, run "Visual Studio Command Prompt (2010)" as administrator.
 ~~~
@@ -46,11 +45,14 @@ i.e.
 cd C:\AutoFuzSlpPos\build
 cmake C:\AutoFuzSlpPos\src
 ~~~
+
   This will this will generate Visual Studio Project. Then you can edit or compile through VS.
+
   + As an alternative selection, We recommend this method to compile executable files directly.
+
 ~~~
-cmake -G "NMake Makefiles" <Source_Path>
-nmake
+    cmake -G "NMake Makefiles" <Source_Path>
+    nmake
 ~~~
 
 ### **2. Compile with makefile on Linux/Unix Platform**
