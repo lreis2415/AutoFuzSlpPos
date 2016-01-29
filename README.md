@@ -16,14 +16,14 @@ Update date: 2016-1-29
 3. [Run AutoFuzSlpPos](3 Run AutoFuzSlpPos)
 
 
-# 1 Introduction #
+# 1 Introduction
 
 AutoFuzSlpPos is an automatic approach with only one required input data (i.e., a gridded DEM of the study area) to deriving fuzzy slope positions based on the prototype-based method proposed by Qin *et al*. (2009. Quantification of spatial gradation of slope positions. Geomorphology 110, 152-161.). 
 
 The prototype-based method consists three major steps, i.e., preparing topographic attributes, extracting typical locations, and calculating similarity for each slope position.
 
 The preliminary implementation employs the system of five basic slope positions, such as Fig.1.
-[img/schematic_of_slope_positions.jpg](img/schematic_of_slope_positions.jpg "Schematic of the five slope positions")
+[img/schematic_of_slope_positions.jpg](img/schematic_of_slope_positions.png "Schematic of the five slope positions")
 **Fig.1 Schematic of the five slope positions**
 
 AutoFuzSlpPos V1.0 is developed under the [TauDEM parallelized framework](http://hydrology.usu.edu/taudem/taudem5/index.html "TauDEM") and programmed using C++ and Python language. 
@@ -34,11 +34,11 @@ The program is capable with Windows and Linux/Unix, e.g., Windows 7/8/10, CentOS
 - For Linux/Unix, GCC 4.7+, MAKE, and MPICH or OpenMPI
 - Python 2.7+ packaged with Numpy 1.6+ and GDAL 1.9+.
 
-# 2 Installation #
+# 2 Installation
 
 If you want to install from source code, please follow [Installation on Windows](2.2 Installation on Windows) or [Installation on Linux/Unix](2.3 Installation on Linux/Unix). If you want to use AutoFuzSlpPos directly with the compiled executable files, please refers to [Configuration](2.4 Configuration).
 
-## 2.1 Code structure ##
+## 2.1 Code structure
 The source code consists of two parts: 1) the C++ source code located in `../<source-code>/src`, and 2) python scripts located in `../source-code/src`. 
 
 C++ code will be compiled as separated executable files, such as "**SelectTypLocSlpPos**" which is used for extracting typical locations and setting parameters for fuzzy inference of each slope position.
@@ -57,7 +57,7 @@ Python script is to organize the whole work-flow with a configurable script for 
 | `FuzzySlpPosInference.py` | Prepare input files for fuzzy inference of each slope position |
 
 
-## 2.2 Installation on Windows ##
+## 2.2 Installation on Windows
 
 The MPI library used for PC is [Microsoft HPC Pack 2012 MS-MPI Redistributable Package](https://technet.microsoft.com/en-us/library/cc514029.aspx "MS-MPI"). Please make sure that CMAKE and nmake (installed with Visual Studio, such as VS2010) have been installed on your PC. It is highly recommended to check the MPI Library path in `../<source-code>/src/CMakeLists.txt` to make sure they are correct for user’s environment:
 
@@ -81,7 +81,7 @@ nmake
 
 The executable files will be compiled and saved in `<Build_Path>`.
 
-## 2.3 Installation on Linux/Unix ##
+## 2.3 Installation on Linux/Unix
 
 Unlike the MPI version for PC, the implementation of [MPICH](http://www.mpich.org/downloads/ "MPICH") is adopted for Linux/Unix platform.
 
@@ -100,7 +100,7 @@ cd <Source_Path/src>
 make
 ~~~ 
 The executable files will be generated in `INSTALLDIR`.
-## 2.4 Configuration ## 
+## 2.4 Configuration
 
 A script program of Python language is implemented to organize the work-flow of deriving fuzzy slope positions.
 You can configure the environment of AutoFuzSlpPos through the configuration file `../source-code/py_main/Config.py`. The path of the executable files must be set as follows:
@@ -113,7 +113,7 @@ Note that, if the path of MPI is ENVIRONMENT PATH in your system, the mpiexeDir 
 
 After that, you can run AutoFuzSlpPos program for a specific study area.
 
-# 3 Run AutoFuzSlpPos #
+# 3 Run AutoFuzSlpPos
 
 
 The only required data is the digital elevation model (DEM) of the study area. The first step of running AutoFuzSlpPos program is to assign your DEM path to `rawdem`. Then, the workspace `rootDir` needs to be set.
