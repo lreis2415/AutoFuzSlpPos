@@ -36,7 +36,7 @@ CFLAGS=-g -Wall
 CFLAGS=-g -fopenmp -std=c++11
 LARGEFILEFLAG= -D_FILE_OFFSET_BITS=64
 INCDIRS=-I$(MPI_DIR)include
-INSTALLDIR=../exec_linux_x86
+INSTALLDIR=/home/zhulj/AutoFuzSlpPos/exec
 
 
 #Rules: when and how to make a file

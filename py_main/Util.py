@@ -26,7 +26,7 @@ def rmmkdir(dir):
         rmtree(dir,True)
         os.mkdir(dir)
 def makeResultFolders(rootdir,model,preprocess):
-    print "Making results' folders..."
+    #print "Making results' folders..."
     if not os.path.isdir(rootdir):
         if rootdir != "":
             mkdir(rootdir)

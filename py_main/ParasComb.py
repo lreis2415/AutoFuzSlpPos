@@ -30,11 +30,14 @@ def ExtConfParasComb():
         tempExtData = readExtConf(extFile[1])
         tempExtConfLine = [extFile[0]]
         for i in range(tempExtData[0]):
-            tempExtConfLine.append('')
+            tempExtConfLine.append(' ')
         for i in range(tempExtData[0]):
             if tempExtData[i+1][0] not in extConfLines[0]:
                 extConfLines[0].append(tempExtData[i+1][0])
             idx = extConfLines[0].index(tempExtData[i+1][0])
+            if idx >= len(tempExtConfLine):
+                for j in range(idx - len(tempExtConfLine) + 1):
+                    tempExtConfLine.append(' ')
             tempExtConfLine[idx] = "["+tempExtData[i+1][1]+", "+tempExtData[i+1][2]+"]"
         extConfLines.append(tempExtConfLine)
     #print extConfLines
@@ -75,11 +78,14 @@ def InfConfParasComb():
         tempInfData = readInfConf(infFile[1])
         tempInfConfLine = [infFile[0]]
         for i in range(tempInfData[0]):
-            tempInfConfLine.append('')
+            tempInfConfLine.append(' ')
         for i in range(tempInfData[0]):
             if tempInfData[i+1][0] not in infConfLines[0]:
                 infConfLines[0].append(tempInfData[i+1][0])
             idx = infConfLines[0].index(tempInfData[i+1][0])
+            if idx >= len(tempInfConfLine):
+                for j in range(idx - len(tempInfConfLine) + 1):
+                    tempInfConfLine.append(' ')
             if tempInfData[i+1][1] == 'B':
                 if tempInfData[i+1][2] == tempInfData[i+1][3]:
                     tempInfConfLine[idx] = tempInfData[i+1][1]+": w1 = w2 = "+tempInfData[i+1][2]

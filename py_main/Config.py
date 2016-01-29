@@ -18,10 +18,10 @@ sysstr = platform.system()
 if sysstr == "Linux":
     ## linux cluster
     mpiexeDir = r'/home/zhulj/mpich/bin'
-    exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86'
-    hostfile = r'/home/zhulj/AutoFuzSlpPos/exec_linux_x86/dgpm'
-    rootDir = r'/home/zhulj/PV_Dinf/16'
-    rawdem = r'/home/zhulj/AutoFuzSlpPos/data/PleasantValley/pvdem.tif'
+    exeDir = r'/home/zhulj/AutoFuzSlpPos/exec'
+    hostfile = r'/home/zhulj/AutoFuzSlpPos/exec/dgpm'
+    rootDir = r'/home/zhulj/AutoFuzSlpPos/runtimeTest/8'
+    rawdem = r'/home/zhulj/data/PleasantVly/pvDEM_meter_from_3dr.tif'
     outlet = None
     vlysrc = None
     rdgsrc = None
@@ -30,14 +30,14 @@ elif sysstr == "Windows":
     mpiexeDir = None 
     exeDir = r'D:\Compile\AutoFuzSlpPos\Release'
     hostfile = None
-    rootDir = r'E:\data_m\AutoFuzSlpPos\20160127_T2400'
-    rawdem = r'E:\data_m\AutoFuzSlpPos\pv-elev-meter.tif'
+    rootDir = r'E:\data_m\AutoFuzSlpPos\C&G_zhu_2016\AutoResult'
+    rawdem = r'E:\data_m\AutoFuzSlpPos\C&G_zhu_2016\rawData\pvDEM_meter_from_3dr.tif'
     outlet = None
     vlysrc = None
     rdgsrc = None                                        ## if there is ridge or valley source file, assign it here.  
                               
 preprocess = True                                        ## if preprocessing for parameters' grids is needed, and True by default.
-inputProc = 6                                           ## parallel processor's number
+inputProc = 8                                           ## parallel processor's number
 FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model                  
 
 ## Selection of Typical Locations
@@ -74,7 +74,7 @@ maxMoveDist = 50                                         ## the maximum number o
 numthresh = 20                                           ## the number of steps to divide the search range into when looking for possible threshold values using drop analysis
 logspace = 'true'                                        ## 'true' means use logarithmic spacing for threshold values, 'false' means linear spacing
 
-D8StreamThreshold = 2400                                    ## for D8 stream extraction from DEM, default is 0, which means the value is determined by drop analysis
+D8StreamThreshold = 0                                    ## for D8 stream extraction from DEM, default is 0, which means the value is determined by drop analysis
 negD8StreamThreshold = 0                                 ## for D8 ridge extraction from negative DEM, default is 0, which indicate that the value is equal to D8StreamThreshold
 
 D8DownMethod = 'Surface'                                 ## for D8DistDownToStream, it can be Horizontal, Vertical, Pythagoras and Surface, the default is 'Surface'

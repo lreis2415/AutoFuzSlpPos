@@ -83,7 +83,7 @@ def fuzSlpPosProfile(rdgCoors, d8flowdir, d8stream, shpfile):
         tempPathCoor.append([geo[0] + (col + 0.5) * geo[1], geo[3]-(row+0.5)*geo[1]])
 
         curLength = len(tempPath)
-        if curLength > 10:
+        if curLength > 20:
             profileCoorList.append(tempPathCoor)
             cellsizeList.append(tempCellsize)
         count = count + 1
@@ -99,6 +99,7 @@ if __name__ == '__main__':
     ## Flowdir: D8FlowDir or DinfFlowDir, DEM: demfil, etc...
     ## output file: rdg_taudem, ProfileFuzSlpPos
     ## step 1
+    #print DinfFlowDir
     rdgsrc = findRidge(1,DinfFlowDir, rdg_taudem)
     #print rdgsrc
     ## step 2
