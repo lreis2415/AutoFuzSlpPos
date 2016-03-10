@@ -3,7 +3,7 @@
 AutoFuzSlpPos (short for "**Automated for Fuzzy Slope Position**") is developed by PhD candidate Liang-Jun Zhu and **Prof.** Cheng-Zhi Qin in Lreis, IGSNRR, CAS, China.
 
 + also see [User Manual in Chinese](README_CN.md).
-
+<a target="_blank" href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=2LuquaKhorSymKmp9ru3tQ" style="text-decoration:none;"><img src="http://rescdn.qqmail.com/zh_CN/htmledition/images/function/qm_open/ico_mailme_12.png"/></a>
 Contact and support email: zlj@lreis.ac.cn
 Update date: 2016-1-29
 
