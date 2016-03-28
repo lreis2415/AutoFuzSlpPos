@@ -2,6 +2,7 @@ language: cpp
 compiler: gcc
 before_install: 
 #  - sudo apt-get install openmpi-bin openmpi-dev
+# update gcc to gcc-4.8 to support c++11 standard.
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get update -qq
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
@@ -14,5 +15,4 @@ before_install:
 env:
   - MPI_DIR=/usr/ INSTALLDIR=$(pwd)/build
 script: 
-  - gcc
   - make
