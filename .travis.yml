@@ -1,5 +1,5 @@
-language:cpp
-compiler:gcc
-before_install:
+language: cpp
+compiler: gcc
+before_install: 
   - test -n $CXX && unset CXX
   - cd ./src
