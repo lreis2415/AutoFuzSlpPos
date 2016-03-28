@@ -4,6 +4,7 @@ before_install:
   - sudo apt-get install openmpi-bin openmpi-dev
   - test -n $CXX && unset CXX
   - cd ./src
+env:
+  - MPI_DIR=/usr/
 script: 
-  - EXPORT MPI_DIR=/usr/
   - make
