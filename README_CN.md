@@ -1,6 +1,9 @@
 # 模糊坡位信息自动提取程序
 ==========
 ----------
+
+编译状态：[![Build Status](https://travis-ci.org/crazyzlj/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/crazyzlj/AutoFuzSlpPos)
+
 ## 1 基本信息介绍
 
 1. 名称：AutoFuzSlpPos（Automated Extraction of Fuzzy Slope Position）
