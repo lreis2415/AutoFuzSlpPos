@@ -13,6 +13,6 @@ before_install:
   - mkdir build
   - cd ./src
 env:
-  - MPI_DIR=/usr/ INSTALLDIR=$(pwd)/build
+  - MPI_DIR=/usr/ INSTALLDIR=$pwd/build
 script: 
   - make
