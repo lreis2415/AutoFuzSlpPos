@@ -8,7 +8,7 @@ before_install:
   - mkdir build
 env:
   - MPI_DIR=/usr/
-  - INSTALLDIR=/usr/bin
+  - INSTALLDIR=$(pwd)/build
 script: 
-  - pwd
+  - echo $MPI_DIR
   - make
