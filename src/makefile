@@ -35,7 +35,7 @@ endif
 CC = $(MPI_DIR)bin/mpic++
 CFLAGS=-O2
 CFLAGS=-g -Wall
-CFLAGS=-g -fopenmp -std=c11
+CFLAGS=-g -fopenmp -std=c++11
 LARGEFILEFLAG= -D_FILE_OFFSET_BITS=64
 INCDIRS=-I$(MPI_DIR)include
 ifndef INSTALLDIR
