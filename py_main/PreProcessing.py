@@ -19,7 +19,7 @@ def PreProcessing(model):
     logStatus.flush()
     logStatus.write("[Preprocessing] [1/7] Converting DEM file format to GeoTiff...\n")
     logStatus.flush()
-    TIFF2GeoTIFF(rawdem, dem)
+    Raster2GeoTIFF(rawdem, dem)
     logStatus.write("[Preprocessing] [2/7] Removing pits...\n")
     logStatus.flush()
     #TauDEM.pitremoveplanchon(dem,deltaElev,1,demfilpre,mpiexeDir=mpiexeDir,exeDir=exeDir)

@@ -9,9 +9,8 @@
 #include <numeric>
 #include <time.h>
 #include <vector>
-// include mpich and openmp 
+// include mpi 
 #include <mpi.h>
-//#include <omp.h>
 // include TauDEM header files
 #include "commonLib.h"
 #include "linearpart.h"
@@ -34,28 +33,37 @@ void dropParam(paramExtGRID &paramgrd)
 }
 int SetFuzFuncShape(paramExtGRID &paramgrd,ExtInfo &paramExt,char shape,float fittedCenter, float *allvalues, float DEFAULT_SELECT_RATIO, float DEFAULT_SIGMA_MULTIPLIER)
 {
-	float k1_2 = 0.0, k2_2 = 0.0, maxx = 0.0;
+	float maxx = fittedCenter;
 	int i;
-	int maxxIdx = -9999;
-	maxx = fittedCenter;
-	// update 2015/9/22 
-
-	for (i = 1; i < FREQUENCY_GROUP; i++)
-	{
-		if(maxx >= paramExt.XRange[i-1] && maxx <= paramExt.XRange[i])
-		{
-			maxxIdx = i;
-			break;
-		}
-	}
-	if (maxxIdx == -9999)
-	{
-		maxxIdx = 0;
-	}
-	for (i = 0; i <= maxxIdx; i++)
-		k1_2 += paramExt.y[i];
-	for (i = FREQUENCY_GROUP - 1; i >= maxxIdx; i--)
-		k2_2 += paramExt.y[i];
+	int defaultSelectNum = paramExt.num * DEFAULT_SELECT_RATIO;
+	vector<float> valueVector;
+	for (i = 0; i < paramExt.num; i++)
+		valueVector.push_back(allvalues[i]);
+	sort(valueVector.begin(),valueVector.end());
+	int leftCenterNum = CountIF(allvalues, paramExt.num, false, maxx);
+	int rightCenterNum = CountIF(allvalues, paramExt.num, true, maxx);
+	//float k1_2 = 0.0, k2_2 = 0.0;
+	//int maxxIdx = -9999;
+	//for (i = 1; i < FREQUENCY_GROUP; i++)
+	//{
+	//	if(maxx >= paramExt.XRange[i-1] && maxx <= paramExt.XRange[i])
+	//	{
+	//		maxxIdx = i;
+	//		break;
+	//	}
+	//}
+	//if (maxxIdx == -9999)
+	//{
+	//	maxxIdx = 0;
+	//}
+	//for (i = 0; i <= maxxIdx; i++)
+	//	k1_2 += paramExt.y[i];
+	//for (i = FREQUENCY_GROUP - 1; i >= maxxIdx; i--)
+	//	k2_2 += paramExt.y[i];
+	pair<int, int> minMaxIdx = findValue(valueVector, maxx);
+	int leftNum = defaultSelectNum * leftCenterNum/(leftCenterNum + rightCenterNum);
+	int rightNum = defaultSelectNum - leftNum;
+	int middleIdx = int(round(float(minMaxIdx.first + minMaxIdx.second)/2.0f));
 	if (shape == 'B')
 	{
 		paramgrd.shape = shape;
@@ -63,8 +71,19 @@ int SetFuzFuncShape(paramExtGRID &paramgrd,ExtInfo &paramExt,char shape,float fi
 		paramgrd.r2 = 2.0;
 		paramgrd.k1 = 0.5;
 		paramgrd.k2 = 0.5;
-		paramgrd.maxTyp = min((float)(maxx + (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO  * k2_2/(k1_2+k2_2)),paramExt.maxValue);
-		paramgrd.minTyp = max((float)(maxx - (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO  * k1_2/(k1_2+k2_2)),paramExt.minValue);
+		if(middleIdx <= leftNum - 1)
+		{
+			paramgrd.minTyp = valueVector[0];
+			paramgrd.maxTyp = valueVector[int(min(int(middleIdx + rightNum + middleIdx - leftNum + 1),int(valueVector.size()-1)))];
+		}
+		else
+		{
+			paramgrd.minTyp = valueVector[middleIdx - leftNum + 1];
+			paramgrd.maxTyp = valueVector[int(min(int(middleIdx + rightNum),int(valueVector.size()-1)))];
+		}
+		/// Deprecated code. 
+		///paramgrd.maxTyp = min((float)(maxx + (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO  * k2_2/(k1_2+k2_2)),paramExt.maxValue);
+		///paramgrd.minTyp = max((float)(maxx - (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO  * k1_2/(k1_2+k2_2)),paramExt.minValue);
 		paramgrd.w1 = DEFAULT_SIGMA_MULTIPLIER*STDcal(allvalues, paramExt.num, false, paramgrd.maxTyp);
 		paramgrd.w2 = DEFAULT_SIGMA_MULTIPLIER*STDcal(allvalues, paramExt.num, true, paramgrd.minTyp);
 		return 0;
@@ -78,7 +97,9 @@ int SetFuzFuncShape(paramExtGRID &paramgrd,ExtInfo &paramExt,char shape,float fi
 		paramgrd.r2 = 0.0;
 		paramgrd.k2 = 1.0;
 		paramgrd.maxTyp = paramExt.maxValue;
-		paramgrd.minTyp = min((float)(maxx + (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO),paramgrd.maxTyp);
+		paramgrd.minTyp = min(maxx,(float)(valueVector[valueVector.size()-1-defaultSelectNum]));
+		
+		///paramgrd.minTyp = min((float)(maxx + (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO),paramgrd.maxTyp);
 		if(paramgrd.minTyp == paramgrd.maxTyp)
 			paramgrd.minTyp = paramgrd.maxTyp - paramExt.interval;
 		paramgrd.w1 =DEFAULT_SIGMA_MULTIPLIER* STDcal(allvalues, paramExt.num, false, paramgrd.maxTyp);
@@ -93,7 +114,8 @@ int SetFuzFuncShape(paramExtGRID &paramgrd,ExtInfo &paramExt,char shape,float fi
 		paramgrd.r1 = 0.0;
 		paramgrd.k1 = 1.0;
 		paramgrd.minTyp = paramExt.minValue;
-		paramgrd.maxTyp = max((float)(maxx - (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO),paramgrd.minTyp);
+		paramgrd.maxTyp = max(maxx,(float)(valueVector[defaultSelectNum]));
+		///paramgrd.maxTyp = max((float)(maxx - (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO),paramgrd.minTyp);
 		if (paramgrd.minTyp == paramgrd.maxTyp)
 			paramgrd.maxTyp = paramgrd.minTyp + paramExt.interval;
 		paramgrd.w2 = DEFAULT_SIGMA_MULTIPLIER*STDcal(allvalues, paramExt.num, true, paramgrd.minTyp);
@@ -465,12 +487,13 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 						sigma_ratio_limit.push_back(10);
 						float bandwidth = 0.5;
 						float power = 1.0;
-						int esti_method = 0; /// Two possible values: 0:"moment" and 1:"EM", currently only "moment" has been implemented.
+						int esti_method = 1; /// Two possible values: 0:"moment" and 1:"em". By default, "em" is selected.
 						float eliminate = 0.05;
+						float epsilon = 0.005;
 						int max_iter = 30;
 						vector<vector<float> > bigauss_results; 
 						/// Be sure that x are ascend
-						int bigauss = BiGaussianMix(tempx,tempy,sigma_ratio_limit,bandwidth,power,esti_method,eliminate,max_iter, bigauss_results);
+						int bigauss = BiGaussianMix(tempx,tempy,sigma_ratio_limit,bandwidth,power,esti_method,eliminate,epsilon,max_iter, bigauss_results);
 						/// End BiGaussian Fitting
 						char fitShape[2];
 						fitShape[0] = 'N';
@@ -519,6 +542,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 								else /// biRatio <= 1.f / DEFAULT_BiGaussian_Ratio
 									fitShape[0] = 'Z';
 								centralValue[0] = peakCenter;
+								centralValue[1] = peakCenter;
 							}
 							else /// it means that the fitted result is not satisfied, use simple rules to figure out fitShape
 							{

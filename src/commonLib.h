@@ -74,13 +74,14 @@ struct node {
 	int y;
 };
 
-const double PI =  3.14159265359;
+const float PI =  3.14159265359;
 const short MISSINGSHORT = -32768;
 const long MISSINGLONG = -2147483647;
 const float MISSINGFLOAT = -1*FLT_MAX;
 const float DEFAULTNODATA = -9999.0f;  // added by Liangjun Zhu
-const float MINEPS = 1E-5f;
+const float MINEPS = 1e-5f;
 const int OMPTHREADS = 4;
+const float ZERO = 1.0e-12F;
 
 const int d1[9] = { 0,1, 1, 0,-1,-1,-1,0,1}; // col
 const int d2[9] = { 0,0,-1,-1,-1, 0, 1,1,1}; // row

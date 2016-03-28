@@ -105,9 +105,11 @@ def InfConfParasComb():
         f.write("\n")
     f.close()
 
-def ParametersCombination():
-    ExtConfParasComb()
-    InfConfParasComb()
+def ParametersCombination(typlocSelection = True, similarityInference = True):
+    if typlocSelection:
+        ExtConfParasComb()
+    if similarityInference:
+        InfConfParasComb()
 
 if __name__ == '__main__':
     ParametersCombination()

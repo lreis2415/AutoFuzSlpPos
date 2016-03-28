@@ -6,26 +6,25 @@ from Util import *
 import TauDEM
 from Config import *
 def FuzzySlpPosInference():
-    RPIExtInfo = [RdgExtractionInfo[0],ShdExtractionInfo[0],BksExtractionInfo[0],FtsExtractionInfo[0],VlyExtractionInfo[0]]
-    tempw1 = RPIExtInfo[0][1] - RPIExtInfo[1][2]
-    RdgInferenceInfo.append(['RPI','S',tempw1,2,0.5,1,0,1]) # Ridge:S: w1 = Rdg.min-Shd.max
-    tempw = min(RPIExtInfo[1][1]-RPIExtInfo[2][2],RPIExtInfo[0][1]-RPIExtInfo[1][2])
-    ShdInferenceInfo.append(['RPI','B',tempw,2,0.5,tempw,2,0.5]) # Shoulder slope:B: w1 = w2 = min(Shd.min-Bks.max, Rdg.min-Shd.max)
-    tempw = min(RPIExtInfo[2][1]-RPIExtInfo[3][2],RPIExtInfo[1][1]-RPIExtInfo[2][2])
-    BksInferenceInfo.append(['RPI','B',tempw,2,0.5,tempw,2,0.5]) # Back slope:B: w1 = w2 = min(Bks.min-Fts.max, Shd.min-Bks.max)
-    tempw = min(RPIExtInfo[3][1]-RPIExtInfo[4][2],RPIExtInfo[2][1]-RPIExtInfo[3][2])
-    FtsInferenceInfo.append(['RPI','B',tempw,2,0.5,tempw,2,0.5]) # Foot slope:B: w1 = w2 = min(Fts.min-Vly.max, Bks.min-Fts.max)
-    tempw2 = RPIExtInfo[3][1] - RPIExtInfo[4][2]
-    VlyInferenceInfo.append(['RPI','Z',1,0,1,tempw2,2,0.5]) # Valley:Z: w2 = Fts.min-Vly.max
-
+    if AutoInfParams:
+        RPIExtInfo = [RdgExtractionInfo[0],ShdExtractionInfo[0],BksExtractionInfo[0],FtsExtractionInfo[0],VlyExtractionInfo[0]]
+        tempw1 = RPIExtInfo[0][1] - RPIExtInfo[1][2]
+        RdgInferenceInfo.append(['RPI','S',tempw1,2,0.5,1,0,1]) # Ridge:S: w1 = Rdg.min-Shd.max
+        tempw = min(RPIExtInfo[1][1]-RPIExtInfo[2][2],RPIExtInfo[0][1]-RPIExtInfo[1][2])
+        ShdInferenceInfo.append(['RPI','B',tempw,2,0.5,tempw,2,0.5]) # Shoulder slope:B: w1 = w2 = min(Shd.min-Bks.max, Rdg.min-Shd.max)
+        tempw = min(RPIExtInfo[2][1]-RPIExtInfo[3][2],RPIExtInfo[1][1]-RPIExtInfo[2][2])
+        BksInferenceInfo.append(['RPI','B',tempw,2,0.5,tempw,2,0.5]) # Back slope:B: w1 = w2 = min(Bks.min-Fts.max, Shd.min-Bks.max)
+        tempw = min(RPIExtInfo[3][1]-RPIExtInfo[4][2],RPIExtInfo[2][1]-RPIExtInfo[3][2])
+        FtsInferenceInfo.append(['RPI','B',tempw,2,0.5,tempw,2,0.5]) # Foot slope:B: w1 = w2 = min(Fts.min-Vly.max, Bks.min-Fts.max)
+        tempw2 = RPIExtInfo[3][1] - RPIExtInfo[4][2]
+        VlyInferenceInfo.append(['RPI','Z',1,0,1,tempw2,2,0.5]) # Valley:Z: w2 = Fts.min-Vly.max
+    ##else:
+    ##    XXXInferenceInfo is user-defined in Config.py
     SlpPosItems = [[RdgInfConfig,RdgTyp, RdgTag, RdgInferenceInfo,DistanceExponentForIDW, RdgInf, RdgInfRecommend,RdgExtLog],\
                     [ShdInfConfig,ShdTyp, ShdTag, ShdInferenceInfo,DistanceExponentForIDW, ShdInf, ShdInfRecommend,ShdExtLog],\
                     [BksInfConfig,BksTyp, BksTag, BksInferenceInfo,DistanceExponentForIDW, BksInf,BksInfRecommend,BksExtLog],\
                     [FtsInfConfig,FtsTyp,FtsTag, FtsInferenceInfo,DistanceExponentForIDW, FtsInf,FtsInfRecommend,FtsExtLog],\
                     [VlyInfConfig,VlyTyp, VlyTag, VlyInferenceInfo,DistanceExponentForIDW, VlyInf,VlyInfRecommend,VlyExtLog]]
-    
-
-                    
     for SlpPosItem in SlpPosItems:
         if not AutoInfParams:     ## if not use automatically recommended parameters
             if not ModifyInfConfFile:

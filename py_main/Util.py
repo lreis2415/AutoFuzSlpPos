@@ -118,12 +118,20 @@ NODATA_VALUE %f
         f.write("\n")
     f.close()
 
-def TIFF2GeoTIFF(tif,geotif, unitConvert = False,gdalType=gdal.GDT_Float32):
-    print "Convering TIFF format to GeoTIFF..."
+def Raster2GeoTIFF(tif,geotif, unitConvert = False, zUnitConvert = False, gdalType=gdal.GDT_Float32):
+    print "Convering raster's format to GeoTIFF..."
     rstFile = ReadRaster(tif)
-    if(unitConvert):
-        rstFile.data *= 0.3048 # Convert feet to meter
-    WriteGTiffFile(geotif, rstFile.nRows, rstFile.nCols, rstFile.data, rstFile.geotrans, rstFile.srs, rstFile.noDataValue, gdalType)
+    if unitConvert: # Convert coordinate unit from feet to meter
+        converter = 0.3048
+        xMin = rstFile.xMin * converter
+        dx = rstFile.dx * converter
+        yMax = rstFile.yMax * converter
+        convertedGeotrans = [xMin, dx, 0, yMax, 0, -dx]
+        if zUnitConvert:
+            rstFile.data *= converter
+        WriteGTiffFile(geotif, rstFile.nRows, rstFile.nCols, rstFile.data, convertedGeotrans, rstFile.srs, rstFile.noDataValue, gdalType)
+    else:
+        WriteGTiffFile(geotif, rstFile.nRows, rstFile.nCols, rstFile.data, rstFile.geotrans, rstFile.srs, rstFile.noDataValue, gdalType)
 
 def GetRasterStat(rasterFile):
     dataset = gdal.Open(rasterFile,GA_ReadOnly)

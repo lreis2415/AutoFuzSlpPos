@@ -34,14 +34,12 @@ typedef struct paramExtGRID /// Constructs parameters for finding typical locati
 };
 typedef struct ExtInfo /// Constructs frequency distribution array, and store other statistics values
 {
-	int num; // number of terrain attributes values 
-	float maxValue; // maximum value
-	float minValue; // minimum value
-	//float maxTyp;   // maximum typical value
-	//float minTyp;   // minimum typical value
-	float interval; // (maxValue - minValue) / FREQUENCY_NUMS
-	float x[FREQUENCY_GROUP];  // x[i] = minValue + interval * (i + 0.5)     // used to construct x,y corresponding to terrain attributes values - frequencies.
-	float y[FREQUENCY_GROUP];  // y[i] = value count that fall in [XRange[i],XRange[i+1]]
+	int num; /// number of terrain attributes values
+	float maxValue; /// maximum value
+	float minValue; /// minimum value
+	float interval; /// (maxValue - minValue) / FREQUENCY_GROUP
+	float x[FREQUENCY_GROUP];  /// x[i] = minValue + interval * (i + 0.5)     /// used to construct x,y corresponding to terrain attributes values ~ frequencies.
+	float y[FREQUENCY_GROUP];  /// y[i] = value count that fall in [XRange[i],XRange[i+1]]
 	float XRange[FREQUENCY_GROUP+1]; // XRange[i] = minValue + interval * i
 };
 typedef struct DefaultFuzInf /// prior expert knowledge of curve shape for fuzzy inference model for a specific topographic attribute

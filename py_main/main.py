@@ -29,25 +29,33 @@ if __name__ == '__main__':
         cost = (endPreprocT - startT)
         log = log + "Preprocessing Time-consuming: " + str(cost) + ' s\n'
         allcost = allcost + cost
-    startSelectionT = time.time()
+
     ## Stage 2: Selection of Typical Locations and Calculation of Inference Parameters
-    SelectTypLoc()
-    endSelectionT = time.time()
-    if preprocess:
-        cost = (endSelectionT - endPreprocT)
-    else:
-        cost = (endSelectionT - startT)
-    allcost = allcost + cost
-    log = log + "Selection of Typical Locations Time-consuming: " + str(cost) + ' s\n'
+    if typlocSelection:
+        startSelectionT = time.time()
+        SelectTypLoc()
+        endSelectionT = time.time()
+        if preprocess:
+            cost = (endSelectionT - endPreprocT)
+        else:
+            cost = (endSelectionT - startT)
+        allcost = allcost + cost
+        log = log + "Selection of Typical Locations Time-consuming: " + str(cost) + ' s\n'
     ## Stage 3: Fuzzy Slope Position Inference
-    FuzzySlpPosInference()
-    endFuzInfT = time.time()
-    cost = (endFuzInfT - endSelectionT)
-    log = log + "Fuzzy Slope Position Inference Time-consuming: " + str(cost) + ' s\n'
-    allcost = allcost + cost
-    log = log + "All mission time-consuming: " + str(allcost) + ' s\n'
+    if similarityInference:
+        FuzzySlpPosInference()
+        endFuzInfT = time.time()
+        if typlocSelection:
+            cost = (endFuzInfT - endSelectionT)
+        elif preprocess:
+            cost = (endFuzInfT - endPreprocT)
+        else:
+            cost = (endFuzInfT - startT)
+        log = log + "Fuzzy Slope Position Inference Time-consuming: " + str(cost) + ' s\n'
+        allcost = allcost + cost
+        log = log + "All mission time-consuming: " + str(allcost) + ' s\n'
     logf = open(Log_runtime, 'a')
     logf.write(log)
     logf.close()
     ## Combine the config files into TypLocExtConf.dat and FuzInfConf.dat
-    ParametersCombination()
+    ParametersCombination(typlocSelection, similarityInference)
