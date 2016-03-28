@@ -31,6 +31,7 @@ CALCULATOR = SimpleCalculator.o SimpleCalculatormn.o $(OBJFILES)
 # linux cluster in dgpm
 ifndef MPI_DIR
 	MPI_DIR = /home/zhulj/mpich/
+endif
 CC = $(MPI_DIR)bin/mpic++
 CFLAGS=-O2
 CFLAGS=-g -Wall
@@ -39,6 +40,7 @@ LARGEFILEFLAG= -D_FILE_OFFSET_BITS=64
 INCDIRS=-I$(MPI_DIR)include
 ifndef INSTALLDIR
 	INSTALLDIR=/home/zhulj/AutoFuzSlpPos/exec
+endif
 
 
 #Rules: when and how to make a file
