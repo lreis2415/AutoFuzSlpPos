@@ -1,10 +1,15 @@
 language: cpp
 compiler: gcc
 before_install: 
-  - sudo apt-get install openmpi-bin openmpi-dev
+#  - sudo apt-get install openmpi-bin openmpi-dev
+  - sudo apt-get install -q mpich2 libmpich2-3 libmpich2-dev
   - test -n $CXX && unset CXX
   - cd ./src
+  - mkdir build
 env:
   - MPI_DIR=/usr/
+  - INSTALLDIR=./build
 script: 
+  - which mpic++
+  - which mpiexec
   - make
