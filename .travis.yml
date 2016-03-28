@@ -5,6 +5,5 @@ before_install:
   - test -n $CXX && unset CXX
   - cd ./src
 script: 
-  - which mpiexec
-  - which mpirun
+  - EXPORT MPI_DIR=/usr/
   - make
