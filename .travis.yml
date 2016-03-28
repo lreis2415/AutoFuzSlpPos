@@ -1,7 +1,10 @@
 language: cpp
 compiler: gcc
 before_install: 
+  - sudo apt-get install openmpi-bin openmpi-dev
   - test -n $CXX && unset CXX
   - cd ./src
 script: 
+  - which mpiexec
+  - which mpirun
   - make
