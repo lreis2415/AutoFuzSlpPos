@@ -10,9 +10,8 @@ before_install:
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
   - sudo apt-get install -q mpich2 libmpich2-3 libmpich2-dev
   - test -n $CXX && unset CXX
-  - mkdir build
   - cd ./src
 env:
-  - MPI_DIR=/usr/ INSTALLDIR=$pwd/build
+  - MPI_DIR=/usr/ INSTALLDIR=$(pwd)
 script: 
   - make
