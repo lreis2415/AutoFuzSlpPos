@@ -5,6 +5,9 @@ AutoFuzSlpPos (short for "**Automated for Fuzzy Slope Position**") is developed 
 + also see [User Manual in Chinese](README_CN.md).
 
 Contact and support email: zlj@lreis.ac.cn
+
+<a target="_blank" href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=2LuquaKhorSymKmp9ru3tQ" style="text-decoration:none;"><img src="http://rescdn.qqmail.com/zh_CN/htmledition/images/function/qm_open/ico_mailme_12.png"/></a>
+
 Update date: 2016-1-29
 
 1. [Introduction](#1-introduction)
