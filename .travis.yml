@@ -7,8 +7,7 @@ before_install:
   - cd ./src
   - mkdir build
 env:
-  - INSTALLDIR=$(pwd)/build
-  - MPI_DIR=/usr/
+  - MPI_DIR=/usr/ INSTALLDIR=$(pwd)/build
 script: 
   - echo $MPI_DIR
   - echo $INSTALLDIR
