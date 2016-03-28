@@ -29,14 +29,16 @@ CALCULATOR = SimpleCalculator.o SimpleCalculatormn.o $(OBJFILES)
 # my laptop, ubuntu 14.04
 #MPI_DIR = /usr/
 # linux cluster in dgpm
-MPI_DIR = /home/zhulj/mpich/
+ifndef MPI_DIR
+	MPI_DIR = /home/zhulj/mpich/
 CC = $(MPI_DIR)bin/mpic++
 CFLAGS=-O2
 CFLAGS=-g -Wall
 CFLAGS=-g -fopenmp -std=c++11
 LARGEFILEFLAG= -D_FILE_OFFSET_BITS=64
 INCDIRS=-I$(MPI_DIR)include
-INSTALLDIR=/home/zhulj/AutoFuzSlpPos/exec
+ifndef INSTALLDIR
+	INSTALLDIR=/home/zhulj/AutoFuzSlpPos/exec
 
 
 #Rules: when and how to make a file
