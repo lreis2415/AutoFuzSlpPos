@@ -10,6 +10,6 @@ env:
   - MPI_DIR=/usr/
   - INSTALLDIR=./build
 script: 
-  - which mpic++
-  - which mpiexec
+  - echo $MPI_DIR
+  - echo $INSTALLDIR
   - make
