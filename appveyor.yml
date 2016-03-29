@@ -3,9 +3,6 @@ branches:
   only:
   - master
 os: Visual Studio 2010
-environment:
-  matrix:
-    - CMAKE_GENERATOR: "NMake Makefiles"
 configuration: Release
 clone_folder: c:\zhulj\autofuzslppos
 install:
