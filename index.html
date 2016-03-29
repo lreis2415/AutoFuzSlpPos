@@ -32,14 +32,41 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h1>
-<a id="welcome-to-autofuzslppos" class="anchor" href="#welcome-to-autofuzslppos" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to AutoFuzSlpPos</h1>
+<a id="welcome-to-autofuzslppos--" class="anchor" href="#welcome-to-autofuzslppos--" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to AutoFuzSlpPos  <a href="https://github.com/crazyzlj/AutoFuzSlpPos"><img src="https://img.shields.io/github/release/qubyte/rubidium.svg" alt="GitHub release"></a>
+</h1>
 
 <hr>
 
+<ul>
+<li>Build status：</li>
+</ul>
+
+<table>
+<thead>
+<tr>
+<th>Linux</th>
+<th>Windows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://travis-ci.org/crazyzlj/AutoFuzSlpPos"><img src="https://travis-ci.org/crazyzlj/AutoFuzSlpPos.svg?branch=master" alt="Build Status"></a></td>
+<td><a href="https://ci.appveyor.com/project/crazyzlj/autofuzslppos/branch/master"><img src="https://ci.appveyor.com/api/projects/status/xsbq8j1mmw8d7a0i/branch/master?svg=true" alt="Build status"></a></td>
+</tr>
+</tbody>
+</table>
+
 <p>AutoFuzSlpPos (short for "<strong>Automated for Fuzzy Slope Position</strong>") is developed by PhD candidate Liang-Jun Zhu and <strong>Prof.</strong> Cheng-Zhi Qin in Lreis, IGSNRR, CAS, China.</p>
 
-<p>Contact and support email: <a href="mailto:zlj@lreis.ac.cn">zlj@lreis.ac.cn</a>
-Update date: 2016-1-29</p>
+<ul>
+<li>also see <a href="README_CN.md">User Manual in Chinese</a>.</li>
+</ul>
+
+<p>Contact and support email: <a href="mailto:zlj@lreis.ac.cn">zlj@lreis.ac.cn</a></p>
+
+<p><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&amp;email=2LuquaKhorSymKmp9ru3tQ"><img src="http://rescdn.qqmail.com/zh_CN/htmledition/images/function/qm_open/ico_mailme_12.png"></a></p>
+
+<p>Update date: 2016-1-29</p>
 
 <ol>
 <li><a href="#1-introduction">Introduction</a></li>
@@ -64,7 +91,9 @@ Update date: 2016-1-29</p>
 
 <p>The prototype-based method consists three major steps, i.e., preparing topographic attributes, extracting typical locations, and calculating similarity for each slope position.</p>
 
-<p>The preliminary implementation employs the system of five basic slope positions.</p>
+<p>The preliminary implementation employs the system of five basic slope positions, such as Fig.1.
+<img src="doc/schematic_of_slope_positions.png" width="400">
+<strong>Fig.1 Schematic of the five slope positions</strong></p>
 
 <p>AutoFuzSlpPos V1.0 is developed under the <a href="http://hydrology.usu.edu/taudem/taudem5/index.html" title="TauDEM">TauDEM parallelized framework</a> and programmed using C++ and Python language. </p>
 
@@ -79,7 +108,7 @@ Update date: 2016-1-29</p>
 <h1>
 <a id="2-installation" class="anchor" href="#2-installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2 Installation</h1>
 
-<p>If you want to install from source code, please follow <a href="2.2%20Installation%20on%20Windows">Installation on Windows</a> or <a href="2.3%20Installation%20on%20Linux/Unix">Installation on Linux/Unix</a>. If you want to use AutoFuzSlpPos directly with the compiled executable files, please refers to <a href="2.4%20Configuration">Configuration</a>.</p>
+<p>If you want to install from source code, please follow <a href="#22-installation-on-windows">Installation on Windows</a> or <a href="#23-installation-on-linuxunix">Installation on Linux/Unix</a>. If you want to use AutoFuzSlpPos directly with the compiled executable files, please refers to <a href="#24-configuration">Configuration</a>.</p>
 
 <h2>
 <a id="21-code-structure" class="anchor" href="#21-code-structure" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2.1 Code structure</h2>
@@ -256,7 +285,17 @@ hostfile = r'/home/zhulj/AutoFuzSlpPos/exec_linux/dgpm' or None
       </footer>
     </div>
 
-    
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-75301149-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
 
   </body>
 </html>
