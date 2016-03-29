@@ -15,3 +15,5 @@ env:
   - MPI_DIR=/usr/ INSTALLDIR=$(pwd)
 script: 
   - make
+notifications:
+  email: false
