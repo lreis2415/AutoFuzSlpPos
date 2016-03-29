@@ -48,7 +48,7 @@ The program is capable with Windows and Linux/Unix, e.g., Windows 7/8/10, CentOS
 
 # 2 Installation
 
-If you want to install from source code, please follow [Installation on Windows](2.2-Installation-on-Windows) or [Installation on Linux/Unix](2.3-Installation-on-Linux/Unix). If you want to use AutoFuzSlpPos directly with the compiled executable files, please refers to [Configuration](2.4-Configuration).
+If you want to install from source code, please follow [Installation on Windows](22-Installation-on-Windows) or [Installation on Linux/Unix](23-Installation-on-Linux/Unix). If you want to use AutoFuzSlpPos directly with the compiled executable files, please refers to [Configuration](24-Configuration).
 
 ## 2.1 Code structure
 The source code consists of two parts: 1) the C++ source code located in `../<source-code>/src`, and 2) python scripts located in `../source-code/src`. 
