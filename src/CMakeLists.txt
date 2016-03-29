@@ -3,8 +3,10 @@ project(AutoFuzSlpPos)
 set (BUILD_SHARED_LIBS OFF)
 SET (CMAKE_BUILD_TYPE "Release")
 include_directories("C:/Program Files/Microsoft HPC Pack 2012/Inc")
-link_directories("C:/Program Files/Microsoft HPC Pack 2012/Lib/i386")
-link_libraries("C:/Program Files/Microsoft HPC Pack 2012/Lib/i386/msmpi.lib")
+link_directories("C:/Program Files/Microsoft HPC Pack 2012/Lib/amd64")
+link_libraries("C:/Program Files/Microsoft HPC Pack 2012/Lib/amd64/msmpi.lib")
+#link_directories("C:/Program Files/Microsoft HPC Pack 2012/Lib/i386")
+#link_libraries("C:/Program Files/Microsoft HPC Pack 2012/Lib/i386/msmpi.lib")
 
 set (shape_srcs
 	shapelib/shapefil.h
