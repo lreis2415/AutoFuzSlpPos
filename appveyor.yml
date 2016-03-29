@@ -2,16 +2,17 @@ version: 1.0.{build}
 branches:
   only:
   - master
+image: Visual Studio 2015
 environment:
   matrix:
     - CMAKE_GENERATOR: "NMake Makefiles"
-    - CMAKE_GENERATOR: "Visual Studio 10 2010"
-    - CMAKE_GENERATOR: "Visual Studio 11 2012"
-    - CMAKE_GENERATOR: "Visual Studio 12 2013"
+    - CMAKE_GENERATOR: "Visual Studio 12 2015"
 configuration: Release
 clone_folder: c:\zhulj\autofuzslppos
 build_script:
 - cmd: >-
+    "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
+    
     cd c:\zhulj
 
     mkdir build
