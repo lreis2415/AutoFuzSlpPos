@@ -9,6 +9,9 @@ environment:
     - CMAKE_GENERATOR: "Visual Studio 12 2015"
 configuration: Release
 clone_folder: c:\zhulj\autofuzslppos
+install:
+  - ps: Start-FileDownload 'http://download.microsoft.com/download/6/4/A/64A7852A-A8C3-476D-908C-30501F761DF3/msmpisdk.msi'
+  - ps: msiexec /i msmpisdk.msi /quiet /qn /norestart
 build_script:
 - cmd: >-
     "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
