@@ -16,7 +16,13 @@ build_script:
 - cmd: >-
     "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
     
-    cd C:\Program Files\Microsoft HPC Pack 2012\Bin
+    cd C:\Program Files
+    
+    ls
+    
+    cd C:\Program Files (x86)
+    
+    ls
     
     mpiexec
     
