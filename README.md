@@ -1,4 +1,4 @@
-# Welcome to AutoFuzSlpPos
+# Welcome to AutoFuzSlpPos  [![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg)](https://github.com/crazyzlj/AutoFuzSlpPos)
 ----------
 
 [![Build Status](https://travis-ci.org/crazyzlj/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/crazyzlj/AutoFuzSlpPos)
