@@ -1,7 +1,12 @@
 # Welcome to AutoFuzSlpPos  [![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg)](https://github.com/crazyzlj/AutoFuzSlpPos)
 ----------
 
-[![Build Status](https://travis-ci.org/crazyzlj/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/crazyzlj/AutoFuzSlpPos)
++ Build status：
+
+| Linux | Windows |
+|--------|---------------|
+| [![Build Status](https://travis-ci.org/crazyzlj/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/crazyzlj/AutoFuzSlpPos) | [![Build status](https://ci.appveyor.com/api/projects/status/xsbq8j1mmw8d7a0i/branch/master?svg=true)](https://ci.appveyor.com/project/crazyzlj/autofuzslppos/branch/master) |
+
 
 
 AutoFuzSlpPos (short for "**Automated for Fuzzy Slope Position**") is developed by PhD candidate Liang-Jun Zhu and **Prof.** Cheng-Zhi Qin in Lreis, IGSNRR, CAS, China.
@@ -43,7 +48,7 @@ The program is capable with Windows and Linux/Unix, e.g., Windows 7/8/10, CentOS
 
 # 2 Installation
 
-If you want to install from source code, please follow [Installation on Windows](2.2 Installation on Windows) or [Installation on Linux/Unix](2.3 Installation on Linux/Unix). If you want to use AutoFuzSlpPos directly with the compiled executable files, please refers to [Configuration](2.4 Configuration).
+If you want to install from source code, please follow [Installation on Windows](2.2-Installation-on-Windows) or [Installation on Linux/Unix](2.3-Installation-on-Linux/Unix). If you want to use AutoFuzSlpPos directly with the compiled executable files, please refers to [Configuration](2.4-Configuration).
 
 ## 2.1 Code structure
 The source code consists of two parts: 1) the C++ source code located in `../<source-code>/src`, and 2) python scripts located in `../source-code/src`. 
