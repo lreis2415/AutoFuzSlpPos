@@ -12,6 +12,12 @@ clone_folder: c:\zhulj\autofuzslppos
 install:
   - ps: Start-FileDownload 'https://download.microsoft.com/download/3/8/D/38D18861-67DE-4E66-92C7-6819D8B07210/mpi_x64.msi'
   - ps: msiexec /i mpi_x64.msi /quiet /qn /norestart
+  - ps: $x64items = @(Get-ChildItem "HKLM:SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall")
+  - ps: $x64items + @(Get-ChildItem "HKLM:SOFTWARE\wow6432node\Microsoft\Windows\CurrentVersion\Uninstall") `
+   | ForEach-object { Get-ItemProperty Microsoft.PowerShell.Core\Registry::$_ } `
+   | Sort-Object -Property DisplayName `
+   | Select-Object -Property DisplayName,DisplayVersion
+  - ps: echo $x64items
 build_script:
 - cmd: >-
     "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
