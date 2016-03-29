@@ -12,6 +12,6 @@ build_script:
 
     cd .\build
 
-    cmake -G "NMake Makefiles" c:\zhulj\autofuzslppos
+    cmake -G "NMake Makefiles" c:\zhulj\autofuzslppos\src
 
     nmake
