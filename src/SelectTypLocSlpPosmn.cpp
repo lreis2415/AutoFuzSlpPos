@@ -1,11 +1,15 @@
-/*   SelectTypLocSlpPos is used to calculate terrain attribute grids' typical value range and extracted typical locations.
+/*!
+ * \file SelectTypLocSlpPosmn.cpp
+ *
+ * \date 2015/04/24 14:00
+ *
+ * \brief SelectTypLocSlpPos is used to calculate terrain attribute grids' typical value range and extracted typical locations.
      At the same time, calculate the fuzzy inference function shape and parameters.
-
-  Liangjun, Zhu
-  Lreis, CAS  
-  Apr 24, 2015 
-  
-*/
+ *
+ * \author Liangjun Zhu
+ * Contact: zlj@lreis.ac.cn
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,14 +39,14 @@ int main(int argc, char **argv)
 {
 	char inconfigfile[MAXLN],outconfigfile[MAXLN],logfile[MAXLN];
 	char typlocfile[MAXLN];
-	int prototag = 1; // by default, the tag of prototype GRID is 1, it can also be assigned by user.
+	int prototag = 1; //!< by default, the tag of prototype GRID is 1, it can also be assigned by user.
 	bool writeLog = false;
 	int paramsNum,lineNum = 0,i,err;
 	paramExtGRID *paramsgrd;
 	int addparamsNum = 0;
 	paramExtGRID *addparamgrd;
-	vector<DefaultFuzInf> fuzinf;  // Prior expert knowledge of curve shape of fuzzy inference model
-	float baseInputParameters[9];  // Base input parameters
+	vector<DefaultFuzInf> fuzinf;  //!< Prior expert knowledge of curve shape of fuzzy inference model
+	float baseInputParameters[9];  //!< Base input parameters
 	char cfglines[30][MAXLN];
 	if(argc == 1)
 	{  
@@ -152,7 +156,7 @@ int main(int argc, char **argv)
 	//printf("Output: %s\n",typlocfile);
 	//printf("Output Configuration File: %s\n",outconfigfile);
 	//printf("Automatically: %d\n",autoCal);
-	if((err=SelectTypLocSlpPos(inconfigfile,prototag,paramsNum, paramsgrd,addparamsNum,addparamgrd,fuzinf,baseInputParameters, typlocfile, outconfigfile,writeLog,logfile))!= 0)
+	if((err=SelectTypLocSlpPos(inconfigfile, prototag, paramsNum, paramsgrd, addparamsNum, addparamgrd, fuzinf, baseInputParameters, typlocfile, outconfigfile,writeLog,logfile))!= 0)
 		printf("Error %d\n",err); 
 	//system("pause");
 	return 0;

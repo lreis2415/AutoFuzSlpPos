@@ -1,3 +1,14 @@
+/*!
+ * \file SelectTypLocSlpPos.cpp
+ *
+ * \date 2015/04/24 14:00
+ *
+ * \brief Select typical locations as prototype of slope position type.
+ *
+ * \author Liangjun Zhu
+ * Contact: zlj@lreis.ac.cn
+ *
+ */
 // include fundamental libraries
 #include <stdlib.h>
 #include <iostream>
@@ -9,7 +20,7 @@
 #include <numeric>
 #include <time.h>
 #include <vector>
-// include mpi 
+// include MPI 
 #include <mpi.h>
 // include TauDEM header files
 #include "commonLib.h"
@@ -19,6 +30,10 @@
 #include "SelectTypLocSlpPos.h"
 #include "stats.h"
 using namespace std;
+/*!
+ * \brief Do not use this terrain attribute
+ *
+ */
 void dropParam(paramExtGRID &paramgrd)
 {
 	paramgrd.shape = 'D';
@@ -31,11 +46,19 @@ void dropParam(paramExtGRID &paramgrd)
 	paramgrd.w1 = MISSINGFLOAT;
 	paramgrd.w2 = MISSINGFLOAT;
 }
-int SetFuzFuncShape(paramExtGRID &paramgrd,ExtInfo &paramExt,char shape,float fittedCenter, float *allvalues, float DEFAULT_SELECT_RATIO, float DEFAULT_SIGMA_MULTIPLIER)
+/*!
+ * \brief Set fuzzy membership function parameters for terrain attribute
+ *
+ */
+int SetFuzFuncShape(paramExtGRID &paramgrd,ExtInfo &paramExt,char shape,float fittedCenter, float *allvalues, float MIN_TYPLOC_NUM_PECENT, float MAX_TYPLOC_NUM_PECENT, int SELECTION_MODE, float DEFAULT_SIGMA_MULTIPLIER)
 {
 	float maxx = fittedCenter;
-	int i;
-	int defaultSelectNum = paramExt.num * DEFAULT_SELECT_RATIO;
+	int i, defaultSelectNum;
+	if (SELECTION_MODE)
+		defaultSelectNum = paramExt.num * MAX_TYPLOC_NUM_PECENT * 2.5;
+	else
+		defaultSelectNum = paramExt.num * MIN_TYPLOC_NUM_PECENT * 2.5;
+
 	vector<float> valueVector;
 	for (i = 0; i < paramExt.num; i++)
 		valueVector.push_back(allvalues[i]);
@@ -124,6 +147,10 @@ int SetFuzFuncShape(paramExtGRID &paramgrd,ExtInfo &paramExt,char shape,float fi
 	else
 		return 1;
 }
+/*!
+ * \brief Main function for selecting typical locations
+ *
+ */
 int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtGRID *paramsgrd,int addparamsNum,paramExtGRID *addparamgrd,vector<DefaultFuzInf> fuzinf,float *baseInputParameters,char *typlocfile,char *outconffile,bool writelog,char *logfile)
 {
 	MPI_Init(NULL,NULL);
@@ -144,13 +171,14 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 		int MIN_FREQUENCY = 1, MIN_TYPLOC_NUM = 200, MAX_TYPLOC_NUM = 2000, MAX_LOOP_NUM_TYPLOC_SELECTION = 100;
 		float MIN_TYPLOC_NUM_PECENT = 0.f;
 		float MAX_TYPLOC_NUM_PECENT = 0.f;
-		float DEFAULT_SELECT_RATIO = 0.1,DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.2, DEFAULT_BiGaussian_Ratio = 4.0;
+		int SELECTION_MODE = 1;
+		float DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.414, DEFAULT_BiGaussian_Ratio = 4.0;
 		if (baseInputParameters != NULL)
 		{
 			MIN_FREQUENCY = int(baseInputParameters[0]);
 			MIN_TYPLOC_NUM_PECENT = baseInputParameters[1];
 			MAX_TYPLOC_NUM_PECENT = baseInputParameters[2];
-			DEFAULT_SELECT_RATIO = baseInputParameters[3];
+			SELECTION_MODE = int(baseInputParameters[3]);
 			DEFAULT_INCREMENT_RATIO = baseInputParameters[4];
 			DEFAULT_SIGMA_MULTIPLIER = baseInputParameters[5];
 			MAX_LOOP_NUM_TYPLOC_SELECTION = int(baseInputParameters[6]);
@@ -377,7 +405,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 				{
 					displs[i] = displs[i-1] + localCellCount[i-1];
 				}
-				//MPI_Allgatherv(CellValues[num],CellCount[num],MPI_FLOAT,AllCellValues[num],localCellCount,displs,MPI_FLOAT,MCW); /// this is gather to all processor
+				//MPI_Allgatherv(CellValues[num],CellCount[num],MPI_FLOAT,AllCellValues[num],localCellCount,displs,MPI_FLOAT,MCW); //!< Gather and scatter to all processor
 				MPI_Gatherv(CellValues[num],CellCount[num],MPI_FLOAT,AllCellValues[num],localCellCount,displs,MPI_FLOAT,0,MCW);
 			}
 			int maxCellCount = 0;
@@ -639,7 +667,7 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 									{
 										finalCentralValue = centralValue[0];
 									}
-									if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],finalShape,finalCentralValue,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
+									if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],finalShape,finalCentralValue,AllCellValues[num],MIN_TYPLOC_NUM_PECENT,MAX_TYPLOC_NUM_PECENT,SELECTION_MODE, DEFAULT_SIGMA_MULTIPLIER))!= 0)
 										return 1;
 								}
 								else
@@ -678,11 +706,16 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 									match = false;
 								if (match)
 								{
-									if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],finalShape,finalCentralValue,AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
+									if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],finalShape,finalCentralValue,AllCellValues[num],MIN_TYPLOC_NUM_PECENT,MAX_TYPLOC_NUM_PECENT,SELECTION_MODE, DEFAULT_SIGMA_MULTIPLIER))!= 0)
 										return 1;
 								}
-								else
-									dropParam(paramsgrd[num]);
+								else /// if the fitted shapes are not coincident with prior shapes, take the first of prior shape as well
+								{
+									//dropParam(paramsgrd[num]);
+									finalShape = priorShape[0];
+									if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],finalShape,max_freq_x,AllCellValues[num],MIN_TYPLOC_NUM_PECENT,MAX_TYPLOC_NUM_PECENT,SELECTION_MODE, DEFAULT_SIGMA_MULTIPLIER))!= 0)
+										return 1;
+								}
 							}
 							else
 								dropParam(paramsgrd[num]);
@@ -706,20 +739,29 @@ int SelectTypLocSlpPos(char *inconfigfile,int prototag, int paramsNum, paramExtG
 								logf.close();
 							}
 						}
-						else /// if predefined one or more curve shape, take the first one. (TAKE CARE)
+						else /// the bi-Gaussian fitted failed!
 						{
-							if(priorShape.size() >= 1) 
+							dropParam(paramsgrd[num]);
+							//if(priorShape.size() >= 1) 
+							//{
+							//	if(priorShape[0] != 'N')
+							//	{
+							//		if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],tempx[max_freq_idx_origin],AllCellValues[num],MIN_TYPLOC_NUM_PECENT,MAX_TYPLOC_NUM_PECENT,SELECTION_MODE, DEFAULT_SIGMA_MULTIPLIER))!= 0)
+							//			return 1;
+							//	}
+							//	else
+							//		dropParam(paramsgrd[num]);
+							//}
+							//else
+							//	dropParam(paramsgrd[num]);
+							if (writelog)
 							{
-								if(priorShape[0] != 'N')
-								{
-									if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],tempx[max_freq_idx_origin],AllCellValues[num],DEFAULT_SELECT_RATIO, DEFAULT_SIGMA_MULTIPLIER))!= 0)
-										return 1;
-								}
-								else
-									dropParam(paramsgrd[num]);
+								ofstream logf;
+								logf.open(logfile,ios_base::app|ios_base::out);
+								logf<<endl<<endl;
+								logf<<"BiGaussian model Fitting result indicates a mixture model! "<<endl;
+								logf.close();
 							}
-							else
-								dropParam(paramsgrd[num]);
 						}
 					}
 				}

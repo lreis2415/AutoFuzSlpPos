@@ -35,3 +35,5 @@
 *.pyc~
 *.h~
 *.py~
+#PyCharm Project files
+.idea

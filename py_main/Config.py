@@ -18,12 +18,12 @@ if sysstr == "Linux":    ## linux cluster
     mpiexeDir = r'/home/zhulj/mpich/bin'
     exeDir = r'/home/zhulj/AutoFuzSlpPos/exec'
     hostfile = r'/home/zhulj/AutoFuzSlpPos/exec/dgpm'
-    rootDir = r'/home/zhulj/AutoFuzSlpPos/basedOriginRPIwithoutElev'
+    rootDir = r'/home/zhulj/AutoFuzSlpPos/runtimeTest/1'
     rawdem = r'/home/zhulj/data/PleasantVly/pvDEM_meter_from_3dr.tif'
     outlet = None
     vlysrc = None
     rdgsrc = None
-    rpiFile = r'/home/zhulj/AutoFuzSlpPos/basedOriginRPIwithoutElev/Params/RPI.tif'
+    rpiFile = None#r'/home/zhulj/AutoFuzSlpPos/basedOriginRPI/Params/RPI.tif'
 elif sysstr == "Windows":    ## Windows PC
     mpiexeDir = None
     hostfile = None
@@ -34,10 +34,10 @@ elif sysstr == "Windows":    ## Windows PC
     vlysrc = None
     rdgsrc = None                                        ## if there is ridge or valley source file, assign it here.
     rpiFile = None                                       ## if rpiFile is assigned, no more RPI will be calculated.
-preprocess = False                                      ## Do preprocess for terrain attributes? True is default.
+preprocess = True                                      ## Do preprocess for terrain attributes? True is default.
 typlocSelection = True                                   ## Select typical locations automatically? True is default.
 similarityInference = True                               ## Calculate fuzzy membership of each slope position? True is default.
-inputProc = 16                                            ## number of processor for parallel computing
+inputProc = 1                                            ## number of processor for parallel computing
 
 ####    Optional    ####
 FlowModel = 1                                            ## 0 represents D8 flow model, and 1 represent D-infinity model
@@ -55,10 +55,10 @@ DistanceExponentForIDW = 8                               ## the default is 8
 ExtLog = True                                            ## write logfile
 
 RdgTag = 1
-ShdTag = 1
-BksTag = 1
-FtsTag = 1
-VlyTag = 1
+ShdTag = 2
+BksTag = 4
+FtsTag = 8
+VlyTag = 16
 
 ###  Optional parameters settings for terrain attributes preparation  ###
 maxMoveDist = 50                                         ## the maximum number of grid cells that the points in the input outlet shapefile will be moved before they are saved to the output outlet shapefile
@@ -92,17 +92,17 @@ else:
     TerrainAttrDict = {'RPI': rpiFile, 'ProfC': ProfC_default_path, 'Slope':Slope_default_path, 'HAND':HAND_default_path}
 
 # basic parameters, by default: MIN_FREQUENCY = 10, MIN_TYPLOC_NUM_PECENT = 0.01,\
-#          MAX_TYPLOC_NUM_PERCENT = 0.2, DEFAULT_SELECT_RATIO = 0.5,\
+#          MAX_TYPLOC_NUM_PERCENT = 0.2, SELECTION_MODE = 1,\
 #          DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.414,\
 #          MAX_LOOP_NUM_TYPLOC_SELECTION = 50, DEFAULT_BiGaussian_Ratio = 4.0
-RdgBaseParam = [1,0.01,0.2,0.5,0.1,1.414,50,4.0]
-ShdBaseParam = [1,0.01,0.2,0.5,0.1,1.414,50,4.0]
-BksBaseParam = [1,0.01,0.2,0.5,0.1,1.414,50,4.0]
-FtsBaseParam = [1,0.01,0.2,0.5,0.1,1.414,50,4.0]
-VlyBaseParam = [1,0.01,0.2,0.5,0.1,1.414,50,4.0]
+RdgBaseParam = [10,0.1,0.3,1,0.1,1.414,50,4.0]
+ShdBaseParam = [10,0.1,0.3,1,0.1,1.414,50,4.0]
+BksBaseParam = [10,0.1,0.3,1,0.1,1.414,50,4.0]
+FtsBaseParam = [10,0.1,0.3,1,0.1,1.414,50,4.0]
+VlyBaseParam = [10,0.1,0.3,1,0.1,1.414,50,4.0]
 ## Predefined Fuzzy Membership Function Shape, Bell-shaped, S-shaped, Z-shaped and N means Not used.
 ## These parameters are user-defined.
-RdgFuzInfDefault = [['RPI','S'],['ProfC','S'],['Slope','Z'],['HAND','N']]
+RdgFuzInfDefault = [['RPI','S'],['ProfC','S'],['Slope','Z'],['HAND','SN']]
 ShdFuzInfDefault = [['RPI','B'],['ProfC','S'],['Slope','B'],['HAND','N']]
 BksFuzInfDefault = [['RPI','B'],['ProfC','B'],['Slope','S'],['HAND','N']]
 FtsFuzInfDefault = [['RPI','B'],['ProfC','ZB'],['Slope','ZB'],['HAND','N']]

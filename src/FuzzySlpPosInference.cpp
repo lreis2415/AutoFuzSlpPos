@@ -1,21 +1,38 @@
-// include fundamental libraries
+/*!
+ * \file FuzzySlpPosInference.cpp
+ * \date 2015/04/09 14:12
+ *
+ * \author Liangjun Zhu
+ * Contact: zlj@lreis.ac.cn
+ *
+ * \brief Fuzzy slope position inference function.
+ *
+ */
+/// include fundamental libraries
 #include <stdlib.h>
 #include <iostream>
 #include <math.h>
 #include <queue>
 #include <time.h>
 #include <vector>
-// include mpich and openmp 
+/// include MPI
 #include <mpi.h>
-//#include <omp.h>
-// include TauDEM header files
+/// include TauDEM header files
 #include "commonLib.h"
 #include "linearpart.h"
 #include "createpart.h"
 #include "tiffIO.h"
+/// include FuzzySlpPosInference header
 #include "FuzzySlpPosInference.h"
 using namespace std;
-
+/*!
+ * \brief Calculate fuzzy slope position.
+ *
+ *
+ * \param[in] prototype file
+ * \param[in] terrain attribute parameters files used to infer
+ * \param[out] similarity GeoTIFF file
+ */
 int FuzzySlpPosInf(char *protofile,int prototag, int paramsNum, paramInfGRID *paramsgrd, float exponent, char *simfile)
 {
 	MPI_Init(NULL,NULL);
@@ -24,7 +41,7 @@ int FuzzySlpPosInf(char *protofile,int prototag, int paramsNum, paramInfGRID *pa
 		MPI_Comm_rank(MCW,&rank);
 		MPI_Comm_size(MCW,&size);
 		MPI_Status status;
-		int num;  // define a variable for iterate
+		int num;  //!< define a variable for iterate
 		if(rank == 0)
 		{
 			printf("FuzzySlpPosInference -h version %s, added by Liangjun Zhu, Apr 9, 2015\n",TDVERSION);
@@ -41,25 +58,25 @@ int FuzzySlpPosInf(char *protofile,int prototag, int paramsNum, paramInfGRID *pa
 			printf("Similarity file: %s\n",simfile);
 			fflush(stdout);
 		}
-		double begint = MPI_Wtime();  // start time
-		// read tiff header information using tiffIO
+		double begint = MPI_Wtime();  //!< start time
+		//!< read tiff header information using tiffIO
 		tiffIO protof(protofile,FLOAT_TYPE);
 		long totalX = protof.getTotalX();
 		long totalY = protof.getTotalY();
 		double dx = protof.getdx();
 		double dy = protof.getdy();
 
-		// read tiff data into partition
+		//!< read tiff data into partition
 		tdpartition *proto;
 		proto = CreateNewPartition(protof.getDatatype(),totalX,totalY,dx,dy,protof.getNodata());
-		// get the size of current partition
+		//!< get the size of current partition
 		int nx = proto->getnx();
 		int ny = proto->getny();
 		int xstart,ystart;
-		proto->localToGlobal(0,0,xstart,ystart); // calculate current partition's first cell's position
-		protof.read(xstart,ystart,ny,nx,proto->getGridPointer()); // get the current partition's pointer
+		proto->localToGlobal(0,0,xstart,ystart); //!< calculate current partition's first cell's position
+		protof.read(xstart,ystart,ny,nx,proto->getGridPointer()); //!< get the current partition's pointer
 
-		// read parameters data into *partition
+		//!< read parameters data into *partition
 		linearpart<float> *params = new linearpart<float>[paramsNum];
 		for (num = 0; num < paramsNum; num++)
 		{
@@ -73,22 +90,22 @@ int FuzzySlpPosInf(char *protofile,int prototag, int paramsNum, paramInfGRID *pa
 			params[num].init(totalX,totalY,dx,dy,MPI_FLOAT,*((float*)paramsf.getNodata()));
 			paramsf.read(xstart,ystart,ny,nx,params[num].getGridPointer());
 		}
-		double readt = MPI_Wtime(); // record reading time
+		double readt = MPI_Wtime(); //!< record reading time
 
 		int i,j,k,iall,jall;
 		float tempTag,tempAttr;
 		queue<TypLocAttr> TypLocAttrQue;
 
-		// COMPUTING CODE BLOCK FOR EXTRACTING TYPICAL LOCATION AND ATTRIBUTES
+		//!< COMPUTING CODE BLOCK FOR EXTRACTING TYPICAL LOCATION AND ATTRIBUTES
 
-		for (j = 0; j < ny; j++) // rows
+		for (j = 0; j < ny; j++) //!< rows
 		{
-			for (i = 0; i < nx; i++) // cols
+			for (i = 0; i < nx; i++) //!< cols
 			{
 				if (!proto->isNodata(i,j) && proto->getData(i,j,tempTag)==prototag)
 				{
 					TypLocAttr tempTypLocAttr;
-					tempTypLocAttr.Value = new float[paramsNum]; // allocate memory space for typical location's parameter attributes
+					tempTypLocAttr.Value = new float[paramsNum]; //!< allocate memory space for typical location's parameter attributes
 					bool hasnodata = false;
 					for (num = 0; num < paramsNum; num++)
 						if(!params[num].isNodata(i,j) && !hasnodata){
@@ -124,7 +141,7 @@ int FuzzySlpPosInf(char *protofile,int prototag, int paramsNum, paramInfGRID *pa
 				LocTypLocAttr[LocTypLocNum * (2 + paramsNum) + 2 + locNum] = temp.Value[locNum];
 			LocTypLocNum++;
 		}
-		// END COMPUTING CODE BLOCK FOR EXTRACTING TYPICAL LOCATION AND ATTRIBUTES
+		//!< END COMPUTING CODE BLOCK FOR EXTRACTING TYPICAL LOCATION AND ATTRIBUTES
 		
 		int AllTypLocNum;
 		int *LocTypLocNums;
@@ -150,27 +167,28 @@ int FuzzySlpPosInf(char *protofile,int prototag, int paramsNum, paramInfGRID *pa
 		LocTypLocNums = NULL;
 		delete[] displs;
 		displs = NULL;
-
+		//////////////////////////////////////////////////////////////////////////
 		// Next, calculate every cell's similarity to all typical locations
 		// create empty partition to store similarity result 
 		// define intermediate variables
+		//////////////////////////////////////////////////////////////////////////
 		tdpartition *simi;
 		simi = CreateNewPartition(FLOAT_TYPE,totalX,totalY,dx,dy,MISSINGFLOAT);				
-		k = 0; // k-th prototype location 
+		k = 0; //!< k-th prototype location 
 		
-		// calculate 
-		for (j = 0; j < ny; j++) // rows
+		//!< calculate 
+		for (j = 0; j < ny; j++) //!< rows
 		{
-			for (i = 0; i < nx; i++) // cols
+			for (i = 0; i < nx; i++) //!< cols
 			{
-				// if params[0-paramsNum] are not nodata, then next
+				//!< if params[0-paramsNum] are not nodata, then next
 				bool Calculable = true;
 				for (num = 0; num < paramsNum; num++)
 					if (params[num].isNodata(i,j)) Calculable = false;
 				if (Calculable)
 				{
-					float dSijtv,dSij = 0.0,dij = 0.0,dDist_ijt,tempSijt; // temp variables
-					for (k = 0; k < AllTypLocNum; k++)  // Loop every prototype point, t
+					float dSijtv,dSij = 0.0,dij = 0.0,dDist_ijt,tempSijt; //!< temp variables
+					for (k = 0; k < AllTypLocNum; k++)  //!< Loop every prototype point, t
 					{
 						int i2all,j2all;
 						float tempValue;
@@ -178,7 +196,7 @@ int FuzzySlpPosInf(char *protofile,int prototag, int paramsNum, paramInfGRID *pa
 						int tempY = (int)AllTypLocAttr[k * (2 + paramsNum) + 1];
 						tempSijt = -(float)MISSINGSHORT;
 						dSijtv = (float)0.0;
-						for(num = 0; num < paramsNum; num++) // Loop terrain parameters, v
+						for(num = 0; num < paramsNum; num++) //!< Loop terrain parameters, v
 						{
 							if (!params[num].isNodata(i,j))
 							{
@@ -187,29 +205,31 @@ int FuzzySlpPosInf(char *protofile,int prototag, int paramsNum, paramInfGRID *pa
 								if (tempAttr == tempValue)
 									dSijtv = (float)1.0;
 								else if (tempAttr < tempValue)
-									if (paramsgrd[num].k1 == 1.0) // Z-shaped function
+									if (paramsgrd[num].k1 == 1.0) //!< Z-shaped function
 										dSijtv = (float)1.0;
 									else
 										dSijtv = (float)exp(pow((abs(tempAttr-tempValue)/paramsgrd[num].w1),paramsgrd[num].r1)*log(paramsgrd[num].k1));
-								else   // tempAttr > tempValue
-									if(paramsgrd[num].k2 == 1.0)  // S-shaped function
+								else   //!< tempAttr > tempValue
+									if(paramsgrd[num].k2 == 1.0)  //!< S-shaped function
 										dSijtv = (float)1.0;
 									else
 										dSijtv = (float)exp(pow((abs(tempAttr-tempValue)/paramsgrd[num].w2),paramsgrd[num].r2)*log(paramsgrd[num].k2));
 								if (tempSijt >= dSijtv) tempSijt = dSijtv;
 							}
 						}
+						//////////////////////////////////////////////////////////////////////////
 						// tempSijt is the minimum of similarity between cell P(i,j) and prototype cell T(tempX,tempY)
 						// now calculate inverse distance weight
+						//////////////////////////////////////////////////////////////////////////
 						proto->localToGlobal(i,j,i2all,j2all);
-						if (!((i2all == tempX) && (j2all == tempY)))  // not include itself
+						if (!((i2all == tempX) && (j2all == tempY)))  //!< not include itself
 						{
 							dDist_ijt = (float)pow(sqrt((float)(i2all-tempX)*(i2all-tempX)+(float)(j2all-tempY)*(j2all-tempY))*(float)dx,-exponent);
 							dSij += dDist_ijt * tempSijt;
 							dij += dDist_ijt;
 						}
 					}
-					// now calculate overall similarity of P(i,j) to Slope position C.
+					//!< now calculate overall similarity of P(i,j) to Slope position C.
 					float Sij = (float)(dSij/dij);
 					if (Sij < MINEPS)
 						simi->setData(i,j,(float)0.0);
@@ -228,12 +248,12 @@ int FuzzySlpPosInf(char *protofile,int prototag, int paramsNum, paramInfGRID *pa
 			proto->globalToLocal(tempX,tempY,locali,localj);
 			simi->setData(locali,localj,(float)1.0);
 		}
-		double computet = MPI_Wtime(); // record computing time
-		// create and write tiff
+		double computet = MPI_Wtime(); //!< record computing time
+		//!< create and write tiff
 		float nodata = MISSINGFLOAT;
 		tiffIO simif(simfile,FLOAT_TYPE,&nodata,protof);
 		simif.write(xstart,ystart,ny,nx,simi->getGridPointer());
-		double writet = MPI_Wtime(); // record writing time
+		double writet = MPI_Wtime(); //!< record writing time
 		
 
 		double dataRead, compute, write, total, tempd;
