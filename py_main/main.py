@@ -8,15 +8,14 @@
 
 # Email     :  zlj@lreis.ac.cn
 #
-import os, sys, time
-import TauDEM
-from Nomenclature import *
+import time
+
 from Config import *
-from Util import *
+from FuzzySlpPosInference import FuzzySlpPosInference
+from Nomenclature import *
+from ParasComb import ParametersCombination
 from PreProcessing import PreProcessing
 from SelectTypLoc import SelectTypLoc
-from FuzzySlpPosInference import FuzzySlpPosInference
-from ParasComb import ParametersCombination
 
 if __name__ == '__main__':
     startT = time.time()
