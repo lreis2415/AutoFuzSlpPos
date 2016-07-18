@@ -9,21 +9,22 @@
  *
 */
 #include "commonLib.h"
+
 /*!
  * \struct paramInfGRID
  * \brief Parameters for fuzzy inference of terrain attribute
  *
  */
-typedef struct paramInfGRID 
+typedef struct paramInfGRID
 {
-	char path[MAXLN]; //!< Grid file path
-	char shape[2]; //!< fuzzy membership function shape, B, S, or Z
-	float w1;
-	float r1;
-	float k1;
-	float w2;
-	float r2;
-	float k2;
+    char path[MAXLN]; //!< Grid file path
+    char shape[2]; //!< fuzzy membership function shape, B, S, or Z
+    float w1;
+    float r1;
+    float k1;
+    float w2;
+    float r2;
+    float k2;
 };
 /*!
  * \struct TypLocAttr
@@ -32,8 +33,9 @@ typedef struct paramInfGRID
  */
 typedef struct TypLocAttr
 {
-	int col,row;
-	float *Value;
+    int col, row;
+    float *Value;
 };
 
-int FuzzySlpPosInf(char *protofile,int prototag, int paramsnum, struct paramInfGRID *paramsgrd, float exponent, char *simfile);
+int FuzzySlpPosInf(char *protofile, int prototag, int paramsnum, struct paramInfGRID *paramsgrd, float exponent,
+                   char *simfile);
