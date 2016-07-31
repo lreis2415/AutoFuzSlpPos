@@ -42,7 +42,7 @@ email:  dtarb@usu.edu
 */
 
 //  This software is distributed from http://hydrology.usu.edu/taudem/
-  
+
 #include <time.h>
 #include <string.h>
 #include <stdio.h>
@@ -50,53 +50,53 @@ email:  dtarb@usu.edu
 #include "commonLib.h"
 #include "connectdown.h"
 
-int main(int argc,char **argv)
+int main(int argc, char **argv)
 {
-   char ad8file[MAXLN],outletshapefile[MAXLN];
-   int err,i,movedist=10;
-   if(argc < 5)
-    {  
-       printf("No simple use case for this function.\n");
-	   goto errexit;
+    char ad8file[MAXLN], outletshapefile[MAXLN];
+    int err, i, movedist = 10;
+    if (argc < 5)
+    {
+        printf("No simple use case for this function.\n");
+        goto errexit;
     }
-	i = 1;
-	while(argc > i)
-	{
-		if(strcmp(argv[i],"-ad8")==0)
-		{
-			i++;
-			if(argc > i)
-			{
-				strcpy(ad8file,argv[i]);
-				i++;
-			}
-			else goto errexit;
-		}
-		else if(strcmp(argv[i],"-o")==0)
-		{
-			i++;
-			if(argc > i)
-			{
-				strcpy(outletshapefile,argv[i]);
-				i++;
-			}
-			else goto errexit;
-		}
-		else 
-		{
-			goto errexit;
-		}
-	}
-	err=connectdown(ad8file, outletshapefile);
-    if(err != 0)
-       printf("Creating outlet error %d\n",err);
+    i = 1;
+    while (argc > i)
+    {
+        if (strcmp(argv[i], "-ad8") == 0)
+        {
+            i++;
+            if (argc > i)
+            {
+                strcpy(ad8file, argv[i]);
+                i++;
+            }
+            else goto errexit;
+        }
+        else if (strcmp(argv[i], "-o") == 0)
+        {
+            i++;
+            if (argc > i)
+            {
+                strcpy(outletshapefile, argv[i]);
+                i++;
+            }
+            else goto errexit;
+        }
+        else
+        {
+            goto errexit;
+        }
+    }
+    err = connectdown(ad8file, outletshapefile);
+    if (err != 0)
+        printf("Creating outlet error %d\n", err);
 
-	return 0;
-errexit:
-	   printf("Incorrect input.\n");
-	   printf("Use with specific file names:\n %s -ad8 <ad8file> -o <outletsshapefile>\n ",argv[0]);
-	   printf("<ad8file> is the name of the contributing raster file (input).\n");
-	   printf("<outletsshapefile> is the name of the outlet shape file (input).\n");
-       exit(0);
+    return 0;
+    errexit:
+    printf("Incorrect input.\n");
+    printf("Use with specific file names:\n %s -ad8 <ad8file> -o <outletsshapefile>\n ", argv[0]);
+    printf("<ad8file> is the name of the contributing raster file (input).\n");
+    printf("<outletsshapefile> is the name of the outlet shape file (input).\n");
+    exit(0);
 } 
 
