@@ -577,11 +577,13 @@ def D8DistDownToStream(p,fel,src,dist,distancemethod,thresh,inputProc,mpiexeDir 
     print "Output Distance To Streams: "+dist
     if distancemethod == 'Horizontal':
         distmeth = 'h'
-    if distancemethod == 'Vertical':
+    elif distancemethod == 'Vertical':
         distmeth = 'v'
-    if distancemethod == 'Pythagoras':
+    elif distancemethod == 'Pythagoras':
         distmeth = 'p'
-    if distancemethod == 'Surface':
+    elif distancemethod == 'Surface':
+        distmeth = 's'
+    else:
         distmeth = 's'
     if inputProc > 8 and hostfile is not None:
         cmd = 'mpiexec -f ' + hostfile + ' -n '
