@@ -77,11 +77,11 @@ struct node
     int y;
 };
 
-const float PI = 3.14159265359;
+const float PI = 3.14159265359f;
 const short MISSINGSHORT = -32768;
 const long MISSINGLONG = -2147483647;
 const float MISSINGFLOAT = -1 * FLT_MAX;
-const float DEFAULTNODATA = -9999.0f;  // added by Liangjun Zhu
+const float DEFAULTNODATA = -9999.f;  // added by Liangjun Zhu
 const float MINEPS = 1e-5f;
 const int OMPTHREADS = 4;
 const float ZERO = 1.0e-12F;
