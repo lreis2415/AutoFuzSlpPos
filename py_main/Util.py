@@ -1,17 +1,73 @@
 #! /usr/bin/env python
 # coding=utf-8
-
+import argparse
 import math
 import os
 import sys
 from shutil import rmtree
-
 import numpy
+import re
 from gdalconst import *
 from osgeo import gdal
-from osgeo import gdalconst
 from osgeo import ogr
 from osgeo import osr
+
+
+class C(object):
+    pass
+
+
+def GetInputArgs():
+    # Get model configuration file name
+    c = C()
+    parser = argparse.ArgumentParser(description = "Read AutoFuzSlpPos configuration file.")
+    parser.add_argument('-ini', help = "Full path of configuration file")
+    parser.add_argument('-proc', help="Number of processor for parallel computing "
+                                      "which will override inputProc in *.ini file.")
+    parser.add_argument('-root', help="Workspace to store results, which will override"
+                                      "rootDir in *.ini file.")
+    args = parser.parse_args(namespace = c)
+    iniFile = args.ini
+    inputProc = args.proc
+    rootDir = args.root
+    if inputProc is not None:
+        xx = FindNumberFromString(inputProc)
+        if len(xx) != 1:
+            raise IOError("-proc MUST be one integer number!")
+        inputProc = int(xx[0])
+    else:
+        inputProc = -1
+    if not os.path.exists(iniFile) or iniFile is None:
+        raise IOError("%s MUST be provided and existed, please check and retry!" % iniFile)
+
+    return iniFile, inputProc, rootDir
+
+
+def isPathExists(path):
+    if os.path.isdir(path):
+        if os.path.exists(path):
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
+def isFileExists(filepath):
+    if os.path.exists(filepath) and os.path.isfile(filepath):
+        return True
+    else:
+        return False
+
+
+def LoadConfiguration(inifile, proc, root):
+    strCmd = '%s %s/Config.py -ini %s' % (sys.executable, currentPath(), inifile)
+    if proc > 0:
+        strCmd += " -proc %d" % proc
+    if root is not None:
+        strCmd += ' -root %s' % root
+    # print strCmd
+    os.system(strCmd)
 
 
 def currentPath():
@@ -74,7 +130,7 @@ def FloatEqual(a, b):
 
 
 class Raster:
-    def __init__(self, nRows, nCols, data, noDataValue=None, geotransform=None, srs=None):
+    def __init__(self, nRows, nCols, data, noDataValue = None, geotransform = None, srs = None):
         self.nRows = nRows
         self.nCols = nCols
         self.data = data
@@ -138,7 +194,7 @@ NODATA_VALUE %f
     f.close()
 
 
-def Raster2GeoTIFF(tif, geotif, unitConvert=False, zUnitConvert=False, gdalType=gdal.GDT_Float32):
+def Raster2GeoTIFF(tif, geotif, unitConvert = False, zUnitConvert = False, gdalType = gdal.GDT_Float32):
     print "Convering raster's format to GeoTIFF..."
     rstFile = ReadRaster(tif)
     if unitConvert:  # Convert coordinate unit from feet to meter
@@ -221,7 +277,7 @@ def WriteTimeLog(logfile, time):
         logStatus = open(logfile, 'w')
         logStatus.write("Function Name\tRead Time\tCompute Time\tWrite Time\tTotal Time\t\n")
     logStatus.write(
-        "%s\t%s\t%s\t%s\t%s\t\n" % (time['name'], time['readt'], time['computet'], time['writet'], time['totalt']))
+            "%s\t%s\t%s\t%s\t%s\t\n" % (time['name'], time['readt'], time['computet'], time['writet'], time['totalt']))
     logStatus.flush()
     logStatus.close()
 
@@ -350,8 +406,99 @@ def WriteLineShp(lineList, outShp):
     ds.Destroy()
 
 
+def StringInList(str, strList):
+    newStrList = strList[:]
+    for i in range(len(newStrList)):
+        newStrList[i] = newStrList[i].lower()
+    if str.lower() in newStrList:
+        return True
+    else:
+        return
+
+
+def StripStr(str):
+    ### @Function: Remove space(' ') and indent('\t') at the begin and end of the string
+    oldStr = ''
+    newStr = str
+    while oldStr != newStr:
+        oldStr = newStr
+        newStr = oldStr.strip('\t')
+        newStr = newStr.strip(' ')
+    return newStr
+
+
+def SplitStr(str, spliters = None):
+    ### @Function: Split string by spliter space(' ') and indent('\t') as default
+    # spliters = [' ', '\t']
+    # spliters = []
+    # if spliter is not None:
+    #     spliters.append(spliter)
+    if spliters is None:
+        spliters = [' ', '\t']
+    destStrs = []
+    srcStrs = [str]
+    while True:
+        oldDestStrs = srcStrs[:]
+        for s in spliters:
+            for srcS in srcStrs:
+                tempStrs = srcS.split(s)
+                for tempS in tempStrs:
+                    tempS = StripStr(tempS)
+                    if tempS != '':
+                        destStrs.append(tempS)
+            srcStrs = destStrs[:]
+            destStrs = []
+        if oldDestStrs == srcStrs:
+            destStrs = srcStrs[:]
+            break
+    return destStrs
+
+
+def SplitStr4Float(str, spliters = None):
+    strs = SplitStr(str, spliters)
+    floats = []
+    for str in strs:
+        try:
+            floats.append(float(str))
+        except:
+            raise ValueError("The input must be numeric string!")
+    return floats
+
+
+def StringMatch(str1, str2):
+    if str1.lower() == str2.lower():
+        return True
+    else:
+        return False
+
+
+def GetCoreFileName(filepath):
+    if isFileExists(filepath):
+        return os.path.basename(filepath).split('.')[0]
+    else:
+        return ''
+
+
+def FindNumberFromString(s):
+    '''
+    Find numeric values from string, e.g., 1, .7, 1.2, 4e2, 3e-3, -9, etc.
+    reference:
+    https://stackoverflow.com/questions/4703390/how-to-extract-a-floating-number-from-a-string-in-python/4703508#4703508
+    :param s: string which may contains numeric values
+    :return: list of numeric values
+    '''
+    numeric_const_pattern = r'[-+]?(?:(?:\d*\.\d+)|(?:\d+\.?))(?:[Ee][+-]?\d+)?'
+    strs = re.findall(numeric_const_pattern, s)
+    if len(strs) == 0:
+        return None
+    else:
+        return [float(v) for v in strs]
+
+
 ## test code ##
 if __name__ == '__main__':
-    tanslp = r'C:\Users\ZhuLJ\Desktop\test\DinfSlp.tif'
-    slp = r'C:\Users\ZhuLJ\Desktop\test\Slp.tif'
-    slopeTrans(tanslp, slp)
+    # tanslp = r'C:\Users\ZhuLJ\Desktop\test\DinfSlp.tif'
+    # slp = r'C:\Users\ZhuLJ\Desktop\test\Slp.tif'
+    # slopeTrans(tanslp, slp)
+    s1 = '[[0.99, 1.0], [0.00 , 1.0], [0.0, 1.0]]'
+    print FindNumberFromString(s1)

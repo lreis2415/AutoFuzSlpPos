@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 # coding=utf-8
+# @Description: Combine parameter results for text files for further analysis.
+# @Author: Liang-Jun Zhu
+#
 from Nomenclature import *
 
 
@@ -8,14 +11,14 @@ def readExtConf(extFile):
     lines = f.readlines()
     f.close()
     extConfData = []
-    ## Read the number of records
+    # Read the number of records
     recNum = int(lines[1].split('\n')[0].split('\t')[1])
     extConfData.append(recNum)
     for i in range(0, recNum):
         tempConf = lines[i + 2].split('\n')[0].split('\t')
-        if tempConf[1] == 'ProfC':
-            minV = 1000 * float(tempConf[3])
-            maxV = 1000 * float(tempConf[4])
+        if StringMatch(tempConf[1], 'profc'):
+            minV = 1000. * float(tempConf[3])
+            maxV = 1000. * float(tempConf[4])
         else:
             minV = float(tempConf[3])
             maxV = float(tempConf[4])
@@ -26,14 +29,11 @@ def readExtConf(extFile):
 
 
 def ExtConfParasComb():
-    extFiles = [['RDG', RdgExtConfig], ['SHD', ShdExtConfig], ['BKS', BksExtConfig], ['FTS', FtsExtConfig],
-                ['VLY', VlyExtConfig]]
     extConfLines = []
-    # extConfLines.append([' ', 'RDG', 'SHD', 'BKS', 'FTS', 'VLY'])
     extConfLines.append([' '])
-    for extFile in extFiles:
-        tempExtData = readExtConf(extFile[1])
-        tempExtConfLine = [extFile[0]]
+    for slppos in SlpPosItems:
+        tempExtData = readExtConf(ExtConfigDict[slppos])
+        tempExtConfLine = [slppos]
         for i in range(tempExtData[0]):
             tempExtConfLine.append(' ')
         for i in range(tempExtData[0]):
@@ -60,15 +60,15 @@ def readInfConf(extFile):
     lines = f.readlines()
     f.close()
     InfConfData = []
-    ## Read the number of records
+    # Read the number of records
     recNum = int(lines[2].split('\n')[0].split('\t')[1])
     InfConfData.append(recNum)
     for i in range(0, recNum):
         tempConf = lines[i + 3].split('\n')[0].split('\t')
         ## tempConf[3] is Curve shape, tempConf[4] and tempConf[7] is w1 and w2
-        if tempConf[1] == 'ProfC':
-            w1V = 1000 * float(tempConf[4])
-            w2V = 1000 * float(tempConf[7])
+        if StringMatch(tempConf[1], 'profc'):
+            w1V = 1000. * float(tempConf[4])
+            w2V = 1000. * float(tempConf[7])
         else:
             w1V = float(tempConf[4])
             w2V = float(tempConf[7])
@@ -79,13 +79,11 @@ def readInfConf(extFile):
 
 
 def InfConfParasComb():
-    infFiles = [['RDG', RdgInfConfig], ['SHD', ShdInfConfig], ['BKS', BksInfConfig], ['FTS', FtsInfConfig],
-                ['VLY', VlyInfConfig]]
     infConfLines = []
     infConfLines.append([' '])
-    for infFile in infFiles:
-        tempInfData = readInfConf(infFile[1])
-        tempInfConfLine = [infFile[0]]
+    for slppos in SlpPosItems:
+        tempInfData = readInfConf(InfConfigDict[slppos])
+        tempInfConfLine = [slppos]
         for i in range(tempInfData[0]):
             tempInfConfLine.append(' ')
         for i in range(tempInfData[0]):
@@ -116,7 +114,7 @@ def InfConfParasComb():
     f.close()
 
 
-def ParametersCombination(typlocSelection=True, similarityInference=True):
+def ParametersCombination(typlocSelection = True, similarityInference = True):
     if typlocSelection:
         ExtConfParasComb()
     if similarityInference:
@@ -124,4 +122,6 @@ def ParametersCombination(typlocSelection=True, similarityInference=True):
 
 
 if __name__ == '__main__':
+    ini, proc, root = GetInputArgs()
+    LoadConfiguration(ini, proc, root)
     ParametersCombination()

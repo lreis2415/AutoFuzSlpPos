@@ -1,19 +1,25 @@
 #! /usr/bin/env python
 # coding=utf-8
-## Extract fuzzy slope positions along flow path from ridge to valley.
-## Prepared by Liangjun Zhu, 2015-08-09
-## 1. Identify ridge sources, ridge means there are no cells flow in.
-## 2. Trace down and extract the similarities of fuzzy slope positons.
-## 3. Construct the output ESRI Shapefile.
-import numpy
+# @Description: Extract fuzzy slope positions along flow path from ridge to valley.
+#               1. Identify ridge sources, ridge means there are no cells flow in.
+#               2. Trace down and extract the similarities of fuzzy slope positons.
+#               3. Construct the output ESRI Shapefile.
+# @Author     : Liang-Jun Zhu
+# @Date       : 9/8/15
+#
 
 from Nomenclature import *
 from Util import *
 
 
-## find ridge sources, flag can be 0 and 1, 0 means D8 flow model, while
-## 1 means D-inf flow model.
 def findRidge(flag, flowdir, rdgGRID):
+    '''
+    find ridge sources
+    :param flag: Flow model, can be 0 and 1, 0 means D8 flow model, while 1 means D-inf flow model.
+    :param flowdir: Flow direction raster
+    :param rdgGRID: Output ridge source grid
+    :return: ridge source coordinate, the basic format is [[row, col]...]
+    '''
     direction = ReadRaster(flowdir)
     rows = direction.nRows
     cols = direction.nCols
@@ -26,12 +32,12 @@ def findRidge(flag, flowdir, rdgGRID):
                 rdg[row][col] = direction.noDataValue
             else:
                 if flag == 0:
-                    ## D8 flow model
+                    # D8 flow model
                     temprow, tempcol = downstream_index(tempdir, row, col)
                     if temprow >= 0 and temprow < rows and tempcol >= 0 and tempcol < cols:
                         rdg[temprow][tempcol] = 0
                 else:
-                    ## D-inf flow model
+                    # D-inf flow model
                     tempCoor = downstream_index_dinf(tempdir, row, col)
                     for Coor in tempCoor:
                         temprow, tempcol = Coor
@@ -46,11 +52,14 @@ def findRidge(flag, flowdir, rdgGRID):
     return rdgCoor
 
 
-## extract fuzzy slope positions and other attributes along flow path
-## rdgCoors is the coordinates of ridge, such as [[3,4],[9,8]]  format: [row,col]
-## d8flowdir is used to trace downslope, d8stream is used to determining termination
-## shpfile is the results ESRI Shapefile
 def fuzSlpPosProfile(rdgCoors, d8flowdir, d8stream, shpfile):
+    '''
+    extract fuzzy slope positions and other attributes along flow path
+    :param rdgCoors:  the coordinates of ridge, such as [[3,4],[9,8]]  format: [row,col]
+    :param d8flowdir: used to trace downslope
+    :param d8stream: used to determining termination of each flow path
+    :param shpfile: results ESRI Shapefile
+    '''
     direction = ReadRaster(d8flowdir)
     rows = direction.nRows
     cols = direction.nCols
@@ -69,8 +78,8 @@ def fuzSlpPosProfile(rdgCoors, d8flowdir, d8stream, shpfile):
         tempPathCoor = []
         tempCellsize = []
         row, col = rdgCoor
-        while (stream[row][col] != 1 or stream[row][
-            col] == streamNodata) and row >= 2 and row < rows - 2 and col >= 2 and col < cols - 2:
+        while (stream[row][col] != 1 or stream[row][col] == streamNodata) and \
+                        row >= 2 and row < rows - 2 and col >= 2 and col < cols - 2:
             tempPath.append([row, col])
             tempPathCoor.append([geo[0] + (col + 0.5) * geo[1], geo[3] - (row + 0.5) * geo[1]])
             tempdir = direc[row][col]
@@ -87,8 +96,8 @@ def fuzSlpPosProfile(rdgCoors, d8flowdir, d8stream, shpfile):
         if curLength > 20:
             profileCoorList.append(tempPathCoor)
             cellsizeList.append(tempCellsize)
-        count = count + 1
-        preLength = curLength
+        count += 1
+        # preLength = curLength
         print count, curLength
         # profileList.append(tempPath)
         # profileCoorList.append(tempPathCoor)
@@ -98,6 +107,8 @@ def fuzSlpPosProfile(rdgCoors, d8flowdir, d8stream, shpfile):
 
 
 if __name__ == '__main__':
+    ini, proc, root = GetInputArgs()
+    LoadConfiguration(ini, proc, root)
     ## input data
     ## Flowdir: D8FlowDir or DinfFlowDir, DEM: demfil, etc...
     ## output file: rdg_taudem, ProfileFuzSlpPos

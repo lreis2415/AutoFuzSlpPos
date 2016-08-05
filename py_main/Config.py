@@ -1,152 +1,406 @@
 #! /usr/bin/env python
 # coding=utf-8
+# @Description: Configuration of preprocessing for AutoFuzSlpPos
+# @Author: Liang-Jun Zhu
+# @Date:   7/31/15
+#
 
-# This file contains all configurations for running the workflow for Fuzzy Slope Postions .
-# from Nomenclature import *
-import os
-import platform
+import ConfigParser
+from Util import *
+from multiprocessing import cpu_count
 
-####    Required    ####
-## exeDir: if the executable files' path has been exported to the environmental path, set exeDir to None
-## rootDir: workspace to store results
-## rawdem: input dem, be caution! DEM file should have one cell buffer. If preprocess is False, rawdem could be None.
-## outlet: input outlet shapefile, be caution! The outlet point should locate at least one cell inner the DEM boundary.
-##         If outlet is None, then the maximum of Contributing Area will be identified as outlet.
-##         Also, if preprocess is False, outlet could be None.
+# Load model configuration from *.ini file
+cf = ConfigParser.ConfigParser()
+inif, inputProc, rootDir = GetInputArgs()
+cf.read(inif)
+# 1. Required Inputs
+exeDir = None
+rawdem = None
+if 'REQUIRED' in cf.sections():
+    exeDir = cf.get('REQUIRED', 'exeDir'.lower())
+    if rootDir is None:
+        if cf.has_option('REQUIRED', 'rootDir'.lower()):
+            rootDir = cf.get('REQUIRED', 'rootDir'.lower())
+        else:
+            raise IOError("Workspace must be defined!")
+    rawdem = cf.get('REQUIRED', 'rawdem'.lower())
+else:
+    raise IOError("[REQUIRED] section MUST be existed in *.ini file.")
 
-sysstr = platform.system()
-if sysstr == "Linux":  ## linux cluster
-    mpiexeDir = r'/home/zhulj/mpich/bin'
-    exeDir = r'/home/zhulj/AutoFuzSlpPos/exec'
-    hostfile = r'/home/zhulj/AutoFuzSlpPos/exec/dgpm'
-    rootDir = r'/home/zhulj/AutoFuzSlpPos/runtimeTest/1'
-    rawdem = r'/home/zhulj/data/PleasantVly/pvDEM_meter_from_3dr.tif'
-    outlet = None
-    vlysrc = None
-    rdgsrc = None
-    rpiFile = None  # r'/home/zhulj/AutoFuzSlpPos/basedOriginRPI/Params/RPI.tif'
-elif sysstr == "Windows":  ## Windows PC
-    mpiexeDir = None
-    hostfile = None
-    exeDir = r'D:\Compile\AutoFuzSlpPos\Release'
-    rootDir = r'E:\data_m\AutoFuzSlpPos\C&G_zhu_2016\AutoResult'
-    rawdem = r'E:\data_m\AutoFuzSlpPos\C&G_zhu_2016\rawData\pvDEM_meter_from_3dr.tif'
-    outlet = None
-    vlysrc = None
-    rdgsrc = None  ## if there is ridge or valley source file, assign it here.
-    rpiFile = None  ## if rpiFile is assigned, no more RPI will be calculated.
-preprocess = True  ## Do preprocess for terrain attributes? True is default.
-typlocSelection = True  ## Select typical locations automatically? True is default.
-similarityInference = True  ## Calculate fuzzy membership of each slope position? True is default.
-inputProc = 1  ## number of processor for parallel computing
+if not isPathExists(exeDir):
+    exeDir = None
+if not isPathExists(rootDir):
+    os.makedirs(rootDir)
+if not isFileExists(rawdem):
+    raise ValueError("The DEM file %s is not existed or have no access permission!" % rawdem)
 
-####    Optional    ####
-FlowModel = 1  ## 0 represents D8 flow model, and 1 represent D-infinity model
-rpiMethod = 1  ## Method for Relative Position Index (RPI) calculation, 0 is based on Skidmore's method, and 1 is based on hydrological proximity measures.
+# TODO, currently, the five basic slope position types are supported.
+# TODO, 11 slope positions when considering the concavity and convexity along both the contour and profile directions
+# TODO, will be considered in the future.
+SlpPosItems = ["rdg", "shd", "bks", "fts", "vly"]
 
+# 2. Executable Flags
+# Set default flags first.
+preprocess = True
+typlocSelection = True
+similarityInference = True
 AutoTypLocExtraction = True
+ModifyExtractConfFile = False
 AutoInfParams = True
-ModifyExtractConfFile = True  ## modify typical locations extracting configuration file for another user-defined run
-ModifyInfConfFile = True  ## modify the configuration file for another user-defined run
+ModifyInfConfFile = False
+CalSecHardSlpPos = False
+CalSPSI = False
+ExtLog = True
+# Read from .ini file if stated.
+if 'EXECUTABLE_FLAGS' in cf.sections():
+    preprocess = cf.getboolean('EXECUTABLE_FLAGS', 'preprocess'.lower())
+    typlocSelection = cf.getboolean('EXECUTABLE_FLAGS', 'typlocSelection'.lower())
+    similarityInference = cf.getboolean('EXECUTABLE_FLAGS', 'similarityInference'.lower())
+    AutoTypLocExtraction = cf.getboolean('EXECUTABLE_FLAGS', 'AutoTypLocExtraction'.lower())
+    ModifyExtractConfFile = cf.getboolean('EXECUTABLE_FLAGS', 'ModifyExtractConfFile'.lower())
+    AutoInfParams = cf.getboolean('EXECUTABLE_FLAGS', 'AutoInfParams'.lower())
+    ModifyInfConfFile = cf.getboolean('EXECUTABLE_FLAGS', 'ModifyInfConfFile'.lower())
+    CalSecHardSlpPos = cf.getboolean('EXECUTABLE_FLAGS', 'CalSecHardSlpPos'.lower())
+    CalSPSI = cf.getboolean('EXECUTABLE_FLAGS', 'CalSPSI'.lower())
+    ExtLog = cf.getboolean('EXECUTABLE_FLAGS', 'ExtLog'.lower())
 
-CalSecHardSlpPos = False  ## calculate second harden slope positions or not
-CalSPSI = False  ## calculate SPSI (Slope Position Sequence Index) or not, Be Caution, only when CalSecHardSlpPos is True, CalSPSI can be True
-SPSImethod = 1  ## only when CalSPSI is True, the SPSImethod would be used. It can be 1,2,3
-DistanceExponentForIDW = 8  ## the default is 8
-ExtLog = True  ## write logfile
+# 3. Optional Inputs
+mpiexeDir = None
+hostfile = None
+outlet = None
+vlysrc = None
+rdgsrc = None
+rpiFile = None
 
-RdgTag = 1
-ShdTag = 2
-BksTag = 4
-FtsTag = 8
-VlyTag = 16
+if 'OPTIONAL' in cf.sections():
+    mpiexeDir = cf.get('OPTIONAL', 'mpiexeDir'.lower())
+    hostfile = cf.get('OPTIONAL', 'hostfile'.lower())
+    outlet = cf.get('OPTIONAL', 'outlet'.lower())
+    vlysrc = cf.get('OPTIONAL', 'vlysrc'.lower())
+    rdgsrc = cf.get('OPTIONAL', 'rdgsrc'.lower())
+    rpiFile = cf.get('OPTIONAL', 'rpiFile'.lower())
+    if inputProc <= 0 or inputProc is None:
+        if cf.has_option('OPTIONAL', 'inputProc'.lower()):
+            inputProc = cf.getint('OPTIONAL', 'inputProc'.lower())
+        else:
+            inputProc = cpu_count() / 2
 
-###  Optional parameters settings for terrain attributes preparation  ###
-maxMoveDist = 50  ## the maximum number of grid cells that the points in the input outlet shapefile will be moved before they are saved to the output outlet shapefile
-numthresh = 20  ## the number of steps to divide the search range into when looking for possible threshold values using drop analysis
-logspace = 'true'  ## 'true' means use logarithmic spacing for threshold values, 'false' means linear spacing
-D8StreamThreshold = 0  ## for D8 stream extraction from DEM, default is 0, which means the value is determined by drop analysis
-negD8StreamThreshold = 0  ## for D8 ridge extraction from negative DEM, default is 0, which indicate that the value is equal to D8StreamThreshold
-D8DownMethod = 'Surface'  ## for D8DistDownToStream, it can be Horizontal, Vertical, Pythagoras and Surface, the default is 'Surface'
-D8StreamTag = 1  ## for D8DistDownToStream, it should be integer, the default is 1
-D8UpMethod = 'Surface'  ## for D8DistUpToRidge, it can be Horizontal, Vertical, Pythagoras and Surface, the default is 'Surface'
-D8UpStats = 'Average'  ## for D8DistUpToRidge, it can be Average, Maximum, Minimum
-DinfStreamThreshold = 0  ## for Dinf stream extraction from DEM, default is 0, which means the value is equal to D8StreamThreshold
-negDinfStreamThreshold = 0  ## for Dinf ridge extraction from negative DEM, default is 0, which means the value is equal to DinfStreamThreshold
-DinfDownStat = 'Average'  ## used for D-infinity distance down, Average, Maximum, Minimum, and Average is the default
-DinfDownMethod = 'Surface'  ## Horizontal, Vertical, Pythagoras, Surface, and Surface is the default
-DinfDistDownWG = ''  ## weight grid, the default is ''
-propthresh = 0.0  ## proportion threshold parameter where only grid cells that contribute flow with a proportion greater than this user specified threshold (t) is considered to be upslope of any given grid cell
-DinfUpStat = 'Average'  ## same as DinfDownStat
-DinfUpMethod = 'Surface'  ## same as DinfDownMethod
+if not isPathExists(mpiexeDir):
+    mpiexeDir = None
+if not isFileExists(hostfile):
+    if hostfile.lower() == 'none':
+        hostfile = None
+    else:
+        raise ValueError("The hostfile %s is not existed or have no access permission!" % hostfile)
+if not isFileExists(outlet):
+    if outlet.lower() == 'none':
+        outlet = None
+    else:
+        raise ValueError("The outlet %s is not existed or have no access permission!" % outlet)
+if not isFileExists(vlysrc):
+    if vlysrc.lower() == 'none':
+        vlysrc = None
+    else:
+        raise ValueError("The vlysrc %s is not existed or have no access permission!" % vlysrc)
+if not isFileExists(rdgsrc):
+    if rdgsrc.lower() == 'none':
+        rdgsrc = None
+    else:
+        raise ValueError("The rdgsrc %s is not existed or have no access permission!" % rdgsrc)
+if not isFileExists(rpiFile):
+    if rpiFile.lower() == 'none':
+        rpiFile = None
+    else:
+        raise ValueError("The rpiFile %s is not existed or have no access permission!" % rpiFile)
 
-### Optional parameter-settings for Typical Locations selection  ###
-## TerrainAttrDict stores the terrain attributes' name and path.
-## 'RPI' is required, or another regional terrain attribute!
+# 4. Optional parameters settings for terrain attributes preparation
+FlowModel = 1
+rpiMethod = 1
+SPSImethod = 1
+DistanceExponentForIDW = 8
+TagDict = dict()
+for slppos in SlpPosItems:
+    if slppos not in TagDict.keys():
+        TagDict[slppos] = 1
+# RdgTag = 1
+# ShdTag = 2
+# BksTag = 4
+# FtsTag = 8
+# VlyTag = 16
+maxMoveDist = 50
+numthresh = 20
+logspace = True
+D8StreamThreshold = 0
+D8DownMethod = 'Surface'
+D8StreamTag = 1
+D8UpMethod = 'Surface'
+D8UpStats = 'Average'
+DinfStreamThreshold = 0
+DinfDownStat = 'Average'
+DinfDownMethod = 'Surface'
+DinfDistDownWG = None
+propthresh = 0.0
+DinfUpStat = 'Average'
+DinfUpMethod = 'Surface'
+if 'OPTIONAL_DTA' in cf.sections():
+    FlowModel = cf.getint('OPTIONAL_DTA', 'FlowModel'.lower())
+    rpiMethod = cf.getint('OPTIONAL_DTA', 'rpiMethod'.lower())
+    SPSImethod = cf.getint('OPTIONAL_DTA', 'SPSImethod'.lower())
+    DistanceExponentForIDW = cf.getint('OPTIONAL_DTA', 'DistanceExponentForIDW'.lower())
+    for slppos in SlpPosItems:
+        if cf.has_option('OPTIONAL_DTA', slppos + "tag"):
+            TagDict[slppos] = cf.getint('OPTIONAL_DTA', slppos + "tag")
+            if TagDict[slppos] <= 0:
+                TagDict[slppos] = 1
+    # RdgTag = cf.getint('OPTIONAL_DTA', 'RdgTag'.lower())
+    # ShdTag = cf.getint('OPTIONAL_DTA', 'ShdTag'.lower())
+    # BksTag = cf.getint('OPTIONAL_DTA', 'BksTag'.lower())
+    # FtsTag = cf.getint('OPTIONAL_DTA', 'FtsTag'.lower())
+    # VlyTag = cf.getint('OPTIONAL_DTA', 'VlyTag'.lower())
+    maxMoveDist = cf.getfloat('OPTIONAL_DTA', 'maxMoveDist'.lower())
+    numthresh = cf.getint('OPTIONAL_DTA', 'numthresh'.lower())
+    logspace = cf.getboolean('OPTIONAL_DTA', 'logspace'.lower())
+    D8StreamThreshold = cf.getint('OPTIONAL_DTA', 'D8StreamThreshold'.lower())
+    D8DownMethod = cf.get('OPTIONAL_DTA', 'D8DownMethod'.lower())
+    D8StreamTag = cf.getint('OPTIONAL_DTA', 'D8StreamTag'.lower())
+    D8UpMethod = cf.get('OPTIONAL_DTA', 'D8UpMethod'.lower())
+    D8UpStats = cf.get('OPTIONAL_DTA', 'D8UpStats'.lower())
+    DinfStreamThreshold = cf.getint('OPTIONAL_DTA', 'DinfStreamThreshold'.lower())
+    DinfDownStat = cf.get('OPTIONAL_DTA', 'DinfDownStat'.lower())
+    DinfDownMethod = cf.get('OPTIONAL_DTA', 'DinfDownMethod'.lower())
+    DinfDistDownWG = cf.get('OPTIONAL_DTA', 'DinfDistDownWG'.lower())
+    propthresh = cf.getfloat('OPTIONAL_DTA', 'propthresh'.lower())
+    DinfUpStat = cf.get('OPTIONAL_DTA', 'DinfUpStat'.lower())
+    DinfUpMethod = cf.get('OPTIONAL_DTA', 'DinfUpMethod'.lower())
+if FlowModel != 0:
+    FlowModel = 1
+if rpiMethod != 0:
+    rpiMethod = 1
+if CalSPSI is True:
+    if SPSImethod < 1:
+        SPSImethod = 1
+    elif SPSImethod > 3:
+        SPSImethod = 3
+if DistanceExponentForIDW < 0:
+    DistanceExponentForIDW = 8
+if maxMoveDist < 0:
+    maxMoveDist = 50
+if numthresh < 0:
+    numthresh = 20
+if D8StreamThreshold < 0:
+    D8StreamThreshold = 0
+DistanceMethod = ['Horizontal', 'Vertical', 'Pythagoras', 'Surface']
+StatMethod = ['Average', 'Maximum', 'Minimum']
+if not StringInList(D8DownMethod, DistanceMethod):
+    D8DownMethod = 'Surface'
+if D8StreamTag < 0:
+    D8StreamTag = 1
+if not StringInList(D8UpMethod, DistanceMethod):
+    D8UpMethod = 'Surface'
+if not StringInList(D8UpStats, StatMethod):
+    D8UpStats = 'Average'
+if DinfStreamThreshold < 0:
+    DinfStreamThreshold = 0
+if StringInList(DinfDownStat, StatMethod):
+    DinfDownStat = 'Average'
+if StringInList(DinfDownMethod, DistanceMethod):
+    DinfDownMethod = 'Surface'
+if not isFileExists(DinfDistDownWG):
+    if DinfDistDownWG.lower() == 'none':
+        DinfDistDownWG = None
+    else:
+        raise ValueError("The DinfDistDownWG %s is not existed or have no access permission!" % hostfile)
+if propthresh < 0:
+    propthresh = 0.0
+if not StringInList(DinfUpStat, StatMethod):
+    DinfUpStat = 'Average'
+if not StringInList(DinfUpMethod, DistanceMethod):
+    DinfUpMethod = 'Surface'
+
+# 5. Optional parameter-settings for Typical Locations selection
 RPI_default_path = rootDir + os.sep + 'Params' + os.sep + 'RPI.tif'
 ProfC_default_path = rootDir + os.sep + 'Params' + os.sep + 'ProfC.tif'
+HorizC_default_path = rootDir + os.sep + 'Params' + os.sep + 'HorizC.tif'
 Slope_default_path = rootDir + os.sep + 'Params' + os.sep + 'Slp.tif'
-Elev_default_path = rootDir + os.sep + 'Params' + os.sep + 'HAND.tif'
-if rpiFile is None:
-    TerrainAttrDict = {'RPI': RPI_default_path, 'ProfC': ProfC_default_path, 'Slope': Slope_default_path,
-                       'HAND': Elev_default_path}
+HAND_default_path = rootDir + os.sep + 'Params' + os.sep + 'HAND.tif'
+if FlowModel >= 1:
+    Elev_default_path = rootDir + os.sep + 'DinfpreDir' + os.sep + 'demfil.tif'
 else:
-    TerrainAttrDict = {'RPI': rpiFile, 'ProfC': ProfC_default_path, 'Slope': Slope_default_path,
-                       'HAND': Elev_default_path}
-
-# basic parameters, by default: MIN_FREQUENCY = 10, MIN_TYPLOC_NUM_PECENT = 0.01,\
-#          MAX_TYPLOC_NUM_PERCENT = 0.2, SELECTION_MODE = 1,\
-#          DEFAULT_INCREMENT_RATIO = 0.1, DEFAULT_SIGMA_MULTIPLIER = 1.414,\
-#          MAX_LOOP_NUM_TYPLOC_SELECTION = 50, DEFAULT_BiGaussian_Ratio = 4.0
-RdgBaseParam = [10, 0.1, 0.3, 1, 0.1, 1.414, 50, 4.0]
-ShdBaseParam = [10, 0.1, 0.3, 1, 0.1, 1.414, 50, 4.0]
-BksBaseParam = [10, 0.1, 0.3, 1, 0.1, 1.414, 50, 4.0]
-FtsBaseParam = [10, 0.1, 0.3, 1, 0.1, 1.414, 50, 4.0]
-VlyBaseParam = [10, 0.1, 0.3, 1, 0.1, 1.414, 50, 4.0]
-## Predefined Fuzzy Membership Function Shape, Bell-shaped, S-shaped, Z-shaped and N means Not used.
-## These parameters are user-defined.
-RdgFuzInfDefault = [['RPI', 'S'], ['ProfC', 'S'], ['Slope', 'Z'], ['HAND', 'SN']]
-ShdFuzInfDefault = [['RPI', 'B'], ['ProfC', 'S'], ['Slope', 'B'], ['HAND', 'N']]
-BksFuzInfDefault = [['RPI', 'B'], ['ProfC', 'B'], ['Slope', 'S'], ['HAND', 'N']]
-FtsFuzInfDefault = [['RPI', 'B'], ['ProfC', 'ZB'], ['Slope', 'ZB'], ['HAND', 'N']]
-VlyFuzInfDefault = [['RPI', 'Z'], ['ProfC', 'B'], ['Slope', 'Z'], ['HAND', 'N']]
-
-## default RPI value range for Ridge, Shoulder slope, Backslope, Footslope and valley.
-## These parameters are user-defined.
-if AutoTypLocExtraction:
-    RdgExtractionInfo = [['RPI', 0.99, 1.0]]
-    ShdExtractionInfo = [['RPI', 0.9, 0.95]]
-    BksExtractionInfo = [['RPI', 0.5, 0.6]]
-    FtsExtractionInfo = [['RPI', 0.15, 0.2]]
-    VlyExtractionInfo = [['RPI', 0.0, 0.1]]
+    Elev_default_path = rootDir + os.sep + 'D8preDir' + os.sep + 'demfil.tif'
+preDerivedTerrainAttrs = {'rpi'   : RPI_default_path, 'rpifile': rpiFile, 'profc': ProfC_default_path,
+                          'horizc': HorizC_default_path, 'slp': Slope_default_path, 'hand': HAND_default_path,
+                          'elev'  : Elev_default_path}
+regionAttrs = ['rpi', 'rpifile']  # may be extended further
+# 5.1 Terrain attributes list
+TerrainAttrList = []
+TerrainAttrDict = {}
+TerrainAttrNum = -1
+if cf.has_option('OPTIONAL_TYPLOC', 'TerrainAttrDict'.lower()):
+    TerrainAttrDictStr = cf.get('OPTIONAL_TYPLOC', 'TerrainAttrDict'.lower())
+    tmpAttrStrs = SplitStr(TerrainAttrDictStr, ',')
+    if len(tmpAttrStrs) == 0:
+        raise ValueError("You MUST assign terrain attribute directionary (TerrainAttrDict), please check and retry!")
+    else:
+        TerrainAttrNum = len(tmpAttrStrs)
+    if not tmpAttrStrs[0].lower() in regionAttrs:
+        raise ValueError("Regional terrain attribute MUST be in the first place!")
+    else:
+        if isFileExists(tmpAttrStrs[0]):
+            TerrainAttrDict['rpi'] = tmpAttrStrs[0]
+            TerrainAttrList.append('rpi')
+        else:
+            TerrainAttrDict['rpi'] = preDerivedTerrainAttrs['rpi']
+            TerrainAttrList.append('rpi')
+        tmpAttrStrs.remove(tmpAttrStrs[0])
+    for tmpStr in tmpAttrStrs:
+        if tmpStr.lower() in preDerivedTerrainAttrs.keys():  # predefined terrain attribute
+            TerrainAttrDict[tmpStr.lower()] = preDerivedTerrainAttrs[tmpStr.lower()]
+            TerrainAttrList.append(tmpStr.lower())
+        elif isFileExists(tmpStr):  # user-defined terrain attribute, full file path
+            tmpFileName = GetCoreFileName(tmpStr)  # Get core file name (without suffix)
+            TerrainAttrDict[tmpFileName.lower()] = tmpStr
+            TerrainAttrList.append(tmpFileName.lower())
+        else:  # otherwise, throw an exception
+            raise ValueError("TerrainAttrDict input is invalid, please follow the instructure!")
 else:
-    RdgExtractionInfo = [['RPI', 0.99, 1.0], ['ProfC', 0.00, 1.0], ['Slope', 0.0, 1.0]]
-    ShdExtractionInfo = [['RPI', 0.9, 0.95], ['ProfC', 0.005, 1.0]]
-    BksExtractionInfo = [['RPI', 0.5, 0.6], ['ProfC', -0.0001, 0.0001], ['Slope', 10.0, 90.0]]
-    FtsExtractionInfo = [['RPI', 0.15, 0.2], ['ProfC', -1.0, -0.005]]
-    VlyExtractionInfo = [['RPI', 0.0, 0.1], ['ProfC', -0.0001, 0.0001], ['Slope', 0.0, 1.0]]
+    TerrainAttrDict = {'rpi' : RPI_default_path, 'profc': ProfC_default_path, 'slp': Slope_default_path,
+                       'hand': HAND_default_path}
+    TerrainAttrList = ['rpi', 'profc', 'slp', 'hand']
+    TerrainAttrNum = 4
+# 5.2 Several basic parameters in selecting typical locations
+DefaultBaseParam = [10, 0.1, 0.3, 1, 0.1, 1.414, 50, 4.0]
+# BaseParamsName = ['RdgBaseParam', 'ShdBaseParam', 'BksBaseParam', 'FtsBaseParam', 'VlyBaseParam']
+AllBaseParams = dict()
+for slppos in SlpPosItems:
+    name = slppos + "baseparam"
+    tmpBaseParam = []
+    if cf.has_option('OPTIONAL_TYPLOC', name.lower()):
+        BaseParamStr = cf.get('OPTIONAL_TYPLOC', name.lower())
+        baseParamFloats = SplitStr4Float(BaseParamStr, ',')
+        if len(baseParamFloats) == len(DefaultBaseParam):
+            tmpBaseParam = baseParamFloats[:]
+        else:
+            raise ValueError("Base parameters number for BiGaussian fitting MUST be 8, please check and retry!")
+    else:
+        tmpBaseParam = DefaultBaseParam[:]
+    AllBaseParams[slppos] = tmpBaseParam[:]
+# for basepara in AllBaseParams.keys():
+#     print basepara, AllBaseParams[basepara]
+# 5.4 Pre-defined fuzzy membership function shapes of each terrain attribute for each slope position
+# FuzInfNames = ['RdgFuzInfDefault', 'ShdFuzInfDefault', 'BksFuzInfDefault', 'FtsFuzInfDefault', 'VlyFuzInfDefault']
+FuzInfDefaults = dict()
+for slppos in SlpPosItems:
+    name = slppos + "fuzinfdefault"
+    if cf.has_option('OPTIONAL_TYPLOC', name.lower()):
+        fuzInfShpStr = cf.get('OPTIONAL_TYPLOC', name.lower())
+        fuzInfShpStrs = SplitStr(fuzInfShpStr, ',')
+        if len(fuzInfShpStrs) != TerrainAttrNum:
+            raise ValueError("The number of FMF shape must equal to terrain attribute number!")
+        else:
+            tmpFuzInfShp = []
+            for i in range(TerrainAttrNum):
+                tmpFuzInfShp.append([TerrainAttrList[i], fuzInfShpStrs[i]])
+            FuzInfDefaults[slppos] = tmpFuzInfShp[:]
+    else:  # if no fuzzy inference default parameters
+        if TerrainAttrList == ['rpi', 'profc', 'slp', 'hand']:  # only if it is the default terrain attributes list
+            if name.lower() == 'rdgfuzinfdefault':
+                FuzInfDefaults["rdg"] = [['rpi', 'S'], ['profc', 'S'], ['slp', 'Z'], ['hand', 'SN']]
+            elif name.lower() == 'shdfuzinfdefault':
+                FuzInfDefaults["shd"] = [['rpi', 'B'], ['profc', 'S'], ['slp', 'B'], ['hand', 'N']]
+            elif name.lower() == 'bksfuzinfdefault':
+                FuzInfDefaults["bks"] = [['rpi', 'B'], ['profc', 'B'], ['slp', 'S'], ['hand', 'N']]
+            elif name.lower() == 'ftsfuzinfdefault':
+                FuzInfDefaults["fts"] = [['rpi', 'B'], ['profc', 'ZB'], ['slp', 'ZB'], ['hand', 'N']]
+            elif name.lower() == 'vlyfuzinfdefault':
+                FuzInfDefaults["vly"] = [['rpi', 'Z'], ['profc', 'B'], ['slp', 'Z'], ['hand', 'N']]
+        else:
+            raise ValueError("The FuzInfDefault items must be defined corresponding to TerrainAttrDict!")
+# for fuzinf in FuzInfDefaults.keys():
+#     print fuzinf, FuzInfDefaults[fuzinf]
+# 5.5 Value ranges of terrain attributes for extracting prototypes
+# ValueRangeNames = ['RdgValueRanges', 'ShdValueRanges', 'BksValueRanges', 'FtsValueRanges', 'VlyValueRanges']
+ValueRanges = dict()
+if not ModifyExtractConfFile:  # do not read from ExtractConfFile
+    for slppos in SlpPosItems:
+        name = slppos + "valueranges"
+        values = list()
+        if cf.has_option('OPTIONAL_TYPLOC', name.lower()):
+            rngStr = cf.get('OPTIONAL_TYPLOC', name.lower())
+            values = FindNumberFromString(rngStr)
+        if values is None and AutoTypLocExtraction:
+            if name.lower() == 'rdgvalueranges':
+                ValueRanges[slppos] = [[TerrainAttrDict['rpi'], 0.99, 1.0]]
+            elif name.lower() == 'shdvalueranges':
+                ValueRanges[slppos] = [[TerrainAttrDict['rpi'], 0.9, 0.95]]
+            elif name.lower() == 'bksvalueranges':
+                ValueRanges[slppos] = [[TerrainAttrDict['rpi'], 0.5, 0.6]]
+            elif name.lower() == 'ftsvalueranges':
+                ValueRanges[slppos] = [[TerrainAttrDict['rpi'], 0.15, 0.2]]
+            elif name.lower() == 'vlyvalueranges':
+                ValueRanges[slppos] = [[TerrainAttrDict['rpi'], 0.0, 0.1]]
+        elif values is not None or AutoTypLocExtraction:  # value ranges is derived from string
+            if len(values) % 3 != 0:
+                raise ValueError("%s is unvalid, please follow the instruction and retry!" % name)
+            elif len(values) >= 3 and len(values) % 3 == 0:  # one or several value ranges are defined
+                tmpRng = list()
+                for i in range(len(values) / 3):
+                    tmpV = values[i * 3:i * 3 + 3]
+                    idx = int(tmpV.pop(0)) - 1
+                    if idx < 0 or idx > TerrainAttrNum - 1:
+                        raise ValueError("The terrain attribute index must be 1 to %d" % (TerrainAttrNum))
+                    tmpV.sort()
+                    tmpRng.append([TerrainAttrDict[TerrainAttrList[idx]], tmpV[0], tmpV[1]])
+                ValueRanges[slppos] = tmpRng[:]
+        else:  # if no value ranges are provided and AutoTypLocExtraction is false
+            raise ValueError("%s has no valid numeric values!" % name)
+        # complete the value ranges of other terrain attribute
+        for rng in ValueRanges.keys():
+            rngItem = ValueRanges[rng]
+            if len(rngItem) < TerrainAttrNum:
+                presentItem = []
+                for attr in rngItem:
+                    presentItem.append(attr[0])
+                for path in TerrainAttrDict.values():
+                    if path not in presentItem:
+                        rngItem.append([path, 0., 0.])
 
-### Optional parameter-settings for Fuzzy slope position inference  ###
-
-# Default	w1	r1	k1	w2	r2	k2
-# B         6	2	0.5	6	2	0.5
-# S         6	2	0.5	1	0	1
-# Z         1	0	1	6	2	0.5
-InfFuncParam = [['B', 6, 2, 0.5, 6, 2, 0.5], ['S', 6, 2, 0.5, 1, 0, 1], ['Z', 1, 0, 1, 6, 2, 0.5]]
-if AutoInfParams:
-    RdgInferenceInfo = []
-    ShdInferenceInfo = []
-    BksInferenceInfo = []
-    FtsInferenceInfo = []
-    VlyInferenceInfo = []
-else:  ## Users can edit either the InferenceInfo below or the InfConfig.dat in Config folder.
-    RdgInferenceInfo = [['RPI', 'S', 0.1, 2, 0.5, 1, 0, 1], ['ProfC', 'S', 0.005, 2, 0.5, 1, 0, 1],
-                        ['Slope', 'Z', 1, 0, 1, 5, 2, 0.5], ['HAND', 'S', 5, 2, 0.5, 1, 0, 1]]
-    ShdInferenceInfo = [['RPI', 'B', 0.05, 2, 0.5, 0.05, 2, 0.5], ['ProfC', 'S', 0.005, 2, 0.5, 1, 0, 1],
-                        ['Slope', 'B', 5, 2, 0.5, 5, 2, 0.5]]
-    BksInferenceInfo = [['RPI', 'B', 0.3, 2, 0.5, 0.3, 2, 0.5], ['ProfC', 'B', 0.005, 2, 0.5, 0.005, 2, 0.5],
-                        ['Slope', 'S', 5, 2, 0.5, 1, 0, 1]]
-    FtsInferenceInfo = [['RPI', 'B', 0.05, 2, 0.5, 0.05, 2, 0.5], ['ProfC', 'Z', 1, 0, 1, 0.005, 2, 0.5],
-                        ['Slope', 'B', 5, 2, 0.5, 5, 2, 0.5]]
-    VlyInferenceInfo = [['RPI', 'Z', 1, 0, 1, 0.1, 2, 0.5], ['ProfC', 'B', 0.005, 2, 0.5, 0.005, 2, 0.5],
-                        ['Slope', 'Z', 1, 0, 1, 5, 2, 0.5]]
+# for rng in ValueRanges.keys():
+#     print rng, ValueRanges[rng]
+# 6. Optional parameter-settings for Fuzzy slope position inference
+# InferParamNames = ['RdgInferParams', 'ShdInferParams', 'BksInferParams', 'FtsInferParams', 'VlyInferParams']
+InferParams = dict()
+FMFShape = {1: 'B', 2: 'S', 3: 'Z'}
+if not ModifyInfConfFile:
+    for slppos in SlpPosItems:
+        name = slppos + "inferparams"
+        values = list()
+        if cf.has_option('OPTIONAL_FUZINF', name.lower()):
+            rngStr = cf.get('OPTIONAL_FUZINF', name.lower())
+            values = FindNumberFromString(rngStr)
+        if values is None and AutoInfParams:
+            InferParams[slppos] = []
+        elif values is not None and not AutoInfParams:
+            if len(values) % 4 == 0 and len(values) / 4 <= TerrainAttrNum:
+                tmpInf = list()
+                tmpV = list()
+                for i in range(len(values) / 4):
+                    tmpV = values[i * 4:i * 4 + 4]
+                    AttrIdx = int(tmpV.pop(0)) - 1
+                    ShpIdx = int(tmpV.pop(0))
+                    if AttrIdx < 0 or AttrIdx > len(values) / 4 - 1:
+                        raise ValueError("The terrain attribute index must be 1 to %d" % (len(values) / 4))
+                    if ShpIdx < 1 or ShpIdx > 3:
+                        raise ValueError("The FMF Shape index must be 1, 2, or 3")
+                    if FMFShape[ShpIdx] == 'B':  # ['B', 6, 2, 0.5, 6, 2, 0.5]
+                        tmpInf.append(['B', tmpV[0], 2, 0.5, tmpV[1], 2, 0.5])
+                    elif FMFShape[ShpIdx] == 'S':  # ['S', 6, 2, 0.5, 1, 0, 1]
+                        tmpInf.append(['S', tmpV[0], 2, 0.5, 1, 0, 1])
+                    elif FMFShape[ShpIdx] == 'Z':  # ['Z', 1, 0, 1, 6, 2, 0.5]
+                        tmpInf.append(['Z', 1, 0, 1, tmpV[1], 2, 0.5])
+                InferParams[slppos] = tmpInf[:]
+            else:
+                raise ValueError("%s is unvalid, please follow the instruction and retry!" % name)
+        else:
+            raise ValueError("%s has no valid numeric values!" % name)
+# for infer in InferParams.keys():
+#     print infer, InferParams[infer]
