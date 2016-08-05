@@ -13,7 +13,7 @@
 //#include <math.h>
 // include mpich and openmp 
 #include <mpi.h>
-#include <omp.h>
+//#include <omp.h>
 // include TauDEM header files
 #include "commonLib.h"
 //#include "linearpart.h"
@@ -105,8 +105,8 @@ int Curvature(char *demfile, char *profcfile, char *plancfile, char *horizcfile,
         float cellsize2;
         cellsize2 = float(dx * dy);
         // COMPUTING CODE BLOCK
-        omp_set_num_threads(4);
-#pragma omp parallel for
+//        omp_set_num_threads(4);
+//#pragma omp parallel for
         for (j = 0; j < ny; j++)
         {
             for (i = 0; i < nx; i++)
