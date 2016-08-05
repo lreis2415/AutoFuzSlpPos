@@ -1,7 +1,7 @@
 /*!
  * \file SelectTypLocSlpPos.cpp
  *
- * \date 2015/04/24 14:00
+ * \date 2015/04/24
  *
  * \brief Select typical locations as prototype of slope position type.
  *
@@ -60,7 +60,7 @@ int SetFuzFuncShape(paramExtGRID &paramgrd, ExtInfo &paramExt, char shape, float
     float maxx = fittedCenter;
     int i, defaultSelectNum;
     if (SELECTION_MODE)
-        defaultSelectNum = (int) round(paramExt.num * MAX_TYPLOC_NUM_PECENT * 2.5);
+        defaultSelectNum = (int) round(paramExt.num * MAX_TYPLOC_NUM_PECENT * 2.5f);
     else
         defaultSelectNum = (int) round(paramExt.num * MIN_TYPLOC_NUM_PECENT * 2.5f);
 
@@ -200,7 +200,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
             printf("ParametersNum: %d\n", paramsNum);
             for (num = 0; num < paramsNum; num++)
             {
-                if (!(paramsgrd[num].minTyp == paramsgrd[num].maxTyp && paramsgrd[num].maxTyp == 0.0))
+                if (!(paramsgrd[num].minTyp == paramsgrd[num].maxTyp && paramsgrd[num].maxTyp == 0.f))
                 {
                     printf("TerrainAttri.No.%d: %s\n", num, paramsgrd[num].name);
                     printf("   Path: %s\n", paramsgrd[num].path);
@@ -211,7 +211,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
             {
                 for (num = 0; num < addparamsNum; num++)
                 {
-                    if (!(addparamgrd[num].minTyp == addparamgrd[num].maxTyp && addparamgrd[num].maxTyp == 0.0))
+                    if (!(addparamgrd[num].minTyp == addparamgrd[num].maxTyp && addparamgrd[num].maxTyp == 0.f))
                     {
                         printf("Additional TerrainAttri.No.%d: %s\n", num, addparamgrd[num].name);
                         printf("   Path: %s\n", addparamgrd[num].path);
@@ -248,7 +248,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
             }
         }
         for (num = 0; num < paramsNum; num++)
-            if (strcmp(paramsgrd[num].name, "RPI") == 0)
+            if (strcmp(paramsgrd[num].name, "rpi") == 0)
                 RPIindex = num;
         double begint = MPI_Wtime();  /// start time
 
@@ -312,8 +312,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
         ExtInfo *paramsExtInfo = new ExtInfo[paramsNum]; /// frequency distribution array, and store other statistics values
         if (autoSel) /// determine the value range according to RPI and additional parameters
         {
-            float *minTypValue = new float[addparamsNum +
-                                           1];/// READ RPI value range and additional topographic attributes' value ranges
+            float *minTypValue = new float[addparamsNum +1];/// READ RPI value range and additional topographic attributes' value ranges
             float *maxTypValue = new float[addparamsNum + 1];/// update 2015/5/18
             int *CellCount = new int[paramsNum]; /// selected cell numbers
             float **CellValues = new float *[paramsNum]; /// store cell values selected of each topographic attributes for current processor
@@ -330,8 +329,16 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
 
             for (num = 0; num < paramsNum; num++)
             {
-                maxValue[num] = MISSINGFLOAT;
-                minValue[num] = -1 * MISSINGFLOAT;
+				if(num == RPIindex)
+				{
+					maxValue[num] = paramsgrd[RPIindex].maxTyp;;
+					minValue[num] = paramsgrd[RPIindex].minTyp;;
+				}
+				else
+				{
+					maxValue[num] = MISSINGFLOAT;
+					minValue[num] = -1 * MISSINGFLOAT;
+				}
             }
             /// extract candidate attribute values according to RPI range and additional attribute
             for (j = 0; j < ny; j++) /// rows
@@ -380,6 +387,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                     }
                 }
             }
+
             /// dump cell values from tempCellValues to CellValues
             for (num = 0; num < paramsNum; num++)
             {
@@ -399,9 +407,11 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                 {
                     CellCount[num] = 1;
                     CellValues[num] = new float[1];
-                    CellValues[num][0] = 0.0;
-                }
+                    CellValues[num][0] = 0.f;
+                }				
             }
+			//for (int k = 0;k < paramsNum;k++)
+			//	printf("%s:%d,min:%f,max:%f\n",paramsgrd[k].name,CellCount[k],minValue[k],maxValue[k]);
             /// use host process(i.e., rank = 0) to gather all cell values and do Gaussian Fitting.
             for (num = 0; num < paramsNum; num++)
             {
@@ -429,16 +439,16 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
             }
             MAX_TYPLOC_NUM = int(MAX_TYPLOC_NUM_PECENT * maxCellCount);
             MIN_TYPLOC_NUM = int(MIN_TYPLOC_NUM_PECENT * maxCellCount); /// update 2015/08/07
-            /// test code
-            //for (int i = 0;i < paramsNum;i++)
-            //	printf("%s:%d,min:%f,max:%f\n",paramsgrd[i].name,CellCount[i],minValue[i],maxValue[i]);
-            //for(num = 0; num < paramsNum; num++)
-            //	cout<<paramsgrd[num].name<<","<<paramsgrd[num].shape<<","<<paramsgrd[num].minTyp<<","<<paramsgrd[num].maxTyp<<endl;
-            /// end test code
-
+			
             /// do Bi-Gaussian fitting model and set parameters for finding typical locations and fuzzy inference
             if (rank == 0)
             {
+				/// test code
+				//for (int i = 0;i < paramsNum;i++)
+				//	printf("%s:%d,min:%f,max:%f\n",paramsgrd[i].name,paramsExtInfo[i].num,paramsExtInfo[i].minValue,paramsExtInfo[i].maxValue);
+				//for(num = 0; num < paramsNum; num++)
+				//	cout<<paramsgrd[num].name<<","<<paramsgrd[num].shape<<","<<paramsgrd[num].minTyp<<","<<paramsgrd[num].maxTyp<<endl;
+				/// end test code
                 for (num = 0; num < paramsNum; num++)
                 {
                     paramsExtInfo[num].interval = 0.f;
@@ -461,7 +471,6 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                     paramsExtInfo[num].XRange[FREQUENCY_GROUP] = 0.f;
                     if (num != RPIindex)
                     {
-                        //printf("%s:%d,min:%f,max:%f\n",paramsgrd[num].name,paramsExtInfo[num].num,paramsExtInfo[num].minValue,paramsExtInfo[num].maxValue);
                         paramsExtInfo[num].interval =
                                 (paramsExtInfo[num].maxValue - paramsExtInfo[num].minValue) / FREQUENCY_GROUP;
                         for (i = 0; i < FREQUENCY_GROUP; i++)
@@ -477,11 +486,40 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                             paramsExtInfo[num].y[(int) floor((AllCellValues[num][i] - paramsExtInfo[num].minValue) /
                                                              paramsExtInfo[num].interval)]++;
                         }
+						//printf("%s:%d,min:%f,max:%f,interval:%f\n",paramsgrd[num].name,paramsExtInfo[num].num,
+						//	paramsExtInfo[num].minValue,paramsExtInfo[num].maxValue,paramsExtInfo[num].interval);
+						//for (int k = 0; k<FREQUENCY_GROUP;k++)
+						//{
+						//	cout<<paramsExtInfo[num].y[k]<<",";
+						//}
+						//cout<<endl;
+
+						// if MIN_FREQUENCY is greater than the 50% of the frequencies, then use the 70%
+						int gt = 0;
+						vector<float> tmpY;
+						for (j = 0; j < FREQUENCY_GROUP; j++)
+						{
+							 if (paramsExtInfo[num].y[j] >= MIN_FREQUENCY)
+								 gt++;
+							 tmpY.push_back(paramsExtInfo[num].y[j]);
+						}
+						vector<float>(tmpY).swap(tmpY);
+						//cout<<"there are "<<gt<<" greater than MIN_FREQUENCY: "<<MIN_FREQUENCY<<endl;
+						int newLowestFreq = MIN_FREQUENCY;
+						if (gt <= FREQUENCY_GROUP/2)
+						{
+							sort(tmpY.begin(), tmpY.end());
+							newLowestFreq = tmpY[round(FREQUENCY_GROUP * 0.3f)];
+							newLowestFreq = newLowestFreq <= 0 ? 1 : newLowestFreq;
+						}
+						//for(vector<float>::iterator it = tmpY.begin(); it != tmpY.end(); it++)
+						//	cout<<*it<<", ";
+						//cout<<endl;
+						//cout<<"MIN_FREQUENCY is: "<<newLowestFreq<<endl;
                         vector<float> tempx, tempy;
                         for (j = 0; j < FREQUENCY_GROUP; j++)
-                        {
-                            if (paramsExtInfo[num].y[j] >=
-                                MIN_FREQUENCY) /// eliminate frequency which less than MIN_FREQUENCY
+                        {/// eliminate frequency which less than MIN_FREQUENCY
+                            if (paramsExtInfo[num].y[j] >= newLowestFreq) 
                             {
                                 tempx.push_back(paramsExtInfo[num].x[j]);
                                 tempy.push_back(paramsExtInfo[num].y[j]);
@@ -584,8 +622,8 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                                 {
                                     fitShape[0] = 'B';
                                 }
-                                else if (biRatio < 1 && biRatio > 1.f /
-                                                                  DEFAULT_BiGaussian_Ratio) /// bell-shaped or z-shaped, and bell-shaped is prevail
+								/// bell-shaped or z-shaped, and bell-shaped is prevail
+                                else if (biRatio < 1 && biRatio > 1.f / DEFAULT_BiGaussian_Ratio) 
                                 {
                                     fitShape[0] = 'B';
                                     fitShape[1] = 'Z';
@@ -609,15 +647,15 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                                 {
                                     cumFreq += (int) tempy[i];
                                     cumFreqRatio = (float) cumFreq / validNum;
-                                    if (cumFreqRatio >= 0.25 && cum1 == -9999.f)
+                                    if (cumFreqRatio >= 0.25f && cum1 == -9999.f)
                                     {
                                         cum1 = tempx[i];
                                     }
-                                    else if (cumFreqRatio >= 0.5 && cum2 == -9999.f)
+                                    else if (cumFreqRatio >= 0.5f && cum2 == -9999.f)
                                     {
                                         cum2 = tempx[i];
                                     }
-                                    else if (cumFreqRatio >= 0.75 && cum3 == -9999.f)
+                                    else if (cumFreqRatio >= 0.75f && cum3 == -9999.f)
                                     {
                                         cum3 = tempx[i];
                                         break;
@@ -649,8 +687,8 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                                         fitShape[0] = 'S';
                                         centralValue[0] = cum2 >= max_freq_x ? max_freq_x : cum2;
                                     }
-                                    else if (biRatio > 1 && biRatio <
-                                                            DEFAULT_BiGaussian_Ratio) /// bell-shaped or s-shaped, and bell-shaped is prevail
+									/// bell-shaped or s-shaped, and bell-shaped is prevail
+                                    else if (biRatio > 1 && biRatio < DEFAULT_BiGaussian_Ratio) 
                                     {
                                         fitShape[0] = 'B';
                                         fitShape[1] = 'S';
@@ -662,8 +700,8 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                                         fitShape[0] = 'B';
                                         centralValue[0] = cum2;
                                     }
-                                    else if (biRatio < 1 && biRatio > 1.f /
-                                                                      DEFAULT_BiGaussian_Ratio) /// bell-shaped or z-shaped, and bell-shaped is prevail
+									/// bell-shaped or z-shaped, and bell-shaped is prevail
+                                    else if (biRatio < 1 && biRatio > 1.f / DEFAULT_BiGaussian_Ratio) 
                                     {
                                         fitShape[0] = 'B';
                                         fitShape[1] = 'Z';
@@ -895,7 +933,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                     for (num = 0; num < paramsNum; num++)
                     {
                         if (paramsgrd[num].shape != 'D' && paramsgrd[num].maxTyp > paramsgrd[num].minTyp &&
-                            strcmp(paramsgrd[num].name, "RPI") != 0)
+                            strcmp(paramsgrd[num].name, "rpi") != 0)
                         {
                             float oldMaxTyp = paramsgrd[num].maxTyp;
                             float oldMinTyp = paramsgrd[num].minTyp;
@@ -946,7 +984,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                     for (num = 0; num < paramsNum; num++)
                     {
                         if (paramsgrd[num].shape != 'D' && paramsgrd[num].maxTyp > paramsgrd[num].minTyp &&
-                            strcmp(paramsgrd[num].name, "RPI") != 0)
+                            strcmp(paramsgrd[num].name, "rpi") != 0)
                         {
                             float oldMaxTyp = paramsgrd[num].maxTyp;
                             float oldMinTyp = paramsgrd[num].minTyp;

@@ -17,7 +17,7 @@
  * \brief Constructs parameters for finding typical locations and fuzzy inference
  *
  */
-typedef struct paramExtGRID
+struct paramExtGRID
 {
     char name[10];
     char path[MAXLN];
@@ -36,7 +36,7 @@ typedef struct paramExtGRID
  * \brief Constructs frequency distribution array, and store other statistics values
  *
  */
-typedef struct ExtInfo
+struct ExtInfo
 {
     int num; //!< number of terrain attributes values
     float maxValue; //!< maximum value
@@ -51,7 +51,7 @@ typedef struct ExtInfo
  * \brief  prior expert knowledge of curve shape for fuzzy inference model for a specific topographic attribute
  *
  */
-typedef struct DefaultFuzInf
+struct DefaultFuzInf
 {
     char param[10]; //!< name of topographic attribute
     char shape[4];  //!< prior expert knowledge of curve shape for fuzzy inference models
