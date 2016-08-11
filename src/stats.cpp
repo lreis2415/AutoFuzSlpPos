@@ -1,12 +1,6 @@
 #include "stats.h"
-//#include <math.h>
-//#include <queue>
-//#include <iostream>
-//#include <vector>
 #include <numeric>
 #include <algorithm>
-//#include <functional>
-
 using namespace std;
 
 static float dokern(float x, int kern)
@@ -19,45 +13,8 @@ static float dokern(float x, int kern)
 void BDRksmooth(float *x, float *y, int n, float *xp, float *yp, int np, int kern, float bw)
 {
     int imin = 0;
-    float cutoff = 0.0, num, den, x0, w;
+    float cutoff = 0.f, num, den, x0, w;
 
-    /* bandwidth is in units of half inter-quartile range. */
-    if (kern == 1)
-    {
-        bw *= 0.5;
-        cutoff = bw;
-    }
-    if (kern == 2)
-    {
-        bw *= 0.3706506;
-        cutoff = 4 * bw;
-    }
-    while (x[imin] < xp[0] - cutoff && imin < n) imin++;
-    for (int j = 0; j < np; j++)
-    {
-        num = den = 0.0;
-        x0 = xp[j];
-        for (int i = imin; i < n; i++)
-        {
-            if (x[i] < x0 - cutoff) imin = i;
-            else
-            {
-                if (x[i] > x0 + cutoff) break;
-                w = dokern(fabs(x[i] - x0) / bw, kern);
-                num += w * y[i];
-                den += w;
-            }
-        }
-        if (den > 0) yp[j] = num / den; else yp[j] = MISSINGFLOAT;
-    }
-}
-
-void BDRksmooth(vector<float> &x, vector<float> &y, vector<float> &xp, vector<float> &yp, int kern, float bw)
-{/// ksmooth function in R
-    int imin = 0;
-    int n = x.size();
-    int np = xp.size();
-    float cutoff = 0.0, num, den, x0, w;
     /* bandwidth is in units of half inter-quartile range. */
     if (kern == 1)
     {
@@ -67,12 +24,13 @@ void BDRksmooth(vector<float> &x, vector<float> &y, vector<float> &xp, vector<fl
     if (kern == 2)
     {
         bw *= 0.3706506f;
-        cutoff = 4.0f * bw;
+        cutoff = 4.f * bw;
     }
     while (x[imin] < xp[0] - cutoff && imin < n) imin++;
     for (int j = 0; j < np; j++)
     {
-        num = den = 0.0;
+        num = 0.f;
+		den = 0.f;
         x0 = xp[j];
         for (int i = imin; i < n; i++)
         {
@@ -85,7 +43,47 @@ void BDRksmooth(vector<float> &x, vector<float> &y, vector<float> &xp, vector<fl
                 den += w;
             }
         }
-        if (den > 0) yp.push_back(num / den); else yp.push_back(MISSINGFLOAT);
+        if (den > ZERO) yp[j] = num / den; 
+		else yp[j] = MISSINGFLOAT;
+    }
+}
+
+void BDRksmooth(vector<float> &x, vector<float> &y, vector<float> &xp, vector<float> &yp, int kern, float bw)
+{/// ksmooth function in R
+    int imin = 0;
+    int n = x.size();
+    int np = xp.size();
+    float cutoff = 0.f, num, den, x0, w;
+    /* bandwidth is in units of half inter-quartile range. */
+    if (kern == 1)
+    {
+        bw *= 0.5f;
+        cutoff = bw;
+    }
+    if (kern == 2)
+    {
+        bw *= 0.3706506f;
+        cutoff = 4.f * bw;
+    }
+    while (x[imin] < xp[0] - cutoff && imin < n) imin++;
+    for (int j = 0; j < np; j++)
+    {
+        num = 0.f;
+		den = 0.f;
+        x0 = xp[j];
+        for (int i = imin; i < n; i++)
+        {
+            if (x[i] < x0 - cutoff) imin = i;
+            else
+            {
+                if (x[i] > x0 + cutoff) break;
+                w = dokern(fabs(x[i] - x0) / bw, kern);
+                num += w * y[i];
+                den += w;
+            }
+        }
+        if (den > ZERO) yp.push_back(num / den);
+		else yp.push_back(MISSINGFLOAT);
     }
 }
 
@@ -123,13 +121,13 @@ void findTurnPoints(float *x, int n, priority_queue<int> &pks, priority_queue<in
             pksIdx[i] = false;
         //cout<<pksIdx[i]<<endl;
     }
-    newx[0] = -1 * MISSINGFLOAT;
-    newx[n + 1] = -1 * MISSINGFLOAT;
+    newx[0] = -1.f * MISSINGFLOAT;
+    newx[n + 1] = -1.f * MISSINGFLOAT;
     for (i = 0; i < n; i++)
     {
         for (j = 0; j < 3; j++)
         {
-            matrix[i][j] = -1 * newx[i + j];
+            matrix[i][j] = -1.f * newx[i + j];
             //cout<<matrix[i][j]<<",";
         }
         //cout<<endl;
@@ -219,7 +217,7 @@ void findTurnPoints(vector<float> &x, vector<float> &pks, vector<float> &vlys)
     uniquex.erase(unique(uniquex.begin(), uniquex.end()), uniquex.end());
     if (uniquex.size() == 1)
     {
-        pks.push_back(round(x.size() / 2.0f));
+        pks.push_back(round(x.size() / 2.f));
         vlys.push_back(1);
         vlys.push_back(x.size());
     }
@@ -248,11 +246,11 @@ void findTurnPoints(vector<float> &x, vector<float> &pks, vector<float> &vlys)
                 pksIdx[i] = true;
         }
         /// in R: v <- max.col(-x, ties.method = "first") == 2
-        newx[0] = -1 * MISSINGFLOAT;
-        newx[n + 1] = -1 * MISSINGFLOAT;
+        newx[0] = -1.f * MISSINGFLOAT;
+        newx[n + 1] = -1.f * MISSINGFLOAT;
         for (i = 0; i < n; i++)
             for (j = 0; j < 3; j++)
-                matrix[i][j] = -1 * newx[i + j];
+                matrix[i][j] = -1.f * newx[i + j];
         for (i = 0; i < n; i++)
         {
             tempIdx = 0;
@@ -395,7 +393,7 @@ float *dnorm(float *x, int n, float mean, float sd, bool iflog)
     int i = 0;
     for (i = 0; i < n; i++)
     {
-        if (sd == 0.0)
+        if (sd < ZERO)
         {
             p[i] = MISSINGFLOAT;
         }
@@ -413,7 +411,7 @@ float *dnorm(float *x, int n, float mean, float sd, bool iflog)
 
 bool isNA(float x)
 {
-    if (x == MISSINGFLOAT || x == -1 * MISSINGFLOAT)
+    if (x == MISSINGFLOAT || x == -1.f * MISSINGFLOAT)
         return true;
     else
         return false;
@@ -455,9 +453,9 @@ int Bigauss_esti_moment(vector<float> &x, vector<float> &y, float powerIdx, vect
     {
         fit.resize(4);
         fit[0] = validX[0];
-        fit[1] = 1.0;
-        fit[2] = 1.0;
-        fit[3] = 0.0;
+        fit[1] = 1.f;
+        fit[2] = 1.f;
+        fit[3] = 0.f;
         return 1;
     }
     else
@@ -476,13 +474,13 @@ int Bigauss_esti_moment(vector<float> &x, vector<float> &y, float powerIdx, vect
         float min_d = *min_element(dx.begin(), dx.end());
         //cout<<min_d<<endl;
         dx.resize(num);
-        dx[0] = (validX[1] - validX[0] > 4 * min_d) ? 4 * min_d : validX[1] - validX[0];
-        dx[num - 1] = (validX[num - 1] - validX[num - 2] > 4 * min_d) ? 4 * min_d : validX[num - 1] - validX[num - 2];
+        dx[0] = (validX[1] - validX[0] > 4.f * min_d) ? 4.f * min_d : validX[1] - validX[0];
+        dx[num - 1] = (validX[num - 1] - validX[num - 2] > 4.f * min_d) ? 4.f * min_d : validX[num - 1] - validX[num - 2];
         for (i = 1; i < num - 1; i++)
         {
-            dx[i] = (validX[i + 1] - validX[i - 1]) / 2;
-            if (dx[i] > 4 * min_d)
-                dx[i] = 4 * min_d;
+            dx[i] = (validX[i + 1] - validX[i - 1]) / 2.f;
+            if (dx[i] > 4.f * min_d)
+                dx[i] = 4.f * min_d;
         }
         vector<float> y_cum(num);
         vector<float> x_y_cum(num);
@@ -567,7 +565,7 @@ int Bigauss_esti_moment(vector<float> &x, vector<float> &y, float powerIdx, vect
                 pair<vector<float>, vector<int>> d_less_0_ = which(d, 0,0.f);
                 vector<float> d_less_0 = d_less_0_.first;
                 /// operator 2 means greater_equal than, and 3 means less_equal than
-                pair<vector<float>, vector<int>> d_greater_0_ = which(d, 2, 0.0f);
+                pair<vector<float>, vector<int>> d_greater_0_ = which(d, 2, 0.f);
                 vector<float> d_greater_0 = d_greater_0_.first;
                 float temp_d_less_0_max = *max_element(d_less_0.begin(), d_less_0.end());
                 float temp_d_greater_0_min = *min_element(d_greater_0.begin(), d_greater_0.end());
@@ -743,7 +741,7 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
                     /// in R:
                     ///      sel.1<-which(x >= max(vlys[vlys < m[i]]) & x < m[i])
                     ///      s1[i]<-sqrt(sum((x[sel.1]-m[i])^2 * y[sel.1]*dx[sel.1])/sum(y[sel.1]*dx[sel.1]))
-                    delta[i] = 0.0;
+                    delta[i] = 0.f;
                     float tempValue;
                     pair<vector<float>, vector<int>> tempVector_ = which(vlys, 0, m[i]);
                     vector<float> tempVector = tempVector_.first;
@@ -781,12 +779,27 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
                             tempdxS1[k] = dx[tempIndex.top()];
                             tempIndex.pop();
                         }
-                        s1[i] = sqrt(matrix_sum(matrix_times(matrix_times(matrix_minus(tempxS1, m[i], tempxNumS1),
-                                                                          matrix_minus(tempxS1, m[i], tempxNumS1),
-                                                                          tempxNumS1),
-                                                             matrix_times(tempyS1, tempdxS1, tempxNumS1), tempxNumS1),
-                                                tempxNumS1) / matrix_sum(matrix_times(tempyS1, tempdxS1, tempxNumS1),
-                                                                         tempxNumS1));  // this style is not acceptable, but currently, I mainly focus on the functionality....
+
+						float * tmpXYS1_times = matrix_times(tempyS1, tempdxS1, tempxNumS1);
+						float tmpXYS1_times_sum = matrix_sum(tmpXYS1_times, tempxNumS1);
+						float *tmpXS1m_minus = matrix_minus(tempxS1, m[i], tempxNumS1);
+						float *tmpXS1m_minus_times = matrix_times(tmpXS1m_minus, tmpXS1m_minus, tempxNumS1);
+						float *tmpTimes = matrix_times(tmpXS1m_minus_times, tmpXYS1_times, tempxNumS1);
+						if (tmpXYS1_times_sum  <= ZERO)
+						{
+							s1[i] = MISSINGFLOAT;
+						}
+						else
+						{
+							s1[i] = sqrt(matrix_sum(tmpTimes, tempxNumS1) / tmpXYS1_times_sum);
+						}
+
+                        //s1[i] = sqrt(matrix_sum(matrix_times(matrix_times(matrix_minus(tempxS1, m[i], tempxNumS1),
+                        //                                                  matrix_minus(tempxS1, m[i], tempxNumS1),
+                        //                                                  tempxNumS1),
+                        //                                     matrix_times(tempyS1, tempdxS1, tempxNumS1), tempxNumS1),
+                        //                        tempxNumS1) / matrix_sum(matrix_times(tempyS1, tempdxS1, tempxNumS1),
+                        //                                                 tempxNumS1));  // this style is not acceptable, but currently, I mainly focus on the functionality....
                     }
                     /// End the calculation of s1[i]
                     /// Calculate s2
@@ -825,22 +838,53 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
                             tempdxS2[k] = dx[tempIndex.top()];
                             tempIndex.pop();
                         }
-                        s2[i] = sqrt(matrix_sum(matrix_times(matrix_times(matrix_minus(tempxS2, m[i], tempxNumS2),
-                                                                          matrix_minus(tempxS2, m[i], tempxNumS2),
-                                                                          tempxNumS2),
-                                                             matrix_times(tempyS2, tempdxS2, tempxNumS2), tempxNumS2),
-                                                tempxNumS2) / matrix_sum(matrix_times(tempyS2, tempdxS2, tempxNumS2),
-                                                                         tempxNumS2));  // this style is not acceptable, but currently, I mainly focus on the functionality....
+						float *tmpXYS2_times = matrix_times(tempyS2, tempdxS2, tempxNumS2);
+						float tmpXYS2_times_sum = matrix_sum(tmpXYS2_times, tempxNumS2);
+						float *tmpS2m_minus = matrix_minus(tempxS2, m[i], tempxNumS2);
+						float *tmpS2m_minus_times = matrix_times(tmpS2m_minus, tmpS2m_minus,tempxNumS2);
+						float *tmpTimesS2 = matrix_times(tmpS2m_minus_times, tmpXYS2_times, tempxNumS2);
+						if (abs(tmpXYS2_times_sum - 0.f) <= ZERO)
+						{
+							s2[i] = MISSINGFLOAT;
+						} 
+						else
+						{
+							s2[i] = sqrt(matrix_sum(tmpTimesS2, tempxNumS2) / tmpXYS2_times_sum);
+						}
+						
+
+                        //s2[i] = sqrt(matrix_sum(matrix_times(matrix_times(matrix_minus(tempxS2, m[i], tempxNumS2),
+                        //                                                  matrix_minus(tempxS2, m[i], tempxNumS2),
+                        //                                                  tempxNumS2),
+                        //                                     matrix_times(tempyS2, tempdxS2, tempxNumS2), tempxNumS2),
+                        //                        tempxNumS2) / matrix_sum(matrix_times(tempyS2, tempdxS2, tempxNumS2),
+                        //                                                 tempxNumS2));  // this style is not acceptable, but currently, I mainly focus on the functionality....
                     }
                     /// End the calculation of s2[i]
                     /// Calculate delta
                     ///     in R: delta[i]<-(sum(y[sel.1]*dx[sel.1]) + sum(y[sel.2]*dx[sel.2]))/((sum(dnorm(x[sel.1], mean=m[i], sd=s1[i])) * s1[i] /2)+(sum(dnorm(x[sel.2], mean=m[i], sd=s2[i])) * s2[i] /2))
-                    if (delta[i] == 0.0)
+                    if (delta[i] == 0.f)
                     {
-                        delta[i] = (matrix_sum(matrix_times(tempyS1, tempdxS1, tempxNumS1), tempxNumS1) +
-                                    matrix_sum(matrix_times(tempyS2, tempdxS2, tempxNumS2), tempxNumS2)) /
-                                   ((matrix_sum(dnorm(tempxS1, tempxNumS1, m[i], s1[i]), tempxNumS1) * s1[i] / 2) +
-                                    (matrix_sum(dnorm(tempxS2, tempxNumS2, m[i], s2[i]), tempxNumS2) * s2[i] / 2));
+						float *tmpYS1_times = matrix_times(tempyS1, tempdxS1, tempxNumS1);
+						float tmpYS1_times_sum  = matrix_sum(tmpYS1_times, tempxNumS1);
+						float *tmpYS2_times = matrix_times(tempyS2, tempdxS2, tempxNumS2);
+						float tmpYS2_times_sum = matrix_sum(tmpYS2_times, tempxNumS2);
+						float tmpXS1m_dnorm_sum = matrix_sum(dnorm(tempxS1, tempxNumS1, m[i], s1[i]), tempxNumS1);
+						float tmpXS2m_dnorm_sum = matrix_sum(dnorm(tempxS2, tempxNumS2, m[i], s2[i]), tempxNumS2);
+						float tmpDivided = (tmpXS1m_dnorm_sum* s1[i] / 2.f) + (tmpXS2m_dnorm_sum* s2[i] / 2.f);
+						if (tmpDivided <= ZERO)
+						{
+							delta[i] = MISSINGFLOAT;
+						} 
+						else
+						{
+							delta[i] = (tmpYS1_times_sum + tmpYS2_times_sum) / tmpDivided;
+						}
+
+						//delta[i] = (matrix_sum(matrix_times(tempyS1, tempdxS1, tempxNumS1), tempxNumS1) +
+						//	matrix_sum(matrix_times(tempyS2, tempdxS2, tempxNumS2), tempxNumS2)) /
+						//	((matrix_sum(dnorm(tempxS1, tempxNumS1, m[i], s1[i]), tempxNumS1) * s1[i] / 2) +
+						//	(matrix_sum(dnorm(tempxS2, tempxNumS2, m[i], s2[i]), tempxNumS2) * s2[i] / 2));
                     }
                     //cout<<s1[i]<<","<<s2[i]<<","<<delta[i]<<endl;
 
@@ -859,15 +903,14 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
                 //printVector("    s2 is: ",s2);
                 //printVector("    delta is: ",delta);
                 //printVector("    m is: ",m);
-                vector<vector<float> > fit(x.size(), vector<float>(pksNum,
-                                                                   0.f)); /// in R: fit<-matrix(0,ncol=length(m), nrow=length(x))
+                vector<vector<float> > fit(x.size(), vector<float>(pksNum, 0.f)); /// in R: fit<-matrix(0,ncol=length(m), nrow=length(x))
                 float this_change = -1.f * MISSINGFLOAT;
                 int counter = 0;
                 vector<float> cuts;
                 int this_bigauss;
-                while (this_change > 0.1 && counter <= max_iter)
+                while (this_change > 0.1f && counter <= max_iter)
                 {
-                    ///cout<<"      this.change is: "<<this_change<<",iterator number is: "<<counter<<endl;
+                    //cout<<"      this.change is: "<<this_change<<", iterator number is: "<<counter<<endl;
                     counter++;
                     vector<float> old_m(m);
                     ///  E step
@@ -934,11 +977,11 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
                     vector<vector<float> > fit2(num_origin, vector<float>(fit[0].size()));
                     for (i = 0; i < num_origin; i++)
                     {
-                        sum_fit = 0.0;
+                        sum_fit = 0.f;
                         for (j = 0; j < fit[0].size(); j++)
                         {
                             if (isNA(fit[i][j]))
-                                fit[i][j] = 0.0;
+                                fit[i][j] = 0.f;
                             sum_fit += fit[i][j];
                         }
                         for (j = 0; j < fit[0].size(); j++)
@@ -959,8 +1002,7 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
                         perc_explained[j] /= sumY;
                     }
                     //printArray("      E step, perc_explained is: ",perc_explained, fit2[0].size());
-                    int max_erase = max(0, int(round(
-                            float(fit2[0].size()) / 5.f))); /// in R: max(1, round(length(perc.explained)/5))
+                    int max_erase = max(0, int(round(float(fit2[0].size()) / 5.f))); /// in R: max(1, round(length(perc.explained)/5))
                     /// in R: to.erase<-which(perc.explained <= min(eliminate, perc.explained[order(perc.explained, na.last=FALSE)[max.erase]]))
                     int *perc_explained_order = new int[fit2[0].size()];
                     if (perc_explained_order == NULL) return 0;
@@ -993,9 +1035,9 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
                         }
                         for (i = 0; i < num_origin; i++)
                         {
-                            sum_fit = accumulate(fit[i].begin(), fit[i].end(), 0.0f);
+                            sum_fit = accumulate(fit[i].begin(), fit[i].end(), 0.f);
                             for (j = 0; j < fit[i].size(); j++)
-                                if (sum_fit == 0.0)
+                                if (sum_fit < ZERO)
                                     fit[i][j] = MISSINGFLOAT;
                                 else
                                     fit[i][j] /= sum_fit;
@@ -1053,7 +1095,7 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
                 }
                 cuts.clear();
                 cuts = m;
-                cuts.push_back(-1 * MISSINGFLOAT);
+                cuts.push_back(-1.f * MISSINGFLOAT);
                 cuts.insert(cuts.begin(), MISSINGFLOAT);
                 for (j = 0; j < fit.size(); j++)
                 {
@@ -1128,7 +1170,7 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
                 if (results[bw_n] == NULL) return 0;
                 results_group[bw_n] = m.size();
                 for (i = 0; i < m.size(); i++)
-                {
+                { 
                     results[bw_n][i] = new float[5];
                     results[bw_n][i][0] = m[i];
                     results[bw_n][i][1] = s1[i];
@@ -1149,12 +1191,37 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
         int sel = 0, sel2 = 0, sel_single = 0;
         vector<int> sel_v, sel_v2, sel_single_v;
         float temp_bic_rec, temp_nash_coef;
+		bool use_one_of_multi_models = false;
+		float nash_one_of_multi_models = MISSINGFLOAT;
+		float *one_of_multi_params;
         for (i = 0; i < results_group.size(); i++)
         {
+			//for (int j = 0; j < results_group[i]; j++)
+			//{
+			//	for(int k = 0; k < 5; k++)
+			//		cout <<results[i][j][k]<<",";
+			//	cout<<endl;
+			//}
             if (results_group[i] == 1 && !isNA(bic_rec[i]))
                 sel_single_v.push_back(i);
             else if (results_group[i] == 1 && !isNA(bic_rec[i]))
                 sel_v.push_back(i);
+			else if (results_group[i] > 1 && !isNA(bic_rec[i]))
+			{
+				/// calculate NASH for each bi-Gaussian model
+				vector<float> tmpNash(results_group[i]);
+				for (int j = 0; j < results_group[i]; j++){
+					tmpNash[j] = calNash(x, y, results[i][j]);
+					if(tmpNash[j] > 0.8f)
+					{
+						use_one_of_multi_models = true;
+						if (tmpNash[j]>nash_one_of_multi_models){
+							nash_one_of_multi_models = tmpNash[j];
+							one_of_multi_params = results[i][j];
+						}
+					}
+				}
+			}
         }
         if (sel_single_v.size() == 1)
             sel_single = sel_single_v[0];
@@ -1196,8 +1263,19 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
         }
         else
             sel2 = MISSINGSHORT;
-        if (sel2 == MISSINGSHORT)
+        if (sel2 == MISSINGSHORT && !use_one_of_multi_models)
             return 0;
+		else if(use_one_of_multi_models)
+		{
+			fit_results.resize(1);
+			fit_results[0].resize(5);
+			fit_results[0][0] = one_of_multi_params[0];
+			fit_results[0][1] = one_of_multi_params[1];
+			fit_results[0][2] = one_of_multi_params[2];
+			fit_results[0][3] = one_of_multi_params[3];
+			fit_results[0][4] = nash_one_of_multi_models;
+			return 1;
+		}
         else
         {
             fit_results.resize(results_group[sel2]);
@@ -1208,7 +1286,7 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
                 fit_results[i][1] = results[sel2][i][1]; /// s1: sigma1 (left)
                 fit_results[i][2] = results[sel2][i][2]; /// s2: sigma2 (right)
                 fit_results[i][3] = results[sel2][i][3]; /// delta
-                fit_results[i][4] = nash_coef[sel2];     /// nash: nash-sutcliffe coefficient
+                fit_results[i][4] = nash_coef[sel2]; /// nash: nash-sutcliffe coefficient
             }
             return 1;
         }
@@ -1230,16 +1308,16 @@ int Bigauss_esti_em(vector<float> &old_x, vector<float> &old_y, int max_iter, fl
     if (y.size() == 0)
     {
         fit.push_back(median(old_y));
-        fit.push_back(1);
-        fit.push_back(1);
-        fit.push_back(0);
+        fit.push_back(1.f);
+        fit.push_back(1.f);
+        fit.push_back(0.f);
     }
     if (y.size() == 1)
     {
         fit.push_back(y[0]);
-        fit.push_back(1);
-        fit.push_back(1);
-        fit.push_back(0);
+        fit.push_back(1.f);
+        fit.push_back(1.f);
+        fit.push_back(0.f);
     }
     vector<float> x = copyByIndex(old_x, yIdx);
     /// epsilon is the threshold for continuing the iteration. change in
@@ -1248,7 +1326,7 @@ int Bigauss_esti_em(vector<float> &old_x, vector<float> &old_y, int max_iter, fl
     /// using the median value of x as the initial value of a (the breaking point).
     float a_old = x.at(distance(y.begin(), max_element(y.begin(), y.end()))); /// in R: a.old <- x[which(y==max(y))[1]]
     float a_new = a_old;
-    float change = 10 * epsilon;
+    float change = 10.f * epsilon;
     /// n_iter is the number of iteration covered so far.
     int n_iter = 0;
     pair<float, float> sigma;
@@ -1273,6 +1351,8 @@ int Bigauss_esti_em(vector<float> &old_x, vector<float> &old_y, int max_iter, fl
     vector<float> d(y), dnew(y);
     sigma.first = sqrt(sigma.first);
     sigma.second = sqrt(sigma.second);
+	if (sigma.first != sigma.first) sigma.first = MISSINGFLOAT;
+	if (sigma.second != sigma.second) sigma.second = MISSINGFLOAT;
     /// d[t<a.new]<-dnorm(t[t<a.new],mean=a.new,sd=sigma$sigma.1)*sigma$sigma.1
     pair<vector<float>, vector<int>> d1 = which(x, 0, a_new);
     int d1_num = d1.first.size();
@@ -1303,7 +1383,10 @@ int Bigauss_esti_em(vector<float> &old_x, vector<float> &old_y, int max_iter, fl
     }
 
     /// scale<-exp(sum(d[d>1e-3]^2*log(x[d>1e-3]/d[d>1e-3]))/sum(d[d>1e-3]^2))
-    float scale = exp(sum1 / sum2);
+	float scale = MISSINGFLOAT;
+	if(sum2 > ZERO)
+		scale = exp(sum1 / sum2);
+	if(scale != scale) scale = MISSINGFLOAT;
     if (!fit.empty()) fit.clear();
     fit.push_back(a_new);
     fit.push_back(sigma.first);
@@ -1354,6 +1437,8 @@ pair<float, float> solveSigma(vector<float> &x, vector<float> &y, float a)
         sigma2 = MISSINGFLOAT;
     else
         sigma2 = v / y_sum * (pow((u / v), 1.f / 3.f) + 1.f);
+	if (sigma1 != sigma1) sigma1 = MISSINGFLOAT;
+	if (sigma2 != sigma2) sigma2 = MISSINGFLOAT;
     return make_pair(sigma1, sigma2);
 }
 
@@ -1362,7 +1447,7 @@ float median(vector<float> &x)
     vector<float> newx(x);
     sort(newx.begin(), newx.end());
     int n = newx.size();
-    return n % 2 ? newx[n / 2] : (newx[n / 2 - 1] + newx[n / 2]) / 2.0f;
+    return n % 2 ? newx[n / 2] : (newx[n / 2 - 1] + newx[n / 2]) / 2.f;
 }
 
 ///
@@ -1489,4 +1574,30 @@ pair<int, int> findValue(vector<float> valueVector, float v)
         }
     }
     return make_pair(minIdx, maxIdx);
+}
+
+float calNash(vector<float> &x, vector<float> &y, float *params)
+{
+	vector<float> newy(x.size());
+	float a = params[0];
+	float sigma1 = params[1];
+	float sigma2 = params[2];
+	float delta = params[3];
+	float tmp = delta / sqrt(2*PI);
+	for (int i = 0; i < x.size(); i++)
+	{
+		if(x[i] < a)
+			newy[i] = tmp * exp(-1.f*(x[i] - a)*(x[i] - a)/(2.f*sigma1*sigma1));
+		else
+			newy[i] = tmp * exp(-1.f*(x[i] - a)*(x[i] - a)/(2.f*sigma2*sigma2));
+	}
+	float rss = 0.f, fit_mean = 0.f, rss2 = 0.f;
+	fit_mean = accumulate(newy.begin(), newy.end(), 0.f) / newy.size();
+	for (int i = 0; i < y.size(); i++)
+	{
+		rss += (y[i] - newy[i]) * (y[i] -  newy[i]);
+		rss2 += (y[i] - fit_mean) * (y[i] - fit_mean);
+	}
+	float nash = 1.f - rss / rss2;
+	return nash;
 }

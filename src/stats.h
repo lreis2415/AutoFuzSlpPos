@@ -59,7 +59,7 @@ int *order(T *old_x, int n, bool na_last = false)
     for (i = 0; i < n; i++)
     {
         orderIdx[i] = i;
-        if (x[i] == MISSINGFLOAT || x[i] == -1 * MISSINGFLOAT)
+        if (x[i] == MISSINGFLOAT || x[i] == -1.f * MISSINGFLOAT)
         {
             x[i] = MISSINGFLOAT;
             NA_num++;
@@ -171,3 +171,5 @@ string toString(T t)
     strStream << t;
     return strStream.str();
 }
+
+float calNash(vector<float> &x, vector<float> &y, float *params);

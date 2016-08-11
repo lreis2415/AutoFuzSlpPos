@@ -577,9 +577,11 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                         float epsilon = 0.005f;
                         int max_iter = 30;
                         vector<vector<float> > bigauss_results;
+						
                         /// Be sure that x are ascend
                         int bigauss = BiGaussianMix(tempx, tempy, sigma_ratio_limit, bandwidth, power, esti_method,
                                                     eliminate, epsilon, max_iter, bigauss_results);
+
                         /// End BiGaussian Fitting
                         char fitShape[2];
                         fitShape[0] = 'N';
@@ -594,6 +596,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                         float biRatio = 0.f; /// used to determine the curve shape of FMF
                         if (bigauss == 1 && bigauss_results.size() == 1)  /// Only one fitted BiGaussian model returned
                         {
+							//cout<<"  Only one fitted BiGaussian model returned"<<endl;
                             float peakCenter = bigauss_results[0][0]; /// fitted central value
                             float sigmaLeftFitted = bigauss_results[0][1]; /// fitted left sigma
                             float sigmaRightFitted = bigauss_results[0][2]; /// fitted right sigma
@@ -603,17 +606,18 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                             float dist2center; /// distance from fitted central value to max_freq_x
 
                             max_freq_x = tempx[max_freq_idx];
-                            dist2center = abs(max_freq_x - peakCenter) / paramsExtInfo[num].interval;
-                            if (dist2center <
-                                dist2center_default * FREQUENCY_GROUP)  /// this means the fitted result is quite good
+                            dist2center = abs(max_freq_x - peakCenter) / paramsExtInfo[num].interval; 
+							/// this means the fitted result is quite good
+                            if (dist2center < dist2center_default * FREQUENCY_GROUP) 
                             {
+								//cout<<"    the fitted result is quite good"<<endl;
                                 biRatio = sigmaLeftFitted / sigmaRightFitted;
                                 if (biRatio >= DEFAULT_BiGaussian_Ratio) /// regard as s-shaped
                                 {
                                     fitShape[0] = 'S';
                                 }
-                                else if (biRatio > 1 && biRatio <
-                                                        DEFAULT_BiGaussian_Ratio) /// bell-shaped or s-shaped, and bell-shaped is prevail
+								/// bell-shaped or s-shaped, and bell-shaped is prevail
+                                else if (biRatio > 1 && biRatio < DEFAULT_BiGaussian_Ratio) 
                                 {
                                     fitShape[0] = 'B';
                                     fitShape[1] = 'S';
@@ -635,6 +639,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                             }
                             else /// it means that the fitted result is not satisfied, use simple rules to figure out fitShape
                             {
+								//cout<<"    the fitted result is not satisfied, use simple rules instead"<<endl;
                                 int cumFreq = 0;  /// accumulative frequency
                                 int validNum = accumulate(tempy.begin(), tempy.end(), 0); /// all frequency number
                                 float cumFreqRatio = 0.f; /// accumulative frequency divided by validNum
