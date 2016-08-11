@@ -13,8 +13,10 @@ D8DISTDOWN = D8DistDownToStream.o D8DistDownToStreammn.o  $(OBJFILES)
 DINFDISTDOWN = DinfDistDown.o DinfDistDownmn.o $(OBJFILES)
 DINFDISTUP = DinfDistUpToRidge.o DinfDistUpToRidgemn.o $(OBJFILES)
 DINF = DinfFlowDirmn.o dinf.o Node.o  $(OBJFILES) $(SHAPEFILES)
+PEUKERDOUGLAS = PeukerDouglas.o PeukerDouglasmn.o $(OBJFILES)
 DROPANALYSISFILES = DropAnalysis.o DropAnalysismn.o $(OBJFILES) $(SHAPEFILES)
 MVOUTLETSTOSTRMFILES = MoveOutletsToStrm.o MoveOutletsToStrmmn.o $(OBJFILES) $(SHAPEFILES)
+STREAMNET = streamnetmn.o streamnet.o $(OBJFILES) $(SHAPEFILES)
 PITREMOVE = flood.o PitRemovemn.o $(OBJFILES)
 THRESHOLD = Threshold.o Thresholdmn.o $(OBJFILES)
 # added by Liangjun Zhu,  2015/5/22
@@ -24,7 +26,7 @@ FUZSLPPOSINF = FuzzySlpPosInference.o FuzzySlpPosInferencemn.o $(OBJFILES)
 HARDENSLPPOS = HardenSlpPos.o HardenSlpPosmn.o $(OBJFILES)
 TYPLOCSEL = stats.o SelectTypLocSlpPos.o SelectTypLocSlpPosmn.o $(OBJFILES)
 CALCULATOR = SimpleCalculator.o SimpleCalculatormn.o $(OBJFILES)
-
+RPISKIDMORE = RPISkidmore.o RPISkidmoremn.o ${OBJFILES})
 #The following are compiler flags common to all building rules
 # my laptop, ubuntu 14.04
 #MPI_DIR = /usr/
@@ -45,7 +47,7 @@ endif
 
 #Rules: when and how to make a file
 
-all : $(SHAPEFILES) $(INSTALLDIR)/aread8 $(INSTALLDIR)/areadinf $(INSTALLDIR)/connectdown $(INSTALLDIR)/d8flowdir $(INSTALLDIR)/d8distdowntostream $(INSTALLDIR)/dinfdistuptoridge $(INSTALLDIR)/dinfdistdown $(INSTALLDIR)/dinfflowdir $(INSTALLDIR)/dropanalysis $(INSTALLDIR)/moveoutletstostreams $(INSTALLDIR)/pitremove $(INSTALLDIR)/threshold $(INSTALLDIR)/curvature $(INSTALLDIR)/d8distuptoridge $(INSTALLDIR)/fuzzyslpposinference $(INSTALLDIR)/hardenslppos $(INSTALLDIR)/selecttyplocslppos $(INSTALLDIR)/simplecalculator clean 
+all : $(SHAPEFILES) $(INSTALLDIR)/aread8 $(INSTALLDIR)/areadinf $(INSTALLDIR)/connectdown $(INSTALLDIR)/d8flowdir $(INSTALLDIR)/d8distdowntostream $(INSTALLDIR)/dinfdistuptoridge $(INSTALLDIR)/dinfdistdown $(INSTALLDIR)/dinfflowdir $(INSTALLDIR)/peukerdouglas $(INSTALLDIR)/dropanalysis $(INSTALLDIR)/moveoutletstostreams $(INSTALLDIR)/streamnet $(INSTALLDIR)/pitremove $(INSTALLDIR)/threshold $(INSTALLDIR)/curvature $(INSTALLDIR)/d8distuptoridge $(INSTALLDIR)/fuzzyslpposinference $(INSTALLDIR)/hardenslppos $(INSTALLDIR)/selecttyplocslppos $(INSTALLDIR)/simplecalculator $(INSTALLDIR)/rpiskidmore clean 
 
 $(INSTALLDIR)/aread8 : $(D8FILES)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(D8FILES) $(LDLIBS) $(LDFLAGS)
@@ -73,10 +75,12 @@ $(INSTALLDIR)/dinfflowdir : $(DINF)
 
 $(INSTALLDIR)/dropanalysis : $(DROPANALYSISFILES)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(DROPANALYSISFILES) $(LDLIBS) $(LDFLAGS)
-
+$(INSTALLDIR)/peukerdouglas : $(PEUKERDOUGLAS)
+	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(PEUKERDOUGLAS) $(LDLIBS) $(LDFLAGS)
 $(INSTALLDIR)/moveoutletstostreams : $(MVOUTLETSTOSTRMFILES)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(MVOUTLETSTOSTRMFILES) $(LDLIBS) $(LDFLAGS)
-
+$(INSTALLDIR)/streamnet : $(STREAMNET)
+	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(STREAMNET) $(LDLIBS) $(LDFLAGS)
 $(INSTALLDIR)/pitremove : $(PITREMOVE)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(PITREMOVE) $(LDLIBS) $(LDFLAGS)
 
@@ -95,7 +99,8 @@ $(INSTALLDIR)/selecttyplocslppos : $(TYPLOCSEL)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(TYPLOCSEL) $(LDLIBS) $(LDFLAGS)
 $(INSTALLDIR)/simplecalculator : $(CALCULATOR)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(CALCULATOR) $(LDLIBS) $(LDFLAGS)
-
+$(INSTALLDIR)/rpiskidmore : $(RPISKIDMORE)
+	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(RPISKIDMORE) $(LDLIBS) $(LDFLAGS)
 #Inference rule - states a general rule for compiling .o files
 %.o : %.cpp
 	$(CC) $(CFLAGS) $(INCDIRS) -c $<

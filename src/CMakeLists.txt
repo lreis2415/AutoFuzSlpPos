@@ -3,8 +3,6 @@ project(AutoFuzSlpPos)
 set(BUILD_SHARED_LIBS OFF)
 SET(CMAKE_BUILD_TYPE "Release")
 include_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Include")
-#link_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x64")
-#link_libraries("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x64/msmpi.lib")
 link_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x86")
 link_libraries("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x86/msmpi.lib")
 
@@ -28,9 +26,12 @@ set(D8DISTDOWN D8DistDownToStream.cpp D8DistDownToStreammn.cpp ${common_srcs})
 set(DINFDISTDOWN DinfDistDown.cpp DinfDistDownmn.cpp ${common_srcs})
 set(DINFDISTUP DinfDistUpToRidge.cpp DinfDistUpToRidgemn.cpp ${common_srcs})
 set(DINF DinfFlowDirmn.cpp dinf.cpp Node.cpp ${common_srcs} ${shape_srcs})
+set(PEUKERDOUGLAS PeukerDouglas.cpp PeukerDouglasmn.cpp ${common_srcs})
+set(PITREMOVE flood.cpp PitRemovemn.cpp ${common_srcs})
 set(DROPANALYSISFILES DropAnalysis.cpp DropAnalysismn.cpp ${common_srcs} ${shape_srcs})
 set(MVOUTLETSTOSTRMFILES moveoutletstostrm.cpp moveoutletstostrmmn.cpp
         ${common_srcs} ${shape_srcs})
+set(STREAMNET streamnet.cpp streamnetmn.cpp ${common_srcs} ${shape_srcs})
 set(PITREMOVE flood.cpp PitRemovemn.cpp ${common_srcs})
 set(THRESHOLD Threshold.cpp Thresholdmn.cpp ${common_srcs})
 # Added by Liangjun Zhu, 2015/5/21
@@ -40,6 +41,7 @@ set(FUZSLPPOSINF FuzzySlpPosInference.cpp FuzzySlpPosInferencemn.cpp ${common_sr
 set(HARDENSLPPOS HardenSlpPos.cpp HardenSlpPosmn.cpp ${common_srcs})
 set(TYPLOCSEL stats.cpp SelectTypLocSlpPos.cpp SelectTypLocSlpPosmn.cpp ${common_srcs})
 set(CALCULATOR SimpleCalculator.cpp SimpleCalculatormn.cpp ${common_srcs})
+set(RPISKIDMORE RPISkidmore.cpp RPISkidmoremn.cpp ${common_srcs})
 
 add_executable(aread8 ${D8FILES})
 add_executable(areadinf ${DINFFILES})
@@ -49,8 +51,10 @@ add_executable(d8distdowntostream ${D8DISTDOWN})
 add_executable(dinfdistdown ${DINFDISTDOWN})
 add_executable(dinfdistuptoridge ${DINFDISTUP})
 add_executable(dinfflowdir ${DINF})
+add_executable(peukerdouglas ${PEUKERDOUGLAS})
 add_executable(dropanalysis ${DROPANALYSISFILES})
 add_executable(moveoutletstostreams ${MVOUTLETSTOSTRMFILES})
+add_executable(streamnet ${STREAMNET})
 add_executable(pitremove ${PITREMOVE})
 add_executable(threshold ${THRESHOLD})
 add_executable(curvature ${CURVATURE})
@@ -59,7 +63,7 @@ add_executable(fuzzyslpposinference ${FUZSLPPOSINF})
 add_executable(hardenslppos ${HARDENSLPPOS})
 add_executable(selecttyplocslppos ${TYPLOCSEL})
 add_executable(simplecalculator ${CALCULATOR})
-
+add_executable(rpiskidmore ${RPISKIDMORE})
 install(TARGETS aread8
         areadinf
         connectdown
@@ -67,8 +71,10 @@ install(TARGETS aread8
         d8distdowntostream
         dinfdistuptoridge
         dinfflowdir
+        peukerdouglas
         dropanalysis
         moveoutletstostreams
+        streamnet
         pitremove
         threshold
         curvature
@@ -77,5 +83,6 @@ install(TARGETS aread8
         hardenslppos
         selecttyplocslppos
         simplecalculator
+        rpiskidmore
         DESTINATION bin)
 
