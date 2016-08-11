@@ -17,13 +17,13 @@ def FuzzySlpPosInference():
         # InferParams = [] for each slope position
         for i in range(len(SlpPosItems)):
             curRng = RPIRangeDict[SlpPosItems[i]]
-            if i == 0:  # for Ridge, S: w1 = Rdg.min-Shd.max
+            if i == 0:  # for Ridge, S: w1 = Rdg.max-Shd.max
                 nextRng = RPIRangeDict[SlpPosItems[i+1]]
-                tempw1 = curRng[1] - nextRng[2]
+                tempw1 = curRng[2] - nextRng[2]
                 InferParams[SlpPosItems[i]].append(['rpi', 'S', tempw1, 2, 0.5, 1, 0, 1])
-            elif i == len(SlpPosItems) - 1:  # for Valley, Z: w2 = Fts.min-Vly.max
+            elif i == len(SlpPosItems) - 1:  # for Valley, Z: w2 = Fts.max-Vly.max
                 beforeRng = RPIRangeDict[SlpPosItems[i-1]]
-                tempw2 = beforeRng[1] - curRng[2]
+                tempw2 = beforeRng[2] - curRng[2]
                 InferParams[SlpPosItems[i]].append(['rpi', 'Z', 1, 0, 1, tempw2, 2, 0.5])
             else:  # for other slope positions, B: w1 = w2 = min(cur.min-next.max, before.min-cur.max)
                 nextRng = RPIRangeDict[SlpPosItems[i+1]]

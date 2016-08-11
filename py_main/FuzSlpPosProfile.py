@@ -5,51 +5,13 @@
 #               2. Trace down and extract the similarities of fuzzy slope positons.
 #               3. Construct the output ESRI Shapefile.
 # @Author     : Liang-Jun Zhu
-# @Date       : 9/8/15
+# @Date       : 2015-9-8
 #
 
 from Nomenclature import *
 from Util import *
+from RidgeExtraction import findRidge
 
-
-def findRidge(flag, flowdir, rdgGRID):
-    '''
-    find ridge sources
-    :param flag: Flow model, can be 0 and 1, 0 means D8 flow model, while 1 means D-inf flow model.
-    :param flowdir: Flow direction raster
-    :param rdgGRID: Output ridge source grid
-    :return: ridge source coordinate, the basic format is [[row, col]...]
-    '''
-    direction = ReadRaster(flowdir)
-    rows = direction.nRows
-    cols = direction.nCols
-    direc = direction.data
-    rdg = numpy.ones((rows, cols))
-    for row in range(rows):
-        for col in range(cols):
-            tempdir = direc[row][col]
-            if tempdir == direction.noDataValue:
-                rdg[row][col] = direction.noDataValue
-            else:
-                if flag == 0:
-                    # D8 flow model
-                    temprow, tempcol = downstream_index(tempdir, row, col)
-                    if temprow >= 0 and temprow < rows and tempcol >= 0 and tempcol < cols:
-                        rdg[temprow][tempcol] = 0
-                else:
-                    # D-inf flow model
-                    tempCoor = downstream_index_dinf(tempdir, row, col)
-                    for Coor in tempCoor:
-                        temprow, tempcol = Coor
-                        if temprow >= 0 and temprow < rows and tempcol >= 0 and tempcol < cols:
-                            rdg[temprow][tempcol] = 0
-    rdgCoor = []
-    for row in range(rows):
-        for col in range(cols):
-            if rdg[row][col] == 1:
-                rdgCoor.append([row, col])
-    WriteGTiffFile(rdgGRID, rows, cols, rdg, direction.geotrans, direction.srs, direction.noDataValue, gdal.GDT_Int16)
-    return rdgCoor
 
 
 def fuzSlpPosProfile(rdgCoors, d8flowdir, d8stream, shpfile):
@@ -114,8 +76,8 @@ if __name__ == '__main__':
     ## output file: rdg_taudem, ProfileFuzSlpPos
     ## step 1
     # print DinfFlowDir
-    rdgsrc = findRidge(1, DinfFlowDir, rdg_taudem)
-    # print rdgsrc
+    #rdgsrcCoors = ReadRidge()
+    # print rdgsrcInpug
     ## step 2
     # attrList = [demfil, RdgInf, ShdInf, BksInf, FtsInf, VlyInf, MaxSimilarity, HardenSlpPos]
-    fuzSlpPosProfile(rdgsrc, D8FlowDir, D8Stream, ProfileFuzSlpPos)
+    #fuzSlpPosProfile(rdgsrcCoors, D8FlowDir, D8Stream, ProfileFuzSlpPos)

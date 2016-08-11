@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 # coding=utf-8
+# Description: Utility functions.
+# Author: Liang-Jun Zhu
+#
 import argparse
 import math
 import os
@@ -12,7 +15,7 @@ from osgeo import gdal
 from osgeo import ogr
 from osgeo import osr
 
-
+NODATA_VALUE = -9999.
 class C(object):
     pass
 
@@ -130,19 +133,58 @@ def FloatEqual(a, b):
 
 
 class Raster:
-    def __init__(self, nRows, nCols, data, noDataValue = None, geotransform = None, srs = None):
+    def __init__(self, nRows, nCols, data, noDataValue=None, geotransform=None, srs=None):
         self.nRows = nRows
         self.nCols = nCols
-        self.data = data
+        self.data = numpy.copy(data)
         self.noDataValue = noDataValue
         self.geotrans = geotransform
         self.srs = srs
+
         self.dx = geotransform[1]
         self.xMin = geotransform[0]
         self.xMax = geotransform[0] + nCols * geotransform[1]
         self.yMax = geotransform[3]
         self.yMin = geotransform[3] + nRows * geotransform[5]
+        self.validZone = self.data != self.noDataValue
+        self.validValues = numpy.where(self.validZone, self.data, numpy.nan)
 
+    def GetAverage(self):
+        return numpy.nanmean(self.validValues)
+
+    def GetMax(self):
+        return numpy.nanmax(self.validValues)
+
+    def GetMin(self):
+        return numpy.nanmin(self.validValues)
+
+    def GetSTD(self):
+        return numpy.nanstd(self.validValues)
+
+    def GetSum(self):
+        return numpy.nansum(self.validValues)
+
+    def GetValueByRowCol(self, row, col):
+        if row < 0 or row >= self.nRows or col < 0 or col >= self.nCols:
+            raise ValueError("The row or col must be >=0 and less than nRows or nCols!")
+        else:
+            value = self.data[int(round(row))][int(round(col))]
+            if value == self.noDataValue:
+                return None
+            else:
+                return value
+
+    def GetValueByXY(self, x, y):
+        if x < self.xMin or x > self.xMax or y < self.yMin or y > self.yMax:
+            raise ValueError("The x or y value must be within the Min and Max!")
+        else:
+            row = self.nRows - int(numpy.ceil((y - self.yMin) / self.dx))
+            col = int(numpy.floor((x - self.xMin) / self.dx))
+            value = self.data[row][col]
+            if value == self.noDataValue:
+                return None
+            else:
+                return value
 
 def ReadRaster(rasterFile):
     ds = gdal.Open(rasterFile)
@@ -158,7 +200,7 @@ def ReadRaster(rasterFile):
     srs.ImportFromWkt(ds.GetProjection())
     # print srs.ExportToProj4()
     if noDataValue is None:
-        noDataValue = -9999
+        noDataValue = NODATA_VALUE
     band = None
     ds = None
     return Raster(ysize, xsize, data, noDataValue, geotrans, srs)

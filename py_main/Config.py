@@ -68,16 +68,16 @@ if 'EXECUTABLE_FLAGS' in cf.sections():
 mpiexeDir = None
 hostfile = None
 outlet = None
-vlysrc = None
-rdgsrc = None
+VlySrc = None
+RdgSrc = None
 rpiFile = None
 
 if 'OPTIONAL' in cf.sections():
     mpiexeDir = cf.get('OPTIONAL', 'mpiexeDir'.lower())
     hostfile = cf.get('OPTIONAL', 'hostfile'.lower())
     outlet = cf.get('OPTIONAL', 'outlet'.lower())
-    vlysrc = cf.get('OPTIONAL', 'vlysrc'.lower())
-    rdgsrc = cf.get('OPTIONAL', 'rdgsrc'.lower())
+    VlySrc = cf.get('OPTIONAL', 'vlysrc'.lower())
+    RdgSrc = cf.get('OPTIONAL', 'rdgsrc'.lower())
     rpiFile = cf.get('OPTIONAL', 'rpiFile'.lower())
     if inputProc <= 0 or inputProc is None:
         if cf.has_option('OPTIONAL', 'inputProc'.lower()):
@@ -88,27 +88,31 @@ if 'OPTIONAL' in cf.sections():
 if not isPathExists(mpiexeDir):
     mpiexeDir = None
 if not isFileExists(hostfile):
-    if hostfile.lower() == 'none':
+    if hostfile.lower() == 'none' or hostfile.lower() == '':
         hostfile = None
     else:
         raise ValueError("The hostfile %s is not existed or have no access permission!" % hostfile)
 if not isFileExists(outlet):
-    if outlet.lower() == 'none':
+    if outlet.lower() == 'none' or outlet.lower() == '':
         outlet = None
     else:
         raise ValueError("The outlet %s is not existed or have no access permission!" % outlet)
-if not isFileExists(vlysrc):
-    if vlysrc.lower() == 'none':
-        vlysrc = None
+if not isFileExists(VlySrc):
+    if VlySrc.lower() == 'none' or VlySrc.lower() == '':
+        VlySrc = None
     else:
-        raise ValueError("The vlysrc %s is not existed or have no access permission!" % vlysrc)
-if not isFileExists(rdgsrc):
-    if rdgsrc.lower() == 'none':
-        rdgsrc = None
+        raise ValueError("The vlysrc %s is not existed or have no access permission!" % VlySrc)
+else:
+    VlySrcCal = VlySrc
+if not isFileExists(RdgSrc):
+    if RdgSrc.lower() == 'none' or RdgSrc.lower() == '':
+        RdgSrc = None
     else:
-        raise ValueError("The rdgsrc %s is not existed or have no access permission!" % rdgsrc)
+        raise ValueError("The RdgSrc %s is not existed or have no access permission!" % RdgSrc)
+else:
+    RdgSrcCal = RdgSrc
 if not isFileExists(rpiFile):
-    if rpiFile.lower() == 'none':
+    if rpiFile.lower() == 'none' or rpiFile.lower() == '':
         rpiFile = None
     else:
         raise ValueError("The rpiFile %s is not existed or have no access permission!" % rpiFile)
@@ -116,17 +120,13 @@ if not isFileExists(rpiFile):
 # 4. Optional parameters settings for terrain attributes preparation
 FlowModel = 1
 rpiMethod = 1
+eliminateCount = 3
 SPSImethod = 1
 DistanceExponentForIDW = 8
 TagDict = dict()
 for slppos in SlpPosItems:
     if slppos not in TagDict.keys():
         TagDict[slppos] = 1
-# RdgTag = 1
-# ShdTag = 2
-# BksTag = 4
-# FtsTag = 8
-# VlyTag = 16
 maxMoveDist = 50
 numthresh = 20
 logspace = True
@@ -145,6 +145,7 @@ DinfUpMethod = 'Surface'
 if 'OPTIONAL_DTA' in cf.sections():
     FlowModel = cf.getint('OPTIONAL_DTA', 'FlowModel'.lower())
     rpiMethod = cf.getint('OPTIONAL_DTA', 'rpiMethod'.lower())
+    eliminateCount = cf.getint('OPTIONAL_DTA', 'eliminateCount'.lower())
     SPSImethod = cf.getint('OPTIONAL_DTA', 'SPSImethod'.lower())
     DistanceExponentForIDW = cf.getint('OPTIONAL_DTA', 'DistanceExponentForIDW'.lower())
     for slppos in SlpPosItems:
@@ -152,11 +153,6 @@ if 'OPTIONAL_DTA' in cf.sections():
             TagDict[slppos] = cf.getint('OPTIONAL_DTA', slppos + "tag")
             if TagDict[slppos] <= 0:
                 TagDict[slppos] = 1
-    # RdgTag = cf.getint('OPTIONAL_DTA', 'RdgTag'.lower())
-    # ShdTag = cf.getint('OPTIONAL_DTA', 'ShdTag'.lower())
-    # BksTag = cf.getint('OPTIONAL_DTA', 'BksTag'.lower())
-    # FtsTag = cf.getint('OPTIONAL_DTA', 'FtsTag'.lower())
-    # VlyTag = cf.getint('OPTIONAL_DTA', 'VlyTag'.lower())
     maxMoveDist = cf.getfloat('OPTIONAL_DTA', 'maxMoveDist'.lower())
     numthresh = cf.getint('OPTIONAL_DTA', 'numthresh'.lower())
     logspace = cf.getboolean('OPTIONAL_DTA', 'logspace'.lower())

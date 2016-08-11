@@ -45,6 +45,13 @@ DinfDistUp = PreDir + os.sep + 'DinfDistUp.tif'
 RPIDinf = PreDir + os.sep + 'RPIDinf.tif'
 DinfDistDown_V = PreDir + os.sep + 'DinfDistDownElev.tif'
 
+potRdgFromSubbsn = PreDir + os.sep + 'potrdg.tif'
+RdgOrgSrc = PreDir + os.sep + 'rdgorgsrc.tif'
+RdgSrcCal = PreDir + os.sep + 'rdgsrc.tif'
+VlySrcCal = PreDir + os.sep + 'vlysrc.tif'
+dist2Vly = PreDir + os.sep + 'dist2vly.tif'
+dist2Rdg = PreDir + os.sep + 'dist2rdg.tif'
+RPISkidmore = PreDir + os.sep + 'rpiSkidmore.tif'
 # Params files
 Slope = ParamDir + os.sep + 'Slp.tif'
 HorizC = ParamDir + os.sep + 'HorizC.tif'
@@ -119,5 +126,4 @@ SecMaxSimilarity = FSPDir + os.sep + "SecMaxSimilarity.tif"
 
 SPSIfile = FSPDir + os.sep + "SPSI.tif"
 
-rdg_taudem = FSPDir + os.sep + "rdgsrc.tif"
 ProfileFuzSlpPos = FSPDir + os.sep + "ProfileFuzSlpPos.shp"
