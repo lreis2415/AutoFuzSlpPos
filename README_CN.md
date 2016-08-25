@@ -2,7 +2,7 @@
 ==========
 ----------
 
-编译状态：[![Build Status](https://travis-ci.org/crazyzlj/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/crazyzlj/AutoFuzSlpPos)
+编译状态：[![Build Status](https://travis-ci.org/lreis2415/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/lreis2415/AutoFuzSlpPos)
 
 ## 1 基本信息介绍
 
