@@ -1,11 +1,11 @@
-# Welcome to AutoFuzSlpPos  [![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg)](https://github.com/crazyzlj/AutoFuzSlpPos)
+# Welcome to AutoFuzSlpPos
 ----------
 
 + Build status：
 
 | Linux | Windows |
 |--------|---------------|
-| [![Build Status](https://travis-ci.org/crazyzlj/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/crazyzlj/AutoFuzSlpPos) | [![Build status](https://ci.appveyor.com/api/projects/status/xsbq8j1mmw8d7a0i/branch/master?svg=true)](https://ci.appveyor.com/project/crazyzlj/autofuzslppos/branch/master) |
+| [![Build Status](https://travis-ci.org/lreis2415/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/lreis2415/AutoFuzSlpPos) | [![Build status](https://ci.appveyor.com/api/projects/status/yhyd29mb1lb8ial6?svg=true)](https://ci.appveyor.com/project/crazyzlj/autofuzslppos-3c04e) |
 
 
 
@@ -17,7 +17,7 @@ Contact and support email: zlj@lreis.ac.cn
 
 <a target="_blank" href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=2LuquaKhorSymKmp9ru3tQ" style="text-decoration:none;"><img src="http://rescdn.qqmail.com/zh_CN/htmledition/images/function/qm_open/ico_mailme_12.png"/></a>
 
-Update date: 2016-1-29
+Update date: 2016-8-25
 
 1. [Introduction](#1-introduction)
 2. [Installation](#2-installation)	
@@ -42,7 +42,7 @@ AutoFuzSlpPos V1.0 is developed under the [TauDEM parallelized framework](http:/
 
 The program is capable with Windows and Linux/Unix, e.g., Windows 7/8/10, CentOS 6.2, and Ubuntu 14.04. The  prerequisites environment of the compilation  and configuration of AutoFuzSlpPos is as follows:
 
-- For PC, [Microsoft Visual C++ Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=14632) (e.g., VS 2010), [Microsoft HPC Pack 2012 MS-MPI Redistributable Package](https://www.microsoft.com/en-US/download/details.aspx?id=14737), CMAKE
+- For PC, [Microsoft Visual C++ Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=14632) (e.g., VS 2010), [Microsoft MS-MPI V6](https://www.microsoft.com/en-us/download/details.aspx?id=47259), CMAKE
 - For Linux/Unix, GCC 4.7+, MAKE, and MPICH or OpenMPI
 - Python 2.7+ packaged with Numpy 1.6+ and GDAL 1.9+.
 
@@ -71,12 +71,12 @@ Python script is to organize the whole work-flow with a configurable script for 
 
 ## 2.2 Installation on Windows
 
-The MPI library used for PC is [Microsoft HPC Pack 2012 MS-MPI Redistributable Package](https://technet.microsoft.com/en-us/library/cc514029.aspx "MS-MPI"). Please make sure that CMAKE and nmake (installed with Visual Studio, such as VS2010) have been installed on your PC. It is highly recommended to check the MPI Library path in `../<source-code>/src/CMakeLists.txt` to make sure they are correct for user’s environment:
+The MPI library used for PC is [Microsoft MS-MPI V6](https://www.microsoft.com/en-us/download/details.aspx?id=47259). Please make sure that CMAKE and nmake (installed with Visual Studio, such as VS2010) have been installed on your PC. It is highly recommended to check the MPI Library path in `../<source-code>/src/CMakeLists.txt` to make sure they are correct for user’s environment:
 
 ~~~
-include_directories("C:/Program Files/Microsoft HPC Pack 2012/Inc")
-link_directories("C:/Program Files/Microsoft HPC Pack 2012/Lib/i386")
-link_libraries("C:/Program Files/Microsoft HPC Pack 2012/Lib/i386/msmpi.lib")
+include_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Include")
+link_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x86")
+link_libraries("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x86/msmpi.lib")
 ~~~
 Then, open “Visual Studio Command Prompt” from Start menu (as administrator), and run the following commands:
 
@@ -115,27 +115,26 @@ The executable files will be generated in `INSTALLDIR`.
 ## 2.4 Configuration
 
 A script program of Python language is implemented to organize the work-flow of deriving fuzzy slope positions.
-You can configure the environment of AutoFuzSlpPos through the configuration file `../source-code/py_main/Config.py`. The path of the executable files must be set as follows:
+You can configure the environment of AutoFuzSlpPos through the configuration file, e.g., `../source-code/data/Jamaica/Jamaica_dgpm.ini`. 
+
+The required settings includes:
 ~~~
-mpiexeDir = r'/home/zhulj/mpich/bin' or None
-exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux'
-hostfile = r'/home/zhulj/AutoFuzSlpPos/exec_linux/dgpm' or None
+exeDir = /home/zhulj/AutoFuzSlpPos/exec
+rootDir = /home/zhulj/AutoFuzSlpPos/Demo
+rawdem = /home/zhulj/AutoFuzSlpPos/data/Jamaica/Jamaica_dem.tif
 ~~~
-Note that, if the path of MPI is ENVIRONMENT PATH in your system, the mpiexeDir could be set as `None`. The `hostfile` is used to specify the hosts on which the MPI jobs will be run. If you does not know how to prepare the `hostfile`, just leave it as `hostfile = None`.
 
-After that, you can run AutoFuzSlpPos program for a specific study area.
+Note that, if the path of MPI is not in the ENVIRONMENT PATH of your system, the OPTIONAL setting `mpiexeDir` must be explicitly assigned, such as `mpiexeDir = /home/zhulj/mpich/bin`. Otherwise, it can be set as `None`. The OPTIONAL setting `hostfile` is used to specify the hosts on which the MPI jobs will be run. If you does not know how to prepare the `hostfile`, just leave it as `hostfile = None`, or explicitly set as `hostfile = /home/zhulj/AutoFuzSlpPos/exec/dgpm`.
 
-# 3 Run AutoFuzSlpPos
+After that, you can run AutoFuzSlpPos program for a specific study area, using the following command:
 
+```python
+python ../source-code/py_main/main.py -ini ../source-code/data/Jamaica/Jamaica_dgpm.ini
+```
 
-The only required data is the digital elevation model (DEM) of the study area. The first step of running AutoFuzSlpPos program is to assign your DEM path to `rawdem`. Then, the workspace `rootDir` needs to be set.
+Other optional parameters could be customized by users in this configuration files as well. For more details, please refer to the demo file.
 
-Other parameters can be left as default. These optional parameters are briefly introduced in the configuration script `../<source-code>/py_main/Config.py`.
-
-The following command is used to run AutoFuzSlpPos:
-~~~
-python ../<source-code>/py_main/main.py
-~~~
+# 3 Result of AutoFuzSlpPos
 
 The following table gives a brief introduction to the result files.
 
