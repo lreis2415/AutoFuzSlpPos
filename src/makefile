@@ -26,7 +26,7 @@ FUZSLPPOSINF = FuzzySlpPosInference.o FuzzySlpPosInferencemn.o $(OBJFILES)
 HARDENSLPPOS = HardenSlpPos.o HardenSlpPosmn.o $(OBJFILES)
 TYPLOCSEL = stats.o SelectTypLocSlpPos.o SelectTypLocSlpPosmn.o $(OBJFILES)
 CALCULATOR = SimpleCalculator.o SimpleCalculatormn.o $(OBJFILES)
-RPISKIDMORE = RPISkidmore.o RPISkidmoremn.o ${OBJFILES})
+RPISKIDMORE = RPISkidmore.o RPISkidmoremn.o $(OBJFILES)
 #The following are compiler flags common to all building rules
 # my laptop, ubuntu 14.04
 #MPI_DIR = /usr/
