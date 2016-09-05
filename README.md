@@ -1,11 +1,7 @@
 # Welcome to AutoFuzSlpPos
 ----------
 
-+ Build status：
-
-| Linux | Windows |
-|--------|---------------|
-| [![Build Status](https://travis-ci.org/lreis2415/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/lreis2415/AutoFuzSlpPos) | [![Build status](https://ci.appveyor.com/api/projects/status/yhyd29mb1lb8ial6?svg=true)](https://ci.appveyor.com/project/crazyzlj/autofuzslppos-3c04e) |
+Build status：[![Build Status](https://travis-ci.org/lreis2415/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/lreis2415/AutoFuzSlpPos)
 
 
 
