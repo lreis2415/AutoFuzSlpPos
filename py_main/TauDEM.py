@@ -51,6 +51,16 @@ def outputLog(title, lines):
     WriteLog(Log_all, contentList)
     WriteTimeLog(Log_runtime, timeDict)
 
+def MPIHeader(mpiexeDir, inputProc, hostfile=None):
+    if mpiexeDir is not None:
+        cmd = '"' + mpiexeDir + os.sep + 'mpiexec"'
+    else:
+        cmd = '"mpiexec"'
+    if inputProc > 8 and hostfile is not None:
+        cmd = cmd + ' -f ' + hostfile + ' -n '
+    else:
+        cmd += ' -n '
+    return cmd
 
 ## Basic Grid Analysis
 def pitremove(inZfile, inputProc, outFile, mpiexeDir = None, exeDir = None, hostfile = None):
@@ -59,44 +69,17 @@ def pitremove(inZfile, inputProc, outFile, mpiexeDir = None, exeDir = None, host
     print "Input Number of Processes: " + str(inputProc)
     print "Output Pit Removed Elevation file: " + outFile
     # Construct the taudem command line.  Put quotes around file names in case there are spaces
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' pitremove -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"'
     else:
         cmd = cmd + str(
                 inputProc) + ' ' + exeDir + os.sep + 'pitremove -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"'
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
+
     print "Command Line: " + cmd
     ##os.system(cmd)
     process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
     outputLog("PitRemove", process.stdout.readlines())
-
-
-# def pitremoveplanchon(inZfile, deltaElev, inputProc, outFile, mpiexeDir = None, exeDir = None):
-#     print "PitRemove(Planchon and Darboux, 2001)......"
-#     print "Input Elevation file: " + inZfile
-#     print "Input Number of Processes: " + str(inputProc)
-#     print "Mininum increment of elevation when filling depression: " + str(deltaElev)
-#     print "Output Pit Removed Elevation file: " + outFile
-#     if exeDir is None:
-#         cmd = 'mpiexec -n ' + str(
-#                 1) + ' pitremoveplanchon -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"' + ' -delta ' + str(
-#                 deltaElev)
-#     else:
-#         cmd = 'mpiexec -n ' + str(
-#                 1) + ' ' + exeDir + os.sep + 'pitremoveplanchon -z ' + '"' + inZfile + '"' + ' -fel ' + '"' + outFile + '"' + ' -delta ' + str(
-#                 deltaElev)
-#     if mpiexeDir is not None:
-#         cmd = mpiexeDir + os.sep + cmd
-#     print "Command Line: " + cmd
-#     ##os.system(cmd)
-#     process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
-#     outputLog("PitRemove(Planchon and Darboux, 2001)", process.stdout.readlines())
-
 
 def ConnectDown(ad8, outlet, inputProc, mpiexeDir = None, exeDir = None, hostfile = None):
     print "Generating outlet shapefile from areaD8......"
@@ -105,18 +88,13 @@ def ConnectDown(ad8, outlet, inputProc, mpiexeDir = None, exeDir = None, hostfil
     print "Output outlet File: " + outlet
 
     # Construct command
-
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' connectdown -ad8 ' + '"' + ad8 + '"' + ' -o ' + '"' + outlet + '"'
     else:
         cmd = cmd + str(
                 inputProc) + ' ' + exeDir + os.sep + 'connectdown -ad8 ' + '"' + ad8 + '"' + ' -o ' + '"' + outlet + '"'
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
+
     print "Command Line: " + cmd
     ##os.system(cmd)
     process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
@@ -130,10 +108,7 @@ def D8FlowDir(fel, inputProc, p, sd8, mpiexeDir = None, exeDir = None, hostfile 
     print "Output D8 Flow Direction File: " + p
     print "Output D8 Slope File: " + sd8
     # Construct command
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' d8flowdir -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + \
@@ -141,8 +116,7 @@ def D8FlowDir(fel, inputProc, p, sd8, mpiexeDir = None, exeDir = None, hostfile 
     else:
         cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'd8flowdir -fel ' + '"' + fel + '"' + ' -p ' + '"' + p +\
               '"' + ' -sd8 ' + '"' + sd8 + '"'
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
+
     print "Command Line: " + cmd
     ##os.system(cmd)
     process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
@@ -156,10 +130,7 @@ def DinfFlowDir(fel, inputProc, ang, slp, mpiexeDir = None, exeDir = None, hostf
     print "Output Dinf Flow Direction File: " + ang
     print "Output Dinf Slope File: " + slp
     # Construct command 
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' dinfflowdir -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' +\
@@ -167,8 +138,6 @@ def DinfFlowDir(fel, inputProc, ang, slp, mpiexeDir = None, exeDir = None, hostf
     else:
         cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'dinfflowdir -fel ' + '"' + fel + '"' + ' -ang ' +\
               '"' + ang + '"' + ' -slp ' + '"' + slp + '"'
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     # os.system(cmd)
@@ -188,10 +157,7 @@ def AreaD8(p, Shapefile, weightgrid, edgecontamination, inputProc, ad8, mpiexeDi
     print "Input Number of Processes: " + str(inputProc)
     print "Output D8 Contributing Area Grid: " + ad8
     # Construct command
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' aread8 -p ' + '"' + p + '"' + ' -ad8 ' + '"' + ad8 + '"'
@@ -203,8 +169,6 @@ def AreaD8(p, Shapefile, weightgrid, edgecontamination, inputProc, ad8, mpiexeDi
         cmd = cmd + ' -wg ' + '"' + weightgrid + '"'
     if StringMatch(edgecontamination, 'false') or edgecontamination is False:
         cmd += ' -nc '
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     # os.system(cmd)
@@ -224,10 +188,7 @@ def AreaDinf(ang, shapefile, weightgrid, edgecontamination, inputProc, sca, mpie
     print "Input Number of Processes: " + str(inputProc)
     print "Output Dinf Specific Catchment Area Grid: " + sca
     # Construct command
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' areadinf -ang ' + '"' + ang + '"' + ' -sca ' + '"' + sca + '"'
@@ -240,8 +201,6 @@ def AreaDinf(ang, shapefile, weightgrid, edgecontamination, inputProc, sca, mpie
         cmd = cmd + ' -wg ' + '"' + weightgrid + '"'
     if StringMatch(edgecontamination, 'false') or edgecontamination is False:
         cmd += ' -nc '
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     # os.system(cmd)
@@ -284,10 +243,7 @@ def DinfDistDown(ang, fel, src, statisticalmethod, distancemethod, edgecontamina
         distmeth = 's'
     else:
         distmeth = 's'
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' dinfdistdown -fel ' + '"' + fel + '"' + ' -ang ' + '"' + ang + '"' + \
@@ -301,8 +257,6 @@ def DinfDistDown(ang, fel, src, statisticalmethod, distancemethod, edgecontamina
         cmd = cmd + ' -wg ' + '"' + wg + '"'
     if StringMatch(edgecontamination, 'false') or edgecontamination is False:
         cmd += ' -nc '
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     # os.system(cmd)
@@ -322,10 +276,7 @@ def MoveOutletsToStreams(p, src, shapefile, maxdistance, inputProc, om, mpiexeDi
     print "Output Outlet Shapefile: " + om
 
     # Construct command
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' moveoutletstostreams -p ' + '"' + p + '"' + ' -src ' + '"' + src + \
@@ -334,8 +285,6 @@ def MoveOutletsToStreams(p, src, shapefile, maxdistance, inputProc, om, mpiexeDi
         cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'moveoutletstostreams -p ' + '"' + p + '"' + \
               ' -src ' + '"' + src + '"' + ' -o ' + '"' + shapefile + '"' + ' -om ' + '"' + om + '"' + \
               ' -md ' + str(maxdistance)
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     # os.system(cmd)
@@ -344,10 +293,7 @@ def MoveOutletsToStreams(p, src, shapefile, maxdistance, inputProc, om, mpiexeDi
 
 def StreamNet(filledDem, flowDir, acc, streamRaster, modifiedOutlet, streamOrder, chNetwork, chCoord,
               streamNet, subbasin,inputProc, mpiexeDir = None, exeDir = None,hostfile = None):
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
     if exeDir is not None:
         exe = exeDir + os.sep + "streamnet"
     else:
@@ -355,8 +301,7 @@ def StreamNet(filledDem, flowDir, acc, streamRaster, modifiedOutlet, streamOrder
     cmd += " %d %s -fel %s -p %s -ad8 %s -src %s -o %s  -ord %s -tree %s -coord %s -net %s -w %s" % (
         inputProc, exe, filledDem, flowDir, acc, streamRaster, modifiedOutlet, streamOrder, chNetwork, chCoord,
         streamNet, subbasin)
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
+
     print cmd
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     outputLog("Stream net", process.stdout.readlines())
@@ -372,10 +317,7 @@ def Threshold(ssa, mask, threshold, inputProc, src, mpiexeDir = None, exeDir = N
     print "Output Stream Raster Grid: " + src
 
     # Construct command
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' threshold -ssa ' + '"' + ssa + '"' + ' -src ' + '"' + src + '"' + \
@@ -386,8 +328,6 @@ def Threshold(ssa, mask, threshold, inputProc, src, mpiexeDir = None, exeDir = N
 
     if os.path.exists(mask):
         cmd = cmd + ' -mask ' + mask
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     # os.system(cmd)
@@ -395,17 +335,13 @@ def Threshold(ssa, mask, threshold, inputProc, src, mpiexeDir = None, exeDir = N
     outputLog("Threshold to define stream", process.stdout.readlines())
 
 def StreamSkeleton(filledDem, streamSkeleton, inputProc, mpiexeDir=None, exeDir=None, hostfile = None):
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
     if exeDir is not None:
         exe = exeDir + os.sep + "peukerdouglas"
     else:
         exe = "peukerdouglas"
     cmd += "%d %s -fel %s -ss %s" % (inputProc, exe, filledDem, streamSkeleton)
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
+
     print cmd
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     outputLog("Stream skeleton based on Peuker-Douglas", process.stdout.readlines())
@@ -430,10 +366,7 @@ def DropAnalysis(fel, p, ad8, ssa, shapefile, minthresh, maxthresh, numthresh, l
     print "Output Drop Analysis Text File: " + drp
 
     # Construct command
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' dropanalysis -fel ' + '"' + fel + '"' + ' -p ' + '"' + p + '"' + ' -ad8 ' +\
@@ -448,8 +381,6 @@ def DropAnalysis(fel, p, ad8, ssa, shapefile, minthresh, maxthresh, numthresh, l
         cmd += '0'
     else:
         cmd += '1'
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     # os.system(cmd)
@@ -479,10 +410,7 @@ def D8DistDownToStream(p, fel, src, dist, distancemethod, thresh, inputProc, mpi
         distmeth = 's'
     else:
         distmeth = 's'
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' d8distdowntostream -p ' + '"' + p + '"' + ' -fel ' + '"' + fel + '"' + \
@@ -491,8 +419,6 @@ def D8DistDownToStream(p, fel, src, dist, distancemethod, thresh, inputProc, mpi
         cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'd8distdowntostream -p ' + '"' + p + '"' + ' -fel ' + \
               '"' + fel + '"' + ' -src ' + '"' + src + '"' + ' -dist ' + '"' + dist + '"' + ' -m ' + distmeth + \
               ' -thresh ' + str(thresh)
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     # os.system(cmd)
@@ -532,10 +458,7 @@ def D8DistUpToRidge(p, fel, du, distancemethod, statisticalmethod, inputProc, rd
     else:
         distmeth = 's'
 
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' d8distuptoridge -p '
     else:
@@ -546,8 +469,6 @@ def D8DistUpToRidge(p, fel, du, distancemethod, statisticalmethod, inputProc, rd
     else:
         cmd = cmd + '"' + p + '"' + ' -fel ' + '"' + fel + '"' + ' -du ' + '"' + du + '"' + ' -m ' + statmeth + \
               ' ' + distmeth
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     # os.system(cmd)
@@ -591,10 +512,7 @@ def DinfDistUpToRidge(ang, fel, slp, propthresh, statisticalmethod, distancemeth
     else:
         distmeth = 's'
 
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' dinfdistuptoridge '
@@ -609,8 +527,6 @@ def DinfDistUpToRidge(ang, fel, slp, propthresh, statisticalmethod, distancemeth
               ' -du ' + '"' + du + '"' + ' -m ' + statmeth + ' ' + distmeth + ' -thresh ' + str(propthresh)
     if StringMatch(edgecontamination, 'false') or edgecontamination is False:
         cmd += ' -nc '
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     # os.system(cmd)
@@ -620,10 +536,7 @@ def DinfDistUpToRidge(ang, fel, slp, propthresh, statisticalmethod, distancemeth
 
 def Curvature(inputProc, fel, prof = None, plan = None, horiz = None, unspher = None, ave = None, max = None,
               min = None, mpiexeDir = None, exeDir = None, hostfile = None):
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' curvature'
@@ -656,8 +569,6 @@ def Curvature(inputProc, fel, prof = None, plan = None, horiz = None, unspher = 
     if not min is None:
         print "Output Minimum Curvature Grid: " + min
         cmd = cmd + ' -min ' + '"' + min + '" '
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     print "Input Number of Processes: " + str(inputProc)
@@ -673,10 +584,7 @@ def SelectTypLocSlpPos(inputConf, outputConf, inputProc, outlog = None, mpiexeDi
     print "    Output configuration file: " + outputConf
     if outlog is not None:
         print "    Output Log file: " + outlog
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' selecttyplocslppos ' + '"' + inputConf + '"' + ' "' + outputConf + '"'
@@ -685,8 +593,6 @@ def SelectTypLocSlpPos(inputConf, outputConf, inputProc, outlog = None, mpiexeDi
               '"' + ' "' + outputConf + '"'
     if outlog is not None:
         cmd = cmd + ' "' + outlog + '" '
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     print "Input Number of Processes: " + str(inputProc)
@@ -699,17 +605,12 @@ def SelectTypLocSlpPos(inputConf, outputConf, inputProc, outlog = None, mpiexeDi
 def FuzzySlpPosInference(config, inputProc, mpiexeDir = None, exeDir = None, hostfile = None):
     print "Fuzzy Slope Position Inference"
     print "    Configuration file: " + config
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' fuzzyslpposinference ' + '"' + config + '"'
     else:
         cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'fuzzyslpposinference ' + '"' + config + '"'
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     print "Input Number of Processes: " + str(inputProc)
@@ -729,10 +630,7 @@ def HardenSlpPos(rdg, shd, bks, fts, vly, inputProc, hard, maxsimi, sechard = No
     print "Valley similarity file: " + vly
     print "Hard slope position file: " + hard
     print "Maximum similarity: " + maxsimi
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' hardenslppos -rdg ' + '"' + rdg + '"' + ' -shd ' + '"' + shd + '"' + \
@@ -749,8 +647,6 @@ def HardenSlpPos(rdg, shd, bks, fts, vly, inputProc, hard, maxsimi, sechard = No
         if (not spsim is None) and (not spsi is None):
             print "Slope Position Sequence Index: " + spsi
             cmd = cmd + ' -m ' + str(spsim) + ' "' + spsi + '"'
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     print "Input Number of Processes: " + str(inputProc)
@@ -760,10 +656,7 @@ def HardenSlpPos(rdg, shd, bks, fts, vly, inputProc, hard, maxsimi, sechard = No
 
 
 def SimpleCalculator(inputa, inputb, output, operator, inputProc, mpiexeDir = None, exeDir = None, hostfile = None):
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
 
     if exeDir is None:
         cmd = cmd + str(inputProc) + ' simplecalculator -in ' + '"' + inputa + '"' + ' "' + inputb + '"' + \
@@ -771,8 +664,6 @@ def SimpleCalculator(inputa, inputb, output, operator, inputProc, mpiexeDir = No
     else:
         cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'simplecalculator -in ' + '"' + inputa + '"' + ' "' + \
               inputb + '"' + ' -out ' + '"' + output + '"' + ' -op ' + str(operator)
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
 
     print "Command Line: " + cmd
     print "Input Number of Processes: " + str(inputProc)
@@ -782,10 +673,7 @@ def SimpleCalculator(inputa, inputb, output, operator, inputProc, mpiexeDir = No
 
 def RPISkidmore(vlysrc, rdgsrc, rpi, inputProc, vlytag=1, rdgtag=1, dist2vly=None, dist2rdg=None,
                 mpiexeDir = None, exeDir = None,hostfile = None):
-    if inputProc > 8 and hostfile is not None:
-        cmd = 'mpiexec -f ' + hostfile + ' -n '
-    else:
-        cmd = 'mpiexec -n '
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
     if exeDir is not None:
         exe = exeDir + os.sep + "rpiskidmore"
     else:
@@ -799,8 +687,6 @@ def RPISkidmore(vlysrc, rdgsrc, rpi, inputProc, vlytag=1, rdgtag=1, dist2vly=Non
         cmd += " -dist2vly %s" % dist2vly
     if dist2rdg is not None:
         cmd += " -dist2rdg %s" % dist2rdg
-    if mpiexeDir is not None:
-        cmd = mpiexeDir + os.sep + cmd
     print cmd
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     outputLog("RPI (skidmore, 1990)", process.stdout.readlines())
