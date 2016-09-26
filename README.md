@@ -11,8 +11,6 @@ AutoFuzSlpPos (short for "**Automated for Fuzzy Slope Position**") is developed 
 
 Contact and support email: zlj@lreis.ac.cn
 
-<a target="_blank" href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=2LuquaKhorSymKmp9ru3tQ" style="text-decoration:none;"><img src="http://rescdn.qqmail.com/zh_CN/htmledition/images/function/qm_open/ico_mailme_12.png"/></a>
-
 Update date: 2016-8-25
 
 1. [Introduction](#1-introduction)
@@ -32,6 +30,7 @@ The prototype-based method consists three major steps, i.e., preparing topograph
 
 The preliminary implementation employs the system of five basic slope positions, such as Fig.1.
 <img src="doc/schematic_of_slope_positions.png" width="400">
+
 **Fig.1 Schematic of the five slope positions**
 
 AutoFuzSlpPos V1.0 is developed under the [TauDEM parallelized framework](http://hydrology.usu.edu/taudem/taudem5/index.html "TauDEM") and programmed using C++ and Python language. 
