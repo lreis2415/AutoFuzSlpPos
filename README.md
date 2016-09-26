@@ -27,7 +27,7 @@ AutoFuzSlpPos is an automatic approach with only one required input data (i.e., 
 The prototype-based method consists three major steps, i.e., preparing topographic attributes, extracting typical locations, and calculating similarity for each slope position.
 
 The preliminary implementation employs the system of five basic slope positions, such as Fig.1.
-![](http://zhulj-blog.oss-cn-beijing.aliyuncs.com/AutoFuzSlpPos/schematic_of_slope_positions_s.jpg)
+<img src="doc/schematic_of_slope_positions.png" width="400">
 
 **Fig.1 Schematic of the five slope positions**
 
