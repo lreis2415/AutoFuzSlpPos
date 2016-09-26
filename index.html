@@ -16,14 +16,14 @@
     <!-- HEADER -->
     <div id="header_wrap" class="outer">
         <header class="inner">
-          <a id="forkme_banner" href="https://github.com/crazyzlj/AutoFuzSlpPos">View on GitHub</a>
+          <a id="forkme_banner" href="https://github.com/lreis2415/AutoFuzSlpPos">View on GitHub</a>
 
           <h1 id="project_title">AutoFuzSlpPos</h1>
           <h2 id="project_tagline">Automatic for Deriving Fuzzy Slope Positions</h2>
 
             <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/crazyzlj/AutoFuzSlpPos/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/crazyzlj/AutoFuzSlpPos/tarball/master">Download this project as a tar.gz file</a>
+              <a class="zip_download_link" href="https://github.com/lreis2415/AutoFuzSlpPos/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/lreis2415/AutoFuzSlpPos/tarball/master">Download this project as a tar.gz file</a>
             </section>
         </header>
     </div>
@@ -32,29 +32,11 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h1>
-<a id="welcome-to-autofuzslppos--" class="anchor" href="#welcome-to-autofuzslppos--" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to AutoFuzSlpPos  <a href="https://github.com/crazyzlj/AutoFuzSlpPos"><img src="https://img.shields.io/github/release/qubyte/rubidium.svg" alt="GitHub release"></a>
-</h1>
+<a id="welcome-to-autofuzslppos" class="anchor" href="#welcome-to-autofuzslppos" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to AutoFuzSlpPos</h1>
 
 <hr>
 
-<ul>
-<li>Build status：</li>
-</ul>
-
-<table>
-<thead>
-<tr>
-<th>Linux</th>
-<th>Windows</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="https://travis-ci.org/crazyzlj/AutoFuzSlpPos"><img src="https://travis-ci.org/crazyzlj/AutoFuzSlpPos.svg?branch=master" alt="Build Status"></a></td>
-<td><a href="https://ci.appveyor.com/project/crazyzlj/autofuzslppos/branch/master"><img src="https://ci.appveyor.com/api/projects/status/xsbq8j1mmw8d7a0i/branch/master?svg=true" alt="Build status"></a></td>
-</tr>
-</tbody>
-</table>
+<p>Build status：<a href="https://travis-ci.org/lreis2415/AutoFuzSlpPos"><img src="https://travis-ci.org/lreis2415/AutoFuzSlpPos.svg?branch=master" alt="Build Status"></a></p>
 
 <p>AutoFuzSlpPos (short for "<strong>Automated for Fuzzy Slope Position</strong>") is developed by PhD candidate Liang-Jun Zhu and <strong>Prof.</strong> Cheng-Zhi Qin in Lreis, IGSNRR, CAS, China.</p>
 
@@ -66,7 +48,7 @@
 
 <p><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&amp;email=2LuquaKhorSymKmp9ru3tQ"><img src="http://rescdn.qqmail.com/zh_CN/htmledition/images/function/qm_open/ico_mailme_12.png"></a></p>
 
-<p>Update date: 2016-1-29</p>
+<p>Update date: 2016-8-25</p>
 
 <ol>
 <li><a href="#1-introduction">Introduction</a></li>
@@ -100,7 +82,7 @@
 <p>The program is capable with Windows and Linux/Unix, e.g., Windows 7/8/10, CentOS 6.2, and Ubuntu 14.04. The  prerequisites environment of the compilation  and configuration of AutoFuzSlpPos is as follows:</p>
 
 <ul>
-<li>For PC, <a href="https://www.microsoft.com/en-us/download/details.aspx?id=14632">Microsoft Visual C++ Redistributable</a> (e.g., VS 2010), <a href="https://www.microsoft.com/en-US/download/details.aspx?id=14737">Microsoft HPC Pack 2012 MS-MPI Redistributable Package</a>, CMAKE</li>
+<li>For PC, <a href="https://www.microsoft.com/en-us/download/details.aspx?id=14632">Microsoft Visual C++ Redistributable</a> (e.g., VS 2010), <a href="https://www.microsoft.com/en-us/download/details.aspx?id=47259">Microsoft MS-MPI V6</a>, CMAKE</li>
 <li>For Linux/Unix, GCC 4.7+, MAKE, and MPICH or OpenMPI</li>
 <li>Python 2.7+ packaged with Numpy 1.6+ and GDAL 1.9+.</li>
 </ul>
@@ -165,11 +147,11 @@
 <h2>
 <a id="22-installation-on-windows" class="anchor" href="#22-installation-on-windows" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2.2 Installation on Windows</h2>
 
-<p>The MPI library used for PC is <a href="https://technet.microsoft.com/en-us/library/cc514029.aspx" title="MS-MPI">Microsoft HPC Pack 2012 MS-MPI Redistributable Package</a>. Please make sure that CMAKE and nmake (installed with Visual Studio, such as VS2010) have been installed on your PC. It is highly recommended to check the MPI Library path in <code>../&lt;source-code&gt;/src/CMakeLists.txt</code> to make sure they are correct for user’s environment:</p>
+<p>The MPI library used for PC is <a href="https://www.microsoft.com/en-us/download/details.aspx?id=47259">Microsoft MS-MPI V6</a>. Please make sure that CMAKE and nmake (installed with Visual Studio, such as VS2010) have been installed on your PC. It is highly recommended to check the MPI Library path in <code>../&lt;source-code&gt;/src/CMakeLists.txt</code> to make sure they are correct for user’s environment:</p>
 
-<pre><code>include_directories("C:/Program Files/Microsoft HPC Pack 2012/Inc")
-link_directories("C:/Program Files/Microsoft HPC Pack 2012/Lib/i386")
-link_libraries("C:/Program Files/Microsoft HPC Pack 2012/Lib/i386/msmpi.lib")
+<pre><code>include_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Include")
+link_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x86")
+link_libraries("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x86/msmpi.lib")
 </code></pre>
 
 <p>Then, open “Visual Studio Command Prompt” from Start menu (as administrator), and run the following commands:</p>
@@ -213,28 +195,25 @@ make
 <a id="24-configuration" class="anchor" href="#24-configuration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2.4 Configuration</h2>
 
 <p>A script program of Python language is implemented to organize the work-flow of deriving fuzzy slope positions.
-You can configure the environment of AutoFuzSlpPos through the configuration file <code>../source-code/py_main/Config.py</code>. The path of the executable files must be set as follows:</p>
+You can configure the environment of AutoFuzSlpPos through the configuration file, e.g., <code>../source-code/data/Jamaica/Jamaica_dgpm.ini</code>. </p>
 
-<pre><code>mpiexeDir = r'/home/zhulj/mpich/bin' or None
-exeDir = r'/home/zhulj/AutoFuzSlpPos/exec_linux'
-hostfile = r'/home/zhulj/AutoFuzSlpPos/exec_linux/dgpm' or None
+<p>The required settings includes:</p>
+
+<pre><code>exeDir = /home/zhulj/AutoFuzSlpPos/exec
+rootDir = /home/zhulj/AutoFuzSlpPos/Demo
+rawdem = /home/zhulj/AutoFuzSlpPos/data/Jamaica/Jamaica_dem.tif
 </code></pre>
 
-<p>Note that, if the path of MPI is ENVIRONMENT PATH in your system, the mpiexeDir could be set as <code>None</code>. The <code>hostfile</code> is used to specify the hosts on which the MPI jobs will be run. If you does not know how to prepare the <code>hostfile</code>, just leave it as <code>hostfile = None</code>.</p>
+<p>Note that, if the path of MPI is not in the ENVIRONMENT PATH of your system, the OPTIONAL setting <code>mpiexeDir</code> must be explicitly assigned, such as <code>mpiexeDir = /home/zhulj/mpich/bin</code>. Otherwise, it can be set as <code>None</code>. The OPTIONAL setting <code>hostfile</code> is used to specify the hosts on which the MPI jobs will be run. If you does not know how to prepare the <code>hostfile</code>, just leave it as <code>hostfile = None</code>, or explicitly set as <code>hostfile = /home/zhulj/AutoFuzSlpPos/exec/dgpm</code>.</p>
 
-<p>After that, you can run AutoFuzSlpPos program for a specific study area.</p>
+<p>After that, you can run AutoFuzSlpPos program for a specific study area, using the following command:</p>
+
+<div class="highlight highlight-source-python"><pre>python ..<span class="pl-k">/</span>source<span class="pl-k">-</span>code<span class="pl-k">/</span>py_main<span class="pl-k">/</span>main.py <span class="pl-k">-</span>ini ..<span class="pl-k">/</span>source<span class="pl-k">-</span>code<span class="pl-k">/</span>data<span class="pl-k">/</span>Jamaica<span class="pl-k">/</span>Jamaica_dgpm.ini</pre></div>
+
+<p>Other optional parameters could be customized by users in this configuration files as well. For more details, please refer to the demo file.</p>
 
 <h1>
-<a id="3-run-autofuzslppos" class="anchor" href="#3-run-autofuzslppos" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>3 Run AutoFuzSlpPos</h1>
-
-<p>The only required data is the digital elevation model (DEM) of the study area. The first step of running AutoFuzSlpPos program is to assign your DEM path to <code>rawdem</code>. Then, the workspace <code>rootDir</code> needs to be set.</p>
-
-<p>Other parameters can be left as default. These optional parameters are briefly introduced in the configuration script <code>../&lt;source-code&gt;/py_main/Config.py</code>.</p>
-
-<p>The following command is used to run AutoFuzSlpPos:</p>
-
-<pre><code>python ../&lt;source-code&gt;/py_main/main.py
-</code></pre>
+<a id="3-result-of-autofuzslppos" class="anchor" href="#3-result-of-autofuzslppos" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>3 Result of AutoFuzSlpPos</h1>
 
 <p>The following table gives a brief introduction to the result files.</p>
 
@@ -280,7 +259,7 @@ hostfile = r'/home/zhulj/AutoFuzSlpPos/exec_linux/dgpm' or None
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
-        <p class="copyright">AutoFuzSlpPos maintained by <a href="https://github.com/crazyzlj">crazyzlj</a></p>
+        <p class="copyright">AutoFuzSlpPos maintained by <a href="https://github.com/lreis2415">lreis2415</a></p>
         <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
