@@ -3,17 +3,13 @@
 
 Build status：[![Build Status](https://travis-ci.org/lreis2415/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/lreis2415/AutoFuzSlpPos)
 
-
-
 AutoFuzSlpPos (short for "**Automated for Fuzzy Slope Position**") is developed by PhD candidate Liang-Jun Zhu and **Prof.** Cheng-Zhi Qin in Lreis, IGSNRR, CAS, China.
 
-+ also see [User Manual in Chinese](README_CN.md).
++ also see [User Manual in Chinese](https://github.com/lreis2415/AutoFuzSlpPos/blob/master/README_CN.md).
 
 Contact and support email: zlj@lreis.ac.cn
 
-<a target="_blank" href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=2LuquaKhorSymKmp9ru3tQ" style="text-decoration:none;"><img src="http://rescdn.qqmail.com/zh_CN/htmledition/images/function/qm_open/ico_mailme_12.png"/></a>
-
-Update date: 2016-8-25
+Update date: 2016-9-26
 
 1. [Introduction](#1-introduction)
 2. [Installation](#2-installation)	
@@ -31,7 +27,8 @@ AutoFuzSlpPos is an automatic approach with only one required input data (i.e., 
 The prototype-based method consists three major steps, i.e., preparing topographic attributes, extracting typical locations, and calculating similarity for each slope position.
 
 The preliminary implementation employs the system of five basic slope positions, such as Fig.1.
-<img src="doc/schematic_of_slope_positions.png" width="400">
+<img src="http://zhulj-blog.oss-cn-beijing.aliyuncs.com/AutoFuzSlpPos/schematic_of_slope_positions.png" width="400">
+
 **Fig.1 Schematic of the five slope positions**
 
 AutoFuzSlpPos V1.0 is developed under the [TauDEM parallelized framework](http://hydrology.usu.edu/taudem/taudem5/index.html "TauDEM") and programmed using C++ and Python language. 
