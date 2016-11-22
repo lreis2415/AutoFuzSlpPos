@@ -8,6 +8,8 @@
 #include <iostream>
 #include "commonLib.h"
 
+#include <numeric>
+#include <algorithm>
 using namespace std;
 
 //const float PI = 3.14159265359;
@@ -44,6 +46,55 @@ float *dnorm(float *x, int n, float mean, float sd, bool iflog = false);
 
 float STDcal(float *values, int num, bool flag, float ptv);
 
+template<typename T>
+float mean_vector(vector<T> values)
+{
+	float mean = accumulate(values.begin(), values.end(), 0.f);
+	mean /= values.size();
+	return mean;
+}
+template<typename T>
+float std_vector(vector<T> values, float mean = MISSINGFLOAT)
+{
+	if (mean == MISSINGFLOAT)
+		mean = mean_vector(values); 
+	float sigma = 0.f;
+	for (vector<T>::iterator iter = values.begin(); iter != values.end(); iter++)
+		sigma += (*iter - mean) * (*iter - mean);
+	sigma = sqrt(sigma / values.size());
+	return sigma;
+}
+/*
+ * interpolation : {"linear", "lower", "higher", "midpoint", "nearest"}
+ */
+template<typename T>
+float percentile_vector(vector<T> values, float percent, char *interpolation = "linear")
+{
+	if(percent < 0.f || percent > 100.f)
+	{
+		cout<<"Percentiles must be in the range [0,100]"<<endl;
+		exit(-1);
+	}
+	percent /= 100.f;
+	float indices = (values.size() - 1) * percent;
+	int percentileIdx;
+	if (strcmp(interpolation, "lower"))
+		indices = floor(indices);
+	else if(strcmp(interpolation, "higher"))
+		indices = ceil(indices);
+	else if(strcmp(interpolation, "midpoint"))
+		indices = 0.5f * (floor(indices) + ceil(indices));
+	else if(strcmp(interpolation, "nearest"))
+		indices = round(indices);
+	else if(strcmp(interpolation, "linear"))
+		indices = indices;
+	else{
+		cout<<"interpolation can only be 'linear', 'lower' 'higher', "
+			"'midpoint', or 'nearest'"<<endl;
+		exit(-1);
+	}
+	return values.at((int)indices);
+}
 int CountIF(float *values, int num, bool flag, float v); /// count if values greater or less than v in *values
 pair<int, int> findValue(vector<float> valueVector, float v); /// return the index of the nearest value index of v
 template<typename T>

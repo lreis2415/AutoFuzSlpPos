@@ -1,6 +1,4 @@
 #include "stats.h"
-#include <numeric>
-#include <algorithm>
 using namespace std;
 
 static float dokern(float x, int kern)
@@ -1526,13 +1524,13 @@ float STDcal(float *values, int num, bool flag, float ptv)
                 calValue.push_back(values[i]);
         }
     }
-    float mean = accumulate(calValue.begin(), calValue.end(), 0.f);
-    mean /= calValue.size();
-    float sigma = 0.f;
-    for (i = 0; i < calValue.size(); i++)
-        sigma += (calValue[i] - mean) * (calValue[i] - mean);
-    sigma = sqrt(sigma / calValue.size());
-    return sigma;
+    //float mean = accumulate(calValue.begin(), calValue.end(), 0.f);
+    //mean /= calValue.size();
+    //float sigma = 0.f;
+    //for (i = 0; i < calValue.size(); i++)
+    //    sigma += (calValue[i] - mean) * (calValue[i] - mean);
+    //sigma = sqrt(sigma / calValue.size());
+    return std_vector(calValue);
 }
 
 int CountIF(float *values, int num, bool flag, float v)
