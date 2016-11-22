@@ -85,15 +85,25 @@ const float DEFAULTNODATA = -9999.f;  // added by Liangjun Zhu
 const float MINEPS = 1e-5f;
 const int OMPTHREADS = 4;
 const float ZERO = 1.0e-12F;
-
+/// for D-8 flow model
 const int d1[9] = {0, 1, 1, 0, -1, -1, -1, 0, 1}; // col
 const int d2[9] = {0, 0, -1, -1, -1, 0, 1, 1, 1}; // row
-
+/// for D-inf flow model
+const float e = 0.f;
+const float ne = PI * 0.25f;
+const float n = PI * 0.5f;
+const float nw = PI * 0.75f;
+const float w = PI;
+const float sw = PI * 1.25f;
+const float s = PI * 1.5f;
+const float se = PI * 1.75f;
+const float dinfang[9] = {0.f, e, ne, n, nw, w, sw, s, se};
 
 //  TODO adjust this for different dx and dy
 const double aref[10] = {-atan2((double) 1, (double) 1), 0., -aref[0], (double) (0.5 * PI), PI - aref[2], (double) PI,
                          PI + aref[2], (double) (1.5 * PI), 2. * PI - aref[2], (double) (2. *
                                                                                          PI)};   // DGT is concerned that this assumes square grids.  For different dx and dx needs adjustment
+bool floatequal(float a, float b);
 
 int nameadd(char *, char *, char *);
 

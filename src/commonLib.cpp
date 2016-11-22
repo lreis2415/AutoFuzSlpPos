@@ -47,6 +47,11 @@ email:  dtarb@usu.edu
 
 
 //==================================
+bool floatequal(float a, float b)
+{
+	return abs(a - b) < ZERO;
+}
+
 /*  Nameadd(..)  Utility for adding suffixes to file names prior to
    "." extension   */
 int nameadd(char *full, char *arg, char *suff)
