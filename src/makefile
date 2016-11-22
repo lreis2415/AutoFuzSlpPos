@@ -27,6 +27,7 @@ HARDENSLPPOS = HardenSlpPos.o HardenSlpPosmn.o $(OBJFILES)
 TYPLOCSEL = stats.o SelectTypLocSlpPos.o SelectTypLocSlpPosmn.o $(OBJFILES)
 CALCULATOR = SimpleCalculator.o SimpleCalculatormn.o $(OBJFILES)
 RPISKIDMORE = RPISkidmore.o RPISkidmoremn.o $(OBJFILES)
+RIDGEEXTRACTION = stats.o RidgeExtraction.o RidgeExtractionmn.o ${OBJFILES})
 #The following are compiler flags common to all building rules
 # my laptop, ubuntu 14.04
 #MPI_DIR = /usr/
@@ -47,7 +48,7 @@ endif
 
 #Rules: when and how to make a file
 
-all : $(SHAPEFILES) $(INSTALLDIR)/aread8 $(INSTALLDIR)/areadinf $(INSTALLDIR)/connectdown $(INSTALLDIR)/d8flowdir $(INSTALLDIR)/d8distdowntostream $(INSTALLDIR)/dinfdistuptoridge $(INSTALLDIR)/dinfdistdown $(INSTALLDIR)/dinfflowdir $(INSTALLDIR)/peukerdouglas $(INSTALLDIR)/dropanalysis $(INSTALLDIR)/moveoutletstostreams $(INSTALLDIR)/streamnet $(INSTALLDIR)/pitremove $(INSTALLDIR)/threshold $(INSTALLDIR)/curvature $(INSTALLDIR)/d8distuptoridge $(INSTALLDIR)/fuzzyslpposinference $(INSTALLDIR)/hardenslppos $(INSTALLDIR)/selecttyplocslppos $(INSTALLDIR)/simplecalculator $(INSTALLDIR)/rpiskidmore clean 
+all : $(SHAPEFILES) $(INSTALLDIR)/aread8 $(INSTALLDIR)/areadinf $(INSTALLDIR)/connectdown $(INSTALLDIR)/d8flowdir $(INSTALLDIR)/d8distdowntostream $(INSTALLDIR)/dinfdistuptoridge $(INSTALLDIR)/dinfdistdown $(INSTALLDIR)/dinfflowdir $(INSTALLDIR)/peukerdouglas $(INSTALLDIR)/dropanalysis $(INSTALLDIR)/moveoutletstostreams $(INSTALLDIR)/streamnet $(INSTALLDIR)/pitremove $(INSTALLDIR)/threshold $(INSTALLDIR)/curvature $(INSTALLDIR)/d8distuptoridge $(INSTALLDIR)/fuzzyslpposinference $(INSTALLDIR)/hardenslppos $(INSTALLDIR)/selecttyplocslppos $(INSTALLDIR)/simplecalculator $(INSTALLDIR)/rpiskidmore $(INSTALLDIR)/ridgeextraction clean 
 
 $(INSTALLDIR)/aread8 : $(D8FILES)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(D8FILES) $(LDLIBS) $(LDFLAGS)
@@ -101,6 +102,8 @@ $(INSTALLDIR)/simplecalculator : $(CALCULATOR)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(CALCULATOR) $(LDLIBS) $(LDFLAGS)
 $(INSTALLDIR)/rpiskidmore : $(RPISKIDMORE)
 	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(RPISKIDMORE) $(LDLIBS) $(LDFLAGS)
+$(INSTALLDIR)/ridgeextraction : $(RIDGEEXTRACTION)
+	$(CC) $(CFLAGS) -o $@ $(LIBDIRS) $(RIDGEEXTRACTION) $(LDLIBS) $(LDFLAGS)
 #Inference rule - states a general rule for compiling .o files
 %.o : %.cpp
 	$(CC) $(CFLAGS) $(INCDIRS) -c $<
