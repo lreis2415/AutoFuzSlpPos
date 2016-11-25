@@ -3,15 +3,13 @@
 
 Build status：[![Build Status](https://travis-ci.org/lreis2415/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/lreis2415/AutoFuzSlpPos)
 
-
-
 AutoFuzSlpPos (short for "**Automated for Fuzzy Slope Position**") is developed by PhD candidate Liang-Jun Zhu and **Prof.** Cheng-Zhi Qin in Lreis, IGSNRR, CAS, China.
 
-+ also see [User Manual in Chinese](README_CN.md).
++ also see [User Manual in Chinese](https://github.com/lreis2415/AutoFuzSlpPos/blob/master/README_CN.md).
 
 Contact and support email: zlj@lreis.ac.cn
 
-Update date: 2016-8-25
+Update date: 2016-9-26
 
 1. [Introduction](#1-introduction)
 2. [Installation](#2-installation)	
