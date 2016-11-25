@@ -149,18 +149,31 @@ int SimpleCalc(char *Afile, char *Bfile, char *outfile, int op)
         write = writet - computet;
         total = writet - begint;
 
-        MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        dataRead = tempd / size;
-        MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        compute = tempd / size;
-        MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        write = tempd / size;
-        MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        total = tempd / size;
+		//MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//dataRead = tempd / size;
+		//MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//compute = tempd / size;
+		//MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//write = tempd / size;
+		//MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//total = tempd / size;
+
+		MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		dataRead = tempd;
+		MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		compute = tempd;
+		MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		write = tempd;
+		MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		total = tempd;
 
         if (rank == 0)
             printf("Processors: %d\nRead time: %f\nCompute time: %f\nWrite time: %f\nTotal time: %f\n",
                    size, dataRead, compute, write, total);
+
+		/// free memory
+		delete inputa;
+		delete inputb;
     }
     MPI_Finalize();
     return 0;

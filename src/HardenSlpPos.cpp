@@ -2,15 +2,10 @@
 #include <stdlib.h>
 #include <iostream>
 #include <math.h>
-//#include <queue>
-//#include <time.h>
-//#include <vector>
 // include mpich and openmp 
 #include <mpi.h>
-//#include <omp.h>
 // include TauDEM header files
 #include "commonLib.h"
-//#include "linearpart.h"
 #include "createpart.h"
 #include "tiffIO.h"
 #include "HardenSlpPos.h"
@@ -272,18 +267,32 @@ int HardenSlpPos(char *rdgfile, char *shdfile, char *bksfile, char *ftsfile, cha
         write = writet - computet;
         total = writet - begint;
 
-        MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        dataRead = tempd / size;
-        MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        compute = tempd / size;
-        MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        write = tempd / size;
-        MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        total = tempd / size;
+		//MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//dataRead = tempd / size;
+		//MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//compute = tempd / size;
+		//MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//write = tempd / size;
+		//MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//total = tempd / size;
+
+		MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		dataRead = tempd;
+		MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		compute = tempd;
+		MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		write = tempd;
+		MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		total = tempd;
 
         if (rank == 0)
             printf("Processors: %d\nRead time: %f\nCompute time: %f\nWrite time: %f\nTotal time: %f\n",
                    size, dataRead, compute, write, total);
+
+		/// free memory
+		delete rdg, rdgf;
+		delete[] slpposSimi;
+		delete hard, maxsimi, sechard, secsimi, spsi;
     }
     MPI_Finalize();
     return 0;

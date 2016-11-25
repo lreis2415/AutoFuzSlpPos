@@ -42,7 +42,7 @@ def SelectTypLoc():
             ExtconfigInfo.close()
         TauDEM.SelectTypLocSlpPos(ExtConfigDict[slppos], InfRecommendDict[slppos], inputProc, ExtLogDict[slppos],
                                   mpiexeDir, exeDir, hostfile)
-    print "Typical Locations Selected Done!"
+    print ("Typical Locations Selected Done!")
 
 
 if __name__ == '__main__':

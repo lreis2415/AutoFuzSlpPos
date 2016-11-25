@@ -32,6 +32,7 @@ elif sysstr == "Linux":
 
 ## Write log
 def outputLog(title, lines):
+    abortRun(title, lines)
     contentList = []
     timeDict = {'name': None, 'readt': 0, 'writet': 0, 'computet': 0, 'totalt': 0}
     timeDict['name'] = title
@@ -56,11 +57,19 @@ def MPIHeader(mpiexeDir, inputProc, hostfile=None):
         cmd = '"' + mpiexeDir + os.sep + 'mpiexec"'
     else:
         cmd = '"mpiexec"'
-    if inputProc > 8 and hostfile is not None:
+    if hostfile is not None:
         cmd = cmd + ' -f ' + hostfile + ' -n '
     else:
         cmd += ' -n '
     return cmd
+
+
+def abortRun(title, lines):
+    for line in lines:
+        if "ERROR" in line.upper() or 'BAD TERMINATION' in line.upper():
+            raise RuntimeError(title + " failed, please contact the developer!")
+    return True
+
 
 ## Basic Grid Analysis
 def pitremove(inZfile, inputProc, outFile, mpiexeDir = None, exeDir = None, hostfile = None):
@@ -665,11 +674,12 @@ def SimpleCalculator(inputa, inputb, output, operator, inputProc, mpiexeDir = No
         cmd = cmd + str(inputProc) + ' ' + exeDir + os.sep + 'simplecalculator -in ' + '"' + inputa + '"' + ' "' + \
               inputb + '"' + ' -out ' + '"' + output + '"' + ' -op ' + str(operator)
 
-    print "Command Line: " + cmd
-    print "Input Number of Processes: " + str(inputProc)
+    print ("Command Line: " + cmd)
+    print ("Input Number of Processes: " + str(inputProc))
     ##os.system(cmd)
     process = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
     outputLog("Simple Calculator", process.stdout.readlines())
+
 
 def RPISkidmore(vlysrc, rdgsrc, rpi, inputProc, vlytag=1, rdgtag=1, dist2vly=None, dist2rdg=None,
                 mpiexeDir = None, exeDir = None,hostfile = None):
@@ -687,7 +697,20 @@ def RPISkidmore(vlysrc, rdgsrc, rpi, inputProc, vlytag=1, rdgtag=1, dist2vly=Non
         cmd += " -dist2vly %s" % dist2vly
     if dist2rdg is not None:
         cmd += " -dist2rdg %s" % dist2rdg
-    print cmd
+    print (cmd)
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     outputLog("RPI (skidmore, 1990)", process.stdout.readlines())
+
+
+def ExtractRidge(angfile, elevfile, rdgsrc, inputProc,
+                mpiexeDir = None, exeDir = None, hostfile = None):
+    cmd = MPIHeader(mpiexeDir, inputProc, hostfile)
+    if exeDir is not None:
+        exe = exeDir + os.sep + "ridgeextraction"
+    else:
+        exe = "ridgeextraction"
+    cmd += " %d %s -dir %s -fel %s -src %s" % (inputProc, exe, angfile, elevfile, rdgsrc)
+    print (cmd)
+    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    outputLog("Ridge extraction according to flow direction and elevation", process.stdout.readlines())
 ####           END DEFINITION             ####

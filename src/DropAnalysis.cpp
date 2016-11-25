@@ -38,7 +38,14 @@ email:  dtarb@usu.edu
 */
 
 //  This software is distributed from http://hydrology.usu.edu/taudem/
-
+/*
+ * TODO Time counting is problematic in this program.
+ * MPI_Wtime() and TimeCounting() (defined in commonLib) may get negative
+ *    time under linux, while under windows it is OK.
+ * So, currently, I change the time counting function to clock(),
+ *    although it measures cpu time, not real time/wall time, and is unprecise.
+ * Updated by Liangjun, 2016-11-24
+ */
 
 #include <mpi.h>
 #include <math.h>
@@ -187,8 +194,9 @@ int dropan(char *areafile, char *dirfile, char *elevfile, char *ssafile, char *d
         long n1, n2;
         bool optnotset = true;
 
-        double begint = MPI_Wtime();
-
+        //double begint = MPI_Wtime();
+		//double begint = TimeCounting();
+		double begint = (double)clock()/(double)CLOCKS_PER_SEC;
         //  *** initiate fssada grid partition from ssafile
         tiffIO ssa(ssafile, FLOAT_TYPE);  // DGT changed from short type
         long ssaTotalX = ssa.getTotalX();
@@ -357,8 +365,9 @@ int dropan(char *areafile, char *dirfile, char *elevfile, char *ssafile, char *d
         dirData->share();
         elevData->share();
 
-        double readt = MPI_Wtime();
-
+        //double readt = MPI_Wtime();
+		//double readt = TimeCounting();
+		double readt = (double)clock()/(double)CLOCKS_PER_SEC;
         // num thresholds must be greater than 1
         float thresh;
         if (nthresh < 2)
@@ -692,18 +701,32 @@ int dropan(char *areafile, char *dirfile, char *elevfile, char *ssafile, char *d
             fprintf(fp, "Optimum Threshold Value: %f\n", *threshopt);
             fclose(fp);
         }
-        float computeDropt = MPI_Wtime();
+        //float computeDropt = MPI_Wtime();
+		//float computeDropt = TimeCounting();
+		float computeDropt = (double)clock()/(double)CLOCKS_PER_SEC;
         double dataRead, compute, total, temp;
         dataRead = readt - begint;
+		//printf("Rank: %d\npreCompute: %f\npostCompute: %f\n",
+		//	rank, readt, computeDropt);
         compute = computeDropt - readt;
         total = computeDropt - begint;
 
-        MPI_Allreduce(&dataRead, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        dataRead = temp / size;
-        MPI_Allreduce(&compute, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        compute = temp / size;
-        MPI_Allreduce(&total, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        total = temp / size;
+		//printf("Rank: %d\nRead time: %f\nCompute time: %f\nTotal time: %f\n",
+		//	rank, dataRead, compute, total);
+
+        //MPI_Allreduce(&dataRead, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
+        //dataRead = temp / size;
+        //MPI_Allreduce(&compute, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
+        //compute = temp / size;
+        //MPI_Allreduce(&total, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
+        //total = temp / size;
+
+		MPI_Allreduce(&dataRead, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		dataRead = temp;
+		MPI_Allreduce(&compute, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		compute = temp;
+		MPI_Allreduce(&total, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		total = temp;
 
         if (rank == 0)
             printf("Processes: %d\nRead time: %f\nCompute time: %f\nTotal time: %f\n",
@@ -715,11 +738,7 @@ int dropan(char *areafile, char *dirfile, char *elevfile, char *ssafile, char *d
         delete xnode;
         delete ynode;
         delete elevData;
-
     }
     MPI_Finalize();
-
     return 0;
 }
-
-

@@ -47,6 +47,11 @@ email:  dtarb@usu.edu
 
 
 //==================================
+bool floatequal(float a, float b)
+{
+	return abs(a - b) < ZERO;
+}
+
 /*  Nameadd(..)  Utility for adding suffixes to file names prior to
    "." extension   */
 int nameadd(char *full, char *arg, char *suff)
@@ -426,4 +431,25 @@ bool pointsToMe(long col, long row, long ncol, long nrow, tdpartition *dirData)
         return true;
     }
     return false;
+}
+
+
+double TimeCounting()
+{
+#ifndef linux
+	LARGE_INTEGER li;
+	if (QueryPerformanceFrequency(&li)) /// CPU supported
+	{
+		double PCFreq = 0.;
+		PCFreq = double(li.QuadPart);
+		QueryPerformanceCounter(&li);
+		return (double)li.QuadPart / PCFreq; // seconds
+	}
+	else
+		return (double)clock()/CLK_TCK;
+#else
+	struct timeval tv;
+	gettimeofday(&tv, NULL); 
+	return (double)tv.tv_sec + (double)tv.tv_usec / 1000000.;
+#endif
 }

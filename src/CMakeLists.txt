@@ -5,7 +5,13 @@ SET(CMAKE_BUILD_TYPE "Release")
 include_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Include")
 link_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x86")
 link_libraries("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x86/msmpi.lib")
-
+IF(WIN32)
+    IF (MSVC)
+        ADD_DEFINITIONS(-DMSVC)
+    ENDIF()
+ELSE()
+    ADD_DEFINITIONS(-Dlinux)
+ENDIF()
 set(shape_srcs
         shapelib/shapefil.h
         shapelib/dbfopen.c
@@ -42,6 +48,7 @@ set(HARDENSLPPOS HardenSlpPos.cpp HardenSlpPosmn.cpp ${common_srcs})
 set(TYPLOCSEL stats.cpp SelectTypLocSlpPos.cpp SelectTypLocSlpPosmn.cpp ${common_srcs})
 set(CALCULATOR SimpleCalculator.cpp SimpleCalculatormn.cpp ${common_srcs})
 set(RPISKIDMORE RPISkidmore.cpp RPISkidmoremn.cpp ${common_srcs})
+set(RIDGEEXTRACTION stats.cpp RidgeExtraction.cpp RidgeExtractionmn.cpp ${common_srcs})
 
 add_executable(aread8 ${D8FILES})
 add_executable(areadinf ${DINFFILES})
@@ -64,6 +71,7 @@ add_executable(hardenslppos ${HARDENSLPPOS})
 add_executable(selecttyplocslppos ${TYPLOCSEL})
 add_executable(simplecalculator ${CALCULATOR})
 add_executable(rpiskidmore ${RPISKIDMORE})
+add_executable(ridgeextraction ${RIDGEEXTRACTION})
 install(TARGETS aread8
         areadinf
         connectdown
@@ -84,5 +92,6 @@ install(TARGETS aread8
         selecttyplocslppos
         simplecalculator
         rpiskidmore
+        ridgeextraction
         DESTINATION bin)
 

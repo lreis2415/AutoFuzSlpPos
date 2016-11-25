@@ -360,7 +360,7 @@ int setdird8(char *demfile, char *pointfile, char *slopefile, char *flowfile, in
         writeFlat = writet - computeFlatt;
         total = writet - begint;
 
-        MPI_Allreduce(&headerRead, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
+        /*MPI_Allreduce(&headerRead, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
         headerRead = temp / size;
         MPI_Allreduce(&dataRead, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
         dataRead = temp / size;
@@ -373,7 +373,22 @@ int setdird8(char *demfile, char *pointfile, char *slopefile, char *flowfile, in
         MPI_Allreduce(&writeFlat, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
         writeFlat = temp / size;
         MPI_Allreduce(&total, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        total = temp / size;
+        total = temp / size;*/
+
+		MPI_Allreduce(&headerRead, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		headerRead = temp;
+		MPI_Allreduce(&dataRead, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		dataRead = temp;
+		MPI_Allreduce(&computeSlope, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		computeSlope = temp;
+		MPI_Allreduce(&computeFlat, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		computeFlat = temp;
+		MPI_Allreduce(&writeSlope, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		writeSlope = temp;
+		MPI_Allreduce(&writeFlat, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		writeFlat = temp;
+		MPI_Allreduce(&total, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		total = temp;
 
         if (rank == 0)
         {

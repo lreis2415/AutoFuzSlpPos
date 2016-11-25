@@ -1293,7 +1293,7 @@ int netsetup(char *pfile,char *srcfile,char *ordfile,char *ad8file,char *elevfil
         write = writet-wshedlabt;
         total = writet - begint;
 
-        MPI_Allreduce (&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+        /*MPI_Allreduce (&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
         dataRead = tempd/size;
         MPI_Allreduce (&lengthc, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
         lengthc = tempd/size;
@@ -1306,7 +1306,22 @@ int netsetup(char *pfile,char *srcfile,char *ordfile,char *ad8file,char *elevfil
         MPI_Allreduce (&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
         write = tempd/size;
         MPI_Allreduce (&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        total = tempd/size;
+        total = tempd/size;*/
+
+		MPI_Allreduce (&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		dataRead = tempd ;
+		MPI_Allreduce (&lengthc, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		lengthc = tempd ;
+		MPI_Allreduce (&linkc, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		linkc = tempd ;
+		MPI_Allreduce (&linkw, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		linkw = tempd ;
+		MPI_Allreduce (&wshedlab, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		wshedlab = tempd ;
+		MPI_Allreduce (&write, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		write = tempd ;
+		MPI_Allreduce (&total, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		total = tempd ;
 
 		if( rank == 0)
 			printf("Processors: %d\nRead time: %f\nLength compute time: %f\nLink compute time: %f\nLink write time: %f\nWatershed compute time: %f\nWrite time: %f\nTotal time: %f\n", size, dataRead, lengthc, linkc, linkw, wshedlab, write,total);

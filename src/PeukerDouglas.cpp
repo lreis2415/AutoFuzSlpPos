@@ -220,20 +220,29 @@ int peukerdouglas(char *felfile, char *ssfile,float *p)
 	
 	outelev.write((long)globalxstart, (long)globalystart, (long)elevny, (long)elevnx, ss->getGridPointer());
 	double writet = MPI_Wtime();
-	double dataRead, compute, write, total,temp;
+	double dataRead, compute, write, total,tempd;
         dataRead = readt-begint;
         compute = computet-readt;
         write = writet-computet;
         total = writet - begint;
 
-        MPI_Allreduce (&dataRead, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        dataRead = temp/size;
-        MPI_Allreduce (&compute, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        compute = temp/size;
-        MPI_Allreduce (&write, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        write = temp/size;
-        MPI_Allreduce (&total, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        total = temp/size;
+		//MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//dataRead = tempd / size;
+		//MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//compute = tempd / size;
+		//MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//write = tempd / size;
+		//MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//total = tempd / size;
+
+		MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		dataRead = tempd;
+		MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		compute = tempd;
+		MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		write = tempd;
+		MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		total = tempd;
 
         if( rank == 0)
                 printf("Processors: %d\nRead time: %f\nCompute time: %f\nWrite time: %f\nTotal time: %f\n",

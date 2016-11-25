@@ -292,9 +292,34 @@ int aread8(char *pfile, char *afile, char *shfile, char *wfile, int useOutlets, 
         tiffIO a(afile, FLOAT_TYPE, &aNodata, p);
         a.write(xstart, ystart, ny, nx, aread8->getGridPointer());
         double writet = MPI_Wtime();
+
+		double dataRead, compute, write, total, tempd;
+		dataRead = readt - begint;
+		compute = computet - readt;
+		write = writet - computet;
+		total = writet - begint;
+
+		//MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//dataRead = tempd / size;
+		//MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//compute = tempd / size;
+		//MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//write = tempd / size;
+		//MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//total = tempd / size;
+
+		MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		dataRead = tempd;
+		MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		compute = tempd;
+		MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		write = tempd;
+		MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		total = tempd;
+
         if (rank == 0)
             printf("Processors: %d\nRead time: %f\nCompute time: %f\nWrite time: %f\nTotal time: %f\n",
-                   size, readt - begint, computet - readt, writet - computet, writet - begint);
+                   size, dataRead, compute, write, total);
 
         //Brackets force MPI-dependent objects to go out of scope before Finalize is called
     }

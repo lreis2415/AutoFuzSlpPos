@@ -58,8 +58,8 @@ int threshold(char *ssafile, char *srcfile, char *maskfile, float thresh, int us
         MPI_Comm_size(MCW, &size);
         if (rank == 0)printf("Threshold version %s\n", TDVERSION);
 
-        double begin, end;
-
+        double begint, readt, computet;
+		begint = MPI_Wtime();
         //Create tiff object, read and store header info
         tiffIO ssa(ssafile, FLOAT_TYPE);
         long totalX = ssa.getTotalX();
@@ -94,8 +94,8 @@ int threshold(char *ssafile, char *srcfile, char *maskfile, float thresh, int us
         }
 
         //Begin timer
-        begin = MPI_Wtime();
-
+        // begint = MPI_Wtime();
+		readt = MPI_Wtime();
         //Create empty partition to store new information
         tdpartition *src;
         src = CreateNewPartition(SHORT_TYPE, totalX, totalY, dx, dy, -32768);
@@ -146,22 +146,46 @@ int threshold(char *ssafile, char *srcfile, char *maskfile, float thresh, int us
         src->clearBorders();
 
         //Stop timer
-        end = MPI_Wtime();
-        double compute, temp;
-        compute = end - begin;
-
-        MPI_Allreduce(&compute, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        compute = temp / size;
-
-
-        if (rank == 0)
-            printf("Compute time: %f\n", compute);
-
+        computet = MPI_Wtime();
+        //double compute, temp;
+        //compute = computet - begint;
+        //MPI_Allreduce(&compute, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
+        //compute = temp / size;
 
         //Create and write TIFF file
         short aNodata = -32768;
         tiffIO srcc(srcfile, SHORT_TYPE, &aNodata, ssa);
         srcc.write(xstart, ystart, ny, nx, src->getGridPointer());
+		double writet = MPI_Wtime();
+
+		double dataRead, compute, write, total, tempd;
+		dataRead = readt - begint;
+		compute = computet - readt;
+		write = writet - computet;
+		total = writet - begint;
+
+		//MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//dataRead = tempd / size;
+		//MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//compute = tempd / size;
+		//MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//write = tempd / size;
+		//MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//total = tempd / size;
+
+		MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		dataRead = tempd;
+		MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		compute = tempd;
+		MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		write = tempd;
+		MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		total = tempd;
+
+		if (rank == 0)
+			printf("Processors: %d\nRead time: %f\nCompute time: %f\nWrite time: %f\nTotal time: %f\n",
+			size, dataRead, compute, write, total);
+			printf("Compute time: %f\n", compute);
 
         //Brackets force MPI-dependent objects to go out of scope before Finalize is called
     }

@@ -7,6 +7,7 @@ import argparse
 import math
 import os
 import sys
+import subprocess
 from shutil import rmtree
 import numpy
 import re
@@ -339,6 +340,14 @@ DIR_VALUES = [1, 2, 3, 4, 5, 6, 7, 8]
 drow = [0, -1, -1, -1, 0, 1, 1, 1]  ## row, not include itself
 dcol = [1, 1, 0, -1, -1, -1, 0, 1]  ## col
 
+DIR_PAIRS = [(0, 1),
+             (-1, 1),
+             (-1, 0),
+             (-1, -1),
+             (0, -1),
+             (1, -1),
+             (1, 0),
+             (1, 1)]
 
 ## find downslope coordinate for D8 and D-inf flow models
 def downstream_index(DIR_VALUE, i, j):
@@ -416,16 +425,16 @@ def downstream_index_dinf(dinfDir, i, j):
 
 ## Export ESRI Shapefile -- Line feature
 def WriteLineShp(lineList, outShp):
-    print "Write line shapefile: %s" % outShp
+    print ("Write line shapefile: %s" % outShp)
     driver = ogr.GetDriverByName("ESRI Shapefile")
     if driver is None:
-        print "ESRI Shapefile driver not available."
+        print ("ESRI Shapefile driver not available.")
         sys.exit(1)
     if os.path.exists(outShp):
         driver.DeleteDataSource(outShp)
     ds = driver.CreateDataSource(outShp.rpartition(os.sep)[0])
     if ds is None:
-        print "ERROR Output: Creation of output file failed."
+        print ("ERROR Output: Creation of output file failed.")
         sys.exit(1)
     lyr = ds.CreateLayer(outShp.rpartition(os.sep)[2].split('.')[0], None, ogr.wkbLineString)
     #    for field in fields:
@@ -536,6 +545,18 @@ def FindNumberFromString(s):
     else:
         return [float(v) for v in strs]
 
+def GetExecutableFullPath(name):
+    '''
+    Not for Windows
+    get the full path of a given executable name
+    :return:
+    '''
+    process = subprocess.Popen('which %s' % name, shell = True, stdout = subprocess.PIPE)
+    findout = process.stdout.readlines()
+    if findout == [] or len(findout) == 0:
+        print "%s is not included in the env path" % name
+        exit(-1)
+    return findout[0].split('\n')[0]
 
 ## test code ##
 if __name__ == '__main__':

@@ -72,11 +72,11 @@ def PreProcessing(model):
                       exeDir = exeDir, hostfile = hostfile)
         maxAccum, minAccum, meanAccum, STDAccum = GetRasterStat(D8ContriArea)
 
-        if meanAccum - 1.39 * STDAccum < 0:
+        if meanAccum < STDAccum:
             minthresh = meanAccum
         else:
-            minthresh = meanAccum - 1.39 * STDAccum
-        maxthresh = meanAccum + 1.39 * STDAccum
+            minthresh = meanAccum - STDAccum
+        maxthresh = meanAccum + STDAccum
 
         TauDEM.DropAnalysis(demfil, D8FlowDir, D8ContriArea, D8ContriArea, outletM, minthresh, maxthresh, numthresh,
                             logspace, inputProc, drpFile, mpiexeDir = mpiexeDir, exeDir = exeDir,
@@ -126,7 +126,15 @@ def PreProcessing(model):
         if VlySrcCal is None or not isFileExists(VlySrcCal):
             copy2(D8Stream, VlySrcCal)
         if RdgSrcCal is None or not isFileExists(RdgSrcCal):
-            findRidge(1, eliminateCount, RdgSrcCal)
+            # C++ version
+            angfile = D8FlowDir
+            elevfile = D8DistDown_V
+            if model == 1: # D-inf model
+                angfile = DinfFlowDir
+                elevfile = DinfDistDown_V
+            TauDEM.ExtractRidge(angfile, elevfile, RdgSrcCal, inputProc, mpiexeDir = mpiexeDir,
+                                    exeDir = exeDir, hostfile = hostfile)
+            # findRidge(1, RdgSrcCal) # Python-version
         TauDEM.RPISkidmore(VlySrcCal, RdgSrcCal, RPISkidmore, inputProc, 1, 1, dist2Vly, dist2Rdg,
                            mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
     logStatus.write("[Preprocessing] [7/7] Calculating Plan Curvature and Profile Curvature...\n")

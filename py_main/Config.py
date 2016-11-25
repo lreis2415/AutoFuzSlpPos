@@ -120,7 +120,6 @@ if not isFileExists(rpiFile):
 # 4. Optional parameters settings for terrain attributes preparation
 FlowModel = 1
 rpiMethod = 1
-eliminateCount = 3
 SPSImethod = 1
 DistanceExponentForIDW = 8
 TagDict = dict()
@@ -145,7 +144,6 @@ DinfUpMethod = 'Surface'
 if 'OPTIONAL_DTA' in cf.sections():
     FlowModel = cf.getint('OPTIONAL_DTA', 'FlowModel'.lower())
     rpiMethod = cf.getint('OPTIONAL_DTA', 'rpiMethod'.lower())
-    eliminateCount = cf.getint('OPTIONAL_DTA', 'eliminateCount'.lower())
     SPSImethod = cf.getint('OPTIONAL_DTA', 'SPSImethod'.lower())
     DistanceExponentForIDW = cf.getint('OPTIONAL_DTA', 'DistanceExponentForIDW'.lower())
     for slppos in SlpPosItems:

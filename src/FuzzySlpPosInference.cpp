@@ -165,13 +165,9 @@ int FuzzySlpPosInf(char *protofile, int prototag, int paramsNum, paramInfGRID *p
         MPI_Allgatherv(LocTypLocAttr, LocTypLocNum * (2 + paramsNum), MPI_FLOAT, AllTypLocAttr, LocTypLocNums, displs,
                        MPI_FLOAT, MCW);
 
-
-        delete[] LocTypLocAttr;
-        LocTypLocAttr = NULL;
-        delete[] LocTypLocNums;
-        LocTypLocNums = NULL;
-        delete[] displs;
-        displs = NULL;
+		Release1DArray(LocTypLocAttr);
+		Release1DArray(LocTypLocNums);
+		Release1DArray(displs);
         //////////////////////////////////////////////////////////////////////////
         // Next, calculate every cell's similarity to all typical locations
         // create empty partition to store similarity result
@@ -271,20 +267,34 @@ int FuzzySlpPosInf(char *protofile, int prototag, int paramsNum, paramInfGRID *p
         write = writet - computet;
         total = writet - begint;
 
-        MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        dataRead = tempd / size;
-        MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        compute = tempd / size;
-        MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        write = tempd / size;
-        MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        total = tempd / size;
+        //MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+        //dataRead = tempd / size;
+        //MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+        //compute = tempd / size;
+        //MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+        //write = tempd / size;
+        //MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+        //total = tempd / size;
+
+		MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		dataRead = tempd;
+		MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		compute = tempd;
+		MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		write = tempd;
+		MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		total = tempd;
+
         if (rank == 0)
         {
             printf("Total %d prototype positions were applied into computing similarity.\nProcesses:%d\n    Read time:%f\n    Compute time:%f\n    Write time:%f\n    Total time:%f\n",
                    AllTypLocNum, size, dataRead, compute, write, total);
             fflush(stdout);
         }
+		/// free memory
+		delete proto, protof;
+		delete simi, simif;
+		delete[] params;
     }
     MPI_Finalize();
     return 0;
