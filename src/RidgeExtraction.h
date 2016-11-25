@@ -9,7 +9,7 @@
 */
 #pragma once
 #include "commonLib.h"
-
+#include <fstream>
 /*!
  * \struct RdgSrc
  * \brief Ridge source with some attribute at a location (col, row)

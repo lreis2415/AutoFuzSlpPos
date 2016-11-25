@@ -528,7 +528,7 @@ int flood(char *demfile, char *felfile, char *sfdrfile, int usesfdr, bool verbos
         write = writet - computet;
         total = writet - begint;
 
-        MPI_Allreduce(&headerRead, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
+        /*MPI_Allreduce(&headerRead, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
         headerRead = temp / size;
         MPI_Allreduce(&dataRead, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
         dataRead = temp / size;
@@ -537,7 +537,18 @@ int flood(char *demfile, char *felfile, char *sfdrfile, int usesfdr, bool verbos
         MPI_Allreduce(&write, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
         write = temp / size;
         MPI_Allreduce(&total, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        total = temp / size;
+        total = temp / size;*/
+
+		MPI_Allreduce(&headerRead, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		headerRead = temp;
+		MPI_Allreduce(&dataRead, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		dataRead = temp;
+		MPI_Allreduce(&compute, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		compute = temp;
+		MPI_Allreduce(&write, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		write = temp;
+		MPI_Allreduce(&total, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		total = temp;
 
         if (rank == 0)
             printf("Processes: %d\nRead time: %f\nCompute time: %f\nWrite time: %f\nTotal time: %f\n",

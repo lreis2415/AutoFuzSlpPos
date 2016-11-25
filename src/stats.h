@@ -59,7 +59,7 @@ float std_vector(vector<T> values, float mean = MISSINGFLOAT)
 	if (mean == MISSINGFLOAT)
 		mean = mean_vector(values); 
 	float sigma = 0.f;
-	for (vector<T>::iterator iter = values.begin(); iter != values.end(); iter++)
+	for (typename vector<T>::iterator iter = values.begin(); iter != values.end(); iter++)
 		sigma += (*iter - mean) * (*iter - mean);
 	sigma = sqrt(sigma / values.size());
 	return sigma;

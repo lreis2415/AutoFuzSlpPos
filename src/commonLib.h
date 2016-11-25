@@ -43,7 +43,23 @@ email:  dtarb@usu.edu
 #include <cmath>
 #include <float.h>
 #include "mpi.h"
-
+#ifndef linux
+#define _WINSOCKAPI_    // stops windows.h including winsock.h
+#include <windows.h>
+//#include <winsock2.h>
+#include <direct.h>
+#include <time.h>
+#else
+#include <dirent.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdio.h>
+#include <dlfcn.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <fcntl.h>
+#endif
 #define MCW MPI_COMM_WORLD
 #define MAX_STRING_LENGTH 255
 #define MAXLN 4096
@@ -122,5 +138,54 @@ bool pointsToMe(long col, long row, long ncol, long nrow, tdpartition *dirData);
 					  int nx,int ny,int useOutlets, int *outletsX,int *outletsY,long numOutlets);
 void initNeighborD8up(tdpartition* neighbor,tdpartition* flowData,queue<node> *que,
 					  int nx,int ny,int useOutlets, int *outletsX,int *outletsY,long numOutlets);  */
+/// release 1-D and 2-D arrays, added by Liangjun Zhu
+/*!
+ * \brief Release DT_Array1D data
+ * \param[in] data
+ */
+template<typename T>
+void Release1DArray(T *&data)
+{
+    delete[] data;
+    data = NULL;
+}
+
+/*!
+ * \brief Release DT_Array2D data
+ *
+ * \param[in] row Row
+ * \param[in] col Column
+ * \param[in] data
+ */
+template<typename T>
+void Release2DArray(int row, T **&data)
+{
+#pragma omp parallel for
+    for (int i = 0; i < row; i++)
+    {
+        if (data[i] != NULL)
+            delete[] data[i];
+    }
+    delete[] data;
+    data = NULL;
+}
+/*
+ *\brief Counting time for Cross-platform
+ * more precisely than time.clock()
+ * added by Liangjun Zhu
+ */
+double TimeCounting();
+// define some macro for string related built-in functions, by Liangjun
+#ifdef MSVC
+#define stringcat strcat_s
+#define stringcpy strcpy_s
+#define stringscan sscanf_s
+#define stringprintf sprintf_s
+#else
+#define stringcat strcat
+#define stringcpy strcpy
+#define stringscan sscanf
+#define stringprintf sprintf
+#endif
 #endif
 

@@ -72,11 +72,11 @@ def PreProcessing(model):
                       exeDir = exeDir, hostfile = hostfile)
         maxAccum, minAccum, meanAccum, STDAccum = GetRasterStat(D8ContriArea)
 
-        if meanAccum - 1.39 * STDAccum < 0:
+        if meanAccum < STDAccum:
             minthresh = meanAccum
         else:
-            minthresh = meanAccum - 1.39 * STDAccum
-        maxthresh = meanAccum + 1.39 * STDAccum
+            minthresh = meanAccum - STDAccum
+        maxthresh = meanAccum + STDAccum
 
         TauDEM.DropAnalysis(demfil, D8FlowDir, D8ContriArea, D8ContriArea, outletM, minthresh, maxthresh, numthresh,
                             logspace, inputProc, drpFile, mpiexeDir = mpiexeDir, exeDir = exeDir,

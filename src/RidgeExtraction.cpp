@@ -130,7 +130,7 @@ int ExtractRidges(char *dirsfile, char *felfile, float threshold, char *rdgsrcfi
 		}
 		/// share up and bottom boders with the initialized value 1.f
 		rdg->share();
-
+		//cout<<rank<<": create and initialize ridge partition done!"<<endl;
 		/// construct ridge source vector with elevation etc. attributes
 		vector<RdgSrc> curRdgSrcs;
         for (j = 0; j < ny; j++) //!< rows
@@ -185,6 +185,7 @@ int ExtractRidges(char *dirsfile, char *felfile, float threshold, char *rdgsrcfi
 			}
 		}
 		vector<RdgSrc>(curRdgSrcs).swap(curRdgSrcs);
+		//cout<<rank<<": gather ridge sources information done!"<<endl;
 		float *curRdgElevs = new float[curRdgSrcs.size()];
 		int curCount = 0;
 		for (vector<RdgSrc>::iterator iter = curRdgSrcs.begin(); iter != curRdgSrcs.end(); iter++)
@@ -199,18 +200,18 @@ int ExtractRidges(char *dirsfile, char *felfile, float threshold, char *rdgsrcfi
 		int *locCount = new int[size];
 		MPI_Reduce(&curCount, &allCount, 1, MPI_INT, MPI_SUM, 0, MCW);
 		MPI_Gather(&curCount, 1, MPI_INT, locCount, 1, MPI_INT, 0, MCW);
-		//MPI_Allreduce(&curCount, &allCount, 1, MPI_INT, MPI_SUM, MCW);
-		//MPI_Allgather(&curCount, 1, MPI_INT, locCount, 1, MPI_INT, MCW);
-		float *allRdgElevs = new float[allCount];
-		int *displs;
-		displs = new int[size];
+		float *allRdgElevs = NULL;
+		if (rank == 0) /// only the root node needs to allocate memory
+		{
+			allRdgElevs = new float[allCount];
+		}
+		int *displs = new int[size];
 		displs[0] = 0;
 		for (i = 1; i < size; i++)
 		{
 			displs[i] = displs[i - 1] + locCount[i - 1];
 		}
 		MPI_Gatherv(curRdgElevs, curCount, MPI_FLOAT, allRdgElevs, locCount, displs, MPI_FLOAT, 0, MCW);
-		// MPI_Allgatherv(curRdgElevs, curCount, MPI_FLOAT, allRdgElevs, locCount, displs, MPI_FLOAT, MCW);
 		delete[] displs;
 		displs = NULL;
 		delete[] curRdgElevs;
@@ -222,23 +223,113 @@ int ExtractRidges(char *dirsfile, char *felfile, float threshold, char *rdgsrcfi
 		if (rank == 0)
 		{
 			int *orderedIdx = order(allRdgElevs, allCount);
-			vector<float> allRdgElevsVector(allCount);
+			vector<float> allRdgElevsVector;
 			for (int i = 0; i < allCount; i++)
 			{
-				allRdgElevsVector.at(i) = allRdgElevs[orderedIdx[i]];
+				float tmp = allRdgElevs[orderedIdx[i]];
+				if (tmp > 0.f){  /// assume the HAND is at least greater than 5.0m to be a potential ridge
+					allRdgElevsVector.push_back(tmp);
+				}
 			}
-			float mean = mean_vector(allRdgElevsVector);
-			float sigma = std_vector(allRdgElevsVector, mean);
-			float percentile25 = percentile_vector(allRdgElevsVector, 25.f);
-			cout<<"mean: "<<mean<<", std: "<<sigma<<", percentile25: "<<percentile25<<endl;
-			if (mean < sigma)
-				threshold = mean;
-			else
-				threshold = mean - sigma;
-			threshold = max(threshold, percentile25);
+			vector<float>(allRdgElevsVector).swap(allRdgElevsVector);
+			
+			//float *x = new float[100];
+			//float *y = new float[100];
+			//for(int i = 0; i < 100; i++) y[i] = 0;
+			//float minv = allRdgElevsVector.at(0);
+			//float maxv = allRdgElevsVector.at(allRdgElevsVector.size()-1);
+			//float interval = (maxv - minv) / 100.f;
+
+			//for (vector<float>::iterator iter = allRdgElevsVector.begin(); iter != allRdgElevsVector.end(); iter++)
+			//{
+			//	y[(int) floor((*iter - minv) / interval)]++;
+			//}
+			//for (i = 0; i < 100; i++)
+			//{
+			//	x[i] = minv + interval * (i + 0.5f);
+			//}
+			//vector<float> tempx, tempy;
+
+			////ofstream logf;
+			////char *logfile = "C:\\z_data_m\\AutoFuzSlpPos\\youwuzhen\\DinfpreDir\\ele.txt";
+			////FILE *fp;
+			////fp = fopen(logfile, "w+");
+			////if (fp == NULL) return 0;
+			////fclose(fp);
+			////logf.open(logfile, ios_base::app | ios_base::out);
+			//for (int i = 0; i < 100; i++)
+			//{
+			//	if (y[i] > 1){
+			//		//logf<<x[i]<<","<<y[i]<<endl;
+			//		tempx.push_back(x[i]);
+			//		tempy.push_back(y[i]);
+			//	}
+			//}
+			////logf.close();
+			//vector<float>(tempy).swap(tempy); /// swap to save memory
+			//vector<float>(tempx).swap(tempx);
+
+			///// use BiGaussian Fitting to Select Parameters Automatically
+			///// these settings are default, and it is good enough to run BiGaussian model. Rewrite from R version by Yu and Peng (2010)
+			//vector<float> sigma_ratio_limit;
+			//sigma_ratio_limit.push_back(0.1f);
+			//sigma_ratio_limit.push_back(10.f);
+			//float bandwidth = 0.5f;
+			//float power = 1.f;
+			//int esti_method = 1; /// Two possible values: 0:"moment" and 1:"em". By default, "em" is selected.
+			//float eliminate = 0.05f;
+			//float epsilon = 0.005f;
+			//int max_iter = 30;
+			//vector<vector<float> > bigauss_results;
+
+			///// Be sure that x are ascend
+			//int bigauss = BiGaussianMix(tempx, tempy, sigma_ratio_limit, bandwidth, power, esti_method,
+			//	eliminate, epsilon, max_iter, bigauss_results);
+
+			//if (bigauss == 1 && bigauss_results.size() == 1)
+			//{
+			//	float peakCenter = bigauss_results[0][0]; /// fitted central value
+			//	float sigmaLeftFitted = bigauss_results[0][1]; /// fitted left sigma
+			//	float sigmaRightFitted = bigauss_results[0][2]; /// fitted right sigma
+			//	float deltaFitted = bigauss_results[0][3]; /// fitted delta
+			//	if (sigmaRightFitted / sigmaLeftFitted > 4.f) /// z-shaped
+			//	{
+			//		threshold = peakCenter + sigmaRightFitted;
+			//	}
+			//	else if ((sigmaLeftFitted / sigmaRightFitted > 4.f)) /// s-shaped
+			//	{
+			//		threshold = peakCenter + sigmaLeftFitted;
+			//	}
+			//	else
+			//		threshold = peakCenter;
+			//}
+			//else{
+				float mean = mean_vector(allRdgElevsVector);
+				float sigma = std_vector(allRdgElevsVector, mean);
+				float percentile75 = percentile_vector(allRdgElevsVector, 50.f);
+				//if (mean < sigma)
+				//	threshold = mean;
+				//else
+				//	threshold = mean - sigma;
+				//threshold = max(threshold, percentile75);
+				threshold = min(mean, percentile75);
+				//cout<<"mean: "<<mean<<", std: "<<sigma<<", percentile75: "<<percentile75<<endl;
+			//}
+			cout<<"Ridge filter threshold of HAND: "<<threshold<<endl;
+
+			/// release memory
+			Release1DArray(orderedIdx);
+			Release1DArray(allRdgElevs);
+			allRdgElevsVector.clear();
+			//tempx.clear();
+			//tempy.clear();
+			//sigma_ratio_limit.clear();
+			//bigauss_results.clear();
+			//Release1DArray(x);
+			//Release1DArray(y);
 		}
 		MPI_Bcast(&threshold, 1, MPI_FLOAT, 0, MCW);
-		//cout<<"rank: "<<rank<<", threshold: "<<threshold<<endl;
+		cout<<"rank: "<<rank<<", threshold: "<<threshold<<endl;
 
 		/// Filter by elevation threshold
 		for (vector<RdgSrc>::iterator iter = curRdgSrcs.begin(); iter != curRdgSrcs.end(); iter++)
@@ -262,20 +353,34 @@ int ExtractRidges(char *dirsfile, char *felfile, float threshold, char *rdgsrcfi
         write = writet - computet;
         total = writet - begint;
 
-        MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        dataRead = tempd / size;
-        MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        compute = tempd / size;
-        MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        write = tempd / size;
-        MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        total = tempd / size;
+		//MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//dataRead = tempd / size;
+		//MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//compute = tempd / size;
+		//MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//write = tempd / size;
+		//MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
+		//total = tempd / size;
+
+		MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		dataRead = tempd;
+		MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		compute = tempd;
+		MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		write = tempd;
+		MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		total = tempd;
+
         if (rank == 0)
         {
             printf("Processes:%d\n    Read time:%f\n    Compute time:%f\n    Write time:%f\n    Total time:%f\n",
                    size, dataRead, compute, write, total);
             fflush(stdout);
         }
+		/// free memory
+		delete rdg, rdgsrcf;
+		delete dirs, dirsf;
+		delete elev, elevf;
     }
     MPI_Finalize();
     return 0;

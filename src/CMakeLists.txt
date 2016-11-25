@@ -5,7 +5,13 @@ SET(CMAKE_BUILD_TYPE "Release")
 include_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Include")
 link_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x86")
 link_libraries("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x86/msmpi.lib")
-
+IF(WIN32)
+    IF (MSVC)
+        ADD_DEFINITIONS(-DMSVC)
+    ENDIF()
+ELSE()
+    ADD_DEFINITIONS(-Dlinux)
+ENDIF()
 set(shape_srcs
         shapelib/shapefil.h
         shapelib/dbfopen.c

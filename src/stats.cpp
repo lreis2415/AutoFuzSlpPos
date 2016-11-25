@@ -656,640 +656,533 @@ int Bigauss_esti_moment(vector<float> &x, vector<float> &y, float powerIdx, vect
     return 1;
 }
 
-int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio_limit, float bandwidth, float powerIdx,
-                  int esti_method, float eliminate, float epsilon, int max_iter, vector<vector<float> > &fit_results)
+int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio_limit,float bandwidth,float powerIdx,
+	int esti_method,float eliminate,float epsilon, int max_iter, vector<vector<float> > &fit_results)
 {
-    int i = 0, j = 0, k = 0, num_origin;
-    if (x.size() != y.size())
-    {
-        cout << "x and y should have the same size, please check the input!" << endl;
-        return 0;
-    }
-    else
-    {
-        num_origin = x.size(); /// original number of (x,y) coordinates
-        //for(i = 0; i < num_origin; i++)  // output the input x,y vectors.
-        //	cout<<x[i]<<","<<y[i]<<endl;
-        float minX = *min_element(x.begin(), x.end()), maxX = *max_element(x.begin(), x.end()), min_bw, max_bw;
-        vector<float> bw;
-        min_bw = (maxX - minX) / 30.f;
-        max_bw = min_bw * 2.f;
-        bw.push_back(min(max(bandwidth * (maxX - minX), min_bw), max_bw));
-        bw.push_back(bw[0] * 2.f);
-        if (bw[0] > 1.5f * min_bw)
-            bw.insert(bw.begin(), max(min_bw, bw[0] / 2.f));
-        sort(bw.begin(), bw.end());
-        ///printVector("bandwidth is: ", bw);
-        /// the vector x is already ascent!
-        vector<vector<float> > smoother_pk_rec(bw.size()), smoother_vly_rec(
-                bw.size()); /// in R: smoother.pk.rec<-smoother.vly.rec<-new("list")
-        vector<float> bic_rec(bw.size()); /// in R: bic.rec<-all.bw, bic_rec: Bayesian Information Criterion
-        vector<float> nash_coef(bw.size());
-        vector<float **> results(bw.size());
-        vector<int> results_group(bw.size());
-        int last_num_pks = MISSINGSHORT; /// in R: last.num.pks<-Inf
-        int bw_n;
-        int kernel = 2; // kernel can be 1:"box" or 2:"normal", currently, "normal" based smooth is implemented.
-        int nn = max(100, num_origin);
-        vector<float> nx, ny;
-        for (i = 0; i < nn; i++)
-            nx.push_back(x[0] + i * (x[num_origin - 1] - x[0]) / (nn - 1.f));
-        for (bw_n = bw.size() - 1; bw_n >= 0; bw_n--)
-        {
-            ///cout<<"--bw.n is: "<<bw_n<<endl;
-            float bw_cur = bw[bw_n]; /// in R: bw<-all.bw[bw.n]
-            ny.clear();
-            BDRksmooth(x, y, nx, ny, kernel, bw_cur); /// ksmooth function in R
-            vector<float> pks, vlys;
-            findTurnPoints(ny, pks, vlys); /// find peaks and valleys points
-            for (i = 0; i < pks.size(); i++)
-                pks[i] = nx[int(pks[i])];
-            for (i = 0; i < vlys.size(); i++)
-                vlys[i] = nx[int(vlys[i])];
-            vlys.push_back(abs(MISSINGFLOAT));
-            vlys.insert(vlys.begin(), MISSINGFLOAT);
-            ///printVector("  pks is: ",pks);
-            ///printVector("  vlys is: ", vlys);
-            smoother_pk_rec[bw_n] = pks;
-            smoother_vly_rec[bw_n] = vlys;
-            int pksNum = pks.size();
-            if (pks.size() != last_num_pks)
-            {
-
-                last_num_pks = pks.size();
-                ///cout<<"    last.num.pks is: "<<last_num_pks<<endl;
-                vector<float> dx(num_origin);
-                if (num_origin == 2)
-                {
-                    dx[0] = x[1] - x[0];
-                    dx[1] = dx[0];
-                }
-                else
-                {
-                    dx[num_origin - 1] = x[num_origin - 1] - x[num_origin - 2];
-                    dx[0] = x[1] - x[0];
-                    for (i = 1; i < num_origin - 1; i++)
-                        dx[i] = (x[i + 1] - x[i - 1]) / 2.f;
-                }
-                /// INITIATION
-                vector<float> m(pks), s1(pks), s2(pks), delta(pks); /// in R: m<-s1<-s2<-delta<-pks
-                for (i = 0; i < m.size(); i++)
-                {
-                    /// Calculate s1
-                    /// in R:
-                    ///      sel.1<-which(x >= max(vlys[vlys < m[i]]) & x < m[i])
-                    ///      s1[i]<-sqrt(sum((x[sel.1]-m[i])^2 * y[sel.1]*dx[sel.1])/sum(y[sel.1]*dx[sel.1]))
-                    delta[i] = 0.f;
-                    float tempValue;
-                    pair<vector<float>, vector<int>> tempVector_ = which(vlys, 0, m[i]);
-                    vector<float> tempVector = tempVector_.first;
-                    priority_queue<int> tempIndex;
-                    int tempxNumS1, tempxNumS2;
-                    float *tempxS1, *tempxS2;
-                    float *tempyS1, *tempyS2;
-                    float *tempdxS1, *tempdxS2;
-
-                    //auto it = copy_if(vlys.begin(),vlys.end(),tempVector.begin(),bind2nd(less<float>(),m[i]));
-                    //tempVector.resize(distance(tempVector.begin(),it));
-                    tempValue = *max_element(tempVector.begin(), tempVector.end());
-                    /// currently, tempValue is the maximum of vlys that less than m[i], i.e., max(vlys[vlys < m[i]])
-                    for (j = 0; j < num_origin; j++)
-                        if (x[j] >= tempValue && x[j] < m[i]) /// i.e., which(x >= max(vlys[vlys < m[i]]) & x < m[i])
-                            tempIndex.push(j);
-                    if (tempIndex.empty())
-                    {
-                        s1[i] = MISSINGFLOAT;
-                        delta[i] = MISSINGFLOAT;
-                    }
-                    else
-                    {
-                        tempxNumS1 = tempIndex.size();
-                        tempxS1 = new float[tempxNumS1];
-                        if (tempxS1 == NULL) return 0;
-                        tempyS1 = new float[tempxNumS1];
-                        if (tempyS1 == NULL) return 0;
-                        tempdxS1 = new float[tempxNumS1];
-                        if (tempdxS1 == NULL) return 0;
-                        for (k = tempxNumS1 - 1; k >= 0; k--)
-                        {
-                            tempxS1[k] = x[tempIndex.top()];
-                            tempyS1[k] = y[tempIndex.top()];
-                            tempdxS1[k] = dx[tempIndex.top()];
-                            tempIndex.pop();
-                        }
-
-						float * tmpXYS1_times = matrix_times(tempyS1, tempdxS1, tempxNumS1);
-						float tmpXYS1_times_sum = matrix_sum(tmpXYS1_times, tempxNumS1);
-						float *tmpXS1m_minus = matrix_minus(tempxS1, m[i], tempxNumS1);
-						float *tmpXS1m_minus_times = matrix_times(tmpXS1m_minus, tmpXS1m_minus, tempxNumS1);
-						float *tmpTimes = matrix_times(tmpXS1m_minus_times, tmpXYS1_times, tempxNumS1);
-						if (tmpXYS1_times_sum  <= ZERO)
-						{
-							s1[i] = MISSINGFLOAT;
-						}
-						else
-						{
-							s1[i] = sqrt(matrix_sum(tmpTimes, tempxNumS1) / tmpXYS1_times_sum);
-						}
-
-                        //s1[i] = sqrt(matrix_sum(matrix_times(matrix_times(matrix_minus(tempxS1, m[i], tempxNumS1),
-                        //                                                  matrix_minus(tempxS1, m[i], tempxNumS1),
-                        //                                                  tempxNumS1),
-                        //                                     matrix_times(tempyS1, tempdxS1, tempxNumS1), tempxNumS1),
-                        //                        tempxNumS1) / matrix_sum(matrix_times(tempyS1, tempdxS1, tempxNumS1),
-                        //                                                 tempxNumS1));  // this style is not acceptable, but currently, I mainly focus on the functionality....
-                    }
-                    /// End the calculation of s1[i]
-                    /// Calculate s2
-                    ///      sel.2<-which(x >= m[i] & x < min(vlys[vlys > m[i]]))
-                    ///      s2[i]<-sqrt(sum((x[sel.2]-m[i])^2 * y[sel.2] * dx[sel.2])/sum(y[sel.2]*dx[sel.2]))
-                    tempVector.clear();
-                    tempVector.resize(vlys.size());
-
-                    tempVector_ = which(vlys, 1, m[i]);
-                    tempVector = tempVector_.first;
-                    //it = copy_if(vlys.begin(),vlys.end(),tempVector.begin(),bind2nd(greater<float>(),m[i]));
-                    //tempVector.resize(distance(tempVector.begin(),it));
-                    tempValue = *min_element(tempVector.begin(), tempVector.end());
-                    // currently, tempValue is the minimum of vlys that greater than m[i]
-                    for (j = 0; j < num_origin; j++)
-                        if (x[j] < tempValue && x[j] >= m[i])
-                            tempIndex.push(j);
-                    if (tempIndex.empty())
-                    {
-                        s2[i] = MISSINGFLOAT;
-                        delta[i] = MISSINGFLOAT;
-                    }
-                    else
-                    {
-                        tempxNumS2 = tempIndex.size();
-                        tempxS2 = new float[tempxNumS2];
-                        if (tempxS2 == NULL) return 0;
-                        tempyS2 = new float[tempxNumS2];
-                        if (tempyS2 == NULL) return 0;
-                        tempdxS2 = new float[tempxNumS2];
-                        if (tempdxS2 == NULL) return 0;
-                        for (k = tempxNumS2 - 1; k >= 0; k--)
-                        {
-                            tempxS2[k] = x[tempIndex.top()];
-                            tempyS2[k] = y[tempIndex.top()];
-                            tempdxS2[k] = dx[tempIndex.top()];
-                            tempIndex.pop();
-                        }
-						float *tmpXYS2_times = matrix_times(tempyS2, tempdxS2, tempxNumS2);
-						float tmpXYS2_times_sum = matrix_sum(tmpXYS2_times, tempxNumS2);
-						float *tmpS2m_minus = matrix_minus(tempxS2, m[i], tempxNumS2);
-						float *tmpS2m_minus_times = matrix_times(tmpS2m_minus, tmpS2m_minus,tempxNumS2);
-						float *tmpTimesS2 = matrix_times(tmpS2m_minus_times, tmpXYS2_times, tempxNumS2);
-						if (abs(tmpXYS2_times_sum - 0.f) <= ZERO)
-						{
-							s2[i] = MISSINGFLOAT;
-						} 
-						else
-						{
-							s2[i] = sqrt(matrix_sum(tmpTimesS2, tempxNumS2) / tmpXYS2_times_sum);
-						}
-						
-
-                        //s2[i] = sqrt(matrix_sum(matrix_times(matrix_times(matrix_minus(tempxS2, m[i], tempxNumS2),
-                        //                                                  matrix_minus(tempxS2, m[i], tempxNumS2),
-                        //                                                  tempxNumS2),
-                        //                                     matrix_times(tempyS2, tempdxS2, tempxNumS2), tempxNumS2),
-                        //                        tempxNumS2) / matrix_sum(matrix_times(tempyS2, tempdxS2, tempxNumS2),
-                        //                                                 tempxNumS2));  // this style is not acceptable, but currently, I mainly focus on the functionality....
-                    }
-                    /// End the calculation of s2[i]
-                    /// Calculate delta
-                    ///     in R: delta[i]<-(sum(y[sel.1]*dx[sel.1]) + sum(y[sel.2]*dx[sel.2]))/((sum(dnorm(x[sel.1], mean=m[i], sd=s1[i])) * s1[i] /2)+(sum(dnorm(x[sel.2], mean=m[i], sd=s2[i])) * s2[i] /2))
-                    if (delta[i] == 0.f)
-                    {
-						float *tmpYS1_times = matrix_times(tempyS1, tempdxS1, tempxNumS1);
-						float tmpYS1_times_sum  = matrix_sum(tmpYS1_times, tempxNumS1);
-						float *tmpYS2_times = matrix_times(tempyS2, tempdxS2, tempxNumS2);
-						float tmpYS2_times_sum = matrix_sum(tmpYS2_times, tempxNumS2);
-						float tmpXS1m_dnorm_sum = matrix_sum(dnorm(tempxS1, tempxNumS1, m[i], s1[i]), tempxNumS1);
-						float tmpXS2m_dnorm_sum = matrix_sum(dnorm(tempxS2, tempxNumS2, m[i], s2[i]), tempxNumS2);
-						float tmpDivided = (tmpXS1m_dnorm_sum* s1[i] / 2.f) + (tmpXS2m_dnorm_sum* s2[i] / 2.f);
-						if (tmpDivided <= ZERO)
-						{
-							delta[i] = MISSINGFLOAT;
-						} 
-						else
-						{
-							delta[i] = (tmpYS1_times_sum + tmpYS2_times_sum) / tmpDivided;
-						}
-
-						//delta[i] = (matrix_sum(matrix_times(tempyS1, tempdxS1, tempxNumS1), tempxNumS1) +
-						//	matrix_sum(matrix_times(tempyS2, tempdxS2, tempxNumS2), tempxNumS2)) /
-						//	((matrix_sum(dnorm(tempxS1, tempxNumS1, m[i], s1[i]), tempxNumS1) * s1[i] / 2) +
-						//	(matrix_sum(dnorm(tempxS2, tempxNumS2, m[i], s2[i]), tempxNumS2) * s2[i] / 2));
-                    }
-                    //cout<<s1[i]<<","<<s2[i]<<","<<delta[i]<<endl;
-
-                }
-                /// END INITIATION
-                for (i = 0; i < m.size(); i++)
-                {
-                    if (delta[i] == MISSINGFLOAT || delta[i] == -1.f * MISSINGFLOAT)
-                        delta[i] = 1e-10f;
-                    if (s1[i] == MISSINGFLOAT || s1[i] == -1.f * MISSINGFLOAT)
-                        s1[i] = 1e-10f;
-                    if (s2[i] == MISSINGFLOAT || s2[i] == -1.f * MISSINGFLOAT)
-                        s2[i] = 1e-10f;
-                }
-                //printVector("    s1 is: ",s1);
-                //printVector("    s2 is: ",s2);
-                //printVector("    delta is: ",delta);
-                //printVector("    m is: ",m);
-                vector<vector<float> > fit(x.size(), vector<float>(pksNum, 0.f)); /// in R: fit<-matrix(0,ncol=length(m), nrow=length(x))
-                float this_change = -1.f * MISSINGFLOAT;
-                int counter = 0;
-                vector<float> cuts;
-                int this_bigauss;
-                while (this_change > 0.1f && counter <= max_iter)
-                {
-                    //cout<<"      this.change is: "<<this_change<<", iterator number is: "<<counter<<endl;
-                    counter++;
-                    vector<float> old_m(m);
-                    ///  E step
-                    cuts = m;
-                    cuts.push_back(-1.f * MISSINGFLOAT);
-                    cuts.insert(cuts.begin(), MISSINGFLOAT); /// in R: cuts<-c(-Inf, m, Inf)
-                    for (i = 1; i < cuts.size(); i++)
-                    {
-                        priority_queue<int> tempIndex;
-                        for (j = 0; j < x.size(); j++)
-                            if (x[j] >= cuts[i - 1] &&
-                                x[j] < cuts[i])  /// in R: sel<-which(x >= cuts[i-1] & x < cuts[i])
-                                tempIndex.push(j);
-                        if (!tempIndex.empty())
-                        {
-                            int tempxNum = tempIndex.size();
-                            float *tempx = new float[tempxNum];
-                            if (tempx == NULL) return 0;
-                            int *sel = new int[tempxNum];
-                            for (k = tempxNum - 1; k >= 0; k--)
-                            {
-                                sel[k] = tempIndex.top();
-                                tempx[k] = x[sel[k]];
-                                tempIndex.pop();
-                            }
-                            /// tempIndex is empty now
-                            float *s_to_use = new float[s2.size()];
-                            if (s_to_use == NULL) return 0;
-                            for (j = 0; j < s2.size(); j++)
-                            {
-                                s_to_use[j] = s2[j]; /// in R: s.to.use<-s2
-                                if (j >= (i - 1))  /// in R: use.s1<-which(1:length(m) >= (i-1))
-                                    tempIndex.push(j);
-                            }
-                            if (!tempIndex.empty()) /// tempIndex is use.s1
-                            {
-                                int tempxNum2 = tempIndex.size();
-                                for (k = tempxNum2 - 1; k >= 0; k--)
-                                {
-                                    int iii = tempIndex.top();
-                                    s_to_use[iii] = s1[iii]; /// in R: s.to.use[use.s1]<-s1[use.s1]
-                                    tempIndex.pop();
-                                }
-                            }
-                            float *temp_dnorm = new float[tempxNum];
-                            if (temp_dnorm == NULL) return 0;
-                            for (k = 0; k < fit[0].size(); k++)
-                            {  /// cols
-                                temp_dnorm = dnorm(tempx, tempxNum, m[k], s_to_use[k]);
-                                for (j = 0; j < tempxNum; j++)
-                                { /// rows
-                                    fit[sel[j]][k] = temp_dnorm[j] * s_to_use[k] * delta[k];
-                                }
-                            }
-                        }
-                    }
-                    //for (int k = 0; k < x.size(); k++)
-                    //{
-                    //	string sss = "      E step, fit["+toString(k)+"] is: ";
-                    //	printVector(sss,fit[k]);
-                    //}
-                    /// Elimination step
-                    float sum_fit;
-                    vector<vector<float> > fit2(num_origin, vector<float>(fit[0].size()));
-                    for (i = 0; i < num_origin; i++)
-                    {
-                        sum_fit = 0.f;
-                        for (j = 0; j < fit[0].size(); j++)
-                        {
-                            if (isNA(fit[i][j]))
-                                fit[i][j] = 0.f;
-                            sum_fit += fit[i][j];
-                        }
-                        for (j = 0; j < fit[0].size(); j++)
-                        {
-                            fit[i][j] /= sum_fit;
-                            fit2[i][j] = fit[i][j] * y[i];
-                        }
-                    }
-                    /// in R: perc.explained<-apply(fit2,2,sum)/sum(y)
-                    float *perc_explained = new float[fit2[0].size()];
-                    if (perc_explained == NULL) return 0;
-                    float sumY = accumulate(y.begin(), y.end(), 0.f);
-                    for (j = 0; j < fit2[0].size(); j++)
-                    {
-                        perc_explained[j] = 0;
-                        for (i = 0; i < num_origin; i++)
-                            perc_explained[j] += fit2[i][j];
-                        perc_explained[j] /= sumY;
-                    }
-                    //printArray("      E step, perc_explained is: ",perc_explained, fit2[0].size());
-                    int max_erase = max(0, int(round(float(fit2[0].size()) / 5.f))); /// in R: max(1, round(length(perc.explained)/5))
-                    /// in R: to.erase<-which(perc.explained <= min(eliminate, perc.explained[order(perc.explained, na.last=FALSE)[max.erase]]))
-                    int *perc_explained_order = new int[fit2[0].size()];
-                    if (perc_explained_order == NULL) return 0;
-                    perc_explained_order = order(perc_explained, fit2[0].size(), false);
-                    //printArray("      E step, perc_explained is: ",perc_explained, fit2[0].size());
-                    //printArray("      E step, perc_explained_order is: ",perc_explained_order, fit2[0].size());
-                    vector<int> to_erase_que;
-                    if (max_erase <= fit2[0].size())
-                    {
-                        float tempEliminate = min(eliminate, perc_explained[perc_explained_order[max_erase]]);
-                        for (j = 0; j < fit2[0].size(); j++)
-                            if (perc_explained[j] <= tempEliminate)
-                                to_erase_que.push_back(j);
-                    }
-                    int to_erase_que_size = 0;
-                    if (!to_erase_que.empty())
-                    {
-                        for (j = fit2[0].size() - 1; j >= 0; j--)
-                        {
-                            if (!(find(to_erase_que.begin(), to_erase_que.end(), j) == to_erase_que.end()))
-                            {
-                                m.erase(m.begin() + j); /// in R: m<-m[-to.erase]
-                                s1.erase(s1.begin() + j);
-                                s2.erase(s2.begin() + j);
-                                delta.erase(delta.begin() + j);
-                                for (k = 0; k < num_origin; k++)
-                                    fit[k].erase(fit[k].begin() + j);
-                                old_m.erase(old_m.begin() + j);
-                            }
-                        }
-                        for (i = 0; i < num_origin; i++)
-                        {
-                            sum_fit = accumulate(fit[i].begin(), fit[i].end(), 0.f);
-                            for (j = 0; j < fit[i].size(); j++)
-                                if (sum_fit < ZERO)
-                                    fit[i][j] = MISSINGFLOAT;
-                                else
-                                    fit[i][j] /= sum_fit;
-                        }
-                    }
-                    ///printVector("      Elimination step, old.m is: ",old_m);
-                    /// M setp
-
-                    for (i = 0; i < m.size(); i++)
-                    {
-                        vector<float> this_y(y.size());
-                        for (j = 0; j < y.size(); j++)
-                            if (isNA(fit[j][i]))
-                                this_y[j] = MISSINGFLOAT;
-                            else
-                                this_y[j] = fit[j][i] * y[j];
-                        vector<float> this_fit(4);
-
-                        if (esti_method == 0)
-                            this_bigauss = Bigauss_esti_moment(x, this_y, powerIdx, sigma_ratio_limit, this_fit);
-                        else
-                            this_bigauss = Bigauss_esti_em(x, this_y, max_iter, epsilon, powerIdx, sigma_ratio_limit,
-                                                           this_fit);
-                        if (this_bigauss == 0)
-                        {
-                            counter = max_iter + 1;
-                            m[i] = MISSINGFLOAT;
-                            s1[i] = MISSINGFLOAT;
-                            s2[i] = MISSINGFLOAT;
-                            delta[i] = MISSINGFLOAT;
-                        }
-                        else
-                        {
-                            m[i] = this_fit[0];
-                            s1[i] = this_fit[1];
-                            s2[i] = this_fit[2];
-                            delta[i] = this_fit[3];
-                        }
-
-                    }
-                    for (i = 0; i < delta.size(); i++)
-                        if (isNA(delta[i]))
-                            delta[i] = 0.f;
-                    /// amount of change
-                    if (isNA(this_change))
-                        this_change = 0.f;
-                    for (i = 0; i < m.size(); i++)
-                        if (!isNA(m[i]))
-                            this_change += (old_m[i] - m[i]) * (old_m[i] - m[i]);
-                    //printVector("      M step, m is: ",m);
-                    //printVector("      M step, s1 is: ",s1);
-                    //printVector("      M step, s2 is: ",s2);
-                    //printVector("      M step, delta is: ",delta);
-                    //cout<<"      M step, this.change is: "<<this_change<<endl;
-                }
-                cuts.clear();
-                cuts = m;
-                cuts.push_back(-1.f * MISSINGFLOAT);
-                cuts.insert(cuts.begin(), MISSINGFLOAT);
-                for (j = 0; j < fit.size(); j++)
-                {
-                    for (k = 0; k < fit[j].size(); k++)
-                    {
-                        fit[j][k] = 0.f;
-                    }
-                }
-                for (j = 1; j < cuts.size(); j++)
-                {
-                    vector<int> sel, use_s1;
-                    for (k = 0; k < num_origin; k++)
-                    {
-                        if (x[k] >= cuts[j - 1] && x[k] < cuts[j])
-                            sel.push_back(k);
-                    }
-                    float *tempx = new float[sel.size()];
-                    if (tempx == NULL) return 0;
-                    for (k = 0; k < sel.size(); k++)
-                        tempx[k] = x[sel[k]];
-
-                    for (k = 0; k < m.size(); k++)
-                        if (k >= (j - 1))
-                            use_s1.push_back(k);
-                    vector<float> s_to_use(s2);
-                    if (!use_s1.empty())
-                        for (i = 0; i < use_s1.size(); i++)
-                            s_to_use[use_s1[i]] = s1[use_s1[i]];
-                    for (i = 0; i < fit[0].size(); i++)
-                    {
-                        float *temp_dnorm = dnorm(tempx, sel.size(), m[i], s_to_use[i]);
-                        if (s_to_use[i] != 0)
-                        {
-                            for (k = 0; k < sel.size(); k++)
-                            {
-                                fit[sel[k]][i] = temp_dnorm[k] * s_to_use[i] * delta[i];
-                            }
-                        }
-                    }
-                }
-                vector<float> area(delta.size());
-                for (i = 0; i < delta.size(); i++)
-                {
-                    if (!isNA(delta[i]))
-                        area[i] = delta[i] * (s1[i] + s2[i]) / 2.f;
-                    else
-                        area[i] = MISSINGFLOAT;
-                }
-                float rss = 0.f, fit_mean = 0.f, rss2 = 0.f;
-                for (i = 0; i < y.size(); i++)
-                    fit_mean += accumulate(fit[i].begin(), fit[i].end(), 0.f);
-                fit_mean /= (fit.size() * fit[0].size());
-                for (i = 0; i < y.size(); i++)
-                {
-                    float tempfitrow = accumulate(fit[i].begin(), fit[i].end(), 0.f);
-                    rss += (y[i] - tempfitrow) * (y[i] - tempfitrow);
-                    rss2 += (fit_mean - tempfitrow) * (fit_mean - tempfitrow);
-                }
-                num_origin = x.size();
-                float bic, nash;
-                if (this_bigauss == 1)
-                {
-                    bic = num_origin * log(rss / num_origin) + 4.f * m.size() * log((float) num_origin);
-                    nash = 1 - rss / rss2;
-                }
-                else
-                {
-                    bic = MISSINGFLOAT;
-                    nash = MISSINGFLOAT;
-                }
-                results[bw_n] = new float *[m.size()];
-                if (results[bw_n] == NULL) return 0;
-                results_group[bw_n] = m.size();
-                for (i = 0; i < m.size(); i++)
-                { 
-                    results[bw_n][i] = new float[5];
-                    results[bw_n][i][0] = m[i];
-                    results[bw_n][i][1] = s1[i];
-                    results[bw_n][i][2] = s2[i];
-                    results[bw_n][i][3] = delta[i];
-                    results[bw_n][i][4] = area[i];
-                }
-                bic_rec[bw_n] = bic;
-                nash_coef[bw_n] = nash;
-            }
-            else
-            {
-                results[bw_n] = NULL;
-                bic_rec[bw_n] = MISSINGFLOAT;
-                results[bw_n] = results[bw_n + 1];
-            }
-        }
-        int sel = 0, sel2 = 0, sel_single = 0;
-        vector<int> sel_v, sel_v2, sel_single_v;
-        float temp_bic_rec, temp_nash_coef;
-		bool use_one_of_multi_models = false;
-		float nash_one_of_multi_models = MISSINGFLOAT;
-		float *one_of_multi_params;
-        for (i = 0; i < results_group.size(); i++)
-        {
-			//for (int j = 0; j < results_group[i]; j++)
-			//{
-			//	for(int k = 0; k < 5; k++)
-			//		cout <<results[i][j][k]<<",";
-			//	cout<<endl;
-			//}
-            if (results_group[i] == 1 && !isNA(bic_rec[i]))
-                sel_single_v.push_back(i);
-            else if (results_group[i] == 1 && !isNA(bic_rec[i]))
-                sel_v.push_back(i);
-			else if (results_group[i] > 1 && !isNA(bic_rec[i]))
+	int i = 0, j = 0, k = 0, num_origin;
+	if (x.size() != y.size())
+	{
+		cout<<"x and y should have the same size, please check the input!"<<endl;
+		return 0;
+	}
+	else
+	{
+		num_origin = x.size(); /// original number of (x,y) coordinates
+		//for(i = 0; i < num_origin; i++)  // output the input x,y vectors.
+		//	cout<<x[i]<<","<<y[i]<<endl;
+		float minX = *min_element(x.begin(),x.end()),maxX = *max_element(x.begin(),x.end()),min_bw,max_bw;
+		vector<float> bw;
+		min_bw = (maxX - minX)/30;
+		max_bw = min_bw * 2;
+		bw.push_back(min(max(bandwidth * (maxX - minX),min_bw),max_bw));
+		bw.push_back(bw[0]*2);
+		if(bw[0] > 1.5*min_bw)
+			bw.insert(bw.begin(),max(min_bw,bw[0]/2));
+		sort(bw.begin(),bw.end());
+		///printVector("bandwidth is: ", bw);
+		/// the vector x is already ascent!
+		vector<vector<float> > smoother_pk_rec(bw.size()),smoother_vly_rec(bw.size()); /// in R: smoother.pk.rec<-smoother.vly.rec<-new("list")
+		vector<float> bic_rec(bw.size()); /// in R: bic.rec<-all.bw, bic_rec: Bayesian Information Criterion
+		vector<float> nash_coef(bw.size());
+		vector<float **> results(bw.size());
+		vector<int> results_group(bw.size());
+		float last_num_pks = MISSINGFLOAT; /// in R: last.num.pks<-Inf
+		int bw_n;
+		int kernel = 2; // kernel can be 1:"box" or 2:"normal", currently, "normal" based smooth is implemented.
+		int nn = max(100,num_origin);
+		vector<float> nx,ny;
+		for(i=0;i<nn;i++)
+			nx.push_back(x[0]+i*(x[num_origin-1]-x[0])/(nn-1));
+		for(bw_n = bw.size()-1;bw_n>=0;bw_n--)
+		{
+			///cout<<"--bw.n is: "<<bw_n<<endl;
+			float bw_cur = bw[bw_n]; /// in R: bw<-all.bw[bw.n]
+			ny.clear();
+			BDRksmooth(x, y,nx, ny, kernel,bw_cur); /// ksmooth function in R
+			vector<float> pks,vlys;
+			findTurnPoints(ny,pks,vlys); /// find peaks and valleys points
+			for(i = 0; i < pks.size();i++)
+				pks[i] = nx[int(pks[i])];
+			for(i = 0; i < vlys.size(); i++)
+				vlys[i] = nx[int(vlys[i])];
+			vlys.push_back(abs(MISSINGFLOAT));
+			vlys.insert(vlys.begin(),MISSINGFLOAT);
+			///printVector("  pks is: ",pks);
+			///printVector("  vlys is: ", vlys);
+			smoother_pk_rec[bw_n] = pks;
+			smoother_vly_rec[bw_n] = vlys;
+			int pksNum = pks.size();
+			if (pks.size() != last_num_pks)
 			{
-				/// calculate NASH for each bi-Gaussian model
-				vector<float> tmpNash(results_group[i]);
-				for (int j = 0; j < results_group[i]; j++){
-					tmpNash[j] = calNash(x, y, results[i][j]);
-					if(tmpNash[j] > 0.8f)
+
+				last_num_pks = pks.size();
+				///cout<<"    last.num.pks is: "<<last_num_pks<<endl;
+				vector<float> dx(num_origin);
+				if (num_origin == 2)
+				{
+					dx[0] = x[1] - x[0];
+					dx[1] = dx[0];
+				}
+				else
+				{
+					dx[num_origin-1] = x[num_origin-1] - x[num_origin-2];
+					dx[0] = x[1] - x[0];
+					for (i = 1; i < num_origin - 1; i++)
+						dx[i] = (x[i+1]-x[i-1])/2.0;
+				}
+				/// INITIATION
+				vector<float> m(pks),s1(pks),s2(pks),delta(pks); /// in R: m<-s1<-s2<-delta<-pks
+				for (i = 0; i < m.size(); i++)
+				{
+					/// Calculate s1
+					/// in R:
+					///      sel.1<-which(x >= max(vlys[vlys < m[i]]) & x < m[i])
+					///      s1[i]<-sqrt(sum((x[sel.1]-m[i])^2 * y[sel.1]*dx[sel.1])/sum(y[sel.1]*dx[sel.1]))
+					delta[i] = 0.0;
+					float tempValue;
+					pair<vector<float>,vector<int>> tempVector_ = which(vlys,0,m[i]);
+					vector<float> tempVector = tempVector_.first;
+					priority_queue<int> tempIndex;
+					int tempxNumS1,tempxNumS2;
+					float *tempxS1,*tempxS2;
+					float *tempyS1,*tempyS2;
+					float *tempdxS1,*tempdxS2;
+
+					//auto it = copy_if(vlys.begin(),vlys.end(),tempVector.begin(),bind2nd(less<float>(),m[i]));
+					//tempVector.resize(distance(tempVector.begin(),it));
+					tempValue = *max_element(tempVector.begin(),tempVector.end());
+					/// currently, tempValue is the maximum of vlys that less than m[i], i.e., max(vlys[vlys < m[i]])
+					for(j=0;j<num_origin;j++)
+						if(x[j] >= tempValue && x[j] < m[i]) /// i.e., which(x >= max(vlys[vlys < m[i]]) & x < m[i])
+							tempIndex.push(j);
+					if(tempIndex.empty())
 					{
-						use_one_of_multi_models = true;
-						if (tmpNash[j]>nash_one_of_multi_models){
-							nash_one_of_multi_models = tmpNash[j];
-							one_of_multi_params = results[i][j];
+						s1[i] = MISSINGFLOAT;
+						delta[i] = MISSINGFLOAT;
+					}
+					else
+					{
+						tempxNumS1 = tempIndex.size();
+						tempxS1 = new float[tempxNumS1];
+						if(tempxS1 == NULL) return 0;
+						tempyS1 = new float[tempxNumS1];
+						if(tempyS1 == NULL) return 0;
+						tempdxS1 = new float[tempxNumS1];
+						if(tempdxS1 == NULL) return 0;
+						for(k = tempxNumS1-1; k >= 0; k--)
+						{
+							tempxS1[k] = x[tempIndex.top()];
+							tempyS1[k] = y[tempIndex.top()];
+							tempdxS1[k] = dx[tempIndex.top()];
+							tempIndex.pop();
+						}
+						s1[i] = sqrt(matrix_sum( matrix_times(matrix_times(matrix_minus(tempxS1,m[i],tempxNumS1),matrix_minus(tempxS1,m[i],tempxNumS1),tempxNumS1),matrix_times(tempyS1,tempdxS1,tempxNumS1),tempxNumS1) ,tempxNumS1)/matrix_sum(matrix_times(tempyS1,tempdxS1,tempxNumS1),tempxNumS1));  // this style is not acceptable, but currently, I mainly focus on the functionality....
+					}
+					/// End the calculation of s1[i]
+					/// Calculate s2
+					///      sel.2<-which(x >= m[i] & x < min(vlys[vlys > m[i]]))
+					///      s2[i]<-sqrt(sum((x[sel.2]-m[i])^2 * y[sel.2] * dx[sel.2])/sum(y[sel.2]*dx[sel.2]))
+					tempVector.clear();
+					tempVector.resize(vlys.size());
+
+					tempVector_ = which(vlys,1,m[i]);
+					tempVector = tempVector_.first;
+					//it = copy_if(vlys.begin(),vlys.end(),tempVector.begin(),bind2nd(greater<float>(),m[i]));
+					//tempVector.resize(distance(tempVector.begin(),it));
+					tempValue = *min_element(tempVector.begin(),tempVector.end());
+					// currently, tempValue is the minimum of vlys that greater than m[i]
+					for(j=0;j<num_origin;j++)
+						if(x[j] < tempValue && x[j] >= m[i])
+							tempIndex.push(j);
+					if(tempIndex.empty())
+					{
+						s2[i] = MISSINGFLOAT;
+						delta[i] = MISSINGFLOAT;
+					}
+					else
+					{
+						tempxNumS2 = tempIndex.size();
+						tempxS2 = new float[tempxNumS2];
+						if(tempxS2 == NULL) return 0;
+						tempyS2 = new float[tempxNumS2];
+						if(tempyS2 == NULL) return 0;
+						tempdxS2 = new float[tempxNumS2];
+						if(tempdxS2 == NULL) return 0;
+						for(k = tempxNumS2-1; k >= 0; k--)
+						{
+							tempxS2[k] = x[tempIndex.top()];
+							tempyS2[k] = y[tempIndex.top()];
+							tempdxS2[k] = dx[tempIndex.top()];
+							tempIndex.pop();
+						}
+						s2[i] = sqrt(matrix_sum( matrix_times(matrix_times(matrix_minus(tempxS2,m[i],tempxNumS2),matrix_minus(tempxS2,m[i],tempxNumS2),tempxNumS2),matrix_times(tempyS2,tempdxS2,tempxNumS2),tempxNumS2) ,tempxNumS2)/matrix_sum(matrix_times(tempyS2,tempdxS2,tempxNumS2),tempxNumS2));  // this style is not acceptable, but currently, I mainly focus on the functionality....
+					}
+					/// End the calculation of s2[i]
+					/// Calculate delta
+					///     in R: delta[i]<-(sum(y[sel.1]*dx[sel.1]) + sum(y[sel.2]*dx[sel.2]))/((sum(dnorm(x[sel.1], mean=m[i], sd=s1[i])) * s1[i] /2)+(sum(dnorm(x[sel.2], mean=m[i], sd=s2[i])) * s2[i] /2))
+					if (delta[i] == 0.0)
+					{
+						delta[i] = (matrix_sum(matrix_times(tempyS1,tempdxS1,tempxNumS1),tempxNumS1) + matrix_sum(matrix_times(tempyS2,tempdxS2,tempxNumS2),tempxNumS2))/((matrix_sum(dnorm(tempxS1,tempxNumS1,m[i], s1[i]),tempxNumS1) * s1[i] /2)+(matrix_sum(dnorm(tempxS2,tempxNumS2,m[i], s2[i]),tempxNumS2) * s2[i] /2));
+					}
+					//cout<<s1[i]<<","<<s2[i]<<","<<delta[i]<<endl;
+
+				}
+				/// END INITIATION
+				for (i=0;i<m.size();i++)
+				{
+					if(delta[i] == MISSINGFLOAT || delta[i] == -1*MISSINGFLOAT)
+						delta[i] = 1e-10;
+					if(s1[i] == MISSINGFLOAT || s1[i] == -1*MISSINGFLOAT)
+						s1[i] = 1e-10;
+					if(s2[i] == MISSINGFLOAT || s2[i] == -1*MISSINGFLOAT)
+						s2[i] = 1e-10;
+				}
+				//printVector("    s1 is: ",s1);
+				//printVector("    s2 is: ",s2);
+				//printVector("    delta is: ",delta);
+				//printVector("    m is: ",m);
+				vector<vector<float> > fit(x.size(),vector<float>(pksNum,0.0f)); /// in R: fit<-matrix(0,ncol=length(m), nrow=length(x))
+				float this_change = -1 * MISSINGFLOAT;
+				int counter = 0;
+				vector<float> cuts;
+				int this_bigauss;
+				while (this_change > 0.1 && counter <= max_iter)
+				{
+					///cout<<"      this.change is: "<<this_change<<",iterator number is: "<<counter<<endl;
+					counter++;
+					vector<float> old_m(m);
+					///  E step
+					cuts = m;
+					cuts.push_back(-1 * MISSINGFLOAT);
+					cuts.insert(cuts.begin(),MISSINGFLOAT); /// in R: cuts<-c(-Inf, m, Inf)
+					for (i = 1; i < cuts.size(); i++)
+					{
+						priority_queue<int> tempIndex;
+						for(j = 0; j < x.size(); j++)
+							if(x[j] >= cuts[i-1] && x[j] < cuts[i])  /// in R: sel<-which(x >= cuts[i-1] & x < cuts[i])
+								tempIndex.push(j);
+						if(!tempIndex.empty())
+						{
+							int tempxNum = tempIndex.size();
+							float *tempx = new float[tempxNum];
+							if(tempx == NULL) return 0;
+							int *sel = new int[tempxNum];
+							for(k = tempxNum-1; k >= 0; k--)
+							{
+								sel[k] = tempIndex.top();
+								tempx[k] = x[sel[k]];							
+								tempIndex.pop();
+							}
+							/// tempIndex is empty now
+							float *s_to_use = new float[s2.size()];
+							if(s_to_use == NULL) return 0;
+							for(j = 0; j < s2.size(); j++)
+							{
+								s_to_use[j] = s2[j]; /// in R: s.to.use<-s2
+								if(j >= (i - 1))  /// in R: use.s1<-which(1:length(m) >= (i-1))
+									tempIndex.push(j);
+							}
+							if(!tempIndex.empty()) /// tempIndex is use.s1
+							{
+								int tempxNum2 = tempIndex.size();
+								for(k = tempxNum2-1; k >= 0; k--)
+								{
+									int iii = tempIndex.top();
+									s_to_use[iii] = s1[iii]; /// in R: s.to.use[use.s1]<-s1[use.s1]
+									tempIndex.pop();
+								}
+							}
+							float *temp_dnorm = new float[tempxNum];
+							if(temp_dnorm == NULL) return 0;
+							for(k=0;k<fit[0].size();k++){  /// cols
+								temp_dnorm = dnorm(tempx,tempxNum, m[k], s_to_use[k]);
+								for(j = 0;j < tempxNum; j++){ /// rows
+									fit[sel[j]][k] = temp_dnorm[j]  * s_to_use[k] * delta[k];
+								}
+							}
+						}
+					}
+					//for (int k = 0; k < x.size(); k++)
+					//{
+					//	string sss = "      E step, fit["+toString(k)+"] is: ";
+					//	printVector(sss,fit[k]);
+					//}
+					/// Elimination step
+					float sum_fit;
+					vector<vector<float> > fit2(num_origin,vector<float>(fit[0].size()));
+					for(i=0;i<num_origin;i++){
+						sum_fit = 0.0;
+						for(j=0;j<fit[0].size();j++){
+							if(isNA(fit[i][j]))
+								fit[i][j] = 0.0;
+							sum_fit += fit[i][j];
+						}
+						for(j=0;j<fit[0].size();j++){
+							fit[i][j] /= sum_fit;
+							fit2[i][j] = fit[i][j] * y[i];
+						}
+					}
+					/// in R: perc.explained<-apply(fit2,2,sum)/sum(y)
+					float *perc_explained = new float[fit2[0].size()];
+					if(perc_explained == NULL) return 0;
+					float sumY = accumulate(y.begin(),y.end(),0.0);
+					for(j=0;j<fit2[0].size();j++){
+						perc_explained[j] = 0;
+						for(i=0;i<num_origin;i++)
+							perc_explained[j]+=fit2[i][j];
+						perc_explained[j]/= sumY;
+					}
+					//printArray("      E step, perc_explained is: ",perc_explained, fit2[0].size());
+					int max_erase = max(0,int(round(float(fit2[0].size())/5.0f))); /// in R: max(1, round(length(perc.explained)/5))
+					/// in R: to.erase<-which(perc.explained <= min(eliminate, perc.explained[order(perc.explained, na.last=FALSE)[max.erase]]))
+					int *perc_explained_order = new int[fit2[0].size()];
+					if(perc_explained_order == NULL) return 0;
+					perc_explained_order = order(perc_explained,fit2[0].size(),false);
+					//printArray("      E step, perc_explained is: ",perc_explained, fit2[0].size());
+					//printArray("      E step, perc_explained_order is: ",perc_explained_order, fit2[0].size());
+					vector<int> to_erase_que;
+					if (max_erase <= fit2[0].size())
+					{
+						float tempEliminate = min(eliminate,perc_explained[perc_explained_order[max_erase]]);
+						for(j = 0;j<fit2[0].size();j++)
+							if(perc_explained[j] <= tempEliminate)
+								to_erase_que.push_back(j);
+					}
+					int to_erase_que_size = 0;
+					if (!to_erase_que.empty()) 
+					{
+						for (j = fit2[0].size()-1; j >= 0; j--)
+						{
+							if(!(find(to_erase_que.begin(),to_erase_que.end(),j)==to_erase_que.end()))
+							{
+								m.erase(m.begin()+j); /// in R: m<-m[-to.erase]
+								s1.erase(s1.begin()+j);
+								s2.erase(s2.begin()+j);
+								delta.erase(delta.begin()+j);
+								for (k=0;k<num_origin;k++)
+									fit[k].erase(fit[k].begin()+j);
+								old_m.erase(old_m.begin()+j);
+							}
+						}
+						for(i=0;i<num_origin;i++){
+							sum_fit = accumulate(fit[i].begin(),fit[i].end(),0.0f);
+							for(j=0;j<fit[i].size();j++)
+								if(sum_fit == 0.0)
+									fit[i][j] = MISSINGFLOAT;
+								else
+									fit[i][j] /= sum_fit;
+						}
+					}
+					///printVector("      Elimination step, old.m is: ",old_m);
+					/// M setp
+
+					for (i = 0; i < m.size(); i++)
+					{
+						vector<float> this_y(y.size());
+						for (j = 0; j < y.size(); j++)
+							if(isNA(fit[j][i]))
+								this_y[j] = MISSINGFLOAT;
+							else
+								this_y[j] = fit[j][i] * y[j];
+						vector<float> this_fit(4);
+
+						if (esti_method == 0)
+							this_bigauss = Bigauss_esti_moment(x,this_y,powerIdx,sigma_ratio_limit,this_fit);
+						else
+							this_bigauss = Bigauss_esti_em(x,this_y,max_iter,epsilon,powerIdx,sigma_ratio_limit,this_fit);
+						if (this_bigauss == 0){
+							counter = max_iter+1;
+							m[i] = MISSINGFLOAT;
+							s1[i] = MISSINGFLOAT;
+							s2[i] = MISSINGFLOAT;
+							delta[i] = MISSINGFLOAT;
+						}
+						else
+						{
+							m[i] = this_fit[0];
+							s1[i] = this_fit[1];
+							s2[i] = this_fit[2];
+							delta[i] = this_fit[3];
+						}
+
+					}
+					for(i = 0; i < delta.size(); i++)
+						if(isNA(delta[i]))
+							delta[i] = 0.0f;
+					/// amount of change
+					if(isNA(this_change))
+						this_change = 0.0f;
+					for(i = 0; i < m.size(); i++)
+						if(!isNA(m[i]))
+							this_change += (old_m[i]-m[i])*(old_m[i]-m[i]);
+					//printVector("      M step, m is: ",m);
+					//printVector("      M step, s1 is: ",s1);
+					//printVector("      M step, s2 is: ",s2);
+					//printVector("      M step, delta is: ",delta);
+					//cout<<"      M step, this.change is: "<<this_change<<endl;
+				}
+				cuts.clear();
+				cuts = m;
+				cuts.push_back(-1 * MISSINGFLOAT);
+				cuts.insert(cuts.begin(),MISSINGFLOAT);
+				for (j = 0; j < fit.size(); j++)
+				{
+					for (k = 0; k < fit[j].size(); k++)
+					{
+						fit[j][k] = 0.0;
+					}
+				}
+				for (j = 1; j < cuts.size(); j++)
+				{
+					vector<int> sel,use_s1;
+					for (k = 0; k < num_origin; k++)
+					{
+						if(x[k] >= cuts[j-1] && x[k] < cuts[j])
+							sel.push_back(k);
+					}
+					float *tempx = new float[sel.size()];
+					if(tempx == NULL) return 0;
+					for (k = 0; k < sel.size(); k++)
+						tempx[k] = x[sel[k]];
+
+					for (k = 0; k < m.size(); k++)
+						if(k >= (j-1))
+							use_s1.push_back(k);
+					vector<float> s_to_use(s2);
+					if(!use_s1.empty())
+						for (i = 0; i < use_s1.size(); i++)
+							s_to_use[use_s1[i]] = s1[use_s1[i]];
+					for (i = 0; i < fit[0].size(); i++)
+					{
+						float *temp_dnorm = dnorm(tempx,sel.size(),m[i],s_to_use[i]);
+						if (s_to_use[i] != 0)
+						{
+							for (k = 0; k < sel.size(); k++)
+							{
+								fit[sel[k]][i] = temp_dnorm[k] * s_to_use[i] * delta[i];
+							}
 						}
 					}
 				}
+				vector<float> area(delta.size());
+				for (i = 0; i < delta.size(); i++)
+				{
+					if (!isNA(delta[i]))
+						area[i] = delta[i] * (s1[i] + s2[i]) / 2;
+					else
+						area[i] = MISSINGFLOAT;
+				}
+				float rss = 0.0, fit_mean = 0.0, rss2 = 0.0;
+				for (i = 0; i < y.size(); i++)
+					fit_mean += accumulate(fit[i].begin(),fit[i].end(),0.0);
+				fit_mean /= (fit.size() * fit[0].size());
+				for (i = 0; i < y.size(); i++)
+				{
+					float tempfitrow = accumulate(fit[i].begin(),fit[i].end(),0.0);
+					rss += (y[i] - tempfitrow)*(y[i] - tempfitrow);
+					rss2 += (fit_mean - tempfitrow)*(fit_mean - tempfitrow);
+				}
+				num_origin = x.size();
+				float bic,nash;
+				if(this_bigauss == 1){
+					bic = num_origin * log(rss/num_origin) + 4 * m.size() * log((float)num_origin);
+					nash = 1 - rss / rss2;
+				}
+				else{
+					bic = MISSINGFLOAT;
+					nash = MISSINGFLOAT;
+				}
+				results[bw_n] = new float*[m.size()];
+				if(results[bw_n] == NULL) return 0;
+				results_group[bw_n] = m.size();
+				for (i = 0; i < m.size(); i++)
+				{
+					results[bw_n][i] = new float[5];
+					results[bw_n][i][0] = m[i];
+					results[bw_n][i][1] = s1[i];
+					results[bw_n][i][2] = s2[i];
+					results[bw_n][i][3] = delta[i];
+					results[bw_n][i][4] = area[i];
+				}
+				bic_rec[bw_n] = bic;
+				nash_coef[bw_n] = nash;
 			}
-        }
-        if (sel_single_v.size() == 1)
-            sel_single = sel_single_v[0];
-        else if (sel_single_v.size() > 1)
-        {
-            sel_single = sel_single_v[0];
-            temp_bic_rec = bic_rec[sel_single];
-            temp_nash_coef = nash_coef[sel_single];
-            for (i = 1; i < sel_single_v.size(); i++)
-                if (bic_rec[sel_single_v[i]] < temp_bic_rec || nash_coef[sel_single_v[i]] > temp_nash_coef)
-                    sel_single = sel_single_v[i];
-        }
-        else
-            sel_single = MISSINGSHORT;
-        if (sel_v.size() == 1)
-            sel = sel_v[0];
-        else if (sel_v.size() > 1)
-        {
-            sel = sel_v[0];
-            temp_bic_rec = bic_rec[sel];
-            temp_nash_coef = nash_coef[sel];
-            for (i = 1; i < sel_v.size(); i++)
-                if (bic_rec[sel_v[i]] < temp_bic_rec || nash_coef[sel_v[i]] > temp_nash_coef)
-                    sel = sel_v[i];
-        }
-        else
-            sel = MISSINGSHORT;
-
-        if (sel == MISSINGSHORT && sel_single != MISSINGSHORT)
-            sel2 = sel_single;
-        else if (sel != MISSINGSHORT && sel_single == MISSINGSHORT)
-            sel2 = sel;
-        else if (sel != sel_single && sel != MISSINGSHORT && sel_single != MISSINGSHORT)
-        {
-            if (nash_coef[sel_single] >= 0.8f * nash_coef[sel] || bic_rec[sel_single] >= 0.8f * bic_rec[sel])
-                sel2 = sel_single;
-            else
-                sel2 = sel;
-        }
-        else
-            sel2 = MISSINGSHORT;
-        if (sel2 == MISSINGSHORT && !use_one_of_multi_models)
-            return 0;
-		else if(use_one_of_multi_models)
+			else
+			{
+				results[bw_n] = NULL;
+				bic_rec[bw_n] = MISSINGFLOAT;
+				results[bw_n] = results[bw_n + 1];
+			}
+		}
+		int sel = 0, sel2 = 0, sel_single = 0;
+		vector<int> sel_v, sel_v2,sel_single_v;
+		float temp_bic_rec,temp_nash_coef;
+		for(i = 0; i < results_group.size(); i++)
 		{
-			fit_results.resize(1);
-			fit_results[0].resize(5);
-			fit_results[0][0] = one_of_multi_params[0];
-			fit_results[0][1] = one_of_multi_params[1];
-			fit_results[0][2] = one_of_multi_params[2];
-			fit_results[0][3] = one_of_multi_params[3];
-			fit_results[0][4] = nash_one_of_multi_models;
+			if(results_group[i] == 1 && !isNA(bic_rec[i]))
+				sel_single_v.push_back(i);
+			else if(results_group[i] == 1 && !isNA(bic_rec[i]))
+				sel_v.push_back(i);
+		}
+		if(sel_single_v.size() == 1)
+			sel_single = sel_single_v[0];
+		else if(sel_single_v.size() > 1)
+		{
+			sel_single = sel_single_v[0];
+			temp_bic_rec = bic_rec[sel_single];
+			temp_nash_coef = nash_coef[sel_single];
+			for(i = 1; i < sel_single_v.size(); i++)
+				if(bic_rec[sel_single_v[i]] < temp_bic_rec || nash_coef[sel_single_v[i]] > temp_nash_coef)
+					sel_single = sel_single_v[i];
+		}
+		else
+			sel_single = MISSINGSHORT;
+		if(sel_v.size() == 1)
+			sel = sel_v[0];
+		else if(sel_v.size() > 1)
+		{
+			sel = sel_v[0];
+			temp_bic_rec = bic_rec[sel];
+			temp_nash_coef = nash_coef[sel];
+			for(i = 1; i < sel_v.size(); i++)
+				if(bic_rec[sel_v[i]] < temp_bic_rec || nash_coef[sel_v[i]] > temp_nash_coef)
+					sel = sel_v[i];
+		}
+		else
+			sel = MISSINGSHORT;
+
+		if(sel == MISSINGSHORT && sel_single != MISSINGSHORT)
+			sel2 = sel_single;
+		else if(sel != MISSINGSHORT && sel_single == MISSINGSHORT)
+			sel2 = sel;
+		else if(sel != sel_single && sel != MISSINGSHORT && sel_single != MISSINGSHORT)
+		{
+			if(nash_coef[sel_single] >= 0.8 * nash_coef[sel] || bic_rec[sel_single] >= 0.8 * bic_rec[sel])
+				sel2 = sel_single;
+			else
+				sel2 = sel;
+		}
+		else
+			sel2 = MISSINGSHORT;
+		if(sel2 == MISSINGSHORT)
+			return 0;
+		else
+		{
+			fit_results.resize(results_group[sel2]);
+			for (i = 0; i < results_group[sel2]; i++)
+			{
+				fit_results[i].resize(5);
+				fit_results[i][0] = results[sel2][i][0]; /// m : peak center
+				fit_results[i][1] = results[sel2][i][1]; /// s1: sigma1 (left)
+				fit_results[i][2] = results[sel2][i][2]; /// s2: sigma2 (right)
+				fit_results[i][3] = results[sel2][i][3]; /// delta
+				fit_results[i][4] = nash_coef[sel2];     /// nash: nash-sutcliffe coefficient
+			}
 			return 1;
 		}
-        else
-        {
-            fit_results.resize(results_group[sel2]);
-            for (i = 0; i < results_group[sel2]; i++)
-            {
-                fit_results[i].resize(5);
-                fit_results[i][0] = results[sel2][i][0]; /// m : peak center
-                fit_results[i][1] = results[sel2][i][1]; /// s1: sigma1 (left)
-                fit_results[i][2] = results[sel2][i][2]; /// s2: sigma2 (right)
-                fit_results[i][3] = results[sel2][i][3]; /// delta
-                fit_results[i][4] = nash_coef[sel2]; /// nash: nash-sutcliffe coefficient
-            }
-            return 1;
-        }
-    }
+	}
 }
+
 
 int Bigauss_esti_em(vector<float> &old_x, vector<float> &old_y, int max_iter, float epsilon, float powerIdx,
                     vector<float> &sigma_ratio_limit, vector<float> &fit)

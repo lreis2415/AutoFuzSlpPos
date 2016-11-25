@@ -142,7 +142,6 @@ int main(int argc, char **argv)
                 sscanf(dest[4], "%f", &addparamgrd[i].maxTyp);
             }
         }
-
     }
     else goto errexit;
     //for(i=0;i<fuzinf.size();i++)

@@ -158,8 +158,10 @@ int connectdown(char *ad8file, char *outletshapefile)
         end = MPI_Wtime();
         double total, temp;
         total = end - begin;
-        MPI_Allreduce(&total, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        total = temp / size;
+        //MPI_Allreduce(&total, &temp, 1, MPI_DOUBLE, MPI_SUM, MCW);
+        //total = temp / size;
+		MPI_Allreduce(&total, &temp, 1, MPI_DOUBLE, MPI_MAX, MCW);
+		total = temp;
         if (rank == 0)
             printf("Processor:%d\n    Read time:%f\n    Compute time:%f\n    Write time:%f\n    Total time:%f\n", size,
                    0.0, 0.0, 0.0, total);

@@ -32,6 +32,7 @@ elif sysstr == "Linux":
 
 ## Write log
 def outputLog(title, lines):
+    abortRun(title, lines)
     contentList = []
     timeDict = {'name': None, 'readt': 0, 'writet': 0, 'computet': 0, 'totalt': 0}
     timeDict['name'] = title
@@ -56,11 +57,19 @@ def MPIHeader(mpiexeDir, inputProc, hostfile=None):
         cmd = '"' + mpiexeDir + os.sep + 'mpiexec"'
     else:
         cmd = '"mpiexec"'
-    if inputProc > 8 and hostfile is not None:
+    if hostfile is not None:
         cmd = cmd + ' -f ' + hostfile + ' -n '
     else:
         cmd += ' -n '
     return cmd
+
+
+def abortRun(title, lines):
+    for line in lines:
+        if "ERROR" in line.upper() or 'BAD TERMINATION' in line.upper():
+            raise RuntimeError(title + " failed, please contact the developer!")
+    return True
+
 
 ## Basic Grid Analysis
 def pitremove(inZfile, inputProc, outFile, mpiexeDir = None, exeDir = None, hostfile = None):
