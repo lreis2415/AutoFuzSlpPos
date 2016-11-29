@@ -15,10 +15,10 @@ AutoFuzSlpPos (short for "**Automated Fuzzy Slope Position**") is developed by P
 
 1. [Introduction](#1-introduction)
 2. [Installation](#2-installation)	
-	- [Code structure](#21-code-structure)
-	- [Compile on Windows](#22-compile-on-windows)
-	- [Compile on Linux/Unix](#23-compile-on-linuxunix)
-	- [Configuration](#24-configuration) 
+	- [2.1 Code structure](#21-code-structure)
+	- [2.2 Compile on Windows](#22-compile-on-windows)
+	- [2.3 Compile on Linux/Unix](#23-compile-on-linuxunix)
+	- [2.4 Configuration](#24-configuration) 
 3. [Run AutoFuzSlpPos](#3-run-autofuzslppos)
 
 
@@ -140,7 +140,9 @@ python .../source-code/code/py_main/main.py -ini <configuration file path> [-pro
 
 where: 
 `<configuration file path>` is the full path of the *ini file, e.g. `/home/zhulj/AutoFuzSlpPos/data/Jamaica/Jamaica_dgpm.ini`
+
 `<process number>` is the process number for MPI, which can overwrite the inputProc defined in configuration file.
+
 `<workspace path>` it the workspace path to store the results, which can overwrite rootDir the defined in configuration file.
 
 The following table gives a brief introduction to the result files.
