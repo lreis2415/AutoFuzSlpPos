@@ -1,37 +1,36 @@
 # Welcome to AutoFuzSlpPos
 ----------
 
+Latest version: AutoFuzSlpPos-2016.11
+
 Build status：[![Build Status](https://travis-ci.org/lreis2415/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/lreis2415/AutoFuzSlpPos)
 
-AutoFuzSlpPos (short for "**Automated for Fuzzy Slope Position**") is developed by PhD candidate Liang-Jun Zhu and **Prof.** Cheng-Zhi Qin in Lreis, IGSNRR, CAS, China.
+AutoFuzSlpPos (short for "**Automated Fuzzy Slope Position**") is developed by PhD candidate Liang-Jun Zhu and **Prof.** Cheng-Zhi Qin in Lreis, IGSNRR, CAS, China.
 
-+ also see [User Manual in Chinese](https://github.com/lreis2415/AutoFuzSlpPos/blob/master/README_CN.md).
++ Users familiar with Chinese, please refer to [User Manual in Chinese](https://github.com/lreis2415/AutoFuzSlpPos/blob/master/README_CN.md).
 
-Contact and support email: zlj@lreis.ac.cn
+>Contact and support email: zlj@lreis.ac.cn
 
-Update date: 2016-9-26
+>Update date: 2016-11-26
 
 1. [Introduction](#1-introduction)
 2. [Installation](#2-installation)	
 	- [Code structure](#21-code-structure)
-	- [Installation on Windows](#22-installation-on-windows)
-	- [Installation on Linux/Unix](#23-installation-on-linuxunix)
+	- [Compile on Windows](#22-compile-on-windows)
+	- [Compile on Linux/Unix](#23-compile-on-linuxunix)
 	- [Configuration](#24-configuration) 
 3. [Run AutoFuzSlpPos](#3-run-autofuzslppos)
 
 
 # 1 Introduction
 
-AutoFuzSlpPos is an automatic approach with only one required input data (i.e., a gridded DEM of the study area) to deriving fuzzy slope positions based on the prototype-based method proposed by Qin *et al*. (2009. Quantification of spatial gradation of slope positions. Geomorphology 110, 152-161.). 
+AutoFuzSlpPos is an automatic approach with only one required input data (i.e., a gridded DEM of the study area) to deriving fuzzy slope positions based on the prototype-based inference method proposed by Qin *et al*. (2009. [Quantification of spatial gradation of slope positions](http://dx.doi.org/10.1016/j.geomorph.2009.04.003). Geomorphology 110, 152-161.). AutoFuzSlpPos consists three major parts, i.e., preparing topographic attributes, extracting typical locations, and calculating similarity for each slope position. The preliminary implementation employs the system of five basic slope positions, such as Fig.1.
 
-The prototype-based method consists three major steps, i.e., preparing topographic attributes, extracting typical locations, and calculating similarity for each slope position.
-
-The preliminary implementation employs the system of five basic slope positions, such as Fig.1.
 <img src="doc/schematic_of_slope_positions.png" width="400">
 
 **Fig.1 Schematic of the five slope positions**
 
-AutoFuzSlpPos V1.0 is developed under the [TauDEM parallelized framework](http://hydrology.usu.edu/taudem/taudem5/index.html "TauDEM") and programmed using C++ and Python language. 
+Current version of AutoFuzSlpPos is developed under the [TauDEM parallelized framework](http://hydrology.usu.edu/taudem/taudem5/index.html "TauDEM") and programmed using C++ and Python language. 
 
 The program is capable with Windows and Linux/Unix, e.g., Windows 7/8/10, CentOS 6.2, and Ubuntu 14.04. The  prerequisites environment of the compilation  and configuration of AutoFuzSlpPos is as follows:
 
@@ -41,10 +40,10 @@ The program is capable with Windows and Linux/Unix, e.g., Windows 7/8/10, CentOS
 
 # 2 Installation
 
-If you want to install from source code, please follow [Installation on Windows](#22-installation-on-windows) or [Installation on Linux/Unix](#23-installation-on-linuxunix). If you want to use AutoFuzSlpPos directly with the compiled executable files, please refers to [Configuration](#24-configuration).
+If you want to install from source code, please follow [Compile on Windows](#22-compile-on-windows) or [Compile on Linux/Unix](#23-compile-on-linuxunix). If you want to use AutoFuzSlpPos directly with the compiled executable files, please refers to [Configuration](#24-configuration).
 
 ## 2.1 Code structure
-The source code consists of two parts: 1) the C++ source code located in `../<source-code>/src`, and 2) python scripts located in `../source-code/src`. 
+The source code consists of two parts: 1) the C++ source code located in `../<source-code>/src`, and 2) python scripts located in `../source-code/py_main`. 
 
 C++ code will be compiled as separated executable files, such as "**SelectTypLocSlpPos**" which is used for extracting typical locations and setting parameters for fuzzy inference of each slope position.
  
@@ -53,7 +52,7 @@ Python script is to organize the whole work-flow with a configurable script for 
 | Script | Functionality |
 |--------|---------------|
 | `main.py`| The entrance of AutoFuzSlpPos |
-| `Config.py` | The configuration file for user customization |
+| `Config.py` | Parse the configuration file (*.ini) prepared by user. |
 | `Nomenclature.py` | Predefined filenames |
 | `TauDEM.py` | Functions  based  on  TauDEM  and  the  extension  functions,  e.g., SelectTypLocSlpPos |
 | `Util.py` | Some fundamental functions, e.g., functions for the Input/Output of raster data |
@@ -62,16 +61,18 @@ Python script is to organize the whole work-flow with a configurable script for 
 | `FuzzySlpPosInference.py` | Prepare input files for fuzzy inference of each slope position |
 
 
-## 2.2 Installation on Windows
+## 2.2 Compile on Windows
 
-The MPI library used for PC is [Microsoft MS-MPI V6](https://www.microsoft.com/en-us/download/details.aspx?id=47259). Please make sure that CMAKE and nmake (installed with Visual Studio, such as VS2010) have been installed on your PC. It is highly recommended to check the MPI Library path in `../<source-code>/src/CMakeLists.txt` to make sure they are correct for user’s environment:
+The MPI library used for PC is [Microsoft MS-MPI V6](https://www.microsoft.com/en-us/download/details.aspx?id=47259) or later. 
+
+Firstly, please make sure that CMAKE and nmake (installed with Visual Studio, such as VS2010) have been installed on your PC. It is highly recommended to check the MPI Library path in `../<source-code>/src/CMakeLists.txt` to make sure they are correct for user’s environment:
 
 ~~~
 include_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Include")
 link_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x86")
 link_libraries("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x86/msmpi.lib")
 ~~~
-Then, open “Visual Studio Command Prompt” from Start menu (as administrator), and run the following commands:
+Then, open “**Visual Studio Command Prompt**” from Start menu (as administrator), and run the following commands:
 
 ~~~
 cd <Build_Path>
@@ -86,7 +87,7 @@ nmake
 
 The executable files will be compiled and saved in `<Build_Path>`.
 
-## 2.3 Installation on Linux/Unix
+## 2.3 Compile on Linux/Unix
 
 Unlike the MPI version for PC, the implementation of [MPICH](http://www.mpich.org/downloads/ "MPICH") is adopted for Linux/Unix platform.
 
@@ -108,26 +109,39 @@ The executable files will be generated in `INSTALLDIR`.
 ## 2.4 Configuration
 
 A script program of Python language is implemented to organize the work-flow of deriving fuzzy slope positions.
-You can configure the environment of AutoFuzSlpPos through the configuration file, e.g., `../source-code/data/Jamaica/Jamaica_dgpm.ini`. 
+User can configure the environment of AutoFuzSlpPos through the configuration file with the extension of *.ini, e.g. `.../<source-code>/data/Jamaica_windows.ini` for Windows and `../<source-code>/data/Jamaica_cluster.ini` for Linux cluster.
 
-The required settings includes:
+Besides the required path of the DEM of the study area (i.e., rawdem), the paths of the compiled executable files of AutoFuzSlpPos and workspace to store the results should be given correctly, for instance:
+
 ~~~
 exeDir = /home/zhulj/AutoFuzSlpPos/exec
 rootDir = /home/zhulj/AutoFuzSlpPos/Demo
-rawdem = /home/zhulj/AutoFuzSlpPos/data/Jamaica/Jamaica_dem.tif
 ~~~
 
-Note that, if the path of MPI is not in the ENVIRONMENT PATH of your system, the OPTIONAL setting `mpiexeDir` must be explicitly assigned, such as `mpiexeDir = /home/zhulj/mpich/bin`. Otherwise, it can be set as `None`. The OPTIONAL setting `hostfile` is used to specify the hosts on which the MPI jobs will be run. If you does not know how to prepare the `hostfile`, just leave it as `hostfile = None`, or explicitly set as `hostfile = /home/zhulj/AutoFuzSlpPos/exec/dgpm`.
+Note that, if the path of MPI is in the ENVIRONMENT PATH in the system, the `mpiexeDir` could be set as `None`, otherwise it should be explicitly assigned, such as `mpiexeDir = /home/zhulj/mpich/bin`. The `hostfile` is used to specify the hosts on which the MPI jobs will be submitted. If user does not know how to prepare the hostfile, just leave it as `hostfile = None`. One possible example is as follows:
 
-After that, you can run AutoFuzSlpPos program for a specific study area, using the following command:
-
-```python
-python ../source-code/py_main/main.py -ini ../source-code/data/Jamaica/Jamaica_dgpm.ini
+```
+hostfile = /home/zhulj/AutoFuzSlpPos/exec/dgpm
+dgpm-cluster.public:1
+dgpm-compute-1.local:12
+dgpm-compute-2.local:12
+dgpm-compute-3.local:12
+dgpm-compute-4.local:12
 ```
 
-Other optional parameters could be customized by users in this configuration files as well. For more details, please refer to the demo file.
+Next, the AutoFuzSlpPos with default parameter settings is ready to run for the specific study area. Other optional parameters are briefly introduced in the configuration file (*.ini).
 
-# 3 Result of AutoFuzSlpPos
+# 3 Run AutoFuzSlpPos
+
+Use the following command to run AutoFuzSlpPos:
+```
+python .../source-code/code/py_main/main.py -ini <configuration file path> [-proc <process number> -root <workspace path>]
+```
+
+where: 
+`<configuration file path>` is the full path of the *ini file, e.g. `/home/zhulj/AutoFuzSlpPos/data/Jamaica/Jamaica_dgpm.ini`
+`<process number>` is the process number for MPI, which can overwrite the inputProc defined in configuration file.
+`<workspace path>` it the workspace path to store the results, which can overwrite rootDir the defined in configuration file.
 
 The following table gives a brief introduction to the result files.
 

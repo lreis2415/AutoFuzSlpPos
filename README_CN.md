@@ -1,6 +1,7 @@
 # 模糊坡位信息自动提取程序
 ==========
 ----------
+>  警告：中文版用户说明文档尚未更新，请以[英文版](https://github.com/lreis2415/AutoFuzSlpPos/blob/master/README.md)为主，谢谢。
 
 编译状态：[![Build Status](https://travis-ci.org/lreis2415/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/lreis2415/AutoFuzSlpPos)
 
