@@ -1,0 +1,418 @@
+
+
+#### PitRemove ####
+PitRemove version 5.1.2
+Processes: 4
+Read time: 0.002176
+Compute time: 0.002996
+Write time: 0.001251
+Total time: 0.006423
+
+
+#### D8FlowDir ####
+D8FlowDir version 5.1.2
+Processors: 4
+Read time: 0.002490
+Compute time: 0.004054
+Write time: 0.004199
+Total time: 0.010743
+
+
+#### DinfFlowDir ####
+DinfFlowDir version 5.1.2
+Processors: 4
+Read time: 0.002679
+Compute time: 0.007788
+Write time: 0.004719
+Total time: 0.015186
+
+
+#### D8 contributing area ####
+AreaD8 version 5.1.2
+Processors: 4
+Read time: 0.001945
+Compute time: 0.002091
+Write time: 0.001644
+Total time: 0.005681
+
+
+#### Threshold to define stream ####
+Threshold version 5.1.2
+Compute time: 0.000449
+
+
+#### ConnectDown ####
+ConnectDown version 5.1.2
+Processor:4
+    Read time:0.000000
+    Compute time:0.000000
+    Write time:0.000000
+    Total time:0.004515
+
+
+#### Moving outlet point to streams ####
+MoveOutletsToStreams version 5.1.2
+Total time: 0.008090
+
+
+#### D-inf contributing area ####
+AreaDinf version 5.1.2
+Processors: 4
+Read time: 0.002352
+Compute time: 0.002926
+Write time: 0.001373
+Total time: 0.006651
+
+
+#### Stream skeleton based on Peuker-Douglas ####
+PeukerDouglas version 5.1.2
+Processors: 4
+Read time: 0.002303
+Compute time: 0.001396
+Write time: 0.001257
+Total time: 0.004957
+
+
+#### D8 contributing area ####
+AreaD8 version 5.1.2
+Processors: 4
+Read time: 0.004379
+Compute time: 0.001941
+Write time: 0.001738
+Total time: 0.008058
+
+
+#### Drop analysis ####
+DropAnalysis version 5.1.2
+Threshold DrainDen NoFirstOrd NoHighOrd MeanDFirstOrd MeanDHighOrd StdDevFirstOrd StdDevHighOrd Tval
+4.240769 0.185881 41 13 11.765634 15.577801 10.701341 14.961270 -1.013137
+4.743742 0.185881 41 13 11.765634 15.577801 10.701341 14.961270 -1.013137
+5.306368 0.165889 32 7 11.364105 24.661419 9.598669 19.874548 -2.681423
+5.935724 0.165889 32 7 11.364105 24.661419 9.598669 19.874548 -2.681423
+6.639725 0.151959 27 4 10.427879 29.176792 9.309037 14.874454 -3.489380
+7.427222 0.144193 24 4 9.364968 29.176792 9.336506 14.874454 -3.620934
+8.308121 0.135908 23 3 10.531842 26.506149 12.329730 13.523805 -2.092967
+9.293496 0.129808 18 3 13.622522 17.671610 14.574445 20.089737 -0.425791
+10.395742 0.123904 15 3 13.685781 13.603027 13.597204 22.660582 0.008704
+11.628719 0.119838 15 3 13.074842 13.603027 13.391617 22.660582 -0.056164
+13.007931 0.113415 14 3 14.495878 4.238424 14.161797 6.440618 1.203908
+14.550723 0.109715 14 3 14.111840 4.238424 14.087547 6.440618 1.164752
+16.276497 0.105174 12 3 17.104366 4.238424 13.584224 6.440618 1.563468
+18.206953 0.103140 11 3 18.195524 4.238424 13.485264 6.440618 1.702284
+20.366371 0.101474 11 3 17.602804 4.238424 13.499294 6.440618 1.628373
+22.781902 0.096046 9 3 18.678404 4.238424 14.192422 6.440618 1.664006
+25.483927 0.093385 8 3 23.747591 4.238424 17.262291 6.440618 1.856319
+28.506422 0.087375 7 2 23.939426 6.092575 19.307819 7.895306 1.228219
+31.887396 0.086120 7 2 23.782961 6.092575 19.290457 7.895306 1.218517
+35.669369 0.081516 6 0 26.470434  -  18.417883  -   - 
+4.240769  Value for optimum that drop analysis selected - see output file for details.
+Processes: 4
+Read time: 0.005000
+Compute time: 0.021250
+Total time: 0.026250
+
+
+#### Threshold to define stream ####
+Threshold version 5.1.2
+Compute time: 0.000426
+
+
+#### Threshold to define stream ####
+Threshold version 5.1.2
+Compute time: 0.000365
+
+
+#### Dinf distance down ####
+DinfDistDown -v version 5.1.2
+Processors: 4
+Read time: 0.003977
+Compute time: 0.002776
+Write time: 0.001082
+Total time: 0.007834
+
+
+#### Stream net ####
+StreamNet version 5.1.2
+Processors: 4
+Read time: 0.005495
+Length compute time: 0.000512
+Link compute time: 0.000545
+Link write time: 0.012185
+Watershed compute time: 0.001230
+Write time: 0.002821
+Total time: 0.022788
+
+
+#### RPI (skidmore, 1990) ####
+RPISkidmore version 5.1.2, added by Liangjun Zhu, Jun.17, 2015
+Valley Source File: C:\z_data_m\AutoFuzSlpPos\jamaica\DinfpreDir\vlysrc.tif
+Ridge Source File: C:\z_data_m\AutoFuzSlpPos\jamaica\DinfpreDir\rdgsrc.tif
+RPI File: C:\z_data_m\AutoFuzSlpPos\jamaica\DinfpreDir\rpiSkidmore.tif
+Distance to Valley File: C:\z_data_m\AutoFuzSlpPos\jamaica\DinfpreDir\dist2vly.tif
+Distance to Ridge File: C:\z_data_m\AutoFuzSlpPos\jamaica\DinfpreDir\dist2rdg.tif
+Processor:4
+    Read time:0.003836
+    Compute time:0.025715
+    Write time:0.010712
+    Total time:0.040262
+
+
+#### Curvature ####
+Curvature -h version 5.1.2, by Liangjun Zhu, Apr 8, 2015
+Processors: 4
+Read time: 0.003072
+Compute time: 0.002339
+Write time: 0.006950
+Total time: 0.012361
+
+
+#### Select Typical Location of RdgExtConfig.dat ####
+SelectTypLocSlpPos -h version 5.1.2, added by Liangjun Zhu, Apr 24, 2015
+ProtoTag: 1
+ParametersNum: 4
+TerrainAttri.No.0: rpi
+   Path: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\RPI.tif
+   min: 0.990000
+   max: 1.000000
+Typical Location Output: C:\z_data_m\AutoFuzSlpPos\jamaica\TypLoc\RdgTyp.tif
+Fuzzy Inference Configuration File: C:\z_data_m\AutoFuzSlpPos\jamaica\Config\RdgInfRecommend.dat
+349
+349
+349
+Typical location number is: 86
+Processor:4
+    Read time:0.006782
+    Compute time:0.014596
+    Write time:0.003403
+    Total time:0.024781
+
+
+#### Select Typical Location of ShdExtConfig.dat ####
+SelectTypLocSlpPos -h version 5.1.2, added by Liangjun Zhu, Apr 24, 2015
+ProtoTag: 2
+ParametersNum: 3
+TerrainAttri.No.0: rpi
+   Path: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\RPI.tif
+   min: 0.900000
+   max: 0.950000
+Typical Location Output: C:\z_data_m\AutoFuzSlpPos\jamaica\TypLoc\ShdTyp.tif
+Fuzzy Inference Configuration File: C:\z_data_m\AutoFuzSlpPos\jamaica\Config\ShdInfRecommend.dat
+92
+92
+Typical location number is: 25
+Processor:4
+    Read time:0.008011
+    Compute time:0.009392
+    Write time:0.003065
+    Total time:0.020467
+
+
+#### Select Typical Location of BksExtConfig.dat ####
+SelectTypLocSlpPos -h version 5.1.2, added by Liangjun Zhu, Apr 24, 2015
+ProtoTag: 4
+ParametersNum: 3
+TerrainAttri.No.0: rpi
+   Path: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\RPI.tif
+   min: 0.500000
+   max: 0.600000
+Typical Location Output: C:\z_data_m\AutoFuzSlpPos\jamaica\TypLoc\BksTyp.tif
+Fuzzy Inference Configuration File: C:\z_data_m\AutoFuzSlpPos\jamaica\Config\BksInfRecommend.dat
+1377
+1377
+Typical location number is: 271
+Processor:4
+    Read time:0.007694
+    Compute time:0.022450
+    Write time:0.003097
+    Total time:0.033241
+
+
+#### Select Typical Location of FtsExtConfig.dat ####
+SelectTypLocSlpPos -h version 5.1.2, added by Liangjun Zhu, Apr 24, 2015
+ProtoTag: 8
+ParametersNum: 3
+TerrainAttri.No.0: rpi
+   Path: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\RPI.tif
+   min: 0.150000
+   max: 0.200000
+Typical Location Output: C:\z_data_m\AutoFuzSlpPos\jamaica\TypLoc\FtsTyp.tif
+Fuzzy Inference Configuration File: C:\z_data_m\AutoFuzSlpPos\jamaica\Config\FtsInfRecommend.dat
+986
+fitShape: B, S
+fitShape matched with one of the priorShape: B
+986
+fitShape: B, Z
+fitShape matched with one of the priorShape: B
+Typical location number is: 288
+Processor:4
+    Read time:0.006301
+    Compute time:0.020781
+    Write time:0.003346
+    Total time:0.030428
+
+
+#### Select Typical Location of VlyExtConfig.dat ####
+SelectTypLocSlpPos -h version 5.1.2, added by Liangjun Zhu, Apr 24, 2015
+ProtoTag: 16
+ParametersNum: 3
+TerrainAttri.No.0: rpi
+   Path: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\RPI.tif
+   min: 0.000000
+   max: 0.100000
+Typical Location Output: C:\z_data_m\AutoFuzSlpPos\jamaica\TypLoc\VlyTyp.tif
+Fuzzy Inference Configuration File: C:\z_data_m\AutoFuzSlpPos\jamaica\Config\VlyInfRecommend.dat
+1134
+1134
+Typical location number is: 332
+Processor:4
+    Read time:0.006062
+    Compute time:0.039512
+    Write time:0.003647
+    Total time:0.049221
+
+
+#### Fuzzy Slope Position Inference of RdgInfConfig.dat ####
+FuzzySlpPosInference -h version 5.1.2, added by Liangjun Zhu, Apr 9, 2015
+PrototypeGRID: C:\z_data_m\AutoFuzSlpPos\jamaica\TypLoc\RdgTyp.tif
+ProtoTag: 1
+ParametersNum: 3
+TerrainAttri.No.0: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\RPI.tif
+   Similarity Function Type: S-shaped
+   w1=0.050000;r1=2.000000;k1=0.500000;
+   w2=1.000000;r2=0.000000;k2=1.000000
+TerrainAttri.No.1: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\ProfC.tif
+   Similarity Function Type: S-shaped
+   w1=0.009607;r1=2.000000;k1=0.500000;
+   w2=1.000000;r2=0.000000;k2=1.000000
+TerrainAttri.No.2: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\Slp.tif
+   Similarity Function Type: Z-shaped
+   w1=1.000000;r1=0.000000;k1=1.000000;
+   w2=7.869810;r2=2.000000;k2=0.500000
+DistanceExponent: 8.0
+Similarity file: C:\z_data_m\AutoFuzSlpPos\jamaica\FuzzySlpPos\RdgInf.tif
+Total 86 prototype positions were applied into computing similarity.
+Processes:4
+    Read time:0.006117
+    Compute time:0.173714
+    Write time:0.005032
+    Total time:0.184863
+
+
+#### Fuzzy Slope Position Inference of ShdInfConfig.dat ####
+FuzzySlpPosInference -h version 5.1.2, added by Liangjun Zhu, Apr 9, 2015
+PrototypeGRID: C:\z_data_m\AutoFuzSlpPos\jamaica\TypLoc\ShdTyp.tif
+ProtoTag: 2
+ParametersNum: 3
+TerrainAttri.No.0: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\RPI.tif
+   Similarity Function Type: B-shaped
+   w1=0.040000;r1=2.000000;k1=0.500000;
+   w2=0.040000;r2=2.000000;k2=0.500000
+TerrainAttri.No.1: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\ProfC.tif
+   Similarity Function Type: S-shaped
+   w1=0.007882;r1=2.000000;k1=0.500000;
+   w2=1.000000;r2=0.000000;k2=1.000000
+TerrainAttri.No.2: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\Slp.tif
+   Similarity Function Type: B-shaped
+   w1=5.885140;r1=2.000000;k1=0.500000;
+   w2=9.567290;r2=2.000000;k2=0.500000
+DistanceExponent: 8.0
+Similarity file: C:\z_data_m\AutoFuzSlpPos\jamaica\FuzzySlpPos\ShdInf.tif
+Total 25 prototype positions were applied into computing similarity.
+Processes:4
+    Read time:0.005642
+    Compute time:0.047838
+    Write time:0.003381
+    Total time:0.056860
+
+
+#### Fuzzy Slope Position Inference of BksInfConfig.dat ####
+FuzzySlpPosInference -h version 5.1.2, added by Liangjun Zhu, Apr 9, 2015
+PrototypeGRID: C:\z_data_m\AutoFuzSlpPos\jamaica\TypLoc\BksTyp.tif
+ProtoTag: 4
+ParametersNum: 3
+TerrainAttri.No.0: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\RPI.tif
+   Similarity Function Type: B-shaped
+   w1=0.300000;r1=2.000000;k1=0.500000;
+   w2=0.300000;r2=2.000000;k2=0.500000
+TerrainAttri.No.1: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\ProfC.tif
+   Similarity Function Type: B-shaped
+   w1=0.004626;r1=2.000000;k1=0.500000;
+   w2=0.005012;r2=2.000000;k2=0.500000
+TerrainAttri.No.2: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\Slp.tif
+   Similarity Function Type: S-shaped
+   w1=11.014700;r1=2.000000;k1=0.500000;
+   w2=1.000000;r2=0.000000;k2=1.000000
+DistanceExponent: 8.0
+Similarity file: C:\z_data_m\AutoFuzSlpPos\jamaica\FuzzySlpPos\BksInf.tif
+Total 271 prototype positions were applied into computing similarity.
+Processes:4
+    Read time:0.005989
+    Compute time:0.458897
+    Write time:0.018520
+    Total time:0.483407
+
+
+#### Fuzzy Slope Position Inference of FtsInfConfig.dat ####
+FuzzySlpPosInference -h version 5.1.2, added by Liangjun Zhu, Apr 9, 2015
+PrototypeGRID: C:\z_data_m\AutoFuzSlpPos\jamaica\TypLoc\FtsTyp.tif
+ProtoTag: 8
+ParametersNum: 3
+TerrainAttri.No.0: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\RPI.tif
+   Similarity Function Type: B-shaped
+   w1=0.050000;r1=2.000000;k1=0.500000;
+   w2=0.050000;r2=2.000000;k2=0.500000
+TerrainAttri.No.1: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\ProfC.tif
+   Similarity Function Type: B-shaped
+   w1=0.007691;r1=2.000000;k1=0.500000;
+   w2=0.005340;r2=2.000000;k2=0.500000
+TerrainAttri.No.2: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\Slp.tif
+   Similarity Function Type: B-shaped
+   w1=5.926130;r1=2.000000;k1=0.500000;
+   w2=7.015530;r2=2.000000;k2=0.500000
+DistanceExponent: 8.0
+Similarity file: C:\z_data_m\AutoFuzSlpPos\jamaica\FuzzySlpPos\FtsInf.tif
+Total 288 prototype positions were applied into computing similarity.
+Processes:4
+    Read time:0.007087
+    Compute time:0.561024
+    Write time:0.020063
+    Total time:0.588174
+
+
+#### Fuzzy Slope Position Inference of VlyInfConfig.dat ####
+FuzzySlpPosInference -h version 5.1.2, added by Liangjun Zhu, Apr 9, 2015
+PrototypeGRID: C:\z_data_m\AutoFuzSlpPos\jamaica\TypLoc\VlyTyp.tif
+ProtoTag: 16
+ParametersNum: 2
+TerrainAttri.No.0: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\RPI.tif
+   Similarity Function Type: Z-shaped
+   w1=1.000000;r1=0.000000;k1=1.000000;
+   w2=0.100000;r2=2.000000;k2=0.500000
+TerrainAttri.No.1: C:\z_data_m\AutoFuzSlpPos\jamaica\Params\ProfC.tif
+   Similarity Function Type: B-shaped
+   w1=0.010274;r1=2.000000;k1=0.500000;
+   w2=0.004129;r2=2.000000;k2=0.500000
+DistanceExponent: 8.0
+Similarity file: C:\z_data_m\AutoFuzSlpPos\jamaica\FuzzySlpPos\VlyInf.tif
+Total 332 prototype positions were applied into computing similarity.
+Processes:4
+    Read time:0.005699
+    Compute time:0.412772
+    Write time:0.012146
+    Total time:0.430617
+
+
+#### Harden classification ####
+HardenSlpPos -h version 5.1.2, added by Liangjun Zhu, Apr 14, 2015
+RDG:C:\z_data_m\AutoFuzSlpPos\jamaica\FuzzySlpPos\RdgInf.tif
+SHD:C:\z_data_m\AutoFuzSlpPos\jamaica\FuzzySlpPos\ShdInf.tif
+BKS:C:\z_data_m\AutoFuzSlpPos\jamaica\FuzzySlpPos\BksInf.tif
+FTS:C:\z_data_m\AutoFuzSlpPos\jamaica\FuzzySlpPos\FtsInf.tif
+VLY:C:\z_data_m\AutoFuzSlpPos\jamaica\FuzzySlpPos\VlyInf.tif
+Harden Slope Position:C:\z_data_m\AutoFuzSlpPos\jamaica\FuzzySlpPos\HardenSlpPos.tif
+MaxSimilarity:C:\z_data_m\AutoFuzSlpPos\jamaica\FuzzySlpPos\MaxSimilarity.tif
+Processors: 4
+Read time: 0.006095
+Compute time: 0.000250
+Write time: 0.002749
+Total time: 0.009095
