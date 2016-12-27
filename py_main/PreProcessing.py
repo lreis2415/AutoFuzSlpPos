@@ -15,6 +15,11 @@ from RidgeExtraction import findRidge
 def PreProcessing(model):
     startT = time.time()
     logStatus = open(log_preproc, 'w')
+    #  if valley and ridge are provided
+    if VlySrc is not None:
+        VlySrcCal = VlySrc
+    if RdgSrc is not None:
+        RdgSrcCal = RdgSrc
     if model == 0:
         logStatus.write("Preprocessing based on D8 flow model.\n")
     elif model == 1:

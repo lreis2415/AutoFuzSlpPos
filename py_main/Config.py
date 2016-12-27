@@ -102,15 +102,13 @@ if not isFileExists(VlySrc):
         VlySrc = None
     else:
         raise ValueError("The vlysrc %s is not existed or have no access permission!" % VlySrc)
-else:
-    VlySrcCal = VlySrc
+
 if not isFileExists(RdgSrc):
     if RdgSrc.lower() == 'none' or RdgSrc.lower() == '':
         RdgSrc = None
     else:
         raise ValueError("The RdgSrc %s is not existed or have no access permission!" % RdgSrc)
-else:
-    RdgSrcCal = RdgSrc
+
 if not isFileExists(rpiFile):
     if rpiFile.lower() == 'none' or rpiFile.lower() == '':
         rpiFile = None
