@@ -16,6 +16,8 @@ def PreProcessing(model):
     startT = time.time()
     logStatus = open(log_preproc, 'w')
     #  if valley and ridge are provided
+    global VlySrcCal
+    global RdgSrcCal
     if VlySrc is not None:
         VlySrcCal = VlySrc
     if RdgSrc is not None:
@@ -102,12 +104,15 @@ def PreProcessing(model):
                          exeDir = exeDir, hostfile = hostfile)
     logStatus.write("[Preprocessing] [6/7] Calculating RPI(Relative Position Index)...\n")
     logStatus.flush()
+    StreamSource = D8Stream
+    if VlySrcCal is not None and isFileExists(VlySrcCal):
+        StreamSource = VlySrcCal
     if model == 0:  # D8 model
         #  HAND
-        TauDEM.D8DistDownToStream(D8FlowDir, demfil, D8Stream, D8DistDown_V, 'vertical', D8StreamTag, inputProc,
+        TauDEM.D8DistDownToStream(D8FlowDir, demfil, StreamSource, D8DistDown_V, 'vertical', D8StreamTag, inputProc,
                                   mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
         if rpiMethod == 1:  # calculate RPI based on hydrological proximity measures (Default).
-            TauDEM.D8DistDownToStream(D8FlowDir, demfil, D8Stream, D8DistDown, D8DownMethod, D8StreamTag, inputProc,
+            TauDEM.D8DistDownToStream(D8FlowDir, demfil, StreamSource, D8DistDown, D8DownMethod, D8StreamTag, inputProc,
                                       mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
             TauDEM.D8DistUpToRidge(D8FlowDir, demfil, D8DistUp, D8UpMethod, D8UpStats, inputProc, rdg = RdgSrc,
                                    mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
@@ -115,10 +120,10 @@ def PreProcessing(model):
                                     hostfile = hostfile)
     elif model == 1:  # Dinf model
         #  HAND
-        TauDEM.DinfDistDown(DinfFlowDir, demfil, D8Stream, DinfDownStat, 'vertical', 'false', DinfDistDownWG,
+        TauDEM.DinfDistDown(DinfFlowDir, demfil, StreamSource, DinfDownStat, 'vertical', 'false', DinfDistDownWG,
                             inputProc, DinfDistDown_V, mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
         if rpiMethod == 1:
-            TauDEM.DinfDistDown(DinfFlowDir, demfil, D8Stream, DinfDownStat, DinfDownMethod, 'false', DinfDistDownWG,
+            TauDEM.DinfDistDown(DinfFlowDir, demfil, StreamSource, DinfDownStat, DinfDownMethod, 'false', DinfDistDownWG,
                                 inputProc, DinfDistDown, mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
             TauDEM.DinfDistUpToRidge(DinfFlowDir, demfil, DinfSlp, propthresh, DinfUpStat, DinfUpMethod, 'false',
                                      inputProc, DinfDistUp, rdg = RdgSrc, mpiexeDir = mpiexeDir, exeDir = exeDir,
