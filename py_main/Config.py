@@ -356,6 +356,7 @@ if not ModifyExtractConfFile:  # do not read from ExtractConfFile
                     if path not in presentItem:
                         rngItem.append([path, 0., 0.])
 
+
 # for rng in ValueRanges.keys():
 #     print rng, ValueRanges[rng]
 # 6. Optional parameter-settings for Fuzzy slope position inference

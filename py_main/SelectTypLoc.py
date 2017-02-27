@@ -40,6 +40,17 @@ def SelectTypLoc():
                 baseInputParam = baseInputParam + str(p) + '\t'
             ExtconfigInfo.write(baseInputParam)
             ExtconfigInfo.close()
+        else:  # ValueRanges should be read from *ExtConfig.dat
+            ValueRanges[slppos] = []
+            if not os.path.exists(ExtConfigDict[slppos]):
+                raise IOError("The input extract config file %s is not existed!" % ExtConfigDict[slppos])
+            ExtconfigInfo = open(ExtConfigDict[slppos], 'r')
+            infos = ExtconfigInfo.readlines()
+            for line in infos:
+                splitstring = SplitStr(line.split("\n")[0], "\t")
+                if StringMatch(splitstring[0], "Parameters") and len(splitstring) == 5:
+                    ValueRanges[slppos].append([splitstring[2], float(splitstring[3]), float(splitstring[4])])
+            ExtconfigInfo.close()
         TauDEM.SelectTypLocSlpPos(ExtConfigDict[slppos], InfRecommendDict[slppos], inputProc, ExtLogDict[slppos],
                                   mpiexeDir, exeDir, hostfile)
     print ("Typical Locations Selected Done!")
