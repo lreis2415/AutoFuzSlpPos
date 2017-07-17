@@ -71,7 +71,8 @@ set(TAUDEM_TARGETS aread8
         moveoutletstostreams
         streamnet
         pitremove
-        threshold)
+        threshold
+        )
 
 set(MY_TARGETS curvature
         d8distuptoridge
@@ -80,7 +81,8 @@ set(MY_TARGETS curvature
         selecttyplocslppos
         simplecalculator
         rpiskidmore
-        ridgeextraction)
+        ridgeextraction
+        )
 # TauDEM programs
 foreach (c_target ${TAUDEM_TARGETS})
     target_link_libraries(${c_target} ${MPI_LIBRARIES})
