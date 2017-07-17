@@ -1,29 +1,30 @@
-version: 1.0.{build}
+version: AutoFuzSlpPos.{build}
 branches:
   only:
   - master
-image: Visual Studio 2015
+image: Visual Studio 2013
 environment:
   matrix:
-    - CMAKE_GENERATOR: "NMake Makefiles"
+    - CMAKE_GENERATOR: "Visual Studio 12 2013 Win64"
 configuration: Release
-clone_folder: c:\zhulj\autofuzslppos
+platform: x64
+clone_folder: C:\zhulj\autofuzslppos
+build:
+  parallel: true
+  verbosity: minimal
 install:
-  #- ps: Start-FileDownload 'https://download.microsoft.com/download/3/8/D/38D18861-67DE-4E66-92C7-6819D8B07210/mpi_x64.msi' -- MSMPI 2008 R2
-  - ps: Start-FileDownload 'http://zhulj-blog.oss-cn-beijing.aliyuncs.com/MS-MPI/MSMpiSetup.exe'
-  - ps: Start-FileDownload 'http://zhulj-blog.oss-cn-beijing.aliyuncs.com/MS-MPI/msmpisdk.msi'
-  - ps: Start-Process "c:\zhulj\autofuzslppos\MSMpiSetup.exe" -ArgumentList "/qn" -Wait
-  - ps: Start-Process "c:\zhulj\autofuzslppos\msmpisdk.msi" -ArgumentList "/qn" -Wait
+  # install MS-MPI
+  - cd C:\zhulj\autofuzslppos
+  - "powershell doc\\ci\\appveyor\\install-msmpi.ps1"
+  - "doc\\ci\\appveyor\\SetEnvMPI.cmd"
 build_script:
-- cmd: >-
-    "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
-    
-    cd c:\zhulj
+  # make directory for installation
+  - mkdir C:\\bin
+  - cd C:\zhulj\autofuzslppos\autofuzslppos
+  - ps: "ls"
+  - mkdir build_64bit
+  - cd build_64bit
+  - cmake -G "Visual Studio 12 2013 Win64" .. -DARCH=64 -DINSTALL_PREFIX=C:\bin
+  - msbuild.exe ALL_BUILD.vcxproj /p:Configuration=Release /maxcpucount:4
+  - msbuild.exe INSTALL.vcxproj /p:Configuration=Release /maxcpucount:4
 
-    mkdir build
-
-    cd .\build
-
-    cmake -G "NMake Makefiles" c:\zhulj\autofuzslppos\src
-
-    nmake
