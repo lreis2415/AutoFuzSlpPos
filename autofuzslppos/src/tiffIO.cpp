@@ -999,7 +999,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[rowbeginning + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 } else if ((sampleFormat == 1) && (dataSizeFileIn == 2))
                 {
                     uint16_t *tempDataRow = new uint16_t[tileWidth];
@@ -1031,7 +1032,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[rowbeginning + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 } else if ((sampleFormat == 1) && (dataSizeFileIn == 4))
                 {
                     uint32_t *tempDataRow = new uint32_t[tileWidth];
@@ -1063,7 +1065,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[rowbeginning + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 } else if ((sampleFormat == 2) && (dataSizeFileIn == 1))
                 {
                     int8_t *tempDataRow = new int8_t[tileWidth];
@@ -1095,7 +1098,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[rowbeginning + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 } else if ((sampleFormat == 2) && (dataSizeFileIn == 2))
                 {
                     int16_t *tempDataRow = new int16_t[tileWidth];
@@ -1127,7 +1131,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[rowbeginning + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 } else if ((sampleFormat == 2) && (dataSizeFileIn == 4))
                 {
                     int32_t *tempDataRow = new int32_t[tileWidth];
@@ -1159,7 +1164,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[rowbeginning + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 } else if ((sampleFormat == 3) && (dataSizeFileIn == 4))
                 {
                     float *tempDataRow = new float[tileWidth];
@@ -1191,7 +1197,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[rowbeginning + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 } else if ((sampleFormat == 3) && (dataSizeFileIn == 8))
                 {
                     double *tempDataRow = new double[tileWidth];
@@ -1223,7 +1230,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[rowbeginning + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 } else
                 {
                     printf("Unsupported TIFF file type.  sampleFormat = %d, dataSizeFileIn = %d.\n", sampleFormat,
@@ -1303,7 +1311,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[destOffset + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 }
                 else if ((sampleFormat == 1) && (dataSizeFileIn == 2))
                 {
@@ -1336,7 +1345,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[destOffset + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 }
                 else if ((sampleFormat == 1) && (dataSizeFileIn == 4))
                 {
@@ -1369,7 +1379,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[destOffset + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 }
                 else if ((sampleFormat == 2) && (dataSizeFileIn == 1))
                 {
@@ -1403,7 +1414,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[destOffset + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 }
                 else if ((sampleFormat == 2) && (dataSizeFileIn == 2))
                 {
@@ -1437,7 +1449,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[destOffset + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 }
                 else if ((sampleFormat == 2) && (dataSizeFileIn == 4))
                 {
@@ -1471,7 +1484,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[destOffset + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 }
                 else if (sampleFormat == 3 && dataSizeFileIn == 4)
                 {
@@ -1505,7 +1519,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[destOffset + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 } else if (sampleFormat == 3 && dataSizeFileIn == 8)
                 {
                     double *tempDataRow = new double[tileCols];
@@ -1538,7 +1553,8 @@ void tiffIO::read(long xstart, long ystart, long numRows, long numCols, void *de
                             else
                                 ((float *) dest)[destOffset + k] = (float) tempVal;
                         }
-                    delete tempDataRow;
+                    delete[] tempDataRow;
+                    tempDataRow = NULL;
                 }
             }
         }
@@ -1631,8 +1647,9 @@ void tiffIO::write(long xstart, long ystart, long numRows, long numCols, void *s
         //Write the offset of 0th (first and only) Image File Directory (IFD)
         //BT unsigned long long tableOffset = nextAvailable;
         uint32_t tableOffset = nextAvailable;  //DGT made uint32_t, was long
-        nextAvailable += (numEntries * 12) +
-                         6; //update to offset of first Tag data value block by adding 12 bytes for each tag and 6 bytes for the IFD header and footer
+        //update to offset of first Tag data value block by adding 12 bytes for
+        // each tag and 6 bytes for the IFD header and footer
+        nextAvailable += (numEntries * 12) + 6;
         MPI_File_write(fh, &tableOffset, 4, MPI_BYTE, &status);
 
         //Go to beginning of 0th (first and only) IFD
@@ -1838,11 +1855,15 @@ void tiffIO::write(long xstart, long ystart, long numRows, long numCols, void *s
         if (version = TIFF)
         {
             //BT MPI_File_write( fh, (unsigned long long)0, 4, MPI_BYTE, &status);
-            MPI_File_write(fh, (uint32_t) 0, 4, MPI_BYTE, &status);  //DGT
+            uint32_t *tmpbuf = NULL;
+            MPI_File_write(fh, tmpbuf, 4, MPI_BYTE, &status);  //LJ
+            //MPI_File_write(fh, (uint32_t) 0, 4, MPI_BYTE, &status);  //DGT // error occur in clang
         }
         else
         {
-            MPI_File_write(fh, (uint64_t) 0, 8, MPI_BYTE, &status);   //DGT
+            uint64_t *tmpbuf = NULL;
+            MPI_File_write(fh, tmpbuf, 4, MPI_BYTE, &status);  //LJ
+            //MPI_File_write(fh, (uint64_t) 0, 8, MPI_BYTE, &status);   //DGT
         }
 
         //Write Tag Data Blocks for Tags with more data than will fit in the tag (4 or 8 bytes depending on TIFF/BIGTIFF)
@@ -1986,7 +2007,8 @@ void tiffIO::write(long xstart, long ystart, long numRows, long numCols, void *s
             MPI_File_seek(fh, mpiOffset, MPI_SEEK_SET);
             next += numCols;
         }
-        delete tempDataRow;
+        delete[] tempDataRow;
+        tempDataRow = NULL;
     }
     else if (datatype == FLOAT_TYPE)
     {
