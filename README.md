@@ -6,8 +6,8 @@ Latest update: July. 17, 2017
 Build status：
 
 + Windows-MSVC 2013-64bit with MSMPI-v8: [![Build status](https://ci.appveyor.com/api/projects/status/yhyd29mb1lb8ial6/branch/master?svg=true)](https://ci.appveyor.com/project/crazyzlj/autofuzslppos-3c04e/branch/master)
-+ Linux-GCC-4.8 with MPICH2: [![Build Status](http://badges.herokuapp.com/travis/lreis2415/AutoFuzSlpPos?branch=master&env=BUILD_NAME=linux_gcc48&label=linux_gcc48)](https://travis-ci.org/lreis2415/AutoFuzSlpPos) 
-+ macOS-xcode: [![Build Status](http://badges.herokuapp.com/travis/lreis2415/AutoFuzSlpPos?branch=master&env=BUILD_NAME=osx_xcode&label=osx_clang)](https://travis-ci.org/lreis2415/AutoFuzSlpPos)
++ Linux-GCC-4.8 with MPICH2-3.0.4: [![Build Status](http://badges.herokuapp.com/travis/lreis2415/AutoFuzSlpPos?branch=master&env=BUILD_NAME=linux_gcc48&label=linux_gcc48)](https://travis-ci.org/lreis2415/AutoFuzSlpPos) 
++ macOS-Clang-7.3 with MPICH2-3.2: [![Build Status](http://badges.herokuapp.com/travis/lreis2415/AutoFuzSlpPos?branch=master&env=BUILD_NAME=osx_xcode&label=osx_clang)](https://travis-ci.org/lreis2415/AutoFuzSlpPos)
 
 AutoFuzSlpPos (short for "**Automated Fuzzy Slope Position**") is developed by PhD candidate Liang-Jun Zhu and **Prof.** Cheng-Zhi Qin in Lreis, IGSNRR, CAS, China.
 
