@@ -436,7 +436,7 @@ bool pointsToMe(long col, long row, long ncol, long nrow, tdpartition *dirData)
 
 double TimeCounting()
 {
-#ifndef linux
+#ifdef windows
 	LARGE_INTEGER li;
 	if (QueryPerformanceFrequency(&li)) /// CPU supported
 	{
