@@ -174,7 +174,7 @@ int Bigauss_esti_moment(vector<float> &x, vector<float> &y, float powerIdx, vect
 int Bigauss_esti_em(vector<float> &x, vector<float> &y, int max_iter, float epsilon, float powerIdx,
                     vector<float> &sigma_ratio_limit, vector<float> &fit);
 
-pair<vector<float>, vector<int>> which(vector<float> &x, int op, float v);
+pair<vector<float>, vector<int> > which(vector<float> &x, int op, float v);
 
 vector<float> copyByIndex(vector<float> &x, vector<int> &idx);
 
