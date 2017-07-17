@@ -27,6 +27,11 @@
 *.out
 *.app
 
+# PyCharm or CLion project files (JetBeans)
+.idea
+cmake-build*/
+build*/
+
 # Python project file
 *.pyc
 
