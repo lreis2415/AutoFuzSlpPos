@@ -1,4 +1,4 @@
-set exePath=G:\compile\AutoFuzSlpPos\Release
+set exePath=%~dp0
 netsh advfirewall firewall add rule name=AreaD8 dir=in action=allow program=%exePath%\aread8.exe ENABLE=yes
 netsh advfirewall firewall add rule name=AreaDinf dir=in action=allow program=%exePath%\areadinf.exe ENABLE=yes
 netsh advfirewall firewall add rule name=ConnectDown dir=in action=allow program=%exePath%\connectdown.exe ENABLE=yes
