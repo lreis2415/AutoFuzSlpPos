@@ -38,6 +38,9 @@ before_install:
 install:
   - chmod +x ./doc/ci/travis/${BUILD_NAME}/install.sh
   - ./doc/ci/travis/${BUILD_NAME}/install.sh
-
+  
+script:
+  - chmod +x ./doc/ci/travis/${BUILD_NAME}/script.sh
+  - ./doc/ci/travis/${BUILD_NAME}/script.sh
 notifications:
   email:false
