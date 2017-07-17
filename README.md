@@ -1,9 +1,13 @@
 # Welcome to AutoFuzSlpPos
 ----------
 
-Latest version: AutoFuzSlpPos-2016.11
+Latest update: July. 17, 2017
 
-Build status：[![Build Status](https://travis-ci.org/lreis2415/AutoFuzSlpPos.svg?branch=master)](https://travis-ci.org/lreis2415/AutoFuzSlpPos)
+Build status：
+
++ Windows-MSVC 2013-64bit with MSMPI-v8: [![Build status](https://ci.appveyor.com/api/projects/status/yhyd29mb1lb8ial6/branch/master?svg=true)](https://ci.appveyor.com/project/crazyzlj/autofuzslppos-3c04e/branch/master)
++ Linux-GCC-4.8 with MPICH2: [![Build Status](http://badges.herokuapp.com/travis/lreis2415/AutoFuzSlpPos?branch=master&env=BUILD_NAME=linux_gcc48&label=linux_gcc48)](https://travis-ci.org/lreis2415/AutoFuzSlpPos) 
++ macOS-xcode: [![Build Status](http://badges.herokuapp.com/travis/lreis2415/AutoFuzSlpPos?branch=master&env=BUILD_NAME=osx_xcode&label=osx_clang)](https://travis-ci.org/lreis2415/AutoFuzSlpPos)
 
 AutoFuzSlpPos (short for "**Automated Fuzzy Slope Position**") is developed by PhD candidate Liang-Jun Zhu and **Prof.** Cheng-Zhi Qin in Lreis, IGSNRR, CAS, China.
 
@@ -11,15 +15,15 @@ AutoFuzSlpPos (short for "**Automated Fuzzy Slope Position**") is developed by P
 
 >Contact and support email: zlj@lreis.ac.cn
 
->Update date: 2016-11-26
+>Update date: 2017-7-17
 
 1. [Introduction](#1-introduction)
-2. [Installation](#2-installation)	
-	- [2.1 Code structure](#21-code-structure)
-	- [2.2 Compile on Windows](#22-compile-on-windows)
-	- [2.3 Compile on Linux/Unix](#23-compile-on-linuxunix)
-	- [2.4 Configuration](#24-configuration) 
-3. [Run AutoFuzSlpPos](#3-run-autofuzslppos)
+  2. [Installation](#2-installation)
+  - [2.1 Code structure](#21-code-structure)
+  - [2.2 Compile on Windows](#22-compile-on-windows)
+  - [2.3 Compile on Linux/Unix](#23-compile-on-linuxunix)
+  - [2.4 Configuration](#24-configuration) 
+2. [Run AutoFuzSlpPos](#3-run-autofuzslppos)
 
 
 # 1 Introduction
@@ -46,18 +50,18 @@ If you want to install from source code, please follow [Compile on Windows](#22-
 The source code consists of two parts: 1) the C++ source code located in `../<source-code>/src`, and 2) python scripts located in `../source-code/py_main`. 
 
 C++ code will be compiled as separated executable files, such as "**SelectTypLocSlpPos**" which is used for extracting typical locations and setting parameters for fuzzy inference of each slope position.
- 
+
 Python script is to organize the whole work-flow with a configurable script for users’ customizing optional parameters, such as follows.
 
-| Script | Functionality |
-|--------|---------------|
-| `main.py`| The entrance of AutoFuzSlpPos |
-| `Config.py` | Parse the configuration file (*.ini) prepared by user. |
-| `Nomenclature.py` | Predefined filenames |
-| `TauDEM.py` | Functions  based  on  TauDEM  and  the  extension  functions,  e.g., SelectTypLocSlpPos |
-| `Util.py` | Some fundamental functions, e.g., functions for the Input/Output of raster data |
-| `PreProcessing.py` | Preprocessing  for  topographic  attributes,  such  as  relative  position index (RPI), profile curvature |
-| `SelectTypLoc.py` | Prepare input files for typical location extraction |
+| Script                    | Functionality                            |
+| ------------------------- | ---------------------------------------- |
+| `main.py`                 | The entrance of AutoFuzSlpPos            |
+| `Config.py`               | Parse the configuration file (*.ini) prepared by user. |
+| `Nomenclature.py`         | Predefined filenames                     |
+| `TauDEM.py`               | Functions  based  on  TauDEM  and  the  extension  functions,  e.g., SelectTypLocSlpPos |
+| `Util.py`                 | Some fundamental functions, e.g., functions for the Input/Output of raster data |
+| `PreProcessing.py`        | Preprocessing  for  topographic  attributes,  such  as  relative  position index (RPI), profile curvature |
+| `SelectTypLoc.py`         | Prepare input files for typical location extraction |
 | `FuzzySlpPosInference.py` | Prepare input files for fuzzy inference of each slope position |
 
 
@@ -104,7 +108,7 @@ Lastly, run the following commands:
 ~~~
 cd <Source_Path/src>
 make
-~~~ 
+~~~
 The executable files will be generated in `INSTALLDIR`.
 ## 2.4 Configuration
 
@@ -147,13 +151,13 @@ where:
 
 The following table gives a brief introduction to the result files.
 
-| Result Folder | Introduction |
-|---|---|
-| FuzzySlpPos | Similarity maps of each slope position, as well as the hardened map of slope positions and the corresponding maximum similarity map |
-| DinfpreDir | Intermediate files in preparing topographic attributes |
-| Params | GRID  of  topographic  attributes,  including  RPI  (Relative  Position  Index), profile curvature, slope gradient, and HAND (Height Above the Nearest Drainage), by default. |
-| Config | Configuration files of the extraction of typical locations and fuzzy inference for each slope positions |
-| TypLoc | Typical locations of each slope positions |
-| Log | Log files which record information such as runtime, etc. |
+| Result Folder | Introduction                             |
+| ------------- | ---------------------------------------- |
+| FuzzySlpPos   | Similarity maps of each slope position, as well as the hardened map of slope positions and the corresponding maximum similarity map |
+| DinfpreDir    | Intermediate files in preparing topographic attributes |
+| Params        | GRID  of  topographic  attributes,  including  RPI  (Relative  Position  Index), profile curvature, slope gradient, and HAND (Height Above the Nearest Drainage), by default. |
+| Config        | Configuration files of the extraction of typical locations and fuzzy inference for each slope positions |
+| TypLoc        | Typical locations of each slope positions |
+| Log           | Log files which record information such as runtime, etc. |
 
 Note that in the current implementation a system of five basic slope positions is used, i.e., ridge(RDG), shoulder slope (SHD), backslope (BKS), footslope (FTS), and valley (VLY).
