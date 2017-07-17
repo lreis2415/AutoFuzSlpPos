@@ -20,7 +20,7 @@ set(DINF DinfFlowDirmn.cpp dinf.cpp Node.cpp ${common_srcs} ${shape_srcs})
 set(PEUKERDOUGLAS PeukerDouglas.cpp PeukerDouglasmn.cpp ${common_srcs})
 set(PITREMOVE flood.cpp PitRemovemn.cpp ${common_srcs})
 set(DROPANALYSISFILES DropAnalysis.cpp DropAnalysismn.cpp ${common_srcs} ${shape_srcs})
-set(MVOUTLETSTOSTRMFILES moveoutletstostrm.cpp moveoutletstostrmmn.cpp
+set(MVOUTLETSTOSTRMFILES MoveOutletsToStrm.cpp MoveOutletsToStrmmn.cpp
         ${common_srcs} ${shape_srcs})
 set(STREAMNET streamnet.cpp streamnetmn.cpp ${common_srcs} ${shape_srcs})
 set(PITREMOVE flood.cpp PitRemovemn.cpp ${common_srcs})
