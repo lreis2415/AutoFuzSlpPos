@@ -2,6 +2,7 @@
 
 set -e
 brew update
-# install openmpi, be aware, mpich2 got error on macOS!
-#brew install mpich2
-brew list openmpi &>/dev/null || brew install openmpi
+# install openmpi
+#brew list openmpi &>/dev/null || brew install openmpi
+# or install mpich2
+brew install mpich2
