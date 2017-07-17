@@ -1,19 +1,41 @@
-language: cpp
-compiler: gcc
-before_install: 
-#  - sudo apt-get install openmpi-bin openmpi-dev
-# update gcc to gcc-4.8 to support c++11 standard.
-  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  - sudo apt-get update -qq
-  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
-  - sudo apt-get install -q mpich2 libmpich2-3 libmpich2-dev
-  - test -n $CXX && unset CXX
-  - cd ./src
-env:
-  - MPI_DIR=/usr/ INSTALLDIR=$(pwd)
-script: 
-  - make
+branches:
+  only:
+  - master
+matrix:
+  fast_finish: true
+  include:
+    - os: osx
+      language: cpp
+      compiler: clang
+      sudo: required
+      cache:
+        apt: true
+        directories:
+          - $HOME/.ccache
+      env:
+        - BUILD_NAME=osx_xcode
+        - DETAILS="libtool"
+        - ENABLE_CXX11=1
+    - os: linux
+      dist: trusty
+      compiler: gcc
+      language: cpp
+      sudo: required
+      cache:
+        apt: true
+        directories:
+          - $HOME/.ccache
+      services:
+        - mongodb
+      env:
+        - BUILD_NAME=linux_gcc48
+        - DETAILS=""
+        - ENABLE_CXX11=1
+before_install:
+  - ./doc/ci/travis/${BUILD_NAME}/before_install.sh
+
+install:
+  - ./doc/ci/travis/${BUILD_NAME}/install.sh
+
 notifications:
-  email: false
+  email:false
