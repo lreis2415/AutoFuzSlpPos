@@ -1,6 +1,7 @@
 branches:
   only:
   - master
+  - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
 matrix:
   fast_finish: true
   include:
@@ -44,3 +45,15 @@ script:
   - ./doc/ci/travis/${BUILD_NAME}/script.sh
 notifications:
   email:false
+deploy:
+  provider: releases
+  api_key:
+    secure: 9mTUp6xhpsHDutEQePLjEnEitSaTecJ1pFGKNv9bYTbVnT4yQCvUQZrsiijrzPvC
+  file: 
+    - autofuzslppos_${BUILD_NAME}.zip
+  skip_cleanup: true
+  overwrite: true
+  on:
+    repo: lreis2415/AutoFuzSlpPos
+    tags: true
+    all_branches: true

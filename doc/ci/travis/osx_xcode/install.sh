@@ -2,13 +2,21 @@
 
 set -e
 cd autofuzslppos
-mkdir bin
+mkdir -p autofuzslppos_osx_xcode/autofuzslppos/bin
 mkdir build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DINSTALL_PREFIX=../bin
+cmake .. -DCMAKE_BUILD_TYPE=Release -DINSTALL_PREFIX=../autofuzslppos_osx_xcode/autofuzslppos/bin
 make -j4
 sudo make install
 cd ..
-# list all executable file
-cd bin
+# copy python scripts
+cp autofuzslppos/*.py autofuzslppos_osx_xcode/autofuzslppos
+# copy data, test, and manual to release directory
+cp -R data autofuzslppos_osx_xcode/autofuzslppos/data
+cp -R test autofuzslppos_osx_xcode/autofuzslppos/test
+cp *.pdf autofuzslppos_osx_xcode/autofuzslppos
+# zip
+zip -r autofuzslppos_osx_xcode.zip autofuzslppos_osx_xcode
+# list release files
+cd autofuzslppos_osx_xcode
 ls
