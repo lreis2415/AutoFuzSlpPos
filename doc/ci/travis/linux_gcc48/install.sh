@@ -5,7 +5,8 @@ mkdir -p autofuzslppos_linux_gcc48/autofuzslppos/bin
 cd autofuzslppos
 mkdir build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DINSTALL_PREFIX=../../autofuzslppos_linux_gcc48/autofuzslppos/bin
+# Be caution, the absolute path should be used in INSTALL_PREFIX!
+cmake .. -DCMAKE_BUILD_TYPE=Release -DINSTALL_PREFIX=/home/travis/build/lreis2415/AutoFuzSlpPos/autofuzslppos_linux_gcc48/autofuzslppos/bin
 make -j4
 sudo make install
 cd ../..
