@@ -1,14 +1,15 @@
 #!/bin/sh
 
 set -e
-cd autofuzslppos
 mkdir -p autofuzslppos_linux_gcc48/autofuzslppos/bin
+cd autofuzslppos
 mkdir build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DINSTALL_PREFIX=../autofuzslppos_linux_gcc48/autofuzslppos/bin
+cmake .. -DCMAKE_BUILD_TYPE=Release -DINSTALL_PREFIX=../../autofuzslppos_linux_gcc48/autofuzslppos/bin
 make -j4
 sudo make install
-cd ..
+cd ../..
+ls
 # copy python scripts
 cp autofuzslppos/*.py autofuzslppos_linux_gcc48/autofuzslppos
 # copy data, test, and manual to release directory
