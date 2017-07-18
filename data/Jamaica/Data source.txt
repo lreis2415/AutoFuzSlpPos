@@ -1,1 +1,0 @@
-The demo DEM data can be freely download from http://www.jamaicancaves.org/jamaica-dem.htm.
