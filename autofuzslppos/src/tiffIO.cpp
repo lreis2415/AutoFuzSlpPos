@@ -1855,14 +1855,14 @@ void tiffIO::write(long xstart, long ystart, long numRows, long numCols, void *s
         if (version = TIFF)
         {
             //BT MPI_File_write( fh, (unsigned long long)0, 4, MPI_BYTE, &status);
-            uint32_t *tmpbuf = NULL;
-            MPI_File_write(fh, tmpbuf, 4, MPI_BYTE, &status);  //LJ
+            uint32_t tmpbuf = 0;
+            MPI_File_write(fh, &tmpbuf, 4, MPI_BYTE, &status);  //LJ
             //MPI_File_write(fh, (uint32_t) 0, 4, MPI_BYTE, &status);  //DGT // error occur in clang
         }
         else
         {
-            uint64_t *tmpbuf = NULL;
-            MPI_File_write(fh, tmpbuf, 4, MPI_BYTE, &status);  //LJ
+            uint64_t tmpbuf = 0;
+            MPI_File_write(fh, &tmpbuf, 4, MPI_BYTE, &status);  //LJ
             //MPI_File_write(fh, (uint64_t) 0, 8, MPI_BYTE, &status);   //DGT
         }
 
