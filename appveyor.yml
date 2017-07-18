@@ -17,25 +17,26 @@ install:
 build_script:
   - cd C:\zhulj\autofuzslppos
   # make directory for release
-  - mkdir autofuzslppos_win64bit-{branch}\\autofuzslppos\\bin
+  - mkdir autofuzslppos_win64bit\\autofuzslppos\\bin
   - ps: "ls"
   # compile the AutoFuzSlpPos programs
+  - cd autofuzslppos
   - mkdir build_64bit
   - cd build_64bit
-  - cmake -G "Visual Studio 12 2013 Win64" .. -DARCH=64 -DINSTALL_PREFIX=C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit-{branch}\\bin
+  - cmake -G "Visual Studio 12 2013 Win64" .. -DARCH=64 -DINSTALL_PREFIX=C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit\\bin
   - msbuild.exe ALL_BUILD.vcxproj /p:Configuration=Release /maxcpucount:4
   - msbuild.exe INSTALL.vcxproj /p:Configuration=Release /maxcpucount:4
   # copy python scripts
-  - copy C:\\zhulj\\autofuzslppos\\autofuzslppos\\*.py C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit-{branch}\\autofuzslppos
+  - copy C:\\zhulj\\autofuzslppos\\autofuzslppos\\*.py C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit\\autofuzslppos
   # copy data, test, and manual to release directory
-  - xcopy C:\\zhulj\\autofuzslppos\\data C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit-{branch}\\data /e /c /i /y
-  - xcopy C:\\zhulj\\autofuzslppos\\test C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit-{branch}\\test /e /c /i /y
-  - copy C:\\zhulj\\autofuzslppos\\*.pdf C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit-{branch}
+  - xcopy C:\\zhulj\\autofuzslppos\\data C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit\\data /e /c /i /y
+  - xcopy C:\\zhulj\\autofuzslppos\\test C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit\\test /e /c /i /y
+  - copy C:\\zhulj\\autofuzslppos\\*.pdf C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit
   # check the structure
-  - cd C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit-{branch}
+  - cd C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit
   - ps "ls"
 artifacts:
-- path: autofuzslppos_win64bit-{branch}
+- path: autofuzslppos_win64bit
   name: autofuzslppos_win64bit-{branch}
   type: zip
 deploy:
