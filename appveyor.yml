@@ -44,7 +44,7 @@ build_script:
   - mkdir build_32bit
   - cd build_32bit
   - cmake -G "Visual Studio 12 2013" .. -DINSTALL_PREFIX=C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit\\autofuzslppos\\bin
-  - msbuild.exe ALL_BUILD.vcxproj /p:Configuration=Release /maxcpucount:4
+  - msbuild.exe ALL_BUILD.vcxproj /p:Configuration=Release /maxcpucount:4  /clp:Summary
   - msbuild.exe INSTALL.vcxproj /p:Configuration=Release /maxcpucount:4
   # copy python scripts
   - copy C:\\zhulj\\autofuzslppos\\autofuzslppos\\*.py C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit\\autofuzslppos
