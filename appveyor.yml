@@ -15,11 +15,11 @@ install:
   - "powershell doc\\ci\\appveyor\\install-msmpi.ps1"
   - "doc\\ci\\appveyor\\SetEnvMPI.cmd"
 build_script:
+  # 1. compile the 64bit AutoFuzSlpPos programs
   - cd C:\zhulj\autofuzslppos
   # make directory for release
   - mkdir autofuzslppos_win64bit\\autofuzslppos\\bin
   - ps: "ls"
-  # compile the AutoFuzSlpPos programs
   - cd autofuzslppos
   - mkdir build_64bit
   - cd build_64bit
@@ -35,15 +35,38 @@ build_script:
   # check the structure
   - cd C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit
   - ps "ls"
+  # 2. compile the 64bit AutoFuzSlpPos programs
+  - cd C:\zhulj\autofuzslppos
+  # make directory for release
+  - mkdir autofuzslppos_win32bit\\autofuzslppos\\bin
+  - ps: "ls"
+  - cd autofuzslppos
+  - mkdir build_32bit
+  - cd build_32bit
+  - cmake -G "Visual Studio 12 2013" .. -DINSTALL_PREFIX=C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit\\autofuzslppos\\bin
+  - msbuild.exe ALL_BUILD.vcxproj /p:Configuration=Release /maxcpucount:4
+  - msbuild.exe INSTALL.vcxproj /p:Configuration=Release /maxcpucount:4
+  # copy python scripts
+  - copy C:\\zhulj\\autofuzslppos\\autofuzslppos\\*.py C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit\\autofuzslppos
+  # copy data, test, and manual to release directory
+  - xcopy C:\\zhulj\\autofuzslppos\\data C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit\\data /e /c /i /y
+  - xcopy C:\\zhulj\\autofuzslppos\\test C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit\\test /e /c /i /y
+  - copy C:\\zhulj\\autofuzslppos\\*.pdf C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit
+  # check the structure
+  - cd C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit
+  - ps "ls"
 artifacts:
 - path: autofuzslppos_win64bit
-  name: autofuzslppos_win64bit-{branch}
+  name: autofuzslppos_win64bit
+  type: zip
+- path: autofuzslppos_win32bit
+  name: autofuzslppos_win32bit
   type: zip
 deploy:
 - provider: GitHub
   auth_token:
     secure: t0PiVUFL0gHygmnrub8EpUIdVxsyDSVNPeY8qKbWwY65DuNwuUv3ystCZ465EObd
-  artifact: autofuzslppos_win64bit-{branch}.zip
+  artifact: autofuzslppos_win64bit.zip,autofuzslppos_win32bit.zip
   force_update: true
   on:
     appveyor_repo_tag: true
