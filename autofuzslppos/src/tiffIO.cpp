@@ -157,7 +157,7 @@ tiffIO::tiffIO(char *fname, DATA_TYPE newtype)
     for (index = 0; index < numEntries; ++index)
     {
         readIfd(ifds[index]);
-        //printIfd( ifds[index] );
+        //printIfd(ifds[index]);
     }
 
     //Set tiff values to defaults

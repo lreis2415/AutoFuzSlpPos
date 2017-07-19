@@ -18,16 +18,17 @@
 #
 
 import os
+from os import linesep as LF
 import platform
 import subprocess
 from Nomenclature import Log_all, Log_runtime
 from Util import WriteLog, WriteTimeLog, StringMatch
 
 sysstr = platform.system()
-if sysstr == "Windows":
-    LF = '\r'
-elif sysstr == "Linux":
-    LF = '\n'
+# if sysstr == "Windows":
+#     LF = '\r'
+# elif sysstr == "Linux":
+#     LF = '\n'
 
 
 ## Write log

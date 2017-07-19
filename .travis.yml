@@ -5,52 +5,47 @@ branches:
 matrix:
   fast_finish: true
   include:
-    - os: osx
-      language: cpp
-      compiler: clang
-      sudo: required
-      cache:
-        apt: true
-        directories:
-          - $HOME/.ccache
-      env:
-        - BUILD_NAME=osx_xcode
-        - DETAILS="libtool"
-        - ENABLE_CXX11=1
-    - os: linux
-      dist: trusty
-      compiler: gcc
-      language: cpp
-      sudo: required
-      cache:
-        apt: true
-        directories:
-          - $HOME/.ccache
-      services:
-        - mongodb
-      env:
-        - BUILD_NAME=linux_gcc48
-        - DETAILS=""
-        - ENABLE_CXX11=1
+# clang have bug in tiffIO module, add osx later when replace TauDEM v5.1.2 with v5.3.x
+#  - os: osx
+#    language: cpp
+#    compiler: clang
+#    sudo: required
+#    cache:
+#      apt: true
+#      directories:
+#      - $HOME/.ccache
+#    env:
+#    - BUILD_NAME=osx_xcode
+#    - DETAILS="libtool"
+#    - ENABLE_CXX11=1
+  - os: linux
+    dist: trusty
+    compiler: gcc
+    language: cpp
+    sudo: required
+    cache:
+      apt: true
+      directories:
+      - $HOME/.ccache
+    env:
+    - BUILD_NAME=linux_gcc48
+    - DETAILS=""
+    - ENABLE_CXX11=1
 before_install:
-  - chmod +x ./doc/ci/travis/${BUILD_NAME}/before_install.sh
-  - ./doc/ci/travis/${BUILD_NAME}/before_install.sh
-
+- chmod +x ./doc/ci/travis/${BUILD_NAME}/before_install.sh
+- ./doc/ci/travis/${BUILD_NAME}/before_install.sh
 install:
-  - chmod +x ./doc/ci/travis/${BUILD_NAME}/install.sh
-  - ./doc/ci/travis/${BUILD_NAME}/install.sh
-  
+- chmod +x ./doc/ci/travis/${BUILD_NAME}/install.sh
+- ./doc/ci/travis/${BUILD_NAME}/install.sh
 script:
-  - chmod +x ./doc/ci/travis/${BUILD_NAME}/script.sh
-  - ./doc/ci/travis/${BUILD_NAME}/script.sh
-notifications:
-  email:false
+- chmod +x ./doc/ci/travis/${BUILD_NAME}/script.sh
+- ./doc/ci/travis/${BUILD_NAME}/script.sh
+notifications: email:false
 deploy:
   provider: releases
   api_key:
-    secure: 9mTUp6xhpsHDutEQePLjEnEitSaTecJ1pFGKNv9bYTbVnT4yQCvUQZrsiijrzPvC
-  file: 
-    - autofuzslppos_${BUILD_NAME}.zip
+    secure: USHTrFc9W4FJlmSwbuj10T8lRaGJaf9nI0xyDd/CbN3S/SNO+9B15l7gE6hpMF/bckVyQ61AszvQTgb7bO85kOxIeiq7QpmPKjn0E9Bc0OgpSJUIGWfZVvjg2qKOEFboOn5UmfEfUWu4tx5BDS9VQFPIfCTgty/oWn9EXdDE8DIpcHQcZRdTVSWkQ7oMqC4BzjG62rWNXSszA5Vfi7SKKNC8LOJOopSKo1NeKVezy+bTy5/aQKXENpIuALL2/Wn+ZCl6GbPdI0X/oAkezdev2u3A8gaVVhmdas0dyJAM86mT/NnNmxIEcvr/jLvs2KDQzb7f74S2bu93Ao1HAMvs+/OsJprTuOlzB7bSa/SB2gw15ZdoeZ0Pbuj/CtGYNZvkcbwVaIPk7XZJ2ORKv2U8JZqz35ZhzgQKuVy5zsQRYuxH1kRJ61jRRBBn6gXMkVWZ4XxY9b+VRDuaiU3h9PhaYg3HEZjeOATq/qHXF93QPNXwE2OpId0zjb9O6b4aklcho4/vE+yCT6AqrTt925/Qj5GXBgk8XIaLHf/8vLl/kKaH4D9UhUg9JYpONJUurYKHnP65F6jWks7ikr3mDuk6eV/HXe59blthJPK4ZxiaLOCSpFc9uxuHZ8Uieh0z37GX4yBnZ4tzp9Bj9IEwz4qU63ZftzB1uSxGJTGUlV1t7xU=
+  file: autofuzslppos_${BUILD_NAME}.zip
   skip_cleanup: true
   overwrite: true
   on:
