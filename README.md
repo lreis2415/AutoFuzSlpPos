@@ -1,7 +1,7 @@
 # Welcome to AutoFuzSlpPos
 ----------
 
-Latest update: July. 17, 2017
+Latest update: July. 18, 2017
 
 Selected build environments：
 
@@ -115,7 +115,7 @@ The executable files will be generated in `INSTALLDIR`.
 ## 2.4 Configuration
 
 A script program of Python language is implemented to organize the work-flow of deriving fuzzy slope positions.
-User can configure the environment of AutoFuzSlpPos through the configuration file with the extension of *.ini, e.g. `.../<source-code>/data/Jamaica_windows.ini` for Windows and `../<source-code>/data/Jamaica_cluster.ini` for Linux cluster.
+User can configure the environment of AutoFuzSlpPos through the configuration file with the extension of *.ini, e.g. `autofuzslppos/data/Jamaica_windows.ini` for Windows and `autofuzslppos/data/Jamaica_cluster.ini` for Linux cluster.
 
 Besides the required path of the DEM of the study area (i.e., rawdem), the paths of the compiled executable files of AutoFuzSlpPos and workspace to store the results should be given correctly, for instance:
 
