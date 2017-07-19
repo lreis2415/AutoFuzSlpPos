@@ -1,13 +1,12 @@
 # Welcome to AutoFuzSlpPos
 ----------
 
-Latest update: July. 17, 2017
+Latest update: July. 18, 2017
 
-Build status：
+Selected build environments：
 
-+ Windows-MSVC 2013-64bit with MSMPI-v8: [![Build status](https://ci.appveyor.com/api/projects/status/yhyd29mb1lb8ial6/branch/master?svg=true)](https://ci.appveyor.com/project/crazyzlj/autofuzslppos-3c04e/branch/master)
-+ Linux-GCC-4.8 with MPICH2-3.0.4: [![Build Status](http://badges.herokuapp.com/travis/lreis2415/AutoFuzSlpPos?branch=master&env=BUILD_NAME=linux_gcc48&label=linux_gcc48)](https://travis-ci.org/lreis2415/AutoFuzSlpPos) 
-+ macOS-Clang-7.3 with MPICH2-3.2: [![Build Status](http://badges.herokuapp.com/travis/lreis2415/AutoFuzSlpPos?branch=master&env=BUILD_NAME=osx_xcode&label=osx_clang)](https://travis-ci.org/lreis2415/AutoFuzSlpPos)
++ Windows-MSVC 2013-64bit with MSMPI-v8: [![Build status](https://ci.appveyor.com/api/projects/status/d7p64laeebeqg9li?svg=true)](https://ci.appveyor.com/project/lreis-2415/autofuzslppos)
++ Linux(Ubuntu trusty)-GCC-4.8 with MPICH2-3.0.4: [![Build Status](http://badges.herokuapp.com/travis/lreis2415/AutoFuzSlpPos?branch=master&env=BUILD_NAME=linux_gcc48&label=linux_gcc48)](https://travis-ci.org/lreis2415/AutoFuzSlpPos) 
 
 AutoFuzSlpPos (short for "**Automated Fuzzy Slope Position**") is developed by PhD candidate Liang-Jun Zhu and **Prof.** Cheng-Zhi Qin in Lreis, IGSNRR, CAS, China.
 
@@ -15,7 +14,7 @@ AutoFuzSlpPos (short for "**Automated Fuzzy Slope Position**") is developed by P
 
 >Contact and support email: zlj@lreis.ac.cn
 
->Update date: 2017-7-17
+>Update date: 2017-7-18
 
 1. [Introduction](#1-introduction)
   2. [Installation](#2-installation)
@@ -36,18 +35,24 @@ AutoFuzSlpPos is an automatic approach with only one required input data (i.e., 
 
 Current version of AutoFuzSlpPos is developed under the [TauDEM parallelized framework](http://hydrology.usu.edu/taudem/taudem5/index.html "TauDEM") and programmed using C++ and Python language. 
 
-The program is capable with Windows and Linux/Unix, e.g., Windows 7/8/10, CentOS 6.2, and Ubuntu 14.04. The  prerequisites environment of the compilation  and configuration of AutoFuzSlpPos is as follows:
+AutoFuzSlpPos is capable with Windows and Linux/Unix, e.g., Windows 7/8/10, CentOS 6.2, and Ubuntu 14.04.
 
-- For PC, [Microsoft Visual C++ Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=14632) (e.g., VS 2010), [Microsoft MS-MPI V6](https://www.microsoft.com/en-us/download/details.aspx?id=47259), CMAKE
-- For Linux/Unix, GCC 4.7+, MAKE, and MPICH or OpenMPI
-- Python 2.7+ packaged with Numpy 1.6+ and GDAL 1.9+.
+The prerequisites environment is as follows:
+
+- For users:
+  - **MPI**, such as [Microsoft MS-MPI V6](https://www.microsoft.com/en-us/download/details.aspx?id=47259)+, OpenMPI, MPICH2
+  - Python 2.7.x packaged with Numpy 1.6+ and GDAL 1.9.x.
+- For developers (include the MPI and Python mentioned above):
+  - CMake 2.8.0+
+  - C/C++ compiler with C++11 support, such as Microsoft Visual Studio 2010+, GCC 4.7+.
 
 # 2 Installation
 
 If you want to install from source code, please follow [Compile on Windows](#22-compile-on-windows) or [Compile on Linux/Unix](#23-compile-on-linuxunix). If you want to use AutoFuzSlpPos directly with the compiled executable files, please refers to [Configuration](#24-configuration).
 
 ## 2.1 Code structure
-The source code consists of two parts: 1) the C++ source code located in `../<source-code>/src`, and 2) python scripts located in `../source-code/py_main`. 
+The source code consists of two parts: 1) the C++ source code located in `autofuzslppos/src`, 
+and 2) python scripts located in `autofuzslppos/`. 
 
 C++ code will be compiled as separated executable files, such as "**SelectTypLocSlpPos**" which is used for extracting typical locations and setting parameters for fuzzy inference of each slope position.
 
@@ -65,55 +70,52 @@ Python script is to organize the whole work-flow with a configurable script for 
 | `FuzzySlpPosInference.py` | Prepare input files for fuzzy inference of each slope position |
 
 
-## 2.2 Compile on Windows
+## 2.2 Compile on Windows Using MSVC
 
 The MPI library used for PC is [Microsoft MS-MPI V6](https://www.microsoft.com/en-us/download/details.aspx?id=47259) or later. 
-
-Firstly, please make sure that CMAKE and nmake (installed with Visual Studio, such as VS2010) have been installed on your PC. It is highly recommended to check the MPI Library path in `../<source-code>/src/CMakeLists.txt` to make sure they are correct for user’s environment:
-
+Install msmpisdk.msi, MSMpiSetup.exe. And then set the environment paths as follows:
 ~~~
-include_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Include")
-link_directories("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x86")
-link_libraries("C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x86/msmpi.lib")
+MSMPI_BIN=C:\Program Files\Microsoft MPI\Bin\
+MSMPI_INC=C:\Program Files (x86)\Microsoft SDKs\MPI\Include\
+MSMPI_LIB32=C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\
+MSMPI_LIB64=C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64\
 ~~~
+
 Then, open “**Visual Studio Command Prompt**” from Start menu (as administrator), and run the following commands:
 
 ~~~
-cd <Build_Path>
-cmake -G "NMake Makefiles" <Source_Path>
-nmake
-
-e.g.,
-cd C:\AutoFuzSlpPos\build
-cmake -G "NMake Makefiles" C:\source-code\src
-nmake
+cd <path to autofuzslopos>
+mkdir build
+cd build
+# -DARCH: 64 is for compiling 64bit version
+# -DINSTALL_PREFIX: the install directory
+# An example: MSVC 2013, 64bit
+cmake -G "Visual Studio 10 2010 Win64" .. -DARCH=64 -DINSTALL_PREFIX=<INSTALLDIR>
+msbuild.exe ALL_BUILD.vcxproj /p:Configuration=Release /maxcpucount:4
+msbuild.exe INSTALL.vcxproj /p:Configuration=Release
 ~~~
 
-The executable files will be compiled and saved in `<Build_Path>`.
+The executable files will be compiled and saved in `<INSTALLDIR>`.
 
-## 2.3 Compile on Linux/Unix
+## 2.3 Compile on Linux/Unix using GCC
 
 Unlike the MPI version for PC, the implementation of [MPICH](http://www.mpich.org/downloads/ "MPICH") is adopted for Linux/Unix platform.
 
-Firstly, check the MPI Library path in `../<source-code>/src/makefile` to make sure that it is correct for your environment:
+The compilation steps are quite familiar:
 ~~~
-MPI_DIR = /home/zhulj/mpich/
-~~~
-Then, assign the installation path:
-~~~
-INSTALLDIR=/home/zhulj/AutoFuzSlpPos/exec_linux
+cd <path to autofuzslopos>
+mkdir build
+cd build
+cmake .. -DINSTALL_PREFIX=<INSTALLDIR>
+make -j4
+make install
 ~~~
 
-Lastly, run the following commands:
-~~~
-cd <Source_Path/src>
-make
-~~~
 The executable files will be generated in `INSTALLDIR`.
 ## 2.4 Configuration
 
 A script program of Python language is implemented to organize the work-flow of deriving fuzzy slope positions.
-User can configure the environment of AutoFuzSlpPos through the configuration file with the extension of *.ini, e.g. `.../<source-code>/data/Jamaica_windows.ini` for Windows and `../<source-code>/data/Jamaica_cluster.ini` for Linux cluster.
+User can configure the environment of AutoFuzSlpPos through the configuration file with the extension of *.ini, e.g. `autofuzslppos/data/Jamaica_windows.ini` for Windows and `autofuzslppos/data/Jamaica_cluster.ini` for Linux cluster.
 
 Besides the required path of the DEM of the study area (i.e., rawdem), the paths of the compiled executable files of AutoFuzSlpPos and workspace to store the results should be given correctly, for instance:
 
@@ -139,7 +141,8 @@ Next, the AutoFuzSlpPos with default parameter settings is ready to run for the 
 
 Use the following command to run AutoFuzSlpPos:
 ```
-python .../source-code/code/py_main/main.py -ini <configuration file path> [-proc <process number> -root <workspace path>]
+cd <path to AutoFuzSlpPos>
+python autofuzslppos/main.py -ini <configuration file path> [-proc <process number> -root <workspace path>]
 ```
 
 where: 
