@@ -1,8 +1,11 @@
 #! /usr/bin/env python
-# coding=utf-8
-# Description: Utility functions.
-# Author: Liang-Jun Zhu
-#
+# -*- coding: utf-8 -*-
+"""Utility Classes and Functions
+    @author   : Liangjun Zhu
+    @changelog: 15-07-31  lj - initial implementation
+                17-07-21  lj - reorganize and incorporate with pygeoc
+"""
+
 import argparse
 import math
 import os
@@ -15,36 +18,11 @@ from gdalconst import *
 from osgeo import gdal
 from osgeo import ogr
 from osgeo import osr
+from autofuzslppos.pygeoc.pygeoc.utils.utils import StringClass
 
 NODATA_VALUE = -9999.
-class C(object):
-    pass
 
 
-def GetInputArgs():
-    # Get model configuration file name
-    c = C()
-    parser = argparse.ArgumentParser(description = "Read AutoFuzSlpPos configuration file.")
-    parser.add_argument('-ini', help = "Full path of configuration file")
-    parser.add_argument('-proc', help="Number of processor for parallel computing "
-                                      "which will override inputProc in *.ini file.")
-    parser.add_argument('-root', help="Workspace to store results, which will override"
-                                      "rootDir in *.ini file.")
-    args = parser.parse_args(namespace = c)
-    iniFile = args.ini
-    inputProc = args.proc
-    rootDir = args.root
-    if inputProc is not None:
-        xx = FindNumberFromString(inputProc)
-        if len(xx) != 1:
-            raise IOError("-proc MUST be one integer number!")
-        inputProc = int(xx[0])
-    else:
-        inputProc = -1
-    if not os.path.exists(iniFile) or iniFile is None:
-        raise IOError("%s MUST be provided and existed, please check and retry!" % iniFile)
-
-    return iniFile, inputProc, rootDir
 
 
 def isPathExists(path):
@@ -187,6 +165,7 @@ class Raster:
             else:
                 return value
 
+
 def ReadRaster(rasterFile):
     ds = gdal.Open(rasterFile)
     band = ds.GetRasterBand(1)
@@ -225,7 +204,8 @@ XLLCENTER %f
 YLLCENTER %f
 CELLSIZE %f
 NODATA_VALUE %f
-""" % (xsize, ysize, geotransform[0] + 0.5 * geotransform[1], geotransform[3] - (ysize - 0.5) * geotransform[1],
+""" % (xsize, ysize, geotransform[0] + 0.5 * geotransform[1],
+       geotransform[3] - (ysize - 0.5) * geotransform[1],
        geotransform[1], noDataValue)
 
     f = open(filename, 'w')
@@ -237,7 +217,7 @@ NODATA_VALUE %f
     f.close()
 
 
-def Raster2GeoTIFF(tif, geotif, unitConvert = False, zUnitConvert = False, gdalType = gdal.GDT_Float32):
+def Raster2GeoTIFF(tif, geotif, unitConvert=False, zUnitConvert=False, gdalType=gdal.GDT_Float32):
     print "Convering raster's format to GeoTIFF..."
     rstFile = ReadRaster(tif)
     if unitConvert:  # Convert coordinate unit from feet to meter
@@ -248,10 +228,12 @@ def Raster2GeoTIFF(tif, geotif, unitConvert = False, zUnitConvert = False, gdalT
         convertedGeotrans = [xMin, dx, 0, yMax, 0, -dx]
         if zUnitConvert:
             rstFile.data *= converter
-        WriteGTiffFile(geotif, rstFile.nRows, rstFile.nCols, rstFile.data, convertedGeotrans, rstFile.srs,
+        WriteGTiffFile(geotif, rstFile.nRows, rstFile.nCols, rstFile.data, convertedGeotrans,
+                       rstFile.srs,
                        rstFile.noDataValue, gdalType)
     else:
-        WriteGTiffFile(geotif, rstFile.nRows, rstFile.nCols, rstFile.data, rstFile.geotrans, rstFile.srs,
+        WriteGTiffFile(geotif, rstFile.nRows, rstFile.nCols, rstFile.data, rstFile.geotrans,
+                       rstFile.srs,
                        rstFile.noDataValue, gdalType)
 
 
@@ -275,14 +257,16 @@ def RPICal(distDown, distUp, RPI):
     up = ReadRaster(distUp)
     temp = down.data < 0
     rpiData = numpy.where(temp, down.noDataValue, down.data / (down.data + up.data))
-    WriteGTiffFile(RPI, down.nRows, down.nCols, rpiData, down.geotrans, down.srs, down.noDataValue, gdal.GDT_Float32)
+    WriteGTiffFile(RPI, down.nRows, down.nCols, rpiData, down.geotrans, down.srs, down.noDataValue,
+                   gdal.GDT_Float32)
 
 
 def slopeTrans(tanslp, slp):
     origin = ReadRaster(tanslp)
     temp = origin.data == origin.noDataValue
     slpdata = numpy.where(temp, origin.noDataValue, numpy.arctan(origin.data) * 180. / numpy.pi)
-    WriteGTiffFile(slp, origin.nRows, origin.nCols, slpdata, origin.geotrans, origin.srs, origin.noDataValue,
+    WriteGTiffFile(slp, origin.nRows, origin.nCols, slpdata, origin.geotrans, origin.srs,
+                   origin.noDataValue,
                    gdal.GDT_Float32)
 
 
@@ -291,7 +275,8 @@ def NegativeDEM(DEM, negDEM):
     max = numpy.max(origin.data)
     temp = origin.data < 0
     neg = numpy.where(temp, origin.noDataValue, max - origin.data)
-    WriteGTiffFile(negDEM, origin.nRows, origin.nCols, neg, origin.geotrans, origin.srs, origin.noDataValue,
+    WriteGTiffFile(negDEM, origin.nRows, origin.nCols, neg, origin.geotrans, origin.srs,
+                   origin.noDataValue,
                    gdal.GDT_Float32)
 
 
@@ -320,7 +305,8 @@ def WriteTimeLog(logfile, time):
         logStatus = open(logfile, 'w')
         logStatus.write("Function Name\tRead Time\tCompute Time\tWrite Time\tTotal Time\t\n")
     logStatus.write(
-            "%s\t%s\t%s\t%s\t%s\t\n" % (time['name'], time['readt'], time['computet'], time['writet'], time['totalt']))
+            "%s\t%s\t%s\t%s\t%s\t\n" % (
+                time['name'], time['readt'], time['computet'], time['writet'], time['totalt']))
     logStatus.flush()
     logStatus.close()
 
@@ -348,6 +334,7 @@ DIR_PAIRS = [(0, 1),
              (1, -1),
              (1, 0),
              (1, 1)]
+
 
 ## find downslope coordinate for D8 and D-inf flow models
 def downstream_index(DIR_VALUE, i, j):
@@ -478,7 +465,7 @@ def StripStr(str):
     return newStr
 
 
-def SplitStr(str, spliters = None):
+def SplitStr(str, spliters=None):
     ### @Function: Split string by spliter space(' ') and indent('\t') as default
     # spliters = [' ', '\t']
     # spliters = []
@@ -505,7 +492,7 @@ def SplitStr(str, spliters = None):
     return destStrs
 
 
-def SplitStr4Float(str, spliters = None):
+def SplitStr4Float(str, spliters=None):
     strs = SplitStr(str, spliters)
     floats = []
     for str in strs:
@@ -545,18 +532,20 @@ def FindNumberFromString(s):
     else:
         return [float(v) for v in strs]
 
+
 def GetExecutableFullPath(name):
     '''
     Not for Windows
     get the full path of a given executable name
     :return:
     '''
-    process = subprocess.Popen('which %s' % name, shell = True, stdout = subprocess.PIPE)
+    process = subprocess.Popen('which %s' % name, shell=True, stdout=subprocess.PIPE)
     findout = process.stdout.readlines()
     if findout == [] or len(findout) == 0:
         print "%s is not included in the env path" % name
         exit(-1)
     return findout[0].split('\n')[0]
+
 
 ## test code ##
 if __name__ == '__main__':

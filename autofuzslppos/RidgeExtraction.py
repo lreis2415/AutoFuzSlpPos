@@ -188,7 +188,7 @@ def findRidge(tagValue, rdgGRID):
 if __name__ == '__main__':
     import time
     t1 = time.time()
-    ini, proc, root = GetInputArgs()
+    ini, proc, root = get_input_args()
     LoadConfiguration(ini, proc, root)
     findRidge(1, RdgSrcCal)
     print ("execute time: %f" % (time.time() - t1))

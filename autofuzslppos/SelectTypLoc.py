@@ -57,6 +57,6 @@ def SelectTypLoc():
 
 
 if __name__ == '__main__':
-    ini, proc, root = GetInputArgs()
+    ini, proc, root = get_input_args()
     LoadConfiguration(ini, proc, root)
     SelectTypLoc()

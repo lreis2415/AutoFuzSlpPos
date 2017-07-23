@@ -69,7 +69,7 @@ def fuzSlpPosProfile(rdgCoors, d8flowdir, d8stream, shpfile):
 
 
 if __name__ == '__main__':
-    ini, proc, root = GetInputArgs()
+    ini, proc, root = get_input_args()
     LoadConfiguration(ini, proc, root)
     ## input data
     ## Flowdir: D8FlowDir or DinfFlowDir, DEM: demfil, etc...

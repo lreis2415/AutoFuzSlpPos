@@ -15,7 +15,7 @@ from SelectTypLoc import SelectTypLoc
 
 if __name__ == '__main__':
     startT = time.time()
-    ini, proc, root = GetInputArgs()
+    ini, proc, root = get_input_args()
     LoadConfiguration(ini, proc, root)
     log = ''
     allcost = 0

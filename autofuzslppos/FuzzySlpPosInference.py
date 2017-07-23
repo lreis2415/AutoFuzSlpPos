@@ -78,6 +78,6 @@ def FuzzySlpPosInference():
                         sechard=SecHardenSlpPos, secsimi=SecMaxSimilarity, spsim=SPSImethod, spsi=SPSIfile,
                         mpiexeDir=mpiexeDir, exeDir=exeDir, hostfile=hostfile)
 if __name__ == '__main__':
-    ini, proc, root = GetInputArgs()
+    ini, proc, root = get_input_args()
     LoadConfiguration(ini, proc, root)
     FuzzySlpPosInference()
