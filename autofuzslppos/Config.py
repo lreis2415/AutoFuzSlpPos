@@ -36,7 +36,23 @@ class AutoFuzSlpPosConfig(object):
         ridge: Optional. Ridge source as raster file. If not provided, set None.
         regional_attr: Regional topographic attributes, decrease from ridge to valley, range from
                        1 to 0, e.g., RPI (Relative Position Index, Skidmore, 1990)
-        
+        flag_preprocess: Preprocess for terrain attributes? True is default, if false, topographic
+                         attributes used for fuzzy inference must be existed in 'Params' dir.
+        flag_selecttyploc: Select typical locations automatically? True is default, if false,
+                           typical locations of each slope position must be existed.
+        flag_auto_typlocparams: Automatically determine the parameters for typical locations?
+                                True is default, if false, the script will find these parameters
+                                from the *.ini configuration file, and/or the XXXExtConfig.dat file
+                                in 'Config' directory.
+                                Exception will be raised if all tries failed.
+        flag_fuzzyinference: Calculate fuzzy membership of each slope position? True is default.
+        flag_auto_inferenceparams: Automatically determine the parameters for fuzzy inference?
+                                   True is default, if false, the script will find these parameters
+                                   from the *.ini configuration file, and/or the XXXInfConfig.dat
+                                   in 'Config' directory.
+                                   Exception will be raised if all tries failed.
+        flag_log: Write runtime log information to files. True is default.
+
     """
 
     def __init__(self, cfg_parser, proc_num=-1, root_dir=None):
@@ -63,68 +79,63 @@ class AutoFuzSlpPosConfig(object):
         self.ridge = None
         self.regional_attr = None
         # 3. Executable Flags (Set default flags first)
-        self.flag_PreProcess = True
-        self.flag_TyplocSelection = True
-        self.flag_SimilarityInference = True
-        self.flag_AutoTypLocExtraction = True
-        self.flag_ModifyExtractConfFile = False
-        self.flag_AutoInfParams = True
-        self.flag_ModifyInfConfFile = False
-        self.flag_CalSecHardSlpPos = False
-        self.flag_CalSPSI = False
-        self.flag_ExtLog = True
+        self.flag_preprocess = True
+        self.flag_selecttyploc = True
+        self.flag_auto_typlocparams = True
+        self.flag_fuzzyinference = True
+        self.flag_auto_inferenceparams = True
+        self.flag_log = True
         # 4. Parse and check validation of all available inputs
-        if 'REQUIRED' in self.cf.sections():
-            exeDir = cf.get('REQUIRED', 'exeDir'.lower())
-            if rootDir is None:
-                if cf.has_option('REQUIRED', 'rootDir'.lower()):
-                    rootDir = cf.get('REQUIRED', 'rootDir'.lower())
+        # define the section names in the *.ini configuration file
+        _require = 'REQUIRED'
+        if _require in self.cf.sections():
+            self.bin_dir = self.cf.get(_require, 'exedir')
+            if self.bin_dir is None:
+                if self.cf.has_option(_require, 'rootdir'):
+                    self.workspace = self.cf.get(_require, 'rootdir')
                 else:
                     raise IOError("Workspace must be defined!")
-            rawdem = cf.get('REQUIRED', 'rawdem'.lower())
+            rawdem = self.cf.get(_require, 'rawdem')
         else:
-            raise IOError("[REQUIRED] section MUST be existed in *.ini file.")
+            raise ValueError("[REQUIRED] section MUST be existed in *.ini file.")
 
-        if not os.path.isdir(exeDir):
-            exeDir = None
-        if not os.path.isdir(rootDir):
-            os.makedirs(rootDir)
+        if not os.path.isdir(self.bin_dir):
+            self.bin_dir = None
+        if not os.path.isdir(self.workspace):
+            os.makedirs(self.workspace)
         if not FileClass.is_file_exists(rawdem):
             raise RuntimeError(
-                "The DEM file %s is not existed or have no access permission!" % rawdem)
+                    "The DEM file %s is not existed or have no access permission!" % rawdem)
 
         # TODO, currently, the five basic slope position types are supported.
         # TODO, 11 slope positions when considering the concavity and convexity along both the contour and profile directions
         # TODO, will be considered in the future.
         SlpPosItems = ["rdg", "shd", "bks", "fts", "vly"]
 
-
         # Read from .ini file if stated.
-        if 'EXECUTABLE_FLAGS' in cf.sections():
-            preprocess = cf.getboolean('EXECUTABLE_FLAGS', 'preprocess'.lower())
-            typlocSelection = cf.getboolean('EXECUTABLE_FLAGS', 'typlocSelection'.lower())
-            similarityInference = cf.getboolean('EXECUTABLE_FLAGS', 'similarityInference'.lower())
-            AutoTypLocExtraction = cf.getboolean('EXECUTABLE_FLAGS', 'AutoTypLocExtraction'.lower())
-            ModifyExtractConfFile = cf.getboolean('EXECUTABLE_FLAGS',
+        if 'EXECUTABLE_FLAGS' in self.cf.sections():
+            preprocess = self.cf.getboolean('EXECUTABLE_FLAGS', 'preprocess'.lower())
+            typlocSelection = self.cf.getboolean('EXECUTABLE_FLAGS', 'typlocSelection'.lower())
+            similarityInference = self.cf.getboolean('EXECUTABLE_FLAGS', 'similarityInference'.lower())
+            AutoTypLocExtraction = self.cf.getboolean('EXECUTABLE_FLAGS', 'AutoTypLocExtraction'.lower())
+            ModifyExtractConfFile = self.cf.getboolean('EXECUTABLE_FLAGS',
                                                   'ModifyExtractConfFile'.lower())
-            AutoInfParams = cf.getboolean('EXECUTABLE_FLAGS', 'AutoInfParams'.lower())
-            ModifyInfConfFile = cf.getboolean('EXECUTABLE_FLAGS', 'ModifyInfConfFile'.lower())
-            CalSecHardSlpPos = cf.getboolean('EXECUTABLE_FLAGS', 'CalSecHardSlpPos'.lower())
-            CalSPSI = cf.getboolean('EXECUTABLE_FLAGS', 'CalSPSI'.lower())
-            ExtLog = cf.getboolean('EXECUTABLE_FLAGS', 'ExtLog'.lower())
+            AutoInfParams = self.cf.getboolean('EXECUTABLE_FLAGS', 'AutoInfParams'.lower())
+            ModifyInfConfFile = self.cf.getboolean('EXECUTABLE_FLAGS', 'ModifyInfConfFile'.lower())
+            CalSecHardSlpPos = self.cf.getboolean('EXECUTABLE_FLAGS', 'CalSecHardSlpPos'.lower())
+            CalSPSI = self.cf.getboolean('EXECUTABLE_FLAGS', 'CalSPSI'.lower())
+            ExtLog = self.cf.getboolean('EXECUTABLE_FLAGS', 'ExtLog'.lower())
 
-
-
-        if 'OPTIONAL' in cf.sections():
-            mpiexeDir = cf.get('OPTIONAL', 'mpiexeDir'.lower())
-            hostfile = cf.get('OPTIONAL', 'hostfile'.lower())
-            outlet = cf.get('OPTIONAL', 'outlet'.lower())
-            VlySrc = cf.get('OPTIONAL', 'vlysrc'.lower())
-            RdgSrc = cf.get('OPTIONAL', 'rdgsrc'.lower())
-            rpiFile = cf.get('OPTIONAL', 'rpiFile'.lower())
+        if 'OPTIONAL' in self.cf.sections():
+            mpiexeDir = self.cf.get('OPTIONAL', 'mpiexeDir'.lower())
+            hostfile = self.cf.get('OPTIONAL', 'hostfile'.lower())
+            outlet = self.cf.get('OPTIONAL', 'outlet'.lower())
+            VlySrc = self.cf.get('OPTIONAL', 'vlysrc'.lower())
+            RdgSrc = self.cf.get('OPTIONAL', 'rdgsrc'.lower())
+            rpiFile = self.cf.get('OPTIONAL', 'rpiFile'.lower())
             if inputProc <= 0 or inputProc is None:
-                if cf.has_option('OPTIONAL', 'inputProc'.lower()):
-                    inputProc = cf.getint('OPTIONAL', 'inputProc'.lower())
+                if self.cf.has_option('OPTIONAL', 'inputProc'.lower()):
+                    inputProc = self.cf.getint('OPTIONAL', 'inputProc'.lower())
                 else:
                     inputProc = cpu_count() / 2
 
@@ -135,33 +146,33 @@ class AutoFuzSlpPosConfig(object):
                 hostfile = None
             else:
                 raise ValueError(
-                    "The hostfile %s is not existed or have no access permission!" % hostfile)
+                        "The hostfile %s is not existed or have no access permission!" % hostfile)
         if not isFileExists(outlet):
             if outlet.lower() == 'none' or outlet.lower() == '':
                 outlet = None
             else:
                 raise ValueError(
-                    "The outlet %s is not existed or have no access permission!" % outlet)
+                        "The outlet %s is not existed or have no access permission!" % outlet)
         if not isFileExists(VlySrc):
             if VlySrc.lower() == 'none' or VlySrc.lower() == '':
                 VlySrc = None
             else:
                 raise ValueError(
-                    "The vlysrc %s is not existed or have no access permission!" % VlySrc)
+                        "The vlysrc %s is not existed or have no access permission!" % VlySrc)
 
         if not isFileExists(RdgSrc):
             if RdgSrc.lower() == 'none' or RdgSrc.lower() == '':
                 RdgSrc = None
             else:
                 raise ValueError(
-                    "The RdgSrc %s is not existed or have no access permission!" % RdgSrc)
+                        "The RdgSrc %s is not existed or have no access permission!" % RdgSrc)
 
         if not isFileExists(rpiFile):
             if rpiFile.lower() == 'none' or rpiFile.lower() == '':
                 rpiFile = None
             else:
                 raise ValueError(
-                    "The rpiFile %s is not existed or have no access permission!" % rpiFile)
+                        "The rpiFile %s is not existed or have no access permission!" % rpiFile)
 
         # 4. Optional parameters settings for terrain attributes preparation
         FlowModel = 1
@@ -187,31 +198,31 @@ class AutoFuzSlpPosConfig(object):
         propthresh = 0.0
         DinfUpStat = 'Average'
         DinfUpMethod = 'Surface'
-        if 'OPTIONAL_DTA' in cf.sections():
-            FlowModel = cf.getint('OPTIONAL_DTA', 'FlowModel'.lower())
-            rpiMethod = cf.getint('OPTIONAL_DTA', 'rpiMethod'.lower())
-            SPSImethod = cf.getint('OPTIONAL_DTA', 'SPSImethod'.lower())
-            DistanceExponentForIDW = cf.getint('OPTIONAL_DTA', 'DistanceExponentForIDW'.lower())
+        if 'OPTIONAL_DTA' in self.cf.sections():
+            FlowModel = self.cf.getint('OPTIONAL_DTA', 'FlowModel'.lower())
+            rpiMethod = self.cf.getint('OPTIONAL_DTA', 'rpiMethod'.lower())
+            SPSImethod = self.cf.getint('OPTIONAL_DTA', 'SPSImethod'.lower())
+            DistanceExponentForIDW = self.cf.getint('OPTIONAL_DTA', 'DistanceExponentForIDW'.lower())
             for slppos in SlpPosItems:
-                if cf.has_option('OPTIONAL_DTA', slppos + "tag"):
-                    TagDict[slppos] = cf.getint('OPTIONAL_DTA', slppos + "tag")
+                if self.cf.has_option('OPTIONAL_DTA', slppos + "tag"):
+                    TagDict[slppos] = self.cf.getint('OPTIONAL_DTA', slppos + "tag")
                     if TagDict[slppos] <= 0:
                         TagDict[slppos] = 1
-            maxMoveDist = cf.getfloat('OPTIONAL_DTA', 'maxMoveDist'.lower())
-            numthresh = cf.getint('OPTIONAL_DTA', 'numthresh'.lower())
-            logspace = cf.getboolean('OPTIONAL_DTA', 'logspace'.lower())
-            D8StreamThreshold = cf.getint('OPTIONAL_DTA', 'D8StreamThreshold'.lower())
-            D8DownMethod = cf.get('OPTIONAL_DTA', 'D8DownMethod'.lower())
-            D8StreamTag = cf.getint('OPTIONAL_DTA', 'D8StreamTag'.lower())
-            D8UpMethod = cf.get('OPTIONAL_DTA', 'D8UpMethod'.lower())
-            D8UpStats = cf.get('OPTIONAL_DTA', 'D8UpStats'.lower())
-            DinfStreamThreshold = cf.getint('OPTIONAL_DTA', 'DinfStreamThreshold'.lower())
-            DinfDownStat = cf.get('OPTIONAL_DTA', 'DinfDownStat'.lower())
-            DinfDownMethod = cf.get('OPTIONAL_DTA', 'DinfDownMethod'.lower())
-            DinfDistDownWG = cf.get('OPTIONAL_DTA', 'DinfDistDownWG'.lower())
-            propthresh = cf.getfloat('OPTIONAL_DTA', 'propthresh'.lower())
-            DinfUpStat = cf.get('OPTIONAL_DTA', 'DinfUpStat'.lower())
-            DinfUpMethod = cf.get('OPTIONAL_DTA', 'DinfUpMethod'.lower())
+            maxMoveDist = self.cf.getfloat('OPTIONAL_DTA', 'maxMoveDist'.lower())
+            numthresh = self.cf.getint('OPTIONAL_DTA', 'numthresh'.lower())
+            logspace = self.cf.getboolean('OPTIONAL_DTA', 'logspace'.lower())
+            D8StreamThreshold = self.cf.getint('OPTIONAL_DTA', 'D8StreamThreshold'.lower())
+            D8DownMethod = self.cf.get('OPTIONAL_DTA', 'D8DownMethod'.lower())
+            D8StreamTag = self.cf.getint('OPTIONAL_DTA', 'D8StreamTag'.lower())
+            D8UpMethod = self.cf.get('OPTIONAL_DTA', 'D8UpMethod'.lower())
+            D8UpStats = self.cf.get('OPTIONAL_DTA', 'D8UpStats'.lower())
+            DinfStreamThreshold = self.cf.getint('OPTIONAL_DTA', 'DinfStreamThreshold'.lower())
+            DinfDownStat = self.cf.get('OPTIONAL_DTA', 'DinfDownStat'.lower())
+            DinfDownMethod = self.cf.get('OPTIONAL_DTA', 'DinfDownMethod'.lower())
+            DinfDistDownWG = self.cf.get('OPTIONAL_DTA', 'DinfDistDownWG'.lower())
+            propthresh = self.cf.getfloat('OPTIONAL_DTA', 'propthresh'.lower())
+            DinfUpStat = self.cf.get('OPTIONAL_DTA', 'DinfUpStat'.lower())
+            DinfUpMethod = self.cf.get('OPTIONAL_DTA', 'DinfUpMethod'.lower())
         if FlowModel != 0:
             FlowModel = 1
         if rpiMethod != 0:
@@ -250,7 +261,7 @@ class AutoFuzSlpPosConfig(object):
                 DinfDistDownWG = None
             else:
                 raise ValueError(
-                    "The DinfDistDownWG %s is not existed or have no access permission!" % hostfile)
+                        "The DinfDistDownWG %s is not existed or have no access permission!" % hostfile)
         if propthresh < 0:
             propthresh = 0.0
         if not StringInList(DinfUpStat, StatMethod):
@@ -259,15 +270,15 @@ class AutoFuzSlpPosConfig(object):
             DinfUpMethod = 'Surface'
 
         # 5. Optional parameter-settings for Typical Locations selection
-        RPI_default_path = rootDir + os.sep + 'Params' + os.sep + 'RPI.tif'
-        ProfC_default_path = rootDir + os.sep + 'Params' + os.sep + 'ProfC.tif'
-        HorizC_default_path = rootDir + os.sep + 'Params' + os.sep + 'HorizC.tif'
-        Slope_default_path = rootDir + os.sep + 'Params' + os.sep + 'Slp.tif'
-        HAND_default_path = rootDir + os.sep + 'Params' + os.sep + 'HAND.tif'
+        RPI_default_path = self.workspace + os.sep + 'Params' + os.sep + 'RPI.tif'
+        ProfC_default_path = self.workspace + os.sep + 'Params' + os.sep + 'ProfC.tif'
+        HorizC_default_path = self.workspace + os.sep + 'Params' + os.sep + 'HorizC.tif'
+        Slope_default_path = self.workspace + os.sep + 'Params' + os.sep + 'Slp.tif'
+        HAND_default_path = self.workspace + os.sep + 'Params' + os.sep + 'HAND.tif'
         if FlowModel >= 1:
-            Elev_default_path = rootDir + os.sep + 'DinfpreDir' + os.sep + 'demfil.tif'
+            Elev_default_path = self.workspace + os.sep + 'DinfpreDir' + os.sep + 'demfil.tif'
         else:
-            Elev_default_path = rootDir + os.sep + 'D8preDir' + os.sep + 'demfil.tif'
+            Elev_default_path = self.workspace + os.sep + 'D8preDir' + os.sep + 'demfil.tif'
         preDerivedTerrainAttrs = {'rpi': RPI_default_path, 'rpifile': rpiFile,
                                   'profc': ProfC_default_path,
                                   'horizc': HorizC_default_path, 'slp': Slope_default_path,
@@ -278,12 +289,12 @@ class AutoFuzSlpPosConfig(object):
         TerrainAttrList = []
         TerrainAttrDict = {}
         TerrainAttrNum = -1
-        if cf.has_option('OPTIONAL_TYPLOC', 'TerrainAttrDict'.lower()):
-            TerrainAttrDictStr = cf.get('OPTIONAL_TYPLOC', 'TerrainAttrDict'.lower())
+        if self.cf.has_option('OPTIONAL_TYPLOC', 'TerrainAttrDict'.lower()):
+            TerrainAttrDictStr = self.cf.get('OPTIONAL_TYPLOC', 'TerrainAttrDict'.lower())
             tmpAttrStrs = SplitStr(TerrainAttrDictStr, ',')
             if len(tmpAttrStrs) == 0:
                 raise ValueError(
-                    "You MUST assign terrain attribute directionary (TerrainAttrDict), please check and retry!")
+                        "You MUST assign terrain attribute directionary (TerrainAttrDict), please check and retry!")
             else:
                 TerrainAttrNum = len(tmpAttrStrs)
             if not tmpAttrStrs[0].lower() in regionAttrs:
@@ -307,7 +318,7 @@ class AutoFuzSlpPosConfig(object):
                     TerrainAttrList.append(tmpFileName.lower())
                 else:  # otherwise, throw an exception
                     raise ValueError(
-                        "TerrainAttrDict input is invalid, please follow the instructure!")
+                            "TerrainAttrDict input is invalid, please follow the instructure!")
         else:
             TerrainAttrDict = {'rpi': RPI_default_path, 'profc': ProfC_default_path,
                                'slp': Slope_default_path,
@@ -321,14 +332,14 @@ class AutoFuzSlpPosConfig(object):
         for slppos in SlpPosItems:
             name = slppos + "baseparam"
             tmpBaseParam = []
-            if cf.has_option('OPTIONAL_TYPLOC', name.lower()):
-                BaseParamStr = cf.get('OPTIONAL_TYPLOC', name.lower())
+            if self.cf.has_option('OPTIONAL_TYPLOC', name.lower()):
+                BaseParamStr = self.cf.get('OPTIONAL_TYPLOC', name.lower())
                 baseParamFloats = SplitStr4Float(BaseParamStr, ',')
                 if len(baseParamFloats) == len(DefaultBaseParam):
                     tmpBaseParam = baseParamFloats[:]
                 else:
                     raise ValueError(
-                        "Base parameters number for BiGaussian fitting MUST be 8, please check and retry!")
+                            "Base parameters number for BiGaussian fitting MUST be 8, please check and retry!")
             else:
                 tmpBaseParam = DefaultBaseParam[:]
             AllBaseParams[slppos] = tmpBaseParam[:]
@@ -339,12 +350,12 @@ class AutoFuzSlpPosConfig(object):
         FuzInfDefaults = dict()
         for slppos in SlpPosItems:
             name = slppos + "fuzinfdefault"
-            if cf.has_option('OPTIONAL_TYPLOC', name.lower()):
-                fuzInfShpStr = cf.get('OPTIONAL_TYPLOC', name.lower())
+            if self.cf.has_option('OPTIONAL_TYPLOC', name.lower()):
+                fuzInfShpStr = self.cf.get('OPTIONAL_TYPLOC', name.lower())
                 fuzInfShpStrs = SplitStr(fuzInfShpStr, ',')
                 if len(fuzInfShpStrs) != TerrainAttrNum:
                     raise ValueError(
-                        "The number of FMF shape must equal to terrain attribute number!")
+                            "The number of FMF shape must equal to terrain attribute number!")
                 else:
                     tmpFuzInfShp = []
                     for i in range(TerrainAttrNum):
@@ -370,7 +381,7 @@ class AutoFuzSlpPosConfig(object):
                                                  ['hand', 'N']]
                 else:
                     raise ValueError(
-                        "The FuzInfDefault items must be defined corresponding to TerrainAttrDict!")
+                            "The FuzInfDefault items must be defined corresponding to TerrainAttrDict!")
         # for fuzinf in FuzInfDefaults.keys():
         #     print fuzinf, FuzInfDefaults[fuzinf]
         # 5.5 Value ranges of terrain attributes for extracting prototypes
@@ -380,8 +391,8 @@ class AutoFuzSlpPosConfig(object):
             for slppos in SlpPosItems:
                 name = slppos + "valueranges"
                 values = list()
-                if cf.has_option('OPTIONAL_TYPLOC', name.lower()):
-                    rngStr = cf.get('OPTIONAL_TYPLOC', name.lower())
+                if self.cf.has_option('OPTIONAL_TYPLOC', name.lower()):
+                    rngStr = self.cf.get('OPTIONAL_TYPLOC', name.lower())
                     values = FindNumberFromString(rngStr)
                 if values is None and AutoTypLocExtraction:
                     if name.lower() == 'rdgvalueranges':
@@ -397,7 +408,7 @@ class AutoFuzSlpPosConfig(object):
                 elif values is not None or AutoTypLocExtraction:  # value ranges is derived from string
                     if len(values) % 3 != 0:
                         raise ValueError(
-                            "%s is unvalid, please follow the instruction and retry!" % name)
+                                "%s is unvalid, please follow the instruction and retry!" % name)
                     elif len(values) >= 3 and len(
                             values) % 3 == 0:  # one or several value ranges are defined
                         tmpRng = list()
@@ -406,7 +417,7 @@ class AutoFuzSlpPosConfig(object):
                             idx = int(tmpV.pop(0)) - 1
                             if idx < 0 or idx > TerrainAttrNum - 1:
                                 raise ValueError("The terrain attribute index must be 1 to %d" % (
-                                TerrainAttrNum))
+                                    TerrainAttrNum))
                             tmpV.sort()
                             tmpRng.append([TerrainAttrDict[TerrainAttrList[idx]], tmpV[0], tmpV[1]])
                         ValueRanges[slppos] = tmpRng[:]
@@ -433,8 +444,8 @@ class AutoFuzSlpPosConfig(object):
             for slppos in SlpPosItems:
                 name = slppos + "inferparams"
                 values = list()
-                if cf.has_option('OPTIONAL_FUZINF', name.lower()):
-                    rngStr = cf.get('OPTIONAL_FUZINF', name.lower())
+                if self.cf.has_option('OPTIONAL_FUZINF', name.lower()):
+                    rngStr = self.cf.get('OPTIONAL_FUZINF', name.lower())
                     values = FindNumberFromString(rngStr)
                 if values is None and AutoInfParams:
                     InferParams[slppos] = []
@@ -448,7 +459,7 @@ class AutoFuzSlpPosConfig(object):
                             ShpIdx = int(tmpV.pop(0))
                             if AttrIdx < 0 or AttrIdx > len(values) / 4 - 1:
                                 raise ValueError("The terrain attribute index must be 1 to %d" % (
-                                len(values) / 4))
+                                    len(values) / 4))
                             if ShpIdx < 1 or ShpIdx > 3:
                                 raise ValueError("The FMF Shape index must be 1, 2, or 3")
                             if FMFShape[ShpIdx] == 'B':  # ['B', 6, 2, 0.5, 6, 2, 0.5]
@@ -459,8 +470,7 @@ class AutoFuzSlpPosConfig(object):
                                 tmpInf.append(['Z', 1, 0, 1, tmpV[1], 2, 0.5])
                         InferParams[slppos] = tmpInf[:]
                     else:
-                        raise ValueError(
-                            "%s is unvalid, please follow the instruction and retry!" % name)
+                        raise ValueError("%s is unvalid, please follow the instruction and retry!" % name)
                 else:
                     raise ValueError("%s has no valid numeric values!" % name)
 
@@ -472,10 +482,12 @@ def get_input_cfgs():
     """
     c = C()
     parser = argparse.ArgumentParser(description="Read AutoFuzSlpPos configurations.")
-    parser.add_argument('-ini', help="Full path of configuration file")
-    parser.add_argument('-proc', help="Number of processor for parallel computing "
+    parser.add_argument('-ini', help="Full path of configuration file.")
+    parser.add_argument('-bin', help="Path of executable programs, which will override"
+                                     "exeDir in *.ini file.")
+    parser.add_argument('-proc', help="Number of processor for parallel computing, "
                                       "which will override inputProc in *.ini file.")
-    parser.add_argument('-root', help="Workspace to store results, which will override"
+    parser.add_argument('-root', help="Workspace to store results, which will override "
                                       "rootDir in *.ini file.")
     args = parser.parse_args(namespace=c)
 
@@ -496,7 +508,6 @@ def get_input_cfgs():
     cf.read(ini_file)
 
     return AutoFuzSlpPosConfig(cf, input_proc, root_dir)
-
 
 
 if __name__ == '__main__':
