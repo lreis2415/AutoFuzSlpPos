@@ -6,7 +6,6 @@
                 17-07-21  lj - reorganize and incorporate with pygeoc
 """
 
-import argparse
 import math
 import os
 import sys
@@ -14,33 +13,13 @@ import subprocess
 from shutil import rmtree
 import numpy
 import re
-from gdalconst import *
+# from gdalconst import *
 from osgeo import gdal
 from osgeo import ogr
 from osgeo import osr
 from autofuzslppos.pygeoc.pygeoc.utils.utils import StringClass
 
 NODATA_VALUE = -9999.
-
-
-
-
-def isPathExists(path):
-    if os.path.isdir(path):
-        if os.path.exists(path):
-            return True
-        else:
-            return False
-    else:
-        return False
-
-
-def isFileExists(filepath):
-    if os.path.exists(filepath) and os.path.isfile(filepath):
-        return True
-    else:
-        return False
-
 
 def LoadConfiguration(inifile, proc, root):
     strCmd = '%s %s/Config.py -ini %s' % (sys.executable, currentPath(), inifile)

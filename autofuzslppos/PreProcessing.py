@@ -105,7 +105,7 @@ def PreProcessing(model):
     logStatus.write("[Preprocessing] [6/7] Calculating RPI(Relative Position Index)...\n")
     logStatus.flush()
     StreamSource = D8Stream
-    if VlySrcCal is not None and isFileExists(VlySrcCal):
+    if VlySrcCal is not None and FileClass.is_file_exists(VlySrcCal):
         StreamSource = VlySrcCal
     if model == 0:  # D8 model
         #  HAND
@@ -133,9 +133,9 @@ def PreProcessing(model):
     if rpiMethod == 0:  # calculate RPI based on Skidmore's method
         TauDEM.StreamNet(demfil, D8FlowDir, D8ContriArea, D8Stream, outletM, D8StreamOrd, NetTree, NetCoord,
                          D8StreamNet, SubBasin, inputProc, mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
-        if VlySrcCal is None or not isFileExists(VlySrcCal):
+        if VlySrcCal is None or not FileClass.is_file_exists(VlySrcCal):
             copy2(D8Stream, VlySrcCal)
-        if RdgSrcCal is None or not isFileExists(RdgSrcCal):
+        if RdgSrcCal is None or not FileClass.is_file_exists(RdgSrcCal):
             # C++ version
             angfile = D8FlowDir
             elevfile = D8DistDown_V

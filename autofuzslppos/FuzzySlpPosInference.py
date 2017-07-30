@@ -1,12 +1,29 @@
 #! /usr/bin/env python
-# coding=utf-8
-# @Description: Prepare configure file for fuzzy slope position inference program
-# @Author: Liang-Jun Zhu
-#
-import TauDEM
-from Nomenclature import *
-from Util import *
+# -*- coding: utf-8 -*-
+"""Prepare configure file for fuzzy slope position inference program.
+    @author   : Liangjun Zhu
+    @changelog: 15-09-08  lj - initial implementation
+                17-07-30  lj - reorganize and incorporate with pygeoc
+"""
+# import TauDEM
+import os
+from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.pygeoc.pygeoc.hydro.TauDEM import TauDEM
+# from Nomenclature import *
+# from Util import *
 
+class FuzzySlpPosInference(object):
+    """Fuzzy slope position inference class inherited from pygeoc.hydro.TauDEM.TauDEM"""
+
+    @staticmethod
+    def run(np, workingdir, dem, filleddem, mpiexedir=None, exedir=None, log_file=None,
+             hostfile=None):
+        """Run pit remove using the flooding approach """
+        os.chdir(workingdir)
+        return TauDEM.run(TauDEM.fullpath('fuzzyslpposinference', exedir), {'-z': dem}, None,
+                          {'-fel': filleddem},
+                          {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
+                          {'logfile': TauDEM.fullpath(log_file, workingdir)})
 
 def FuzzySlpPosInference():
     if AutoInfParams:
@@ -77,7 +94,11 @@ def FuzzySlpPosInference():
     TauDEM.HardenSlpPos(RdgInf, ShdInf, BksInf, FtsInf, VlyInf, inputProc, HardenSlpPos, MaxSimilarity,
                         sechard=SecHardenSlpPos, secsimi=SecMaxSimilarity, spsim=SPSImethod, spsi=SPSIfile,
                         mpiexeDir=mpiexeDir, exeDir=exeDir, hostfile=hostfile)
-if __name__ == '__main__':
-    ini, proc, root = get_input_args()
-    LoadConfiguration(ini, proc, root)
+
+def main():
+    """TEST CODE"""
+    fuzslppos_cfg = get_input_cfgs()
     FuzzySlpPosInference()
+
+if __name__ == '__main__':
+    main()

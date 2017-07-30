@@ -300,8 +300,9 @@ class AutoFuzSlpPosConfig(object):
                 if tmpStr.lower() in preDerivedTerrainAttrs.keys():  # predefined terrain attribute
                     TerrainAttrDict[tmpStr.lower()] = preDerivedTerrainAttrs[tmpStr.lower()]
                     TerrainAttrList.append(tmpStr.lower())
-                elif isFileExists(tmpStr):  # user-defined terrain attribute, full file path
-                    tmpFileName = GetCoreFileName(tmpStr)  # Get core file name (without suffix)
+                elif FileClass.is_file_exists(tmpStr):
+                    # user-defined terrain attribute, full file path
+                    tmpFileName = FileClass.get_core_name_without_suffix(tmpStr)
                     TerrainAttrDict[tmpFileName.lower()] = tmpStr
                     TerrainAttrList.append(tmpFileName.lower())
                 else:  # otherwise, throw an exception

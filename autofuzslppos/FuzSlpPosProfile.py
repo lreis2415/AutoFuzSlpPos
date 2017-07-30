@@ -1,17 +1,16 @@
 #! /usr/bin/env python
-# coding=utf-8
-# @Description: Extract fuzzy slope positions along flow path from ridge to valley.
-#               1. Identify ridge sources, ridge means there are no cells flow in.
-#               2. Trace down and extract the similarities of fuzzy slope positons.
-#               3. Construct the output ESRI Shapefile.
-# @Author     : Liang-Jun Zhu
-# @Date       : 2015-9-8
-#
-
-from Nomenclature import *
-from Util import *
-from RidgeExtraction import findRidge
-
+# -*- coding: utf-8 -*-
+"""Extract fuzzy slope positions along flow path from ridge to valley.
+    1. Identify ridge sources, by default, ridge means there are no cells flow in.
+    2. Trace down and extract the similarities of fuzzy slope positons.
+    3. Construct the output ESRI Shapefile.
+    @author   : Liangjun Zhu
+    @changelog: 15-09-08  lj - initial implementation
+                17-07-30  lj - reorganize and incorporate with pygeoc
+"""
+from autofuzslppos.Config import get_input_cfgs
+# from Nomenclature import *
+# from Util import *
 
 
 def fuzSlpPosProfile(rdgCoors, d8flowdir, d8stream, shpfile):
@@ -68,16 +67,22 @@ def fuzSlpPosProfile(rdgCoors, d8flowdir, d8stream, shpfile):
     WriteLineShp(profileCoorList, shpfile)
 
 
-if __name__ == '__main__':
-    ini, proc, root = get_input_args()
-    LoadConfiguration(ini, proc, root)
+def main():
+    """TEST CODE"""
+    fuzslppos_cfg = get_input_cfgs()
+    # ini, proc, root = get_input_args()
+    # LoadConfiguration(ini, proc, root)
     ## input data
     ## Flowdir: D8FlowDir or DinfFlowDir, DEM: demfil, etc...
     ## output file: rdg_taudem, ProfileFuzSlpPos
     ## step 1
     # print DinfFlowDir
-    #rdgsrcCoors = ReadRidge()
+    # rdgsrcCoors = ReadRidge()
     # print rdgsrcInpug
     ## step 2
     # attrList = [demfil, RdgInf, ShdInf, BksInf, FtsInf, VlyInf, MaxSimilarity, HardenSlpPos]
-    #fuzSlpPosProfile(rdgsrcCoors, D8FlowDir, D8Stream, ProfileFuzSlpPos)
+    # fuzSlpPosProfile(rdgsrcCoors, D8FlowDir, D8Stream, ProfileFuzSlpPos)
+
+
+if __name__ == '__main__':
+    main()
