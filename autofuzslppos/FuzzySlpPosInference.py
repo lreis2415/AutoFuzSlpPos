@@ -23,8 +23,8 @@ def read_inf_param_from_file(conf):
         for line in f.readlines():
             eles = line.split('\n')[0].split('\t')
             params = StringClass.extract_numeric_values_from_string(line.split('\n')[0])
-            if StringClass.string_match(eles[0], 'Parameters') and len(params) == 6:
-                params_list.append([eles[1]] + [eles[3]] + params)
+            if StringClass.string_match(eles[0], 'Parameters') and len(params) >= 6:
+                params_list.append([eles[1]] + [eles[3]] + params[-6:])
     return params_list
 
 
@@ -53,22 +53,23 @@ def fuzzy_inference(cfg):
     # Set fuzzy inference parameters for 'rpi' if it does not existed.
     regional_attr_range_dict = dict()
     for slppos in cfg.slppostype:
+        # TODO, add some value check
         regional_attr_range_dict[slppos] = cfg.extractrange[slppos]['rpi']
     for i, typ in enumerate(cfg.slppostype):
         cur_rng = regional_attr_range_dict[typ]
         if i == 0:  # for Ridge, S: w1 = Rdg.max-Shd.max
             next_rng = regional_attr_range_dict[cfg.slppostype[i + 1]]
-            tempw1 = cur_rng[2] - next_rng[2]
+            tempw1 = cur_rng[1] - next_rng[1]
             cur_param = ['S', tempw1, 2, 0.5, 1, 0, 1]
         elif i == len(cfg.slppostype) - 1:  # for Valley, Z: w2 = Fts.max-Vly.max
             before_rng = regional_attr_range_dict[cfg.slppostype[i - 1]]
-            tempw2 = before_rng[2] - cur_rng[2]
+            tempw2 = before_rng[1] - cur_rng[1]
             cur_param = ['Z', 1, 0, 1, tempw2, 2, 0.5]
         else:
             # for other slope positions, B: w1 = w2 = min(cur.min-next.max, before.min-cur.max)
             next_rng = regional_attr_range_dict[cfg.slppostype[i + 1]]
             before_rng = regional_attr_range_dict[cfg.slppostype[i - 1]]
-            tempw = min(cur_rng[1] - next_rng[2], before_rng[1] - cur_rng[2])
+            tempw = min(cur_rng[0] - next_rng[1], before_rng[0] - cur_rng[1])
             cur_param = ['B', tempw, 2, 0.5, tempw, 2, 0.5]
         if 'rpi' not in cfg.inferparam[typ]:
             cfg.inferparam[typ]['rpi'] = cur_param[:]
@@ -87,9 +88,9 @@ def fuzzy_inference(cfg):
         config_info.write('OUTPUT\t%s\n' % cfg.singleslpposconf[slppos].fuzslppos)
         config_info.close()
 
-        TauDEMExtension.fuzzyslpposinference(cfg.proc, cfg.ws.output_dir,
-                                             cfg.singleslpposconf[slppos].infconfig,
-                                             cfg.mpi_dir, cfg.bin_dir, cfg.log.all, cfg.hostfile)
+        # TauDEMExtension.fuzzyslpposinference(cfg.proc, cfg.ws.output_dir,
+        #                                      cfg.singleslpposconf[slppos].infconfig,
+        #                                      cfg.mpi_dir, cfg.bin_dir, cfg.log.all, cfg.hostfile)
 
     TauDEMExtension.hardenslppos(cfg.proc, cfg.ws.output_dir, simif, cfg.slppostag,
                                  cfg.slpposresult.harden_slppos,

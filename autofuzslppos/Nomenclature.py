@@ -81,25 +81,25 @@ class TopoAttrNames(object):
 
     def __init__(self, ws):
         """Initialization."""
-        self.rpi = ws.param_dir + os.sep + 'RPI.tif'
-        self.profc = ws.param_dir + os.sep + 'ProfC.tif'
-        self.horizc = ws.param_dir + os.sep + 'HorizC.tif'
-        self.slope = ws.param_dir + os.sep + 'Slp.tif'
-        self.hand = ws.param_dir + os.sep + 'HAND.tif'
-        self.elev = ws.pre_dir + os.sep + 'demfil.tif'
+        self.rpi = ws.param_dir + os.sep + 'rpi.tif'
+        self.profc = ws.param_dir + os.sep + 'profc.tif'
+        self.horizc = ws.param_dir + os.sep + 'horizc.tif'
+        self.slope = ws.param_dir + os.sep + 'slp.tif'
+        self.hand = ws.param_dir + os.sep + 'hand.tif'
+        self.elev = ws.param_dir + os.sep + 'elev.tif'
         self.pre_derived_terrain_attrs = {'rpi': self.rpi, 'profc': self.profc,
                                           'horizc': self.horizc, 'slp': self.slope,
                                           'hand': self.hand, 'elev': self.elev}
         self.region_attrs = ['rpi']
 
-    def add_user_defined_attribute(self, topoattr_file, is_regional=True):
+    def add_user_defined_attribute(self, toponame, topoattr_file, is_regional=True):
         """Add regional attribute specified by user, and return the key value (i.e., filename)."""
         core_name = FileClass.get_core_name_without_suffix(topoattr_file)
-        if core_name in self.pre_derived_terrain_attrs:
-            raise ValueError("The name (%s) is already existed in predefined topographic "
-                             "attributes directory, please change another one!" % core_name)
+        if toponame in self.pre_derived_terrain_attrs:
+            print ("WARNING: The name (%s) is already existed in predefined topographic "
+                   "attributes directory, the default path will be overwritten!" % core_name)
         self.pre_derived_terrain_attrs[core_name] = topoattr_file
-        if is_regional:
+        if is_regional and toponame not in self.region_attrs:
             self.region_attrs.append(core_name)
 
 
