@@ -55,15 +55,29 @@ int main(int argc, char **argv)
     float exponent = 1.f;
     paramInfGRID *paramsgrd;
     char cfglines[20][MAXLN];
-    if (argc == 1)
+    int paramidx;
+    if (argc < 3)
     {
         printf("Error: To run this program, use either the Simple Usage option or\n");
         printf("the Usage with Specific file names option\n");
         goto errexit;
     }
-    else if (argc >= 2)
+    else
     {
-        strcpy(configfile, argv[1]);
+        paramidx = 1;
+        while (argc > paramidx)
+        {
+            if ((argc > paramidx) && strcmp(argv[paramidx], "-in") == 0)
+            {
+                paramidx++;
+                if (argc > paramidx)
+                {
+                    strcpy(configfile, argv[paramidx]);
+                    paramidx++;
+                }
+                else goto errexit;
+            }
+        }
         //printf("%s\n",configfile);
         ifstream cfg(configfile, ios::in);
         while (!cfg.eof())
@@ -133,7 +147,6 @@ int main(int argc, char **argv)
             i++;
         }
     }
-    else goto errexit;
 
     if ((err = FuzzySlpPosInf(protogrd, prototag, paramsNum, paramsgrd, exponent, simfile)) != 0)
         printf("Error %d\n", err);

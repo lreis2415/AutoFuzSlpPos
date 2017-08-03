@@ -92,7 +92,10 @@ struct node
     int x;
     int y;
 };
-
+inline bool operator==(const node& n1, const node& n2)
+{
+    return (n1.x == n2.x) && (n1.y == n2.y);
+}
 const float PI = 3.14159265359f;
 const short MISSINGSHORT = -32768;
 const long MISSINGLONG = -2147483647;
@@ -117,8 +120,8 @@ const float dinfang[9] = {0.f, e, ne, n, nw, w, sw, s, se};
 
 //  TODO adjust this for different dx and dy
 const double aref[10] = {-atan2((double) 1, (double) 1), 0., -aref[0], (double) (0.5 * PI), PI - aref[2], (double) PI,
-                         PI + aref[2], (double) (1.5 * PI), 2. * PI - aref[2], (double) (2. *
-                                                                                         PI)};   // DGT is concerned that this assumes square grids.  For different dx and dx needs adjustment
+                         PI + aref[2], (double) (1.5 * PI), 2. * PI - aref[2], (double) (2. * PI)};
+// DGT is concerned that this assumes square grids.  For different dx and dx needs adjustment
 bool floatequal(float a, float b);
 
 int nameadd(char *, char *, char *);
@@ -169,6 +172,10 @@ void Release2DArray(int row, T **&data)
     delete[] data;
     data = NULL;
 }
+/*
+ * \brief convert string to char*
+ */
+char* convertStringToCharPtr(string s);
 /*
  *\brief Counting time for Cross-platform
  * more precisely than time.clock()

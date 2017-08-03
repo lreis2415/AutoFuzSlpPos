@@ -12,24 +12,26 @@
 
 using namespace std;
 
-
-int HardenSlpPos(char *rdgfile, char *shdfile, char *bksfile, char *ftsfile, char *vlyfile, char *hardfile,
-                 char *maxsimifile,
-                 bool calsec, char *sechardfile, char *secsimifile, bool calspsi, int spsimodel, char *spsifile)
+int HardenSlpPos(vector<string> infiles, vector<int> tags, char *hardfile, char *maxsimifile, bool calsec,
+                 char *sechardfile, char *secsimifile, bool calspsi, int spsimodel, char *spsifile)
 {
     MPI_Init(NULL, NULL);
     {
         int rank, size;
         MPI_Comm_rank(MCW, &rank);
         MPI_Comm_size(MCW, &size);
+        int inf_num = infiles.size();
         if (rank == 0)
         {
-            printf("HardenSlpPos -h version %s, added by Liangjun Zhu, Apr 14, 2015\n", TDVERSION);
-            printf("RDG:%s\n", rdgfile);
-            printf("SHD:%s\n", shdfile);
-            printf("BKS:%s\n", bksfile);
-            printf("FTS:%s\n", ftsfile);
-            printf("VLY:%s\n", vlyfile);
+            printf("HardenSlpPos -h version %s, added by Liangjun Zhu, Aug 2, 2017\n", TDVERSION);
+            for (int i = 0; i < inf_num; i++) {
+                printf("Slope position type %d: %s\n", tags[i], infiles[i].c_str());
+            }
+            //printf("RDG:%s\n", rdgfile);
+            //printf("SHD:%s\n", shdfile);
+            //printf("BKS:%s\n", bksfile);
+            //printf("FTS:%s\n", ftsfile);
+            //printf("VLY:%s\n", vlyfile);
             printf("Harden Slope Position:%s\n", hardfile);
             printf("MaxSimilarity:%s\n", maxsimifile);
             if (calsec)
@@ -45,8 +47,8 @@ int HardenSlpPos(char *rdgfile, char *shdfile, char *bksfile, char *ftsfile, cha
         }
         // begin timer
         double begint = MPI_Wtime();
-        // read rdgfile
-        tiffIO rdgf(rdgfile, FLOAT_TYPE);
+        // read the first one
+        tiffIO rdgf(convertStringToCharPtr(infiles[0]), FLOAT_TYPE);
         long totalX = rdgf.getTotalX();
         long totalY = rdgf.getTotalY();
         double dx = rdgf.getdx();
@@ -62,49 +64,20 @@ int HardenSlpPos(char *rdgfile, char *shdfile, char *bksfile, char *ftsfile, cha
         rdg->localToGlobal(0, 0, xstart, ystart); // calculate current partition's first cell's position
         rdgf.read(xstart, ystart, ny, nx, rdg->getGridPointer()); // get the current partition's pointer
 
-        // read the other four slope position's similarity tiff data into a *linearpart...
-        linearpart<float> *slpposSimi = new linearpart<float>[4];
-
-        tiffIO shdf(shdfile, FLOAT_TYPE);
-        if (!rdgf.compareTiff(shdf))
+        // read the other slope position's similarity tiff data into a *linearpart...
+        linearpart<float> *slpposSimi = new linearpart<float>[inf_num - 1];
+        for (int num = 0; num < inf_num - 1; num++)
         {
-            printf("File size do not match\n%s\n", shdfile);
-            MPI_Abort(MCW, 5);
-            return 1;
+            tiffIO paramsf(convertStringToCharPtr(infiles[num + 1]), FLOAT_TYPE);
+            if (!rdgf.compareTiff(paramsf))
+            {
+                printf("File size do not match\n%s\n", infiles[num + 1].c_str());
+                MPI_Abort(MCW, 5);
+                return 1;
+            }
+            slpposSimi[num].init(totalX, totalY, dx, dy, MPI_FLOAT, *((float *)paramsf.getNodata()));
+            paramsf.read(xstart, ystart, ny, nx, slpposSimi[num].getGridPointer());
         }
-        tiffIO bksf(bksfile, FLOAT_TYPE);
-        if (!rdgf.compareTiff(bksf))
-        {
-            printf("File size do not match\n%s\n", bksfile);
-            MPI_Abort(MCW, 5);
-            return 1;
-        }
-        tiffIO ftsf(ftsfile, FLOAT_TYPE);
-        if (!rdgf.compareTiff(ftsf))
-        {
-            printf("File size do not match\n%s\n", ftsfile);
-            MPI_Abort(MCW, 5);
-            return 1;
-        }
-        tiffIO vlyf(vlyfile, FLOAT_TYPE);
-        if (!rdgf.compareTiff(vlyf))
-        {
-            printf("File size do not match\n%s\n", vlyfile);
-            MPI_Abort(MCW, 5);
-            return 1;
-        }
-        slpposSimi[0].init(totalX, totalY, dx, dy, MPI_FLOAT, *((float *) shdf.getNodata()));
-        shdf.read(xstart, ystart, ny, nx, slpposSimi[0].getGridPointer());
-
-        slpposSimi[1].init(totalX, totalY, dx, dy, MPI_FLOAT, *((float *) bksf.getNodata()));
-        bksf.read(xstart, ystart, ny, nx, slpposSimi[1].getGridPointer());
-
-        slpposSimi[2].init(totalX, totalY, dx, dy, MPI_FLOAT, *((float *) ftsf.getNodata()));
-        ftsf.read(xstart, ystart, ny, nx, slpposSimi[2].getGridPointer());
-
-        slpposSimi[3].init(totalX, totalY, dx, dy, MPI_FLOAT, *((float *) vlyf.getNodata()));
-        vlyf.read(xstart, ystart, ny, nx, slpposSimi[3].getGridPointer());
-
         double readt = MPI_Wtime(); // record reading time
 
         // create empty partition to store new result
@@ -122,9 +95,6 @@ int HardenSlpPos(char *rdgfile, char *shdfile, char *bksfile, char *ftsfile, cha
         // COMPUTING CODE BLOCK
         int i, j, num;
         short maxSlpPosTag, secSlpPosTag;
-        // iSlpPosTag is equal to 1, 2, 4, 8, 16 corresponding to ridge, shoulder, back, foot, valley, respectively.
-        //short *iSlpPosTag = new short[2, 4, 8, 16]; // not include ridge Tag.
-        short iSlpPosTag[] = {2, 4, 8, 16};
         float maxSimilarity, secSimilarity, tempSimilarity;
         for (j = 0; j < ny; j++) // rows
         {
@@ -144,15 +114,15 @@ int HardenSlpPos(char *rdgfile, char *shdfile, char *bksfile, char *ftsfile, cha
                 {
                     // main calculation block
                     // initial
-                    maxSlpPosTag = 1;
+                    maxSlpPosTag = tags[0];
                     rdg->getData(i, j, maxSimilarity);
                     if (calsec)
                     {
-                        secSlpPosTag = 1;
+                        secSlpPosTag = tags[0];
                         rdg->getData(i, j, secSimilarity);
                     }
                     // loop the other four slope position's similarity
-                    for (num = 0; num < 4; num++)
+                    for (num = 0; num < inf_num - 1; num++)
                     {
                         slpposSimi[num].getData(i, j, tempSimilarity);
                         if (tempSimilarity > maxSimilarity)
@@ -162,29 +132,29 @@ int HardenSlpPos(char *rdgfile, char *shdfile, char *bksfile, char *ftsfile, cha
                                 secSlpPosTag = maxSlpPosTag;
                                 secSimilarity = maxSimilarity;
                             }
-                            maxSlpPosTag = iSlpPosTag[num];
+                            maxSlpPosTag = tags[num + 1];
                             maxSimilarity = tempSimilarity;
                         }
                         else if ((tempSimilarity < maxSimilarity) && calsec)
                         {
                             if ((tempSimilarity > secSimilarity) ||
-                                ((tempSimilarity == secSimilarity) && (iSlpPosTag[num] > secSlpPosTag)))
+                                ((tempSimilarity == secSimilarity) && (tags[num + 1] > secSlpPosTag)))
                             {
-                                secSlpPosTag = iSlpPosTag[num];
+                                secSlpPosTag = tags[num + 1];
                                 secSimilarity = tempSimilarity;
                             }
                         }
                         else if ((tempSimilarity == maxSimilarity))
                         {
-                            if (iSlpPosTag[num] > maxSlpPosTag)
+                            if (tags[num + 1] > maxSlpPosTag)
                             {
-                                maxSlpPosTag = iSlpPosTag[num];
+                                maxSlpPosTag = tags[num + 1];
                                 maxSimilarity = tempSimilarity;
                             }
                             else if (((tempSimilarity > secSimilarity) ||
-                                      (tempSimilarity == secSimilarity && iSlpPosTag[num] > secSlpPosTag)) && calsec)
+                                (tempSimilarity == secSimilarity && tags[num + 1] > secSlpPosTag)) && calsec)
                             {
-                                secSlpPosTag = iSlpPosTag[num];
+                                secSlpPosTag = tags[num + 1];
                                 secSimilarity = tempSimilarity;
                             }
                         }
@@ -221,8 +191,8 @@ int HardenSlpPos(char *rdgfile, char *shdfile, char *bksfile, char *ftsfile, cha
                         else
                             flag = 0.f;
                         if (spsimodel == 1)
-                            tempSPSI =
-                                    (log((float) maxSlpPosTag) / log(2.f) + 1.f) + flag * (1.f - maxSimilarity) / 2.f;
+                            tempSPSI = (log((float) maxSlpPosTag) / log(2.f) + 1.f) +
+                                       flag * (1.f - maxSimilarity) / 2.f;
                         else if (spsimodel == 2)
                             tempSPSI = (log((float) maxSlpPosTag) / log(2.f) + 1.f) +
                                        flag * (1.f - (maxSimilarity - secSimilarity)) / 2.f;
@@ -266,15 +236,6 @@ int HardenSlpPos(char *rdgfile, char *shdfile, char *bksfile, char *ftsfile, cha
         compute = computet - readt;
         write = writet - computet;
         total = writet - begint;
-
-		//MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//dataRead = tempd / size;
-		//MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//compute = tempd / size;
-		//MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//write = tempd / size;
-		//MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//total = tempd / size;
 
 		MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
 		dataRead = tempd;

@@ -267,15 +267,6 @@ int FuzzySlpPosInf(char *protofile, int prototag, int paramsNum, paramInfGRID *p
         write = writet - computet;
         total = writet - begint;
 
-        //MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        //dataRead = tempd / size;
-        //MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        //compute = tempd / size;
-        //MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        //write = tempd / size;
-        //MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        //total = tempd / size;
-
 		MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
 		dataRead = tempd;
 		MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);

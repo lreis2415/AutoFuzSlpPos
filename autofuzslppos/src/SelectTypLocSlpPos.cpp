@@ -32,6 +32,9 @@
 
 using namespace std;
 
+/// sqrt(2*ln2), e.g., convertor from bi-Gaussion equation to fuzzy membership function
+const float shapeConvertor = 1.1774100225154747f;
+
 /*!
  * \brief Do not use this terrain attribute
  *
@@ -54,15 +57,15 @@ void dropParam(paramExtGRID &paramgrd)
  *
  */
 int SetFuzFuncShape(paramExtGRID &paramgrd, ExtInfo &paramExt, char shape, float fittedCenter, float *allvalues,
-                    float MIN_TYPLOC_NUM_PECENT, float MAX_TYPLOC_NUM_PECENT, int SELECTION_MODE,
-                    float DEFAULT_SIGMA_MULTIPLIER)
+                    float min_ratio, float max_ratio, int SELECTION_MODE, float w_expander)
 {
+    w_expander *= shapeConvertor;
     float maxx = fittedCenter;
     int i, defaultSelectNum;
     if (SELECTION_MODE)
-        defaultSelectNum = (int) round(paramExt.num * MAX_TYPLOC_NUM_PECENT * 2.5f);
+        defaultSelectNum = (int) round(paramExt.num * max_ratio * 2.5f);
     else
-        defaultSelectNum = (int) round(paramExt.num * MIN_TYPLOC_NUM_PECENT * 2.5f);
+        defaultSelectNum = (int) round(paramExt.num * min_ratio * 2.5f);
 	//cout<<defaultSelectNum<<endl;
     vector<float> valueVector;
     for (i = 0; i < paramExt.num; i++)
@@ -102,8 +105,8 @@ int SetFuzFuncShape(paramExtGRID &paramgrd, ExtInfo &paramExt, char shape, float
         /// Deprecated code.
         ///paramgrd.maxTyp = min((float)(maxx + (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO  * k2_2/(k1_2+k2_2)),paramExt.maxValue);
         ///paramgrd.minTyp = max((float)(maxx - (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO  * k1_2/(k1_2+k2_2)),paramExt.minValue);
-        paramgrd.w1 = DEFAULT_SIGMA_MULTIPLIER * STDcal(allvalues, paramExt.num, false, paramgrd.maxTyp);
-        paramgrd.w2 = DEFAULT_SIGMA_MULTIPLIER * STDcal(allvalues, paramExt.num, true, paramgrd.minTyp);
+        paramgrd.w1 = w_expander * STDcal(allvalues, paramExt.num, false, paramgrd.maxTyp);
+        paramgrd.w2 = w_expander * STDcal(allvalues, paramExt.num, true, paramgrd.minTyp);
 		//cout<<"w1: "<<paramgrd.w1<<", w2: "<<paramgrd.w2<<endl;
     }
     else if (shape == 'S')
@@ -120,7 +123,7 @@ int SetFuzFuncShape(paramExtGRID &paramgrd, ExtInfo &paramExt, char shape, float
         ///paramgrd.minTyp = min((float)(maxx + (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO),paramgrd.maxTyp);
         if (paramgrd.minTyp == paramgrd.maxTyp)
             paramgrd.minTyp = paramgrd.maxTyp - paramExt.interval;
-        paramgrd.w1 = DEFAULT_SIGMA_MULTIPLIER * STDcal(allvalues, paramExt.num, false, paramgrd.maxTyp);
+        paramgrd.w1 = w_expander * STDcal(allvalues, paramExt.num, false, paramgrd.maxTyp);
     }
     else if (shape == 'Z')
     {
@@ -135,7 +138,7 @@ int SetFuzFuncShape(paramExtGRID &paramgrd, ExtInfo &paramExt, char shape, float
         ///paramgrd.maxTyp = max((float)(maxx - (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO),paramgrd.minTyp);
         if (paramgrd.minTyp == paramgrd.maxTyp)
             paramgrd.maxTyp = paramgrd.minTyp + paramExt.interval;
-        paramgrd.w2 = DEFAULT_SIGMA_MULTIPLIER * STDcal(allvalues, paramExt.num, true, paramgrd.minTyp);
+        paramgrd.w2 = w_expander * STDcal(allvalues, paramExt.num, true, paramgrd.minTyp);
     }
     else{
 		dropParam(paramgrd);
@@ -172,7 +175,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
         float MIN_TYPLOC_NUM_PECENT = 0.f;
         float MAX_TYPLOC_NUM_PECENT = 0.f;
         int SELECTION_MODE = 1;
-        float DEFAULT_INCREMENT_RATIO = 0.1f, DEFAULT_SIGMA_MULTIPLIER = 1.414f, DEFAULT_BiGaussian_Ratio = 4.f;
+        float DEFAULT_INCREMENT_RATIO = 0.1f, DEFAULT_SIGMA_MULTIPLIER = 1.f, DEFAULT_BiGaussian_Ratio = 4.f;
         if (baseInputParameters != NULL)
         {
             MIN_FREQUENCY = int(baseInputParameters[0]);
@@ -825,18 +828,6 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                         else /// the bi-Gaussian fitted failed!
                         {
                             dropParam(paramsgrd[num]);
-                            //if(priorShape.size() >= 1)
-                            //{
-                            //	if(priorShape[0] != 'N')
-                            //	{
-                            //		if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],tempx[max_freq_idx_origin],AllCellValues[num],MIN_TYPLOC_NUM_PECENT,MAX_TYPLOC_NUM_PECENT,SELECTION_MODE, DEFAULT_SIGMA_MULTIPLIER))!= 0)
-                            //			return 1;
-                            //	}
-                            //	else
-                            //		dropParam(paramsgrd[num]);
-                            //}
-                            //else
-                            //	dropParam(paramsgrd[num]);
                             if (writelog)
                             {
                                 ofstream logf;
@@ -865,13 +856,6 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
         }
 		
         /// Now extract typical location according to maxTyp and minTyp of each topographic attribute
-        /*if(rank == 2)
-        {
-        for(num = 0; num < paramsNum; num++)
-        cout<<"Init: "<<paramsgrd[num].name<<","<<paramsgrd[num].shape<<","<<paramsgrd[num].minTyp<<","<<paramsgrd[num].maxTyp<<","<<paramsgrd[num].w1<<","<<paramsgrd[num].w2<<endl;
-        cout<<"minNum:"<<MIN_TYPLOC_NUM<<", maxNum:"<<MAX_TYPLOC_NUM<<endl;
-        }*/
-
         tdpartition *typloc;
         typloc = CreateNewPartition(SHORT_TYPE, totalX, totalY, dx, dy, MISSINGSHORT);
 
@@ -1047,19 +1031,19 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                     {
                         if (paramsgrd[num].shape == 'B')
                         {
-                            paramsgrd[num].w1 = DEFAULT_SIGMA_MULTIPLIER *
+                            paramsgrd[num].w1 = DEFAULT_SIGMA_MULTIPLIER * shapeConvertor *
                                                 STDcal(AllCellValues[num], paramsExtInfo[num].num, false,
                                                        paramsgrd[num].maxTyp);
-                            paramsgrd[num].w2 = DEFAULT_SIGMA_MULTIPLIER *
+                            paramsgrd[num].w2 = DEFAULT_SIGMA_MULTIPLIER * shapeConvertor *
                                                 STDcal(AllCellValues[num], paramsExtInfo[num].num, true,
                                                        paramsgrd[num].minTyp);
                         }
                         else if (paramsgrd[num].shape == 'S')
-                            paramsgrd[num].w1 = DEFAULT_SIGMA_MULTIPLIER *
+                            paramsgrd[num].w1 = DEFAULT_SIGMA_MULTIPLIER * shapeConvertor *
                                                 STDcal(AllCellValues[num], paramsExtInfo[num].num, false,
                                                        paramsgrd[num].maxTyp);
                         else if (paramsgrd[num].shape == 'Z')
-                            paramsgrd[num].w2 = DEFAULT_SIGMA_MULTIPLIER *
+                            paramsgrd[num].w2 = DEFAULT_SIGMA_MULTIPLIER * shapeConvertor *
                                                 STDcal(AllCellValues[num], paramsExtInfo[num].num, true,
                                                        paramsgrd[num].minTyp);
                     }
@@ -1090,15 +1074,6 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                 MPI_Bcast(&paramsgrd[num].k2, 1, MPI_FLOAT, 0, MCW);
                 MPI_Bcast(&paramsgrd[num].r2, 1, MPI_FLOAT, 0, MCW);
             }
-            //Debug code block
-            /*if (rank == 2)
-            {
-            cout<<"Loop:"<<LoopNum<<","<<"SelectedNum:"<<TypLocCountAll<<endl;
-            for(num = 0; num < paramsNum; num++)
-            cout<<"Parameters"<<"\t"<<paramsgrd[num].name<<"\t"<<paramsgrd[num].shape<<"\t"<<paramsgrd[num].minTyp<<"\t"<<paramsgrd[num].maxTyp<<"\t"<<paramsgrd[num].w1<<"\t"<<paramsgrd[num].w2<<endl;
-            for(num = 0; num < addparamsNum; num++)
-            cout<<"Additional"<<"\t"<<addparamgrd[num].name<<"\t"<<addparamgrd[num].shape<<"\t"<<addparamgrd[num].minTyp<<"\t"<<addparamgrd[num].maxTyp<<endl;
-            }*/
         }
 		/// release temp variables to save memory 
 		Release2DArray(paramsNum, AllCellValues);
@@ -1122,8 +1097,13 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                 }
             }
             fs.close();
-
-            fs.open(inconfigfile, ios_base::out);
+            // if inconfigfile's name has 'Initial', then remove it
+            string inconf = inconfigfile;
+            int pos = inconf.find("Initial");
+            if (pos > -1) {
+                inconf.erase(pos, 7);
+            }
+            fs.open(inconf.c_str(), ios_base::out);
             fs << "ProtoTag" << "\t" << prototag << endl;
             fs << "ParametersNUM" << "\t" << selectedNum << endl;
             for (num = 0; num < paramsNum; num++)
@@ -1151,15 +1131,6 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
         compute = computet - readt;
         write = writet - computet;
         total = writet - begint;
-
-		//MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//dataRead = tempd / size;
-		//MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//compute = tempd / size;
-		//MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//write = tempd / size;
-		//MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//total = tempd / size;
 
 		MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
 		dataRead = tempd;
