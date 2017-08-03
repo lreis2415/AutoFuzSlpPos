@@ -1,0 +1,5 @@
+# push
+git subtree push --prefix=seims/pygeoc pygeoc master
+# pull
+git fetch pygeoc master
+git subtree pull --prefix=seims/pygeoc pygeoc master --squash
