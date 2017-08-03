@@ -1,61 +1,26 @@
 #! /usr/bin/env python
-# coding=utf-8
-# @Description: Fuzzy slope position extraction based on D-8 and D-infinity algorithms
-# 
-# @Author:  Liang-Jun Zhu
-# @Date  :  3/20/15
-# @Email :  zlj@lreis.ac.cn
-#
-import time
-from FuzzySlpPosInference import FuzzySlpPosInference
-from Nomenclature import *
-from ParasComb import ParametersCombination
-from PreProcessing import PreProcessing
-from SelectTypLoc import SelectTypLoc
+# -*- coding: utf-8 -*-
+"""Prototype-based fuzzy slope positions.
+
+    @author   : Liangjun Zhu
+
+    @changelog: 15-03-20  lj - initial implementation.\n
+                17-07-30  lj - reorganize and incorporate with pygeoc.
+"""
+
+from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.PreProcessing import pre_processing
+from autofuzslppos.SelectTypLoc import extract_typical_location
+from autofuzslppos.FuzzySlpPosInference import fuzzy_inference
+
+
+def main():
+    """Main workflow."""
+    fuzslppos_cfg = get_input_cfgs()
+    pre_processing(fuzslppos_cfg)
+    extract_typical_location(fuzslppos_cfg)
+    fuzzy_inference(fuzslppos_cfg)
+
 
 if __name__ == '__main__':
-    startT = time.time()
-    ini, proc, root = get_input_args()
-    LoadConfiguration(ini, proc, root)
-    log = ''
-    allcost = 0
-    # Stage 1: Preprocessing if needed
-    if preprocess:
-        PreProcessing(FlowModel)
-        endPreprocT = time.time()
-        cost = (endPreprocT - startT)
-        log = log + "Preprocessing Time-consuming: " + str(cost) + ' s\n'
-        allcost = allcost + cost
-    else:
-        endPreprocT = time.time()
-    # Stage 2: Selection of Typical Locations and Calculation of Inference Parameters
-    if typlocSelection:
-        startSelectionT = time.time()
-        SelectTypLoc()
-        endSelectionT = time.time()
-        if preprocess:
-            cost = (endSelectionT - endPreprocT)
-        else:
-            cost = (endSelectionT - startT)
-        allcost = allcost + cost
-        log = log + "Selection of Typical Locations Time-consuming: " + str(cost) + ' s\n'
-    else:
-        endSelectionT = time.time()
-    # Stage 3: Fuzzy Slope Position Inference
-    if similarityInference:
-        FuzzySlpPosInference()
-        endFuzInfT = time.time()
-        if typlocSelection:
-            cost = (endFuzInfT - endSelectionT)
-        elif preprocess:
-            cost = (endFuzInfT - endPreprocT)
-        else:
-            cost = (endFuzInfT - startT)
-        log = log + "Fuzzy Slope Position Inference Time-consuming: " + str(cost) + ' s\n'
-        allcost = allcost + cost
-        log = log + "All mission time-consuming: " + str(allcost) + ' s\n'
-    logf = open(Log_runtime, 'a')
-    logf.write(log)
-    logf.close()
-    # Combine the config files into TypLocExtConf.dat and FuzInfConf.dat
-    ParametersCombination(typlocSelection, similarityInference)
+    main()

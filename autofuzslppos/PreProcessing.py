@@ -1,181 +1,141 @@
 #! /usr/bin/env python
-# coding=utf-8
-# @Description: Calculate terrain attributes from DEM and other optional inputs for deriving slope position.
-#               Slope, Curvature, RPI, HAND, etc.
-# @Author:  Liang-Jun Zhu
-#
+# -*- coding: utf-8 -*-
+"""Calculate terrain attributes from DEM and other optional inputs for deriving slope position.
+
+    Slope, Curvature, RPI, HAND, Hillslope, etc.
+
+    @author   : Liangjun Zhu
+
+    @changelog: 15-09-08  lj - initial implementation.\n
+                17-07-31  lj - reorganize and incorporate with pygeoc.\n
+"""
+
 import time
 from shutil import copy2
-import TauDEM
-from Nomenclature import *
-from Util import *
-from RidgeExtraction import findRidge
+
+from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.TauDEMExtension import TauDEMExtension
+from autofuzslppos.Util import slope_rad_to_deg
+from autofuzslppos.pygeoc.pygeoc.hydro.TauDEM import TauDEMWorkflow
+from autofuzslppos.pygeoc.pygeoc.utils.utils import FileClass
 
 
-def PreProcessing(model):
-    startT = time.time()
-    logStatus = open(log_preproc, 'w')
-    #  if valley and ridge are provided
-    global VlySrcCal
-    global RdgSrcCal
-    if VlySrc is not None:
-        VlySrcCal = VlySrc
-    if RdgSrc is not None:
-        RdgSrcCal = RdgSrc
-    if model == 0:
-        logStatus.write("Preprocessing based on D8 flow model.\n")
-    elif model == 1:
-        logStatus.write("Preprocessing based on D-infinity flow model.\n")
-    logStatus.flush()
-    logStatus.write("[Preprocessing] [1/7] Converting DEM file format to GeoTiff...\n")
-    logStatus.flush()
-    Raster2GeoTIFF(rawdem, dem)
-    logStatus.write("[Preprocessing] [2/7] Removing pits...\n")
-    logStatus.flush()
-    TauDEM.pitremove(dem, inputProc, demfil, mpiexeDir = mpiexeDir, exeDir = exeDir,
-                     hostfile = hostfile)  # pitremove in TauDEM
-    logStatus.write("[Preprocessing] [3/7] Flow direction and slope in radian...\n")
-    logStatus.flush()
-    TauDEM.D8FlowDir(demfil, inputProc, D8FlowDir, D8Slp, mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
+def pre_processing(cfg):
+    if not cfg.flag_preprocess:
+        return 0
+    start_t = time.time()
+    # Watershed delineation based on D8 flow model.
+    TauDEMWorkflow.watershed_delineation(cfg.bin_dir, cfg.mpi_dir, cfg.proc, cfg.dem, cfg.outlet,
+                                         cfg.d8_stream_thresh, cfg.d8_down_method, cfg.pretaudem,
+                                         logfile=cfg.log.preproc, hostfile=cfg.hostfile)
 
-    if model == 1:
-        TauDEM.DinfFlowDir(demfil, inputProc, DinfFlowDir, DinfSlp, mpiexeDir = mpiexeDir, exeDir = exeDir,
-                           hostfile = hostfile)
-    logStatus.write("[Preprocessing] [4/7] Generating flow accumulation...\n")
-    logStatus.flush()
-    #  flow accumulation without weight grid or outlet
-    TauDEM.AreaD8(D8FlowDir, '', '', 'false', inputProc, D8ContriArea, mpiexeDir = mpiexeDir, exeDir = exeDir,
-                  hostfile = hostfile)
-    global D8StreamThreshold
-    if D8StreamThreshold > 0:
-        TauDEM.Threshold(D8ContriArea, '', D8StreamThreshold, inputProc, D8Stream, mpiexeDir = mpiexeDir,
-                         exeDir = exeDir, hostfile = hostfile)
+    log_status = open(cfg.log.preproc, 'a')
+    log_status.write("Calculating RPI(Relative Position Index)...\n")
+    log_status.flush()
+    if cfg.valley is None or not FileClass.is_file_exists(cfg.valley):
+        cfg.valley = cfg.pretaudem.stream_raster
+    if cfg.flow_model == 1:  # Dinf model, extract stream using the D8 threshold
+        if cfg.d8_stream_thresh <= 0:
+            drpf = open(cfg.pretaudem.drptxt, "r")
+            temp_contents = drpf.read()
+            (beg, cfg.d8_stream_thresh) = temp_contents.rsplit(' ', 1)
+            drpf.close()
+        print (cfg.d8_stream_thresh)
+        TauDEMExtension.areadinf(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinf,
+                                 cfg.pretaudem.dinfacc_weight, cfg.pretaudem.outlet_m,
+                                 cfg.pretaudem.stream_pd, 'false',
+                                 cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
+        TauDEMExtension.threshold(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinfacc_weight,
+                                  cfg.pretaudem.stream_dinf, float(cfg.d8_stream_thresh),
+                                  cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
+        cfg.valley = cfg.pretaudem.stream_dinf
+        # calculate Height Above the Nearest Drainage (HAND)
+        TauDEMExtension.dinfdistdown(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinf,
+                                     cfg.pretaudem.filldem, cfg.pretaudem.dinf_slp, cfg.valley,
+                                     cfg.dinf_down_stat, 'v', 'false',
+                                     cfg.dinf_dist_down_wg, cfg.pretaudem.dist2stream_v,
+                                     cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
     else:
-        #  initial stream
-        maxAccum, minAccum, meanAccum, STDAccum = GetRasterStat(D8ContriArea)
-        TauDEM.Threshold(D8ContriArea, '', meanAccum, inputProc, D8Stream, mpiexeDir = mpiexeDir,
-                         exeDir = exeDir, hostfile = hostfile)
-    global outlet
-    if outlet is None:
-        TauDEM.ConnectDown(D8ContriArea, outletpre, inputProc, mpiexeDir = mpiexeDir, exeDir = exeDir,
-                           hostfile = hostfile)
-        outlet = outletpre
-    TauDEM.MoveOutletsToStreams(D8FlowDir, D8Stream, outlet, maxMoveDist, inputProc, outletM, mpiexeDir = mpiexeDir,
-                                exeDir = exeDir, hostfile = hostfile)
-    if model == 0:
-        logStatus.write("[Preprocessing] [5/7] Generating stream source raster based on Drop Analysis...\n")
-    elif model == 1:
-        logStatus.write(
-                "[Preprocessing] [5/7] Generating stream source raster based on Threshold derived from D8 flow model drop analysis or assigned...\n")
-    logStatus.flush()
-    if model == 1:
-        TauDEM.AreaDinf(DinfFlowDir, '', '', 'false', inputProc, DinfContriArea, mpiexeDir = mpiexeDir, exeDir = exeDir,
-                        hostfile = hostfile)
-    #  ReCalculate flow accumulation using PkrDglStream as weight grid
-    if D8StreamThreshold <= 0:
-        TauDEM.StreamSkeleton(demfil, PkrDglStream, inputProc, mpiexeDir = mpiexeDir, exeDir = exeDir,
-                              hostfile = hostfile)
-        TauDEM.AreaD8(D8FlowDir, '', PkrDglStream, 'false', inputProc, D8ContriArea, mpiexeDir = mpiexeDir,
-                      exeDir = exeDir, hostfile = hostfile)
-        maxAccum, minAccum, meanAccum, STDAccum = GetRasterStat(D8ContriArea)
+        # calculate Height Above the Nearest Drainage (HAND)
+        TauDEMExtension.d8distdowntostream(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.d8flow,
+                                           cfg.pretaudem.filldem, cfg.valley,
+                                           cfg.pretaudem.dist2stream_v, 'v', 1, cfg.mpi_dir,
+                                           cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
+    if cfg.rpi_method == 1:  # calculate RPI based on hydrological proximity measures (Default).
+        if cfg.flow_model == 0:  # D8 model
+            TauDEMExtension.d8distdowntostream(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.d8flow,
+                                               cfg.pretaudem.filldem, cfg.valley,
+                                               cfg.pretaudem.dist2stream, cfg.d8_down_method, 1,
+                                               cfg.mpi_dir, cfg.bin_dir,
+                                               cfg.log.preproc, cfg.hostfile)
+            TauDEMExtension.d8distuptoridge(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.d8flow,
+                                            cfg.pretaudem.filldem, cfg.ridge,
+                                            cfg.pretaudem.distup2rdg, cfg.d8_down_method,
+                                            cfg.d8_stream_thresh, cfg.mpi_dir,
+                                            cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
+        elif cfg.flow_model == 1:  # Dinf model
+            # Dinf distance down
+            TauDEMExtension.dinfdistdown(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinf,
+                                         cfg.pretaudem.filldem, cfg.valley,
+                                         cfg.dinf_down_stat, cfg.dinf_down_method,
+                                         'false', cfg.dinf_dist_down_wg,
+                                         cfg.pretaudem.dist2stream,
+                                         cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
+            TauDEMExtension.dinfdistuptoridge(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinf,
+                                              cfg.pretaudem.filldem, cfg.pretaudem.dinf_slp,
+                                              cfg.propthresh, cfg.pretaudem.distup2rdg,
+                                              cfg.dinf_up_stat, cfg.dinf_up_method, 'false',
+                                              cfg.ridge, cfg.mpi_dir, cfg.bin_dir,
+                                              cfg.log.preproc, cfg.hostfile)
+        TauDEMExtension.simplecalculator(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dist2stream,
+                                         cfg.pretaudem.distup2rdg, cfg.pretaudem.rpi_hydro,
+                                         4, cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
+    if cfg.rpi_method == 0:  # calculate RPI based on Skidmore's method
+        if cfg.ridge is None or not FileClass.is_file_exists(cfg.ridge):
+            cfg.ridge = cfg.pretaudem.rdgsrc
+            angfile = cfg.pretaudem.d8flow
+            elevfile = cfg.pretaudem.dist2stream_v
+            if cfg.flow_model == 1:  # D-inf model
+                angfile = cfg.pretaudem.dinf
+                elevfile = cfg.pretaudem.dist2stream_v
+            TauDEMExtension.extractridge(cfg.proc, cfg.ws.pre_dir, angfile, elevfile, cfg.ridge,
+                                         cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
+        TauDEMExtension.rpiskidmore(cfg.proc, cfg.ws.pre_dir, cfg.valley, cfg.ridge,
+                                    cfg.pretaudem.rpi_skidmore, 1, 1,
+                                    cfg.pretaudem.dist2stream_ed, cfg.pretaudem.dist2rdg_ed,
+                                    cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
+    log_status.write("Calculating Horizontal Curvature and Profile Curvature...\n")
+    TauDEMExtension.curvature(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.filldem, cfg.ridge,
+                              cfg.topoparam.profc, cfg.topoparam.horizc,
+                              None, None, None, None,
+                              cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
 
-        if meanAccum < STDAccum:
-            minthresh = meanAccum
-        else:
-            minthresh = meanAccum - STDAccum
-        maxthresh = meanAccum + STDAccum
+    if cfg.flow_model == 0:
+        slope_rad_to_deg(cfg.pretaudem.slp, cfg.topoparam.slope)
+    elif cfg.flow_model == 1:
+        slope_rad_to_deg(cfg.pretaudem.dinf_slp, cfg.topoparam.slope)
+    if cfg.rpi_method == 1:
+        copy2(cfg.pretaudem.rpi_hydro, cfg.topoparam.rpi)
+    else:
+        copy2(cfg.pretaudem.rpi_skidmore, cfg.topoparam.rpi)
+    copy2(cfg.pretaudem.dist2stream_v, cfg.topoparam.hand)
 
-        TauDEM.DropAnalysis(demfil, D8FlowDir, D8ContriArea, D8ContriArea, outletM, minthresh, maxthresh, numthresh,
-                            logspace, inputProc, drpFile, mpiexeDir = mpiexeDir, exeDir = exeDir,
-                            hostfile = hostfile)
-        drpf = open(drpFile, "r")
-        tempContents = drpf.read()
-        (beg, d8drpThreshold) = tempContents.rsplit(' ', 1)
-        drpf.close()
-        D8StreamThreshold = d8drpThreshold
+    log_status.write("Preprocessing succeed!\n")
+    end_t = time.time()
+    cost = (end_t - start_t) / 60.
+    log_status.write("Time consuming: %.2f min.\n" % cost)
+    log_status.close()
+    logf = open(cfg.log.runtime, 'a')
+    logf.write("Preprocessing Time-consuming: " + str(cost) + ' s\n')
+    logf.close()
+    return cost
 
-        TauDEM.Threshold(D8ContriArea, '', D8StreamThreshold, inputProc, D8Stream,
-                         mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
-    if model == 1:
-        global DinfStreamThreshold
-        if DinfStreamThreshold == 0:
-            DinfStreamThreshold = D8StreamThreshold
-        TauDEM.Threshold(DinfContriArea, '', DinfStreamThreshold, inputProc, DinfStream, mpiexeDir = mpiexeDir,
-                         exeDir = exeDir, hostfile = hostfile)
-    logStatus.write("[Preprocessing] [6/7] Calculating RPI(Relative Position Index)...\n")
-    logStatus.flush()
-    StreamSource = D8Stream
-    if VlySrcCal is not None and FileClass.is_file_exists(VlySrcCal):
-        StreamSource = VlySrcCal
-    if model == 0:  # D8 model
-        #  HAND
-        TauDEM.D8DistDownToStream(D8FlowDir, demfil, StreamSource, D8DistDown_V, 'vertical', D8StreamTag, inputProc,
-                                  mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
-        if rpiMethod == 1:  # calculate RPI based on hydrological proximity measures (Default).
-            TauDEM.D8DistDownToStream(D8FlowDir, demfil, StreamSource, D8DistDown, D8DownMethod, D8StreamTag, inputProc,
-                                      mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
-            TauDEM.D8DistUpToRidge(D8FlowDir, demfil, D8DistUp, D8UpMethod, D8UpStats, inputProc, rdg = RdgSrc,
-                                   mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
-            TauDEM.SimpleCalculator(D8DistDown, D8DistUp, RPID8, 4, inputProc, mpiexeDir = mpiexeDir, exeDir = exeDir,
-                                    hostfile = hostfile)
-    elif model == 1:  # Dinf model
-        #  HAND
-        TauDEM.DinfDistDown(DinfFlowDir, demfil, StreamSource, DinfDownStat, 'vertical', 'false', DinfDistDownWG,
-                            inputProc, DinfDistDown_V, mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
-        if rpiMethod == 1:
-            TauDEM.DinfDistDown(DinfFlowDir, demfil, StreamSource, DinfDownStat, DinfDownMethod, 'false', DinfDistDownWG,
-                                inputProc, DinfDistDown, mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
-            TauDEM.DinfDistUpToRidge(DinfFlowDir, demfil, DinfSlp, propthresh, DinfUpStat, DinfUpMethod, 'false',
-                                     inputProc, DinfDistUp, rdg = RdgSrc, mpiexeDir = mpiexeDir, exeDir = exeDir,
-                                     hostfile = hostfile)
-            TauDEM.SimpleCalculator(DinfDistDown, DinfDistUp, RPIDinf, 4, inputProc, mpiexeDir = mpiexeDir,
-                                    exeDir = exeDir, hostfile = hostfile)
-    if rpiMethod == 0:  # calculate RPI based on Skidmore's method
-        TauDEM.StreamNet(demfil, D8FlowDir, D8ContriArea, D8Stream, outletM, D8StreamOrd, NetTree, NetCoord,
-                         D8StreamNet, SubBasin, inputProc, mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
-        if VlySrcCal is None or not FileClass.is_file_exists(VlySrcCal):
-            copy2(D8Stream, VlySrcCal)
-        if RdgSrcCal is None or not FileClass.is_file_exists(RdgSrcCal):
-            # C++ version
-            angfile = D8FlowDir
-            elevfile = D8DistDown_V
-            if model == 1: # D-inf model
-                angfile = DinfFlowDir
-                elevfile = DinfDistDown_V
-            TauDEM.ExtractRidge(angfile, elevfile, RdgSrcCal, inputProc, mpiexeDir = mpiexeDir,
-                                    exeDir = exeDir, hostfile = hostfile)
-            # findRidge(1, RdgSrcCal) # Python-version
-        TauDEM.RPISkidmore(VlySrcCal, RdgSrcCal, RPISkidmore, inputProc, 1, 1, dist2Vly, dist2Rdg,
-                           mpiexeDir = mpiexeDir, exeDir = exeDir, hostfile = hostfile)
-    logStatus.write("[Preprocessing] [7/7] Calculating Plan Curvature and Profile Curvature...\n")
-    logStatus.flush()
-    TauDEM.Curvature(inputProc, demfil, prof = ProfC, horiz = HorizC, mpiexeDir = mpiexeDir, exeDir = exeDir,
-                     hostfile = hostfile)
 
-    if model == 0:
-        slopeTrans(D8Slp, Slope)
-        if rpiMethod == 1:
-            copy2(RPID8, RPI)
-        else:
-            copy2(RPISkidmore, RPI)
-        copy2(D8DistDown_V, HAND)
-    elif model == 1:
-        slopeTrans(DinfSlp, Slope)
-        if rpiMethod == 1:
-            copy2(RPIDinf, RPI)
-        else:
-            copy2(RPISkidmore, RPI)
-        copy2(DinfDistDown_V, HAND)
-    logStatus.write("[Preprocessing] Preprocessing succeed!\n")
-    logStatus.flush()
-    endT = time.time()
-    cost = (endT - startT) / 60.
-    logStatus.write("Time consuming: %.2f min.\n" % cost)
-    logStatus.flush()
-    logStatus.close()
+def main():
+    """TEST CODE"""
+    fuzslppos_cfg = get_input_cfgs()
+    pre_processing(fuzslppos_cfg)
 
 
 if __name__ == '__main__':
-    ini, proc, root = get_input_args()
-    LoadConfiguration(ini, proc, root)
-    PreProcessing(FlowModel)
+    main()

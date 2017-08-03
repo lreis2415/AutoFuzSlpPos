@@ -1,62 +1,100 @@
 #! /usr/bin/env python
-# coding=utf-8
-# @Description: Prepare configuration files for selecting typical location
-# @Author: Liang-Jun Zhu
-#
-import TauDEM
-from Nomenclature import *
-from Util import *
+# -*- coding: utf-8 -*-
+"""Prepare configuration files for selecting typical location.
+
+    @author   : Liangjun Zhu
+
+    @changelog: 15-09-08  lj - initial implementation.\n
+                17-07-30  lj - reorganize and incorporate with pygeoc.\n
+"""
+import os
+import time
+
+from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.ParasComb import combine_ext_conf_parameters
+from autofuzslppos.TauDEMExtension import TauDEMExtension
+from autofuzslppos.pygeoc.pygeoc.utils.utils import StringClass
 
 
-def SelectTypLoc():
-    # ValueRanges contains all predefined value ranges of all terrain attributes
-    for slppos in SlpPosItems:
-        if not ModifyExtractConfFile:  # Write Extract configuration file only when ModifyExtractConfFile is False
-            ExtconfigInfo = open(ExtConfigDict[slppos], 'w')
-            ExtconfigInfo.write("ProtoTag\t%s\n" % str(TagDict[slppos]))
-            abandon = []  # abandoned terrain attributes (full file path)
-            for inf in FuzInfDefaults[slppos]:
-                if inf[1] == 'N' or inf[1] == "N":
-                    attrName = inf[0]
-                    abandon.append(TerrainAttrDict[attrName])
+def extract_typical_location(cfg):
+    if not cfg.flag_selecttyploc:
+        return 0
+    start_t = time.time()
+    for i, slppos in enumerate(cfg.slppostype):
+        if cfg.flag_auto_typlocparams:  # automatically extract typical location
+            # write extract ranges to initial configuration file
+            extconfig_info = open(cfg.singleslpposconf[slppos].extinitial, 'w')
+            extconfig_info.write('ProtoTag\t%d\n' % cfg.slppostag[i])
+            abandon = list()  # abandoned terrain attributes (full file path)
+            for vname, inf in cfg.infshape[slppos].iteritems():
+                if StringClass.string_match(inf, 'N'):
+                    abandon.append(vname)
             # print abandon
-            paramNum = 0
-            for param in ValueRanges[slppos]:
+            param_num = 0
+            for param in cfg.extractrange[slppos]:
                 if param[0] not in abandon:
-                    paramNum += 1
-            ExtconfigInfo.write("ParametersNUM\t%s\n" % str(paramNum))
-            for param in ValueRanges[slppos]:
-                for attrName, attrPath in TerrainAttrDict.items():
-                    if attrPath == param[0] and param[0] not in abandon:
-                        ExtconfigInfo.write("Parameters\t%s\t%s\t%s\t%s\n" % (
-                            attrName, attrPath, str(param[1]), str(param[2])))
+                    param_num += 1
+            extconfig_info.write('ParametersNUM\t%d\n' % param_num)
+            for vname, vrange in cfg.extractrange[slppos].iteritems():
+                if vname in cfg.selectedtopo and vname not in abandon:
+                    extconfig_info.write('Parameters\t%s\t%s\t%f\t%f\n' %
+                                         (vname, cfg.selectedtopo[vname], vrange[0], vrange[1]))
+            extconfig_info.write('OUTPUT\t%s\n' % cfg.singleslpposconf[slppos].typloc)
+            for vname, inf in cfg.infshape[slppos].iteritems():
+                if StringClass.string_match(inf, 'N'):
+                    extconfig_info.write('FuzInfShp\t%s\t%s\n' % (vname, inf))
+            base_input_param = 'BaseInput\t'
+            base_input_param += '\t'.join(str(p) for p in cfg.param4typloc[slppos])
+            extconfig_info.write(base_input_param)
+            extconfig_info.close()
+        else:
+            # read from existed extconfig file
+            cur_ext_conf = cfg.singleslpposconf[slppos].extconfig
+            if not os.path.exists(cur_ext_conf) and len(cfg.extractrange[slppos]) <= 1:
+                raise RuntimeError('The input extract config file %s MUST existed when the '
+                                   'value ranges setting are absent in *.ini!' % cur_ext_conf)
+            else:
+                with open(cur_ext_conf, 'r') as extconfig_info:
+                    infos = extconfig_info.readlines()
+                for line in infos:
+                    splitstring = StringClass.split_string(line.split('\n')[0], '\t')
+                    if StringClass.string_match(splitstring[0], 'Parameters')\
+                            and len(splitstring) == 5\
+                            and splitstring[2] not in cfg.extractrange[slppos]:
+                        cfg.extractrange[slppos][splitstring[2]] = [float(splitstring[3]),
+                                                                    float(splitstring[4])]
+                # rewrite extconfig file
+                extconfig_info = open(cur_ext_conf, 'w')
+                extconfig_info.write('ProtoTag\t%d\n' % cfg.slppostag[i])
+                param_num = len(cfg.extractrange[slppos])
+                extconfig_info.write('ParametersNUM\t%d\n' % param_num)
+                for vname, vrange in cfg.extractrange[slppos].iteritems():
+                    extconfig_info.write('Parameters\t%s\t%s\t%f\t%f\n' %
+                                         (vname, cfg.selectedtopo[vname], vrange[0], vrange[1]))
+                extconfig_info.write('OUTPUT\t%s\n' % cfg.singleslpposconf[slppos].typloc)
+                extconfig_info.close()
 
-            ExtconfigInfo.write("OUTPUT\t%s\n" % TypDict[slppos])
-            for inf in FuzInfDefaults[slppos]:
-                if inf[1] != 'N':
-                    ExtconfigInfo.write("FuzInfShp\t%s\t%s\n" % (inf[0], inf[1]))
-            baseInputParam = "BaseInput\t"
-            for p in AllBaseParams[slppos]:
-                baseInputParam = baseInputParam + str(p) + '\t'
-            ExtconfigInfo.write(baseInputParam)
-            ExtconfigInfo.close()
-        else:  # ValueRanges should be read from *ExtConfig.dat
-            ValueRanges[slppos] = []
-            if not os.path.exists(ExtConfigDict[slppos]):
-                raise IOError("The input extract config file %s is not existed!" % ExtConfigDict[slppos])
-            ExtconfigInfo = open(ExtConfigDict[slppos], 'r')
-            infos = ExtconfigInfo.readlines()
-            for line in infos:
-                splitstring = SplitStr(line.split("\n")[0], "\t")
-                if StringMatch(splitstring[0], "Parameters") and len(splitstring) == 5:
-                    ValueRanges[slppos].append([splitstring[2], float(splitstring[3]), float(splitstring[4])])
-            ExtconfigInfo.close()
-        TauDEM.SelectTypLocSlpPos(ExtConfigDict[slppos], InfRecommendDict[slppos], inputProc, ExtLogDict[slppos],
-                                  mpiexeDir, exeDir, hostfile)
-    print ("Typical Locations Selected Done!")
+        TauDEMExtension.selecttyplocslppos(cfg.proc, cfg.ws.typloc_dir,
+                                           cfg.singleslpposconf[slppos].extconfig,
+                                           cfg.singleslpposconf[slppos].infrecommend,
+                                           cfg.singleslpposconf[slppos].extlog,
+                                           cfg.mpi_dir, cfg.bin_dir, cfg.log.all, cfg.hostfile)
+    print ('Typical Locations extracted done!')
+    # Combine extraction parameters.
+    combine_ext_conf_parameters(cfg.slppostype, cfg.singleslpposconf, cfg.slpposresult.extconfig)
+    end_t = time.time()
+    cost = (end_t - start_t) / 60.
+    logf = open(cfg.log.runtime, 'a')
+    logf.write('Selection of Typical Locations Time-consuming: ' + str(cost) + ' s\n')
+    logf.close()
+    return cost
+
+
+def main():
+    """TEST CODE"""
+    fuzslppos_cfg = get_input_cfgs()
+    extract_typical_location(fuzslppos_cfg)
 
 
 if __name__ == '__main__':
-    ini, proc, root = get_input_args()
-    LoadConfiguration(ini, proc, root)
-    SelectTypLoc()
+    main()
