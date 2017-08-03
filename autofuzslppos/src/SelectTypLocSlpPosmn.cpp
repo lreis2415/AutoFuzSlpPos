@@ -49,21 +49,59 @@ int main(int argc, char **argv)
     vector<DefaultFuzInf> fuzinf;  //!< Prior expert knowledge of curve shape of fuzzy inference model
     float baseInputParameters[9];  //!< Base input parameters
     char cfglines[30][MAXLN];
-    if (argc == 1)
+    int paramidx;
+    if (argc < 5)
     {
         printf("Error: To run this program, use either the Simple Usage option or\n");
         printf("the Usage with Specific file names option\n");
         goto errexit;
     }
-    else if (argc >= 3)
+    else
     {
-        strcpy(inconfigfile, argv[1]);
-        strcpy(outconfigfile, argv[2]);
-        if (argc == 4)
+        paramidx = 1;
+        while (argc > paramidx)
         {
-            strcpy(logfile, argv[3]);
-            writeLog = true;
+            if ((argc > paramidx) && strcmp(argv[paramidx], "-in") == 0)
+            {
+                paramidx++;
+                if (argc > paramidx)
+                {
+                    strcpy(inconfigfile, argv[paramidx]);
+                    paramidx++;
+                }
+                else goto errexit;
+            }
+            if ((argc > paramidx) && strcmp(argv[paramidx], "-out") == 0)
+            {
+                paramidx++;
+                if (argc > paramidx)
+                {
+                    strcpy(outconfigfile, argv[paramidx]);
+                    paramidx++;
+                }
+                else goto errexit;
+            }
+            if ((argc > paramidx) && strcmp(argv[paramidx], "-extlog") == 0)
+            {
+                paramidx++;
+                if (argc > paramidx)
+                {
+                    strcpy(logfile, argv[paramidx]);
+                    writeLog = true;
+                    paramidx++;
+                }
+                else goto errexit;
+            }
         }
+        //else if (argc >= 5)
+        //{
+        //strcpy(inconfigfile, argv[1]);
+        //strcpy(outconfigfile, argv[2]);
+        //if (argc == 4)
+        //{
+        //    strcpy(logfile, argv[3]);
+        //    writeLog = true;
+        //}
 
         //printf("%s\n",configfile);
         ifstream cfg(inconfigfile, ios::in);
@@ -143,7 +181,7 @@ int main(int argc, char **argv)
             }
         }
     }
-    else goto errexit;
+    //else goto errexit;
     //for(i=0;i<fuzinf.size();i++)
     //	printf("%s,%s\n",fuzinf[i].param,fuzinf[i].shape);
     //for(i = 0; i < 8; i++)
@@ -170,8 +208,9 @@ int main(int argc, char **argv)
         printf("Error %d\n", err);
     //system("pause");
     return 0;
-    errexit:
-    printf("Usage with specific config file names:\n %s <inconfigfile> <outconfigfile> \n", argv[0]);
+
+errexit:
+    printf("Usage with specific config file names:\n %s -in <inconfigfile> -out <outconfigfile> [-extlog <logfile>]\n", argv[0]);
     printf("The inconfig file should contains context as below:\n");
     printf("	ProtoTag	<tag of prototype grid>\n");
     printf("	ParametersNUM	<number of parameters grid>\n");

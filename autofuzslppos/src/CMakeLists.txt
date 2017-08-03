@@ -45,7 +45,7 @@ add_executable(dinfdistuptoridge ${DINFDISTUP})
 add_executable(dinfflowdir ${DINF})
 add_executable(peukerdouglas ${PEUKERDOUGLAS})
 add_executable(dropanalysis ${DROPANALYSISFILES})
-add_executable(moveoutletstostreams ${MVOUTLETSTOSTRMFILES})
+add_executable(moveoutletstostrm ${MVOUTLETSTOSTRMFILES})
 add_executable(streamnet ${STREAMNET})
 add_executable(pitremove ${PITREMOVE})
 add_executable(threshold ${THRESHOLD})
@@ -68,10 +68,11 @@ set(TAUDEM_TARGETS aread8
         dinfflowdir
         peukerdouglas
         dropanalysis
-        moveoutletstostreams
+        moveoutletstostrm
         streamnet
         pitremove
-        threshold)
+        threshold
+        )
 
 set(MY_TARGETS curvature
         d8distuptoridge
@@ -80,7 +81,8 @@ set(MY_TARGETS curvature
         selecttyplocslppos
         simplecalculator
         rpiskidmore
-        ridgeextraction)
+        ridgeextraction
+        )
 # TauDEM programs
 foreach (c_target ${TAUDEM_TARGETS})
     target_link_libraries(${c_target} ${MPI_LIBRARIES})

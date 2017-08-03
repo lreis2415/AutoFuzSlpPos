@@ -478,7 +478,6 @@ void linearpart<datatype>::transferPack(int *countA, int *bufferAbove, int *coun
     int bbsize;
     absize = *countA * sizeof(int) + MPI_BSEND_OVERHEAD;
     bbsize = *countB * sizeof(int) + MPI_BSEND_OVERHEAD;
-
     abuf = new datatype[absize];
     bbuf = new datatype[bbsize];
     //MPI_Buffer_attach(buf,bbsize);
@@ -506,8 +505,8 @@ void linearpart<datatype>::transferPack(int *countA, int *bufferAbove, int *coun
         MPI_Recv(bufferBelow, *countB, MPI_INT, rank - 1, 3, MCW, &status);
     }
 
-    delete abuf;
-    delete bbuf;
+    delete[] abuf;
+    delete[] bbuf;
 }
 
 //Returns true if grid element (x,y) is equal to noData.

@@ -43,8 +43,14 @@ email:  dtarb@usu.edu
 #include <string.h>
 #include "commonLib.h"
 #include <math.h>
-
-
+#include <iostream>
+// Add by lj, for memory management check.
+#if (defined _DEBUG) && (defined _MSC_VER)
+#define _CRTDBG_MAP_ALLOC
+#define _CRTDBG_MAP_ALLOC_NEW
+#include <crtdbg.h>
+#include <assert.h>
+#endif
 
 //==================================
 bool floatequal(float a, float b)
@@ -143,7 +149,7 @@ void initNeighborDinfup(tdpartition *neighbor, tdpartition *flowData, queue<node
         // If Outlets are specified
     else
     {
-        //Put outlets on queue to be evalutated
+        //Put outlets on queue to be evaluated
         queue<node> toBeEvaled;
         for (i = 0; i < numOutlets; i++)
         {
@@ -151,7 +157,6 @@ void initNeighborDinfup(tdpartition *neighbor, tdpartition *flowData, queue<node
             if (flowData->isInPartition(temp.x, temp.y))
                 toBeEvaled.push(temp);
         }
-
         //TODO - this is 100% linear partition dependent.
         //Create a packet for message passing
         int *bufferAbove = new int[nx];
@@ -170,17 +175,20 @@ void initNeighborDinfup(tdpartition *neighbor, tdpartition *flowData, queue<node
         MPI_Comm_size(MCW, &size);
 
         bool finished = false;
+
         while (!finished)
         {
             countA = 0;
             countB = 0;
+            vector<node> existed_node;
+            vector<node>::iterator existed_iter;
             while (!toBeEvaled.empty())
             {
                 temp = toBeEvaled.front();
                 toBeEvaled.pop();
                 i = temp.x;
                 j = temp.y;
-                // Only evaluate if cell hasn't been evaled yet
+                // Only evaluate if cell hasn't been evaluated yet
                 if (neighbor->isNodata(i, j))
                 {
                     //Set contributing neighbors to 0
@@ -196,6 +204,15 @@ void initNeighborDinfup(tdpartition *neighbor, tdpartition *flowData, queue<node
                             p = prop(angle, (k + 4) % 8);
                             if (p > 0.)
                             {
+                                node existed_n;
+                                existed_n.x = in;
+                                existed_n.y = jn;
+                                existed_iter = find(existed_node.begin(), existed_node.end(), existed_n);
+                                if (existed_iter != existed_node.end()){
+                                    neighbor->addToData(i, j, (short) 1);
+                                    continue;
+                                }
+                                existed_node.push_back(existed_n);
                                 if (jn == -1)
                                 {
                                     bufferAbove[countA] = in;
@@ -252,9 +269,10 @@ void initNeighborDinfup(tdpartition *neighbor, tdpartition *flowData, queue<node
             }
             finished = neighbor->ringTerm(finished);
         }
-
-        delete bufferAbove;
-        delete bufferBelow;
+        delete[] bufferAbove;
+        delete[] bufferBelow;
+        bufferAbove = NULL;
+        bufferBelow = NULL;
     }
 }
 
@@ -306,7 +324,7 @@ void initNeighborD8up(tdpartition *neighbor, tdpartition *flowData, queue<node> 
         // If Outlets are specified
     else
     {
-        //Put outlets on queue to be evalutated
+        //Put outlets on queue to be evaluated
         queue<node> toBeEvaled;
         for (i = 0; i < numOutlets; i++)
         {
@@ -343,7 +361,7 @@ void initNeighborD8up(tdpartition *neighbor, tdpartition *flowData, queue<node> 
                 toBeEvaled.pop();
                 i = temp.x;
                 j = temp.y;
-                // Only evaluate if cell hasn't been evaled yet
+                // Only evaluate if cell hasn't been evaluated yet
                 if (neighbor->isNodata(i, j))
                 {
                     //Set contributing neighbors to 0
@@ -415,8 +433,10 @@ void initNeighborD8up(tdpartition *neighbor, tdpartition *flowData, queue<node> 
             }
             finished = neighbor->ringTerm(finished);
         }
-        delete bufferAbove;
-        delete bufferBelow;
+        delete[] bufferAbove;
+        delete[] bufferBelow;
+        bufferAbove = NULL;
+        bufferBelow = NULL;
     }
 }
 
@@ -433,10 +453,18 @@ bool pointsToMe(long col, long row, long ncol, long nrow, tdpartition *dirData)
     return false;
 }
 
+char* convertStringToCharPtr(string s){
+    char *data;
+    int len = s.length();
+    data = (char *)malloc((len + 1)*sizeof(char));
+    s.copy(data, len, 0);
+    data[len] = '\0';
+    return data;
+}
 
 double TimeCounting()
 {
-#ifndef linux
+#ifdef windows
 	LARGE_INTEGER li;
 	if (QueryPerformanceFrequency(&li)) /// CPU supported
 	{

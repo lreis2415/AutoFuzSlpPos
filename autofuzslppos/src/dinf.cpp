@@ -611,10 +611,10 @@ long setPosDirDinf(tdpartition *elevDEM, tdpartition *flowDir, tdpartition *slop
                     //If cell is not contaminated,
                 else
                 {
-                    tempFloat = -1.;
+                    tempFloat = -1.f;
                     flowDir->setData(i, j, tempFloat);//set to -1
 
-                    float DXX[3] = {0, dx, dy};//tardemlib.cpp ln 1291
+                    float DXX[3] = {0.f, (float)dx, (float)dy};//tardemlib.cpp ln 1291
                     float DD = sqrt(dx * dx + dy * dy);//tardemlib.cpp ln 1293
                     SET2(j, i, DXX, DD, elevDEM, flowDir,
                          slope);//i=y in function form old code j is x switched on purpose
@@ -866,7 +866,7 @@ long resolveflats(tdpartition *elevDEM, tdpartition *flowDir, queue<node> *que, 
     long localStillFlat = 0;
     long totalStillFlat = 0;
 
-    float DXX[3] = {0, dx, dy};//tardemlib.cpp ln 1291
+    float DXX[3] = {0, (float)dx, (float)dy};//tardemlib.cpp ln 1291
     float DD = sqrt(dx * dx + dy * dy);//tardemlib.cpp ln 1293
     //if(rank==0)
     //{

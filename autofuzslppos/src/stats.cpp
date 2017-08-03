@@ -1202,6 +1202,7 @@ int Bigauss_esti_em(vector<float> &old_x, vector<float> &old_y, int max_iter, fl
         fit.push_back(1.f);
         fit.push_back(1.f);
         fit.push_back(0.f);
+        return 1;
     }
     if (y.size() == 1)
     {
@@ -1209,6 +1210,7 @@ int Bigauss_esti_em(vector<float> &old_x, vector<float> &old_y, int max_iter, fl
         fit.push_back(1.f);
         fit.push_back(1.f);
         fit.push_back(0.f);
+        return 1;
     }
     vector<float> x = copyByIndex(old_x, yIdx);
     /// epsilon is the threshold for continuing the iteration. change in

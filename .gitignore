@@ -27,6 +27,11 @@
 *.out
 *.app
 
+# PyCharm or CLion project files (JetBeans)
+.idea
+cmake-build*/
+build*/
+
 # Python project file
 *.pyc
 
@@ -46,3 +51,10 @@
 *.tif.aux.xml
 *.tfw
 *.tif.ovr
+
+
+
+# Sphinx documentation
+doc/docstring/_build/
+doc/docstring/_static
+doc/docstring/_templates
