@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Welcome to AutoFuzSlpPos &mdash; AutoFuzSlpPos 1.1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="AutoFuzSlpPos 1.1.0 documentation" href="#"/>
+        <link rel="next" title="Configuration" href="config.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> AutoFuzSlpPos
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="#">AutoFuzSlpPos</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>Welcome to AutoFuzSlpPos</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="welcome-to-autofuzslppos">
+<h1>Welcome to AutoFuzSlpPos<a class="headerlink" href="#welcome-to-autofuzslppos" title="Permalink to this headline">¶</a></h1>
+<p>Latest update: July. 31, 2017</p>
+<p>AutoFuzSlpPos (short for &#8220;<strong>Automated Fuzzy Slope Position</strong>&#8221;) is
+developed by PhD candidate Liang-Jun Zhu and <strong>Prof.</strong> Cheng-Zhi Qin in
+Lreis, IGSNRR, CAS, China.</p>
+<blockquote>
+<div>Contact and support email: <a class="reference external" href="mailto:zlj&#37;&#52;&#48;lreis&#46;ac&#46;cn">zlj<span>&#64;</span>lreis<span>&#46;</span>ac<span>&#46;</span>cn</a></div></blockquote>
+<ol class="arabic simple">
+<li><a class="reference external" href="#introduction">Introduction</a></li>
+<li><a class="reference external" href="#installation">Installation</a><ul>
+<li><a class="reference external" href="#code-structure">2.1 Code structure</a></li>
+<li><a class="reference external" href="#compile-on-windows-using-msvc">2.2 Compile on Windows</a></li>
+<li><a class="reference external" href="#compile-on-linux-unix-using-gcc">2.3 Compile on Linux/Unix</a></li>
+<li><a class="reference external" href="#configuration">2.4 Configuration</a></li>
+</ul>
+</li>
+</ol>
+<ol class="arabic simple" start="2">
+<li><a class="reference external" href="#run-autofuzslppos">Run AutoFuzSlpPos</a></li>
+</ol>
+</div>
+<div class="section" id="introduction">
+<h1>1 Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>AutoFuzSlpPos is an automatic approach with only one required input data
+(i.e., a gridded DEM of the study area) to deriving fuzzy slope
+positions based on the prototype-based inference method proposed by Qin
+<em>et al</em>. (2009. <a class="reference external" href="http://dx.doi.org/10.1016/j.geomorph.2009.04.003">Quantification of spatial gradation of slope
+positions</a>.
+Geomorphology 110, 152-161.). AutoFuzSlpPos consists three major parts,
+i.e., preparing topographic attributes, extracting typical locations,
+and calculating similarity for each slope position. The preliminary
+implementation employs the system of five basic slope positions, i.e., ridge, shoulder slope, backslope, footslope, and valley.</p>
+<p>Current version of AutoFuzSlpPos is developed under the <a class="reference external" href="http://hydrology.usu.edu/taudem/taudem5/index.html">TauDEM
+parallelized
+framework</a> and
+programmed using C++ and Python language.</p>
+<p>AutoFuzSlpPos is capable with Windows and Linux/Unix, e.g., Windows
+7/8/10, CentOS 6.2, and Ubuntu 14.04.</p>
+<p>The prerequisites environment is as follows:</p>
+<ul class="simple">
+<li>For users:<ul>
+<li><strong>MPI</strong>, such as <a class="reference external" href="https://www.microsoft.com/en-us/download/details.aspx?id=47259">Microsoft MS-MPI
+V6</a>+,
+OpenMPI, MPICH2</li>
+<li>Python 2.7.x packaged with Numpy 1.6+ and GDAL 1.9.x.</li>
+</ul>
+</li>
+<li>For developers (include the MPI and Python mentioned above):<ul>
+<li>CMake 2.8.0+</li>
+<li>C/C++ compiler with C++11 support, such as Microsoft Visual Studio
+2010+, GCC 4.7+.</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="installation">
+<h1>2 Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>If you want to install from source code, please follow <a class="reference external" href="#compile-on-windows-using-msvc">Compile on
+Windows</a> or <a class="reference external" href="#compile-on-linux-unix-using-gcc">Compile on
+Linux/Unix</a>. If you want to use
+AutoFuzSlpPos directly with the compiled executable files, please refers
+to <a class="reference external" href="#configuration">Configuration</a>.</p>
+<div class="section" id="code-structure">
+<h2>2.1 Code structure<a class="headerlink" href="#code-structure" title="Permalink to this headline">¶</a></h2>
+<p>The source code consists of two parts: 1) the C++ source code located in
+<code class="docutils literal"><span class="pre">autofuzslppos/src</span></code>, and 2) python scripts located in
+<code class="docutils literal"><span class="pre">autofuzslppos/</span></code>.</p>
+<p>C++ code will be compiled as separated executable files, such as
+&#8220;<strong>SelectTypLocSlpPos</strong>&#8221; which is used for extracting typical locations
+and setting parameters for fuzzy inference of each slope position.</p>
+<p>Python script is to organize the whole work-flow with a configurable
+script for users’ customizing optional parameters, such as follows.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Script</th>
+<th class="head">Functionality</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">main.py</span></code></td>
+<td>The entrance of AutoFuzSlpPos</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">Config.py</span></code></td>
+<td>Parse the configuration file (*.ini) prepared by user.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Nomenclature.py</span></code></td>
+<td>Predefined filenames</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">TauDEM.py</span></code></td>
+<td>Functions based on TauDEM and the extension functions, e.g., SelectTypLocSlpPos</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">Util.py</span></code></td>
+<td>Some fundamental functions, e.g., functions for the Input/Output of raster data</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">PreProcessing.py</span></code></td>
+<td>Preprocessing for topographic attributes, such as relative position index (RPI), profile curvature</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SelectTypLoc.py</span></code></td>
+<td>Prepare input files for typical location extraction</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">FuzzySlpPosInference.py</span></code></td>
+<td>Prepare input files for fuzzy inference of each slope position</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="compile-on-windows-using-msvc">
+<h2>2.2 Compile on Windows Using MSVC<a class="headerlink" href="#compile-on-windows-using-msvc" title="Permalink to this headline">¶</a></h2>
+<p>The MPI library used for PC is <a class="reference external" href="https://www.microsoft.com/en-us/download/details.aspx?id=47259">Microsoft MS-MPI
+V6</a>
+or later. Install msmpisdk.msi, MSMpiSetup.exe. And then set the
+environment paths as follows:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">MSMPI_BIN</span><span class="o">=</span><span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span>\<span class="n">Microsoft</span> <span class="n">MPI</span>\<span class="n">Bin</span>\
+<span class="n">MSMPI_INC</span><span class="o">=</span><span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span> <span class="p">(</span><span class="n">x86</span><span class="p">)</span>\<span class="n">Microsoft</span> <span class="n">SDKs</span>\<span class="n">MPI</span>\<span class="n">Include</span>\
+<span class="n">MSMPI_LIB32</span><span class="o">=</span><span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span> <span class="p">(</span><span class="n">x86</span><span class="p">)</span>\<span class="n">Microsoft</span> <span class="n">SDKs</span>\<span class="n">MPI</span>\<span class="n">Lib</span>\<span class="n">x86</span>\
+<span class="n">MSMPI_LIB64</span><span class="o">=</span><span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span> <span class="p">(</span><span class="n">x86</span><span class="p">)</span>\<span class="n">Microsoft</span> <span class="n">SDKs</span>\<span class="n">MPI</span>\<span class="n">Lib</span>\<span class="n">x64</span>\
+</pre></div>
+</div>
+<p>Then, open “<strong>Visual Studio Command Prompt</strong>” from Start menu (as
+administrator), and run the following commands:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">&lt;</span><span class="n">path</span> <span class="n">to</span> <span class="n">autofuzslopos</span><span class="o">&gt;</span>
+<span class="n">mkdir</span> <span class="n">build</span>
+<span class="n">cd</span> <span class="n">build</span>
+<span class="c1"># -DARCH: 64 is for compiling 64bit version</span>
+<span class="c1"># -DINSTALL_PREFIX: the install directory</span>
+<span class="c1"># An example: MSVC 2013, 64bit</span>
+<span class="n">cmake</span> <span class="o">-</span><span class="n">G</span> <span class="s2">&quot;Visual Studio 10 2010 Win64&quot;</span> <span class="o">..</span> <span class="o">-</span><span class="n">DARCH</span><span class="o">=</span><span class="mi">64</span> <span class="o">-</span><span class="n">DINSTALL_PREFIX</span><span class="o">=&lt;</span><span class="n">INSTALLDIR</span><span class="o">&gt;</span>
+<span class="n">msbuild</span><span class="o">.</span><span class="n">exe</span> <span class="n">ALL_BUILD</span><span class="o">.</span><span class="n">vcxproj</span> <span class="o">/</span><span class="n">p</span><span class="p">:</span><span class="n">Configuration</span><span class="o">=</span><span class="n">Release</span> <span class="o">/</span><span class="n">maxcpucount</span><span class="p">:</span><span class="mi">4</span>
+<span class="n">msbuild</span><span class="o">.</span><span class="n">exe</span> <span class="n">INSTALL</span><span class="o">.</span><span class="n">vcxproj</span> <span class="o">/</span><span class="n">p</span><span class="p">:</span><span class="n">Configuration</span><span class="o">=</span><span class="n">Release</span>
+</pre></div>
+</div>
+<p>The executable files will be compiled and saved in <code class="docutils literal"><span class="pre">&lt;INSTALLDIR&gt;</span></code>.</p>
+</div>
+<div class="section" id="compile-on-linux-unix-using-gcc">
+<h2>2.3 Compile on Linux/Unix using GCC<a class="headerlink" href="#compile-on-linux-unix-using-gcc" title="Permalink to this headline">¶</a></h2>
+<p>Unlike the MPI version for PC, the implementation of
+<a class="reference external" href="http://www.mpich.org/downloads/">MPICH</a> is adopted for Linux/Unix
+platform.</p>
+<p>The compilation steps are quite familiar:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">&lt;</span><span class="n">path</span> <span class="n">to</span> <span class="n">autofuzslopos</span><span class="o">&gt;</span>
+<span class="n">mkdir</span> <span class="n">build</span>
+<span class="n">cd</span> <span class="n">build</span>
+<span class="n">cmake</span> <span class="o">..</span> <span class="o">-</span><span class="n">DINSTALL_PREFIX</span><span class="o">=&lt;</span><span class="n">INSTALLDIR</span><span class="o">&gt;</span>
+<span class="n">make</span> <span class="o">-</span><span class="n">j4</span>
+<span class="n">make</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p>The executable files will be generated in <code class="docutils literal"><span class="pre">INSTALLDIR</span></code>.</p>
+</div>
+<div class="section" id="configuration">
+<h2>2.4 Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>A script program of Python language is implemented to organize the
+work-flow of deriving fuzzy slope positions. User can configure the
+environment of AutoFuzSlpPos through the configuration file with the
+extension of *.ini, e.g. <code class="docutils literal"><span class="pre">autofuzslppos/data/Jamaica_windows.ini</span></code> for
+Windows and <code class="docutils literal"><span class="pre">autofuzslppos/data/Jamaica_cluster.ini</span></code> for Linux
+cluster.</p>
+<p>Besides the required path of the DEM of the study area (i.e., rawdem),
+the paths of the compiled executable files of AutoFuzSlpPos and
+workspace to store the results should be given correctly, for instance:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">exeDir</span> <span class="o">=</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">zhulj</span><span class="o">/</span><span class="n">AutoFuzSlpPos</span><span class="o">/</span><span class="n">exec</span>
+<span class="n">rootDir</span> <span class="o">=</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">zhulj</span><span class="o">/</span><span class="n">AutoFuzSlpPos</span><span class="o">/</span><span class="n">Demo</span>
+</pre></div>
+</div>
+<p>Note that, if the path of MPI is in the ENVIRONMENT PATH in the system,
+the <code class="docutils literal"><span class="pre">mpiexeDir</span></code> could be set as <code class="docutils literal"><span class="pre">None</span></code>, otherwise it should be
+explicitly assigned, such as <code class="docutils literal"><span class="pre">mpiexeDir</span> <span class="pre">=</span> <span class="pre">/home/zhulj/mpich/bin</span></code>. The
+<code class="docutils literal"><span class="pre">hostfile</span></code> is used to specify the hosts on which the MPI jobs will be
+submitted. If user does not know how to prepare the hostfile, just leave
+it as <code class="docutils literal"><span class="pre">hostfile</span> <span class="pre">=</span> <span class="pre">None</span></code>. One possible example is as follows:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">hostfile</span> <span class="o">=</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">zhulj</span><span class="o">/</span><span class="n">AutoFuzSlpPos</span><span class="o">/</span><span class="n">exec</span><span class="o">/</span><span class="n">dgpm</span>
+<span class="n">dgpm</span><span class="o">-</span><span class="n">cluster</span><span class="o">.</span><span class="n">public</span><span class="p">:</span><span class="mi">1</span>
+<span class="n">dgpm</span><span class="o">-</span><span class="n">compute</span><span class="o">-</span><span class="mf">1.</span><span class="n">local</span><span class="p">:</span><span class="mi">12</span>
+<span class="n">dgpm</span><span class="o">-</span><span class="n">compute</span><span class="o">-</span><span class="mf">2.</span><span class="n">local</span><span class="p">:</span><span class="mi">12</span>
+<span class="n">dgpm</span><span class="o">-</span><span class="n">compute</span><span class="o">-</span><span class="mf">3.</span><span class="n">local</span><span class="p">:</span><span class="mi">12</span>
+<span class="n">dgpm</span><span class="o">-</span><span class="n">compute</span><span class="o">-</span><span class="mf">4.</span><span class="n">local</span><span class="p">:</span><span class="mi">12</span>
+</pre></div>
+</div>
+<p>Next, the AutoFuzSlpPos with default parameter settings is ready to run
+for the specific study area. Other optional parameters are briefly
+introduced in the configuration file (*.ini).</p>
+</div>
+</div>
+<div class="section" id="run-autofuzslppos">
+<h1>3 Run AutoFuzSlpPos<a class="headerlink" href="#run-autofuzslppos" title="Permalink to this headline">¶</a></h1>
+<p>Use the following command to run AutoFuzSlpPos:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">&lt;</span><span class="n">path</span> <span class="n">to</span> <span class="n">AutoFuzSlpPos</span><span class="o">&gt;</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">autofuzslppos</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">ini</span> <span class="o">&lt;</span><span class="n">configuration</span> <span class="n">file</span> <span class="n">path</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">proc</span> <span class="o">&lt;</span><span class="n">process</span> <span class="n">number</span><span class="o">&gt;</span> <span class="o">-</span><span class="nb">bin</span> <span class="o">&lt;</span><span class="n">binaries</span> <span class="n">path</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">root</span> <span class="o">&lt;</span><span class="n">workspace</span> <span class="n">path</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>where: <code class="docutils literal"><span class="pre">&lt;configuration</span> <span class="pre">file</span> <span class="pre">path&gt;</span></code> is the full path of the *ini file,
+e.g. <code class="docutils literal"><span class="pre">/home/zhulj/AutoFuzSlpPos/data/Jamaica/Jamaica_dgpm.ini</span></code></p>
+<p><code class="docutils literal"><span class="pre">&lt;process</span> <span class="pre">number&gt;</span></code> is the process number for MPI, which can overwrite
+the <code class="docutils literal"><span class="pre">inputProc</span></code> defined in configuration file.</p>
+<p><code class="docutils literal"><span class="pre">&lt;binaries</span> <span class="pre">path&gt;</span></code> it the executable binaries path of all autofuzslopos functions, which
+can overwrite <code class="docutils literal"><span class="pre">exeDir</span></code> the defined in configuration file.</p>
+<p><code class="docutils literal"><span class="pre">&lt;workspace</span> <span class="pre">path&gt;</span></code> it the workspace path to store the results, which
+can overwrite <code class="docutils literal"><span class="pre">rootDir</span></code> the defined in configuration file.</p>
+<p>The following table gives a brief introduction to the result files.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="91%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Result Folder</th>
+<th class="head">Introduction</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>FuzzySlpPos</td>
+<td>Similarity maps of each slope position, as well as the hardened map of slope positions and the corresponding maximum similarity map</td>
+</tr>
+<tr class="row-odd"><td>DinfpreDir</td>
+<td>Intermediate files in preparing topographic attributes</td>
+</tr>
+<tr class="row-even"><td>Params</td>
+<td>GRID of topographic attributes, including RPI (Relative Position Index), profile curvature, slope gradient, and HAND (Height Above the Nearest Drainage), by default.</td>
+</tr>
+<tr class="row-odd"><td>Config</td>
+<td>Configuration files of the extraction of typical locations and fuzzy inference for each slope positions</td>
+</tr>
+<tr class="row-even"><td>TypLoc</td>
+<td>Typical locations of each slope positions</td>
+</tr>
+<tr class="row-odd"><td>Log</td>
+<td>Log files which record information such as runtime, etc.</td>
+</tr>
+</tbody>
+</table>
+<p>Note that in the current implementation a system of five basic slope
+positions is used, i.e., ridge(RDG), shoulder slope (SHD), backslope
+(BKS), footslope (FTS), and valley (VLY).</p>
+</div>
+<div class="section" id="id1">
+<h1>Configuration<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="config.html" class="btn btn-neutral float-right" title="Configuration" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2017, Liangjun Zhu, Chengzhi Qin.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

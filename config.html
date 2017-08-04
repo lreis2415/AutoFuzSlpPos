@@ -1,0 +1,413 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Configuration &mdash; AutoFuzSlpPos 1.1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="AutoFuzSlpPos 1.1.0 documentation" href="index.html"/>
+        <link rel="prev" title="Welcome to AutoFuzSlpPos" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> AutoFuzSlpPos
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">AutoFuzSlpPos</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Configuration</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/config.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-autofuzslppos.Config">
+<span id="configuration"></span><h1>Configuration<a class="headerlink" href="#module-autofuzslppos.Config" title="Permalink to this headline">¶</a></h1>
+<p>Configuration of pyAutoFuzSlpPos project.</p>
+<p>&#64;author: Liangjun Zhu</p>
+<p>&#64;changelog: 15-07-31  lj - initial implementation.</p>
+<blockquote>
+<div>17-07-31  lj - reorganize as basic class, and incorporated with pygeoc.</div></blockquote>
+<dl class="class">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig">
+<em class="property">class </em><code class="descclassname">autofuzslppos.Config.</code><code class="descname">AutoFuzSlpPosConfig</code><span class="sig-paren">(</span><em>cfg_parser</em>, <em>bin_dir=None</em>, <em>proc_num=-1</em>, <em>rawdem=None</em>, <em>root_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autofuzslppos/Config.html#AutoFuzSlpPosConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="docutils">
+<dt>Get input arguments for pyAutoFuzSlpPos main program and</dt>
+<dd>parse configuration file (*.ini file).</dd>
+</dl>
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.bin_dir">
+<code class="descname">bin_dir</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.bin_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required. Executable binary file path.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.ws">
+<code class="descname">ws</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.ws" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derived from inputs. Workspace directories, see also CreateWorkspace.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.dem">
+<code class="descname">dem</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.dem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required. Input dem of study area. Be caution! DEM file should have one cell buffer
+of the desired extent, e.g., watershed boundary.
+If flag_PreProcess is set to False, dem can be None.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.mpi_dir">
+<code class="descname">mpi_dir</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.mpi_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional. MPI binary path. If it has been exported to the environmental path,
+set as None.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.hostfile">
+<code class="descname">hostfile</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.hostfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional. The hostfile is a text file that contains the names of hosts,
+the number of available slots on each host, set to None if not stated.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.outlet">
+<code class="descname">outlet</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.outlet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional. Watershed outlet as ESRI shapefile. Be caution! The outlet point should
+locate at least one cell inner the DEM boundary. If outlet is None, the maximum
+of Contributing Area will be identified as outlet.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.valley">
+<code class="descname">valley</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.valley" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional. Vally source as raster file. If not provided, set None.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.ridge">
+<code class="descname">ridge</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.ridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional. Ridge source as raster file. If not provided, set None.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.regional_attr">
+<code class="descname">regional_attr</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.regional_attr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Regional topographic attributes, decrease from ridge to valley, range from
+1 to 0, e.g., RPI (Relative Position Index, Skidmore, 1990)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.flag_preprocess">
+<code class="descname">flag_preprocess</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.flag_preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess for terrain attributes? True is default, if false, topographic
+attributes used for fuzzy inference must be existed in &#8216;Params&#8217; dir.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.flag_selecttyploc">
+<code class="descname">flag_selecttyploc</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.flag_selecttyploc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select typical locations automatically? True is default, if false,
+typical locations of each slope position must be existed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.flag_auto_typlocparams">
+<code class="descname">flag_auto_typlocparams</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.flag_auto_typlocparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically determine the parameters for typical locations?
+True is default, if false, the script will find these parameters
+from the *.ini configuration file, and/or the XXXExtConfig.dat file
+in &#8216;Config&#8217; directory.
+Exception will be raised if all tries failed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.flag_fuzzyinference">
+<code class="descname">flag_fuzzyinference</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.flag_fuzzyinference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate fuzzy membership of each slope position? True is default.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.flag_auto_inferenceparams">
+<code class="descname">flag_auto_inferenceparams</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.flag_auto_inferenceparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically determine the parameters for fuzzy inference?
+True is default, if false, the script will find these parameters
+from the *.ini configuration file, and/or the XXXInfConfig.dat
+in &#8216;Config&#8217; directory.
+Exception will be raised if all tries failed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.flag_log">
+<code class="descname">flag_log</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.flag_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write runtime log information to files. True is default.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.selectedtopo">
+<code class="descname">selectedtopo</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.selectedtopo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Topographic attributes used for AutoFuzSlpPos. The key is attribute name,
+and value is full file path. See also topoparam.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.extractrange">
+<code class="descname">extractrange</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.extractrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract value ranges for each topographic attributes of each slope positions.
+{SlpPosType: {regionalAttr: [minv, maxv], ...}}</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.inferparam">
+<code class="descname">inferparam</code><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.inferparam" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Directory to store fuzzy inference parameters, the basic format is:
+{SlpPosType: {regionalAttr: [FMFShape, w1, r1, k1, w2, r2, k2], ...}}</p>
+</dd></dl>
+
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="docutils literal"><span class="pre">Nomenclature.CreateWorkspace</span></code></p>
+</div>
+<dl class="staticmethod">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.check_file_available">
+<em class="property">static </em><code class="descname">check_file_available</code><span class="sig-paren">(</span><em>in_f</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autofuzslppos/Config.html#AutoFuzSlpPosConfig.check_file_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.check_file_available" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the input file is existed or not, and return None, if not.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.read_flag_section">
+<code class="descname">read_flag_section</code><span class="sig-paren">(</span><em>_flag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autofuzslppos/Config.html#AutoFuzSlpPosConfig.read_flag_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.read_flag_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>read executable flags</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.read_optional_section">
+<code class="descname">read_optional_section</code><span class="sig-paren">(</span><em>_opt</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autofuzslppos/Config.html#AutoFuzSlpPosConfig.read_optional_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.read_optional_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>read and check OPTIONAL inputs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.read_optionaldta_section">
+<code class="descname">read_optionaldta_section</code><span class="sig-paren">(</span><em>_optdta</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autofuzslppos/Config.html#AutoFuzSlpPosConfig.read_optionaldta_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.read_optionaldta_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional parameters settings of digital terrain analysis for topographic attributes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.read_optionfuzinf_section">
+<code class="descname">read_optionfuzinf_section</code><span class="sig-paren">(</span><em>_optfuzinf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autofuzslppos/Config.html#AutoFuzSlpPosConfig.read_optionfuzinf_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.read_optionfuzinf_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional parameter-settings for Fuzzy slope position inference.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.read_optiontyploc_section">
+<code class="descname">read_optiontyploc_section</code><span class="sig-paren">(</span><em>_opttyploc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autofuzslppos/Config.html#AutoFuzSlpPosConfig.read_optiontyploc_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.read_optiontyploc_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional parameter-settings for Typical Locations selection</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="autofuzslppos.Config.AutoFuzSlpPosConfig.read_required_section">
+<code class="descname">read_required_section</code><span class="sig-paren">(</span><em>_require</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autofuzslppos/Config.html#AutoFuzSlpPosConfig.read_required_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autofuzslppos.Config.AutoFuzSlpPosConfig.read_required_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>read and check required section</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="autofuzslppos.Config.C">
+<em class="property">class </em><code class="descclassname">autofuzslppos.Config.</code><code class="descname">C</code><a class="reference internal" href="_modules/autofuzslppos/Config.html#C"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autofuzslppos.Config.C" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Empty</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="autofuzslppos.Config.get_input_cfgs">
+<code class="descclassname">autofuzslppos.Config.</code><code class="descname">get_input_cfgs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/autofuzslppos/Config.html#get_input_cfgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autofuzslppos.Config.get_input_cfgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get model configuration arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">InputArgs object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to AutoFuzSlpPos" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2017, Liangjun Zhu, Chengzhi Qin.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
