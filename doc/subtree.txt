@@ -1,5 +1,0 @@
-# push
-git subtree push --prefix=autofuzslppos/pygeoc pygeoc master
-# pull
-git fetch pygeoc master
-git subtree pull --prefix=autofuzslppos/pygeoc pygeoc master --squash
