@@ -71,6 +71,14 @@ class AutoFuzSlpPosConfig(object):
 
     """
 
+    # B(1)      6	2	0.5	6	2	0.5
+    # S(2)      6	2	0.5	1	0	1
+    # Z(3)      1	0	1	6	2	0.5
+    _FMFTYPE = {1: 'B', 2: 'S', 3: 'Z'}
+    _FMFPARAM = {'B': [6, 2, 0.5, 6, 2, 0.5],
+                 'S': [6, 2, 0.5, 1, 0, 1],
+                 'Z': [1, 0, 1, 6, 2, 0.5]}
+
     def __init__(self, cfg_parser, bin_dir=None, proc_num=-1, rawdem=None, root_dir=None):
         """
         Initialize an AutoFuzSlpPosConfig object
@@ -147,16 +155,17 @@ class AutoFuzSlpPosConfig(object):
         # default slope position settings
         self.slppostype = ['rdg', 'shd', 'bks', 'fts', 'vly']
         self.slppostag = [1, 2, 4, 8, 16]
-        self.selectedtopo = {'rpi': '', 'profc': '', 'slp': '', 'elev': ''}
+        self.selectedtopolist = ['rpi', 'profc', 'slp', 'elev']
+        self.selectedtopo = dict()
         self.extractrange = {'rdg': {'rpi': [0.99, 1.0]},
                              'shd': {'rpi': [0.9, 0.95]},
                              'bks': {'rpi': [0.5, 0.6]},
                              'fts': {'rpi': [0.15, 0.2]},
                              'vly': {'rpi': [0., 0.1]}}
 
-        _DEFAULT_PARAM_TYPLOC = [10, 0.1, 0.3, 1, 0.1, 1, 50, 4.0]
+        self._DEFAULT_PARAM_TYPLOC = [10, 0.1, 0.3, 1, 0.1, 1, 50, 4.0]
         for slppos in self.slppostype:
-            self.param4typloc[slppos] = _DEFAULT_PARAM_TYPLOC[:]
+            self.param4typloc[slppos] = self._DEFAULT_PARAM_TYPLOC[:]
 
         self.infshape = {'rdg': {'rpi': 'S', 'profc': 'S', 'slp': 'Z', 'elev': 'SN'},
                          'shd': {'rpi': 'B', 'profc': 'S', 'slp': 'B', 'elev': 'N'},
@@ -180,10 +189,8 @@ class AutoFuzSlpPosConfig(object):
             self.topoparam = TopoAttrNames(self.ws)
             self.slpposresult = FuzSlpPosFiles(self.ws)
             self.pretaudem = PreProcessAttrNames(self.ws.pre_dir, self.flow_model)
-            self.selectedtopo['rpi'] = self.topoparam.rpi
-            self.selectedtopo['profc'] = self.topoparam.profc
-            self.selectedtopo['slp'] = self.topoparam.slope
-            self.selectedtopo['elev'] = self.topoparam.elev
+            for attr in self.selectedtopolist:
+                self.selectedtopo[attr] = self.topoparam.get_attr_file(attr)
             for slppos in self.slppostype:
                 self.singleslpposconf[slppos] = SingleSlpPosFiles(self.ws, slppos)
 
@@ -204,7 +211,7 @@ class AutoFuzSlpPosConfig(object):
             self.read_optionaldta_section(_optdta)
             self.read_optional_section(_opt)
             self.read_optiontyploc_section(_opttyploc)
-            # self.read_optionfuzinf_section(_optfuzinf)
+            self.read_optionfuzinf_section(_optfuzinf)
 
     @staticmethod
     def check_file_available(in_f):
@@ -259,13 +266,7 @@ class AutoFuzSlpPosConfig(object):
             return
         self.flow_model = self.cf.getint(_optdta, 'flowmodel')
         self.rpi_method = self.cf.getint(_optdta, 'rpimethod')
-        # self.spsi_method = self.cf.getint(_optdta, 'spsimethod')
         self.dist_exp = self.cf.getint(_optdta, 'distanceexponentforidw')
-        # for slppos in self.__slp_pos_items:
-        #     if self.cf.has_option(_optdta, slppos + "tag"):
-        #         self.tag_dict[slppos] = self.cf.getint(_optdta, slppos + "tag")
-        #         if self.tag_dict[slppos] <= 0:
-        #             self.tag_dict[slppos] = 1
         self.max_move_dist = self.cf.getfloat(_optdta, 'maxmovedist')
         self.numthresh = self.cf.getint(_optdta, 'numthresh')
         self.d8_stream_thresh = self.cf.getint(_optdta, 'd8streamthreshold')
@@ -283,10 +284,6 @@ class AutoFuzSlpPosConfig(object):
             self.flow_model = 1
         if self.rpi_method != 0:
             self.rpi_method = 1
-        # if self.spsi_method < 1:
-        #     self.spsi_method = 1
-        # elif self.spsi_method > 3:
-        #     self.spsi_method = 3
         if self.dist_exp < 0:
             self.dist_exp = 8
         if self.max_move_dist < 0:
@@ -347,7 +344,7 @@ class AutoFuzSlpPosConfig(object):
         if self.topoparam is None:
             self.topoparam = TopoAttrNames(self.ws)
         if self.regional_attr is not None:
-            self.topoparam.add_user_defined_attribute(self.regional_attr)
+            self.topoparam.add_user_defined_attribute('rpi', self.regional_attr, True)
 
     def read_optiontyploc_section(self, _opttyploc):
         """Optional parameter-settings for Typical Locations selection"""
@@ -358,6 +355,9 @@ class AutoFuzSlpPosConfig(object):
             self.slppostype = list()
             typstrs = self.cf.get(_opttyploc, 'slopepositiontypes')
             self.slppostype = StringClass.split_string(typstrs.lower(), ',')
+        else:
+            # five slope position system will be adapted.
+            pass
         if self.cf.has_option(_opttyploc, 'slopepositiontags'):
             self.slppostag = list()
             tagstrs = self.cf.get(_opttyploc, 'slopepositiontags')
@@ -373,24 +373,19 @@ class AutoFuzSlpPosConfig(object):
             self.singleslpposconf[typ] = SingleSlpPosFiles(self.ws, typ)
         # handling selected topographic attributes
         if self.cf.has_option(_opttyploc, 'terrainattrdict'):
+            self.selectedtopolist = list()
             self.selectedtopo = dict()
             terrain_attr_dict_str = self.cf.get(_opttyploc, 'terrainattrdict')
             attrpath_strs = StringClass.split_string(terrain_attr_dict_str, ';')
             for i, singattr in enumerate(attrpath_strs):
                 ap = StringClass.split_string(singattr, ',')
                 attrname = ap[0].lower()
-                if attrname == 'rpi':
-                    self.selectedtopo['rpi'] = self.topoparam.rpi
-                elif attrname == 'profc':
-                    self.selectedtopo['profc'] = self.topoparam.profc
-                elif attrname == 'slp':
-                    self.selectedtopo['slp'] = self.topoparam.slope
-                elif attrname == 'elev':
-                    self.selectedtopo['elev'] = self.topoparam.elev
-                elif attrname == 'horizc':
-                    self.selectedtopo['horizc'] = self.topoparam.horizc
-                elif attrname == 'hand':
-                    self.selectedtopo['hand'] = self.topoparam.hand
+                if i == 0 and not StringClass.string_match(attrname, 'rpi'):
+                    attrname = 'rpi'
+                self.selectedtopolist.append(attrname)
+                attrpath = self.topoparam.get_attr_file(attrname)
+                if attrpath is not None:
+                    self.selectedtopo[attrname] = attrpath
                 else:  # this should be user-defined attribute, and should has a valid file path
                     if len(ap) != 2:
                         raise RuntimeError("User defined topographic attribute (%s) MUST have "
@@ -404,161 +399,103 @@ class AutoFuzSlpPosConfig(object):
                     if i == 0:  # the first one is regional attribute
                         is_regional = True
                     self.topoparam.add_user_defined_attribute(attrname, attrp, is_regional)
+        # handling several parameters used in extracting typical location
+        if self.cf.has_option(_opttyploc, 'typlocextractparam'):
+            self.param4typloc = dict()
+            base_param_str = self.cf.get(_opttyploc, 'typlocextractparam')
+            base_param_floats = StringClass.extract_numeric_values_from_string(base_param_str)
+            defnum = len(self._DEFAULT_PARAM_TYPLOC)
+            if len(base_param_floats) == defnum:
+                for slppos in self.slppostype:
+                    self.param4typloc[slppos] = base_param_floats[:]
+            elif len(base_param_floats) == len(self.slppostype) * defnum:
+                for i, slppos in enumerate(self.slppostype):
+                    self.param4typloc[slppos] = base_param_floats[i * defnum:(i + 1) * defnum]
+            else:
+                raise RuntimeError("TyplocExtractParam MUST has the number of "
+                                   "%d or %d!" % (defnum, len(self.slppostype) * defnum))
+        else:
+            for slppos in self.slppostype:
+                self.param4typloc[slppos] = self._DEFAULT_PARAM_TYPLOC[:]
+        # handling Pre-defined fuzzy membership function shapes of each terrain attribute
+        #    for each slope position
+        if self.cf.has_option(_opttyploc, 'fuzinfdefault'):
+            self.infshape = dict()
+            fuz_inf_shp_strs = self.cf.get(_opttyploc, 'fuzinfdefault')
+            # inference shapes are separated by SIMICOLON bewteen slope positions
+            fuz_inf_shp_types = StringClass.split_string(fuz_inf_shp_strs, ';')
+            if len(fuz_inf_shp_types) != len(self.slppostype):
+                raise RuntimeError("FuzInfDefault (%s) MUST be consistent with slope position types"
+                                   " and separated by ';'!" % fuz_inf_shp_strs)
+            for i, slppos in enumerate(self.slppostype):
+                self.infshape[slppos] = dict()
+                # inference shapes are separated by COMMA bewteen topographic attributes
+                infshps = StringClass.split_string(fuz_inf_shp_types[i], ',')
+                if len(infshps) != len(self.selectedtopolist):
+                    raise RuntimeError("FuzInfDefault (%s) for each slope position MUST have "
+                                       "the same size with TerrainAttrDict" % fuz_inf_shp_types[i])
+                for j, attrn in enumerate(self.selectedtopolist):
+                    self.infshape[slppos][attrn] = infshps[j]
+        else:
+            if len(self.slppostype) != 5:
+                raise RuntimeError("Only the fuzzy membership function shapes of "
+                                   "5 slope position system are built-in. For other "
+                                   "classification system, please set as input!")
+        # handling value ranges of terrain attributes for extracting prototypes
+        if self.cf.has_option(_opttyploc, 'valueranges'):
+            self.extractrange = dict()
+            value_rng_strs = self.cf.get(_opttyploc, 'valueranges')
+            value_rng_types = StringClass.split_string(value_rng_strs, ';')
+            if len(value_rng_types) != len(self.slppostype):
+                raise RuntimeError("ValueRanges (%s) MUST be consistent with slope position types"
+                                   " and separated by ';'!" % value_rng_strs)
+            for i, slppos in enumerate(self.slppostype):
+                self.extractrange[slppos] = dict()
+                value_rngs = StringClass.extract_numeric_values_from_string(value_rng_types[i])
+                if len(value_rngs) == 0 or len(value_rngs) % 3 != 0:
+                    raise RuntimeError("Each item of ValueRanges MUST contains three elements,"
+                                       "i.e., Attributes No., Min, Max! Please check item: "
+                                       "%s for %s." % (value_rng_types[i], slppos))
+                for j in range(len(value_rngs) / 3):
+                    attridx = int(value_rngs[j * 3]) - 1
+                    attrname = self.selectedtopolist[attridx]
+                    min_v = value_rngs[j * 3 + 1]
+                    max_v = value_rngs[j * 3 + 2]
+                    self.extractrange[slppos][attrname] = [min_v, max_v]
+        else:
+            if len(self.slppostype) != 5:
+                raise RuntimeError("Only the extract value ranges of "
+                                   "5 slope position system are built-in. For other "
+                                   "classification system, please set as input!")
 
-                    #     # 5.2 Several basic parameters in selecting typical locations
-                    #     DefaultBaseParam = [10, 0.1, 0.3, 1, 0.1, 1.414, 50, 4.0]
-                    #     # BaseParamsName = ['RdgBaseParam', 'ShdBaseParam', 'BksBaseParam', 'FtsBaseParam', 'VlyBaseParam']
-                    #     AllBaseParams = dict()
-                    #     for slppos in slp_pos_items:
-                    #         name = slppos + "baseparam"
-                    #         tmpBaseParam = []
-                    #         if self.cf.has_option(_opttyploc, name):
-                    #             BaseParamStr = self.cf.get(_opttyploc, name)
-                    #             baseParamFloats = SplitStr4Float(BaseParamStr, ',')
-                    #             if len(baseParamFloats) == len(DefaultBaseParam):
-                    #                 tmpBaseParam = baseParamFloats[:]
-                    #             else:
-                    #                 raise ValueError(
-                    #                         "Base parameters number for BiGaussian fitting MUST be 8, please check and retry!")
-                    #         else:
-                    #             tmpBaseParam = DefaultBaseParam[:]
-                    #         AllBaseParams[slppos] = tmpBaseParam[:]
-                    #     # for basepara in AllBaseParams.keys():
-                    #     #     print basepara, AllBaseParams[basepara]
-                    #     # 5.4 Pre-defined fuzzy membership function shapes of each terrain attribute for each slope position
-                    #     # FuzInfNames = ['RdgFuzInfDefault', 'ShdFuzInfDefault', 'BksFuzInfDefault', 'FtsFuzInfDefault', 'VlyFuzInfDefault']
-                    #     FuzInfDefaults = dict()
-                    #     for slppos in slp_pos_items:
-                    #         name = slppos + "fuzinfdefault"
-                    #         if self.cf.has_option(_opttyploc, name):
-                    #             fuzInfShpStr = self.cf.get(_opttyploc, name)
-                    #             fuzInfShpStrs = SplitStr(fuzInfShpStr, ',')
-                    #             if len(fuzInfShpStrs) != TerrainAttrNum:
-                    #                 raise ValueError(
-                    #                         "The number of FMF shape must equal to terrain attribute number!")
-                    #             else:
-                    #                 tmpFuzInfShp = []
-                    #                 for i in range(TerrainAttrNum):
-                    #                     tmpFuzInfShp.append([TerrainAttrList[i], fuzInfShpStrs[i]])
-                    #                 FuzInfDefaults[slppos] = tmpFuzInfShp[:]
-                    #         else:  # if no fuzzy inference default parameters
-                    #             if TerrainAttrList == ['rpi', 'profc', 'slp',
-                    #                                    'hand']:  # only if it is the default terrain attributes list
-                    #                 if name == 'rdgfuzinfdefault':
-                    #                     FuzInfDefaults["rdg"] = [['rpi', 'S'], ['profc', 'S'], ['slp', 'Z'],
-                    #                                              ['hand', 'SN']]
-                    #                 elif name == 'shdfuzinfdefault':
-                    #                     FuzInfDefaults["shd"] = [['rpi', 'B'], ['profc', 'S'], ['slp', 'B'],
-                    #                                              ['hand', 'N']]
-                    #                 elif name == 'bksfuzinfdefault':
-                    #                     FuzInfDefaults["bks"] = [['rpi', 'B'], ['profc', 'B'], ['slp', 'S'],
-                    #                                              ['hand', 'N']]
-                    #                 elif name == 'ftsfuzinfdefault':
-                    #                     FuzInfDefaults["fts"] = [['rpi', 'B'], ['profc', 'ZB'], ['slp', 'ZB'],
-                    #                                              ['hand', 'N']]
-                    #                 elif name == 'vlyfuzinfdefault':
-                    #                     FuzInfDefaults["vly"] = [['rpi', 'Z'], ['profc', 'B'], ['slp', 'Z'],
-                    #                                              ['hand', 'N']]
-                    #             else:
-                    #                 raise ValueError(
-                    #                         "The FuzInfDefault items must be defined corresponding to TerrainAttrDict!")
-                    #     # for fuzinf in FuzInfDefaults.keys():
-                    #     #     print fuzinf, FuzInfDefaults[fuzinf]
-                    #     # 5.5 Value ranges of terrain attributes for extracting prototypes
-                    #     # ValueRangeNames = ['RdgValueRanges', 'ShdValueRanges', 'BksValueRanges', 'FtsValueRanges', 'VlyValueRanges']
-                    #     ValueRanges = dict()
-                    #     if not ModifyExtractConfFile:  # do not read from ExtractConfFile
-                    #         for slppos in slp_pos_items:
-                    #             name = slppos + "valueranges"
-                    #             values = list()
-                    #             if self.cf.has_option(_opttyploc, name):
-                    #                 rngStr = self.cf.get(_opttyploc, name)
-                    #                 values = FindNumberFromString(rngStr)
-                    #             if values is None and AutoTypLocExtraction:
-                    #                 if name == 'rdgvalueranges':
-                    #                     ValueRanges[slppos] = [[TerrainAttrDict['rpi'], 0.99, 1.0]]
-                    #                 elif name == 'shdvalueranges':
-                    #                     ValueRanges[slppos] = [[TerrainAttrDict['rpi'], 0.9, 0.95]]
-                    #                 elif name == 'bksvalueranges':
-                    #                     ValueRanges[slppos] = [[TerrainAttrDict['rpi'], 0.5, 0.6]]
-                    #                 elif name == 'ftsvalueranges':
-                    #                     ValueRanges[slppos] = [[TerrainAttrDict['rpi'], 0.15, 0.2]]
-                    #                 elif name == 'vlyvalueranges':
-                    #                     ValueRanges[slppos] = [[TerrainAttrDict['rpi'], 0.0, 0.1]]
-                    #             elif values is not None or AutoTypLocExtraction:  # value ranges is derived from string
-                    #                 if len(values) % 3 != 0:
-                    #                     raise ValueError(
-                    #                             "%s is unvalid, please follow the instruction and retry!" % name)
-                    #                 elif len(values) >= 3 and len(
-                    #                         values) % 3 == 0:  # one or several value ranges are defined
-                    #                     tmpRng = list()
-                    #                     for i in range(len(values) / 3):
-                    #                         tmpV = values[i * 3:i * 3 + 3]
-                    #                         idx = int(tmpV.pop(0)) - 1
-                    #                         if idx < 0 or idx > TerrainAttrNum - 1:
-                    #                             raise ValueError("The terrain attribute index must be 1 to %d" % (
-                    #                                 TerrainAttrNum))
-                    #                         tmpV.sort()
-                    #                         tmpRng.append([TerrainAttrDict[TerrainAttrList[idx]], tmpV[0], tmpV[1]])
-                    #                     ValueRanges[slppos] = tmpRng[:]
-                    #             else:  # if no value ranges are provided and AutoTypLocExtraction is false
-                    #                 raise ValueError("%s has no valid numeric values!" % name)
-                    #             # complete the value ranges of other terrain attribute
-                    #             for rng in ValueRanges.keys():
-                    #                 rngItem = ValueRanges[rng]
-                    #                 if len(rngItem) < TerrainAttrNum:
-                    #                     presentItem = []
-                    #                     for attr in rngItem:
-                    #                         presentItem.append(attr[0])
-                    #                     for path in TerrainAttrDict.values():
-                    #                         if path not in presentItem:
-                    #                             rngItem.append([path, 0., 0.])
-                    #
-                    #                             # for rng in ValueRanges.keys():
-                    #                             #     print rng, ValueRanges[rng]
-                    #
-                    # def read_optionfuzinf_section(self, _optfuzinf):
-                    #     """Optional parameter-settings for Fuzzy slope position inference."""
-                    #     if _optfuzinf not in self.cf.sections():
-                    #         return
-                    #     # InferParamNames = ['RdgInferParams', 'ShdInferParams', 'BksInferParams', 'FtsInferParams', 'VlyInferParams']
-                    #     InferParams = dict()
-                    #     FMFShape = {1: 'B', 2: 'S', 3: 'Z'}
-                    #     if not ModifyInfConfFile:
-                    #         for slppos in slp_pos_items:
-                    #             name = slppos + "inferparams"
-                    #             values = list()
-                    #             if self.cf.has_option(_optfuzinf, name):
-                    #                 rngStr = self.cf.get(_optfuzinf, name)
-                    #                 values = FindNumberFromString(rngStr)
-                    #             if values is None and AutoInfParams:
-                    #                 InferParams[slppos] = []
-                    #             elif values is not None and not AutoInfParams:
-                    #                 if len(values) % 4 == 0 and len(values) / 4 <= TerrainAttrNum:
-                    #                     tmpInf = list()
-                    #                     tmpV = list()
-                    #                     for i in range(len(values) / 4):
-                    #                         tmpV = values[i * 4:i * 4 + 4]
-                    #                         AttrIdx = int(tmpV.pop(0)) - 1
-                    #                         ShpIdx = int(tmpV.pop(0))
-                    #                         if AttrIdx < 0 or AttrIdx > len(values) / 4 - 1:
-                    #                             raise ValueError("The terrain attribute index must be 1 to %d" % (
-                    #                                 len(values) / 4))
-                    #                         if ShpIdx < 1 or ShpIdx > 3:
-                    #                             raise ValueError("The FMF Shape index must be 1, 2, or 3")
-                    #                         if FMFShape[ShpIdx] == 'B':  # ['B', 6, 2, 0.5, 6, 2, 0.5]
-                    #                             tmpInf.append(['B', tmpV[0], 2, 0.5, tmpV[1], 2, 0.5])
-                    #                         elif FMFShape[ShpIdx] == 'S':  # ['S', 6, 2, 0.5, 1, 0, 1]
-                    #                             tmpInf.append(['S', tmpV[0], 2, 0.5, 1, 0, 1])
-                    #                         elif FMFShape[ShpIdx] == 'Z':  # ['Z', 1, 0, 1, 6, 2, 0.5]
-                    #                             tmpInf.append(['Z', 1, 0, 1, tmpV[1], 2, 0.5])
-                    #                     InferParams[slppos] = tmpInf[:]
-                    #                 else:
-                    #                     raise ValueError(
-                    #                             "%s is unvalid, please follow the instruction and retry!" % name)
-                    #             else:
-                    #                 raise ValueError("%s has no valid numeric values!" % name)
-                    #
+    def read_optionfuzinf_section(self, _optfuzinf):
+        """Optional parameter-settings for Fuzzy slope position inference."""
+        if _optfuzinf not in self.cf.sections():
+            return
+        if self.cf.has_option(_optfuzinf, 'inferparams'):
+            fuzinf_strs = self.cf.get(_optfuzinf, 'inferparams')
+            if StringClass.string_match(fuzinf_strs, 'none'):
+                return
+            self.inferparam = dict()
+            fuzinf_types = StringClass.split_string(fuzinf_strs, ';')
+            if len(fuzinf_types) != len(self.slppostype):
+                raise RuntimeError("InferParams (%s) MUST be consistent with slope position types"
+                                   " and separated by ';'!" % fuzinf_strs)
+            for i, slppos in enumerate(self.slppostype):
+                self.inferparam[slppos] = dict()
+                infparams = StringClass.extract_numeric_values_from_string(fuzinf_types[i])
+                if len(infparams) % 4 != 0:
+                    raise RuntimeError("Each item of InferParams MUST contains four elements,"
+                                       "i.e., Attribute No., FMF No., w1, w2! Please check item: "
+                                       "%s for %s." % (fuzinf_types[i], slppos))
+                for j in range(len(infparams) / 4):
+                    attridx = int(infparams[j * 4]) - 1
+                    attrname = self.selectedtopolist[attridx]
+                    fmf = self._FMFTYPE[int(infparams[j * 4 + 1])]
+                    curinfparam = self._FMFPARAM[fmf][:]
+                    curinfparam[0] = infparams[j * 4 + 2]  # w1
+                    curinfparam[3] = infparams[j * 4 + 3]  # w2
+                    self.inferparam[slppos][attrname] = [fmf] + curinfparam
 
 
 def get_input_cfgs():

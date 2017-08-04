@@ -42,7 +42,7 @@ def pre_processing(cfg):
             drpf.close()
         print (cfg.d8_stream_thresh)
         TauDEMExtension.areadinf(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinf,
-                                 cfg.pretaudem.dinfacc_weight, None,#cfg.pretaudem.outlet_m,
+                                 cfg.pretaudem.dinfacc_weight, None,  # cfg.pretaudem.outlet_m,
                                  cfg.pretaudem.stream_pd, 'false',
                                  cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
         TauDEMExtension.threshold(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinfacc_weight,
@@ -135,6 +135,7 @@ def main():
     """TEST CODE"""
     fuzslppos_cfg = get_input_cfgs()
     pre_processing(fuzslppos_cfg)
+
 
 if __name__ == '__main__':
     main()

@@ -10,7 +10,7 @@
 import os
 
 from autofuzslppos.pygeoc.pygeoc.hydro.TauDEM import TauDEMFilesUtils
-from autofuzslppos.pygeoc.pygeoc.utils.utils import UtilClass, FileClass
+from autofuzslppos.pygeoc.pygeoc.utils.utils import UtilClass, StringClass
 
 
 class CreateWorkspace(object):
@@ -94,13 +94,28 @@ class TopoAttrNames(object):
 
     def add_user_defined_attribute(self, toponame, topoattr_file, is_regional=True):
         """Add regional attribute specified by user, and return the key value (i.e., filename)."""
-        core_name = FileClass.get_core_name_without_suffix(topoattr_file)
-        if toponame in self.pre_derived_terrain_attrs:
-            print ("WARNING: The name (%s) is already existed in predefined topographic "
-                   "attributes directory, the default path will be overwritten!" % core_name)
-        self.pre_derived_terrain_attrs[core_name] = topoattr_file
-        if is_regional and toponame not in self.region_attrs:
-            self.region_attrs.append(core_name)
+        if is_regional:
+            toponame = 'rpi'
+        self.pre_derived_terrain_attrs[toponame] = topoattr_file
+
+    def get_attr_file(self, attrname):
+        """Get the file path of pre-prepared topographic attribute."""
+        if StringClass.string_match(attrname, 'rpi'):
+            return self.rpi
+        elif StringClass.string_match(attrname, 'profc'):
+            return self.profc
+        elif StringClass.string_match(attrname, 'horizc'):
+            return self.horizc
+        elif StringClass.string_match(attrname, 'slp'):
+            return self.slope
+        elif StringClass.string_match(attrname, 'elev'):
+            return self.elev
+        elif StringClass.string_match(attrname, 'hand'):
+            return self.hand
+        else:
+            return None
+            # raise RuntimeError("%s is not prepared by default, please provided "
+            #                    "with it's filepath!" % attrname)
 
 
 class SingleSlpPosFiles(object):

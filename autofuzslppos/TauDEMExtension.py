@@ -150,24 +150,3 @@ class TauDEMExtension(TauDEM):
                           {'-maxS': [hard, maxsimi], '-secS': [sechard, secsimi]},
                           {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
                           {'logfile': TauDEM.fullpath(log_file, workingdir)})
-
-# def outputLog(title, lines):
-#     abortRun(title, lines)
-#     contentList = []
-#     timeDict = {'name': None, 'readt': 0, 'writet': 0, 'computet': 0, 'totalt': 0}
-#     timeDict['name'] = title
-#     contentList.append('\n')
-#     contentList.append("#### %s ####" % title)
-#     for line in lines:
-#         contentList.append(line.split(LF)[0])
-#         # print line
-#         if line.find("Read time") >= 0:
-#             timeDict['readt'] = line.split(LF)[0].split(':')[-1]
-#         elif line.find("Compute time") >= 0:
-#             timeDict['computet'] = line.split(LF)[0].split(':')[-1]
-#         elif line.find("Write time") >= 0:
-#             timeDict['writet'] = line.split(LF)[0].split(':')[-1]
-#         elif line.find("Total time") >= 0:
-#             timeDict['totalt'] = line.split(LF)[0].split(':')[-1]
-#     write_log(Log_all, contentList)
-#     write_time_log(Log_runtime, timeDict)

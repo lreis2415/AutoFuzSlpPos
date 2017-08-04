@@ -9,14 +9,15 @@
 """
 
 from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.FuzzySlpPosInference import fuzzy_inference
 from autofuzslppos.PreProcessing import pre_processing
 from autofuzslppos.SelectTypLoc import extract_typical_location
-from autofuzslppos.FuzzySlpPosInference import fuzzy_inference
 
 
 def main():
     """Main workflow."""
     fuzslppos_cfg = get_input_cfgs()
+
     pre_processing(fuzslppos_cfg)
     extract_typical_location(fuzslppos_cfg)
     fuzzy_inference(fuzslppos_cfg)

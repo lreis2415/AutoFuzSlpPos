@@ -17,6 +17,7 @@ from autofuzslppos.pygeoc.pygeoc.utils.utils import StringClass
 
 
 def extract_typical_location(cfg):
+    """Prepare configuration files for extracting typical location."""
     if not cfg.flag_selecttyploc:
         return 0
     start_t = time.time()
@@ -65,8 +66,8 @@ def extract_typical_location(cfg):
                     infos = extconfig_info.readlines()
                 for line in infos:
                     splitstring = StringClass.split_string(line.split('\n')[0], '\t')
-                    if StringClass.string_match(splitstring[0], 'Parameters')\
-                            and len(splitstring) == 5\
+                    if StringClass.string_match(splitstring[0], 'Parameters') \
+                            and len(splitstring) == 5 \
                             and splitstring[2] not in cfg.extractrange[slppos]:
                         cfg.extractrange[slppos][splitstring[2]] = [float(splitstring[3]),
                                                                     float(splitstring[4])]

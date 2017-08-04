@@ -35,9 +35,10 @@ def fuzzy_inference(cfg):
     start_t = time.time()
     simif = list()  # similarity file path of each slope position types
     for i, slppos in enumerate(cfg.slppostype):
+        if slppos not in cfg.inferparam:
+            cfg.inferparam[slppos] = dict()
         simif.append(cfg.singleslpposconf[slppos].fuzslppos)
         if cfg.flag_auto_inferenceparams:  # use automatically recommended parameters
-            cfg.inferparam[slppos] = dict()  # empty first
             params_list = read_inf_param_from_file(cfg.singleslpposconf[slppos].infrecommend)
             for p in params_list:
                 cfg.inferparam[slppos][p[0]] = p[1:]
@@ -88,9 +89,9 @@ def fuzzy_inference(cfg):
         config_info.write('OUTPUT\t%s\n' % cfg.singleslpposconf[slppos].fuzslppos)
         config_info.close()
 
-        # TauDEMExtension.fuzzyslpposinference(cfg.proc, cfg.ws.output_dir,
-        #                                      cfg.singleslpposconf[slppos].infconfig,
-        #                                      cfg.mpi_dir, cfg.bin_dir, cfg.log.all, cfg.hostfile)
+        TauDEMExtension.fuzzyslpposinference(cfg.proc, cfg.ws.output_dir,
+                                             cfg.singleslpposconf[slppos].infconfig,
+                                             cfg.mpi_dir, cfg.bin_dir, cfg.log.all, cfg.hostfile)
 
     TauDEMExtension.hardenslppos(cfg.proc, cfg.ws.output_dir, simif, cfg.slppostag,
                                  cfg.slpposresult.harden_slppos,
