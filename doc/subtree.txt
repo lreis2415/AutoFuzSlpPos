@@ -1,5 +1,5 @@
 # push
-git subtree push --prefix=seims/pygeoc pygeoc master
+git subtree push --prefix=autofuzslppos/pygeoc pygeoc master
 # pull
 git fetch pygeoc master
-git subtree pull --prefix=seims/pygeoc pygeoc master --squash
+git subtree pull --prefix=autofuzslppos/pygeoc pygeoc master --squash
