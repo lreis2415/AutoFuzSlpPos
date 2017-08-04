@@ -171,6 +171,8 @@ class StringClass(object):
                     for temp_s in temp_strs:
                         temp_s = StringClass.strip_string(temp_s)
                         # if temp_s != '':
+                        if isinstance(temp_s, unicode):
+                            temp_s = temp_s.encode()
                         dest_strs.append(temp_s)
                 src_strs = dest_strs[:]
                 dest_strs = []
@@ -328,9 +330,9 @@ class FileClass(object):
     def get_core_name_without_suffix(file_path):
         """Return core file name without suffix.
         Examples:
-            /home/zhulj/1990.01.30/test.01.tif ==> test.01
-            C:\zhulj\igsnrr\lreis.txt ==> lreis
-            /home/zhulj/dta/taudem/area8 ==> area8
+            r'/home/zhulj/1990.01.30/test.01.tif' ==> test.01
+            r'C:\zhulj\igsnrr\lreis.txt' ==> lreis
+            r'/home/zhulj/dta/taudem/area8' ==> area8
         """
         file_name = os.path.basename(file_path)
         core_names = file_name.split('.')[:-1]

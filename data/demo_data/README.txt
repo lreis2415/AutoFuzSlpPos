@@ -3,8 +3,7 @@ This is a small study area for testing AutoFuzSlpPos. The DEM data can be freely
 Data in this directory is organized as follows:
 -|data
 ---|README.txt
----|Jamaica_windows.ini: Windows version configuration file.
----|Jamaica_cluster.ini: Linux-cluster version configuration file.
+---|Jamaica_demo.ini: Windows version configuration file.
 ---|hostfile: Hostfile for cluster usage.
 ---|dem
 -----|Jamaica_dem.tif: The DEM of the study area as the only input file

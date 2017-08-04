@@ -17,13 +17,15 @@ from autofuzslppos.pygeoc.pygeoc.utils.utils import StringClass
 
 
 def extract_typical_location(cfg):
+    """Prepare configuration files for extracting typical location."""
     if not cfg.flag_selecttyploc:
         return 0
     start_t = time.time()
     for i, slppos in enumerate(cfg.slppostype):
         if cfg.flag_auto_typlocparams:  # automatically extract typical location
             # write extract ranges to initial configuration file
-            extconfig_info = open(cfg.singleslpposconf[slppos].extinitial, 'w')
+            cur_ext_conf = cfg.singleslpposconf[slppos].extinitial
+            extconfig_info = open(cur_ext_conf, 'w')
             extconfig_info.write('ProtoTag\t%d\n' % cfg.slppostag[i])
             abandon = list()  # abandoned terrain attributes (full file path)
             for vname, inf in cfg.infshape[slppos].iteritems():
@@ -31,17 +33,23 @@ def extract_typical_location(cfg):
                     abandon.append(vname)
             # print abandon
             param_num = 0
-            for param in cfg.extractrange[slppos]:
-                if param[0] not in abandon:
+            for param in cfg.selectedtopo:
+                if param not in abandon:
                     param_num += 1
             extconfig_info.write('ParametersNUM\t%d\n' % param_num)
-            for vname, vrange in cfg.extractrange[slppos].iteritems():
-                if vname in cfg.selectedtopo and vname not in abandon:
+            for vname, vpath in cfg.selectedtopo.iteritems():
+                if vname in abandon:
+                    continue
+                if vname in cfg.extractrange[slppos] and vname not in abandon:
+                    vrange = cfg.extractrange[slppos][vname]
                     extconfig_info.write('Parameters\t%s\t%s\t%f\t%f\n' %
-                                         (vname, cfg.selectedtopo[vname], vrange[0], vrange[1]))
+                                         (vname, vpath, vrange[0], vrange[1]))
+                else:
+                    extconfig_info.write('Parameters\t%s\t%s\t%f\t%f\n' %
+                                         (vname, vpath, 0, 0))
             extconfig_info.write('OUTPUT\t%s\n' % cfg.singleslpposconf[slppos].typloc)
             for vname, inf in cfg.infshape[slppos].iteritems():
-                if StringClass.string_match(inf, 'N'):
+                if not StringClass.string_match(inf, 'N'):
                     extconfig_info.write('FuzInfShp\t%s\t%s\n' % (vname, inf))
             base_input_param = 'BaseInput\t'
             base_input_param += '\t'.join(str(p) for p in cfg.param4typloc[slppos])
@@ -58,8 +66,8 @@ def extract_typical_location(cfg):
                     infos = extconfig_info.readlines()
                 for line in infos:
                     splitstring = StringClass.split_string(line.split('\n')[0], '\t')
-                    if StringClass.string_match(splitstring[0], 'Parameters')\
-                            and len(splitstring) == 5\
+                    if StringClass.string_match(splitstring[0], 'Parameters') \
+                            and len(splitstring) == 5 \
                             and splitstring[2] not in cfg.extractrange[slppos]:
                         cfg.extractrange[slppos][splitstring[2]] = [float(splitstring[3]),
                                                                     float(splitstring[4])]
@@ -75,7 +83,7 @@ def extract_typical_location(cfg):
                 extconfig_info.close()
 
         TauDEMExtension.selecttyplocslppos(cfg.proc, cfg.ws.typloc_dir,
-                                           cfg.singleslpposconf[slppos].extconfig,
+                                           cur_ext_conf,
                                            cfg.singleslpposconf[slppos].infrecommend,
                                            cfg.singleslpposconf[slppos].extlog,
                                            cfg.mpi_dir, cfg.bin_dir, cfg.log.all, cfg.hostfile)

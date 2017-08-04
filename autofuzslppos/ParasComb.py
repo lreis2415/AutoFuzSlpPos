@@ -35,21 +35,20 @@ def read_ext_conf(ext_file):
 
 
 def combine_ext_conf_parameters(slppostypes, extconf_dict, combinedconf):
+    """Combine extraction configuration parameters to a single file."""
     ext_conf_lines = list()
     ext_conf_lines.append([' '])
     for slppos in slppostypes:
         temp_ext_data = read_ext_conf(extconf_dict[slppos].extconfig)
         temp_ext_conf_line = [slppos]
-        for i in range(temp_ext_data[0]):
-            temp_ext_conf_line.append(' ')
+        temp_ext_conf_line += [''] * temp_ext_data[0]
         for i in range(temp_ext_data[0]):
             if temp_ext_data[i + 1][0] not in ext_conf_lines[0]:
                 ext_conf_lines[0].append(temp_ext_data[i + 1][0])
             idx = ext_conf_lines[0].index(temp_ext_data[i + 1][0])
             if idx >= len(temp_ext_conf_line):
-                for j in range(idx - len(temp_ext_conf_line) + 1):
-                    temp_ext_conf_line.append(' ')
-            temp_ext_conf_line[idx] = "[" + temp_ext_data[i + 1][1] + ", " +\
+                temp_ext_conf_line += [''] * (idx - len(temp_ext_conf_line) + 1)
+            temp_ext_conf_line[idx] = "[" + temp_ext_data[i + 1][1] + ", " + \
                                       temp_ext_data[i + 1][2] + "]"
         ext_conf_lines.append(temp_ext_conf_line)
     # print extConfLines
@@ -62,6 +61,7 @@ def combine_ext_conf_parameters(slppostypes, extconf_dict, combinedconf):
 
 
 def read_inf_conf(ext_file):
+    """Read fuzzy inference configuration file."""
     f = open(ext_file)
     lines = f.readlines()
     f.close()
@@ -84,33 +84,32 @@ def read_inf_conf(ext_file):
 
 
 def combine_inf_conf_parameters(slppostypes, infconf_dict, combinedconf):
+    """Combine fuzzy inference configuration parameters to a single file."""
     inf_conf_lines = list()
     inf_conf_lines.append([' '])
     for slppos in slppostypes:
         temp_inf_data = read_inf_conf(infconf_dict[slppos].infconfig)
         temp_inf_conf_line = [slppos]
-        for i in range(temp_inf_data[0]):
-            temp_inf_conf_line.append(' ')
+        temp_inf_conf_line += [''] * temp_inf_data[0]
         for i in range(temp_inf_data[0]):
             if temp_inf_data[i + 1][0] not in inf_conf_lines[0]:
                 inf_conf_lines[0].append(temp_inf_data[i + 1][0])
             idx = inf_conf_lines[0].index(temp_inf_data[i + 1][0])
             if idx >= len(temp_inf_conf_line):
-                for j in range(idx - len(temp_inf_conf_line) + 1):
-                    temp_inf_conf_line.append(' ')
+                temp_inf_conf_line += [''] * (idx - len(temp_inf_conf_line) + 1)
             if temp_inf_data[i + 1][1] == 'B':
                 if temp_inf_data[i + 1][2] == temp_inf_data[i + 1][3]:
                     temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ": w1 = w2 = " + \
-                                           temp_inf_data[i + 1][2]
+                                              temp_inf_data[i + 1][2]
                 else:
-                    temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ": w1 = " +\
+                    temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ": w1 = " + \
                                               temp_inf_data[i + 1][2] + ", w2 = " + \
                                               temp_inf_data[i + 1][3]
             elif temp_inf_data[i + 1][1] == 'S':
-                temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ": w1 = " +\
+                temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ": w1 = " + \
                                           temp_inf_data[i + 1][2]
             else:
-                temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ": w2 = " +\
+                temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ": w2 = " + \
                                           temp_inf_data[i + 1][3]
         inf_conf_lines.append(temp_inf_conf_line)
     # print infConfLines

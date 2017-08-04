@@ -42,7 +42,7 @@ def pre_processing(cfg):
             drpf.close()
         print (cfg.d8_stream_thresh)
         TauDEMExtension.areadinf(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinf,
-                                 cfg.pretaudem.dinfacc_weight, cfg.pretaudem.outlet_m,
+                                 cfg.pretaudem.dinfacc_weight, None,  # cfg.pretaudem.outlet_m,
                                  cfg.pretaudem.stream_pd, 'false',
                                  cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
         TauDEMExtension.threshold(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinfacc_weight,
@@ -70,13 +70,12 @@ def pre_processing(cfg):
                                                cfg.log.preproc, cfg.hostfile)
             TauDEMExtension.d8distuptoridge(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.d8flow,
                                             cfg.pretaudem.filldem, cfg.ridge,
-                                            cfg.pretaudem.distup2rdg, cfg.d8_down_method,
-                                            cfg.d8_stream_thresh, cfg.mpi_dir,
-                                            cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
+                                            cfg.pretaudem.distup2rdg, cfg.d8_up_method,
+                                            cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
         elif cfg.flow_model == 1:  # Dinf model
             # Dinf distance down
             TauDEMExtension.dinfdistdown(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinf,
-                                         cfg.pretaudem.filldem, cfg.valley,
+                                         cfg.pretaudem.filldem, cfg.pretaudem.dinf_slp, cfg.valley,
                                          cfg.dinf_down_stat, cfg.dinf_down_method,
                                          'false', cfg.dinf_dist_down_wg,
                                          cfg.pretaudem.dist2stream,
@@ -105,9 +104,9 @@ def pre_processing(cfg):
                                     cfg.pretaudem.dist2stream_ed, cfg.pretaudem.dist2rdg_ed,
                                     cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
     log_status.write("Calculating Horizontal Curvature and Profile Curvature...\n")
-    TauDEMExtension.curvature(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.filldem, cfg.ridge,
+    TauDEMExtension.curvature(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.filldem,
                               cfg.topoparam.profc, cfg.topoparam.horizc,
-                              None, None, None, None,
+                              None, None, None, None, None,
                               cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
 
     if cfg.flow_model == 0:
@@ -119,6 +118,7 @@ def pre_processing(cfg):
     else:
         copy2(cfg.pretaudem.rpi_skidmore, cfg.topoparam.rpi)
     copy2(cfg.pretaudem.dist2stream_v, cfg.topoparam.hand)
+    copy2(cfg.pretaudem.filldem, cfg.topoparam.elev)
 
     log_status.write("Preprocessing succeed!\n")
     end_t = time.time()

@@ -10,7 +10,7 @@
 import os
 
 from autofuzslppos.pygeoc.pygeoc.hydro.TauDEM import TauDEMFilesUtils
-from autofuzslppos.pygeoc.pygeoc.utils.utils import UtilClass, FileClass
+from autofuzslppos.pygeoc.pygeoc.utils.utils import UtilClass, StringClass
 
 
 class CreateWorkspace(object):
@@ -81,26 +81,41 @@ class TopoAttrNames(object):
 
     def __init__(self, ws):
         """Initialization."""
-        self.rpi = ws.param_dir + os.sep + 'RPI.tif'
-        self.profc = ws.param_dir + os.sep + 'ProfC.tif'
-        self.horizc = ws.param_dir + os.sep + 'HorizC.tif'
-        self.slope = ws.param_dir + os.sep + 'Slp.tif'
-        self.hand = ws.param_dir + os.sep + 'HAND.tif'
-        self.elev = ws.pre_dir + os.sep + 'demfil.tif'
+        self.rpi = ws.param_dir + os.sep + 'rpi.tif'
+        self.profc = ws.param_dir + os.sep + 'profc.tif'
+        self.horizc = ws.param_dir + os.sep + 'horizc.tif'
+        self.slope = ws.param_dir + os.sep + 'slp.tif'
+        self.hand = ws.param_dir + os.sep + 'hand.tif'
+        self.elev = ws.param_dir + os.sep + 'elev.tif'
         self.pre_derived_terrain_attrs = {'rpi': self.rpi, 'profc': self.profc,
                                           'horizc': self.horizc, 'slp': self.slope,
                                           'hand': self.hand, 'elev': self.elev}
         self.region_attrs = ['rpi']
 
-    def add_user_defined_attribute(self, topoattr_file, is_regional=True):
+    def add_user_defined_attribute(self, toponame, topoattr_file, is_regional=True):
         """Add regional attribute specified by user, and return the key value (i.e., filename)."""
-        core_name = FileClass.get_core_name_without_suffix(topoattr_file)
-        if core_name in self.pre_derived_terrain_attrs:
-            raise ValueError("The name (%s) is already existed in predefined topographic "
-                             "attributes directory, please change another one!" % core_name)
-        self.pre_derived_terrain_attrs[core_name] = topoattr_file
         if is_regional:
-            self.region_attrs.append(core_name)
+            toponame = 'rpi'
+        self.pre_derived_terrain_attrs[toponame] = topoattr_file
+
+    def get_attr_file(self, attrname):
+        """Get the file path of pre-prepared topographic attribute."""
+        if StringClass.string_match(attrname, 'rpi'):
+            return self.rpi
+        elif StringClass.string_match(attrname, 'profc'):
+            return self.profc
+        elif StringClass.string_match(attrname, 'horizc'):
+            return self.horizc
+        elif StringClass.string_match(attrname, 'slp'):
+            return self.slope
+        elif StringClass.string_match(attrname, 'elev'):
+            return self.elev
+        elif StringClass.string_match(attrname, 'hand'):
+            return self.hand
+        else:
+            return None
+            # raise RuntimeError("%s is not prepared by default, please provided "
+            #                    "with it's filepath!" % attrname)
 
 
 class SingleSlpPosFiles(object):

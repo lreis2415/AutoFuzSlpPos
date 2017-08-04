@@ -33,17 +33,22 @@ def slope_rad_to_deg(tanslp, slp):
 
 
 def write_log(logfile, contentlist):
+    """Write string or string list to log file."""
     if os.path.exists(logfile):
         log_status = open(logfile, 'a')
     else:
         log_status = open(logfile, 'w')
-    for content in contentlist:
-        log_status.write("%s\n" % content)
+    if isinstance(contentlist, list) or isinstance(contentlist, tuple):
+        for content in contentlist:
+            log_status.write("%s\n" % content)
+    else:
+        log_status.write("%s\n" % contentlist)
     log_status.flush()
     log_status.close()
 
 
 def write_time_log(logfile, time):
+    """Write time log."""
     if os.path.exists(logfile):
         log_status = open(logfile, 'a')
     else:
@@ -53,6 +58,26 @@ def write_time_log(logfile, time):
                                                  time['writet'], time['totalt']))
     log_status.flush()
     log_status.close()
+
+
+def output_runtime_to_log(title, lines, logfile):
+    content_list = []
+    time_dict = {'name': None, 'readt': 0, 'writet': 0, 'computet': 0, 'totalt': 0}
+    time_dict['name'] = title
+    content_list.append('\n')
+    content_list.append("#### %s ####" % title)
+    for line in lines:
+        content_list.append(line.split(os.linesep)[0])
+        # print line
+        if line.find("Read time") >= 0:
+            time_dict['readt'] = line.split(os.linesep)[0].split(':')[-1]
+        elif line.find("Compute time") >= 0:
+            time_dict['computet'] = line.split(os.linesep)[0].split(':')[-1]
+        elif line.find("Write time") >= 0:
+            time_dict['writet'] = line.split(os.linesep)[0].split(':')[-1]
+        elif line.find("Total time") >= 0:
+            time_dict['totalt'] = line.split(os.linesep)[0].split(':')[-1]
+    write_time_log(logfile, time_dict)
 
 
 def main():
