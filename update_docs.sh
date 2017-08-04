@@ -8,7 +8,8 @@ cd ../..
 # commit and push
 git add -A
 git commit -m "building and pushing docs"
-git push -u origin master
+# there is no need to push changes to master.
+#git push -u origin master
 # switch branches and pull the data we want
 git checkout gh-pages
 touch .nojekyll
