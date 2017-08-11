@@ -23,12 +23,18 @@ from autofuzslppos.pygeoc.pygeoc.utils.utils import FileClass
 def pre_processing(cfg):
     if not cfg.flag_preprocess:
         return 0
+    single_basin = False
+    if cfg.outlet is not None:
+        single_basin = True
     start_t = time.time()
     # Watershed delineation based on D8 flow model.
     TauDEMWorkflow.watershed_delineation(cfg.bin_dir, cfg.mpi_dir, cfg.proc, cfg.dem, cfg.outlet,
                                          cfg.d8_stream_thresh, cfg.d8_down_method, cfg.pretaudem,
                                          logfile=cfg.log.preproc, hostfile=cfg.hostfile)
-
+    # use outlet_m or not
+    outlet_use = None
+    if single_basin:
+        outlet_use = cfg.pretaudem.outlet_m
     log_status = open(cfg.log.preproc, 'a')
     log_status.write("Calculating RPI(Relative Position Index)...\n")
     log_status.flush()
@@ -42,7 +48,7 @@ def pre_processing(cfg):
             drpf.close()
         print (cfg.d8_stream_thresh)
         TauDEMExtension.areadinf(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinf,
-                                 cfg.pretaudem.dinfacc_weight, None,  # cfg.pretaudem.outlet_m,
+                                 cfg.pretaudem.dinfacc_weight, outlet_use,
                                  cfg.pretaudem.stream_pd, 'false',
                                  cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
         TauDEMExtension.threshold(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinfacc_weight,
