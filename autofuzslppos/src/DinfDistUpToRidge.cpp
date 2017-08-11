@@ -1,17 +1,23 @@
-/*  DinfDistUp function to compute distance to ridge in DEM 
+/*  DinfDistUpToRidge function to compute distance to ridge in DEM 
     based on D-infinity flow direction model, ridge is
 	assigned by user.
      
   Liangjun, Zhu
   Lreis, CAS  
   Apr 2, 2015 
+
+    Changelog: 17-08-09  lj - There are two circumstances will end the search for upstream ridge
+                              for a cell: 
+                                1) trace upstream and reach a ridge;
+                                2) trace upstream and the terminal cell is not flagged as a ridge,
+                                   then find the nearest ridge around this cell. In this case, the
+                                   distance (h, v, or s) are summed up by two distances.
   
 */
 #include <mpi.h>
 #include <math.h>
 #include <queue>
 #include "commonLib.h"
-//#include "linearpart.h"
 #include "createpart.h"
 #include "tiffIO.h"
 #include "DinfDistUpToRidge.h"
@@ -311,14 +317,14 @@ int hdisttoridgegrd(char *angfile, char *rdgfile, char *wfile, char *rtrfile, in
         write = writet - computet;
         total = writet - begint;
 
-        MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        dataRead = tempd / size;
-        MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        compute = tempd / size;
-        MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        write = tempd / size;
-        MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        total = tempd / size;
+        MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+        dataRead = tempd;
+        MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+        compute = tempd;
+        MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+        write = tempd;
+        MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+        total = tempd;
 
         if (rank == 0)
             printf("Processors: %d\nRead time: %f\nCompute time: %f\nWrite time: %f\nTotal time: %f\n",
@@ -351,7 +357,7 @@ int vrisetoridgegrd(char *angfile, char *felfile, char *rdgfile, char *rtrfile, 
         int rank, size;
         MPI_Comm_rank(MCW, &rank);
         MPI_Comm_size(MCW, &size);
-        if (rank == 0)printf("DinfDistUp -v version %s\n", TDVERSION);
+        if (rank == 0)printf("DinfDistUpToRidge -v version %s\n", TDVERSION);
 
         float wt = 1.0, angle, sump, distr, dtss, elv, elvn, distk;
         double p;
@@ -597,14 +603,14 @@ int vrisetoridgegrd(char *angfile, char *felfile, char *rdgfile, char *rtrfile, 
         write = writet - computet;
         total = writet - begint;
 
-        MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        dataRead = tempd / size;
-        MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        compute = tempd / size;
-        MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        write = tempd / size;
-        MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        total = tempd / size;
+        MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+        dataRead = tempd;
+        MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+        compute = tempd;
+        MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+        write = tempd;
+        MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+        total = tempd;
 
         if (rank == 0)
             printf("Processors: %d\nRead time: %f\nCompute time: %f\nWrite time: %f\nTotal time: %f\n",
@@ -630,7 +636,7 @@ int pdisttoridgegrd(char *angfile, char *felfile, char *rdgfile, char *wfile, ch
         int rank, size;
         MPI_Comm_rank(MCW, &rank);
         MPI_Comm_size(MCW, &size);
-        if (rank == 0)printf("DinfDistUp -p version %s\n", TDVERSION);
+        if (rank == 0)printf("DinfDistUpToRidge -p version %s\n", TDVERSION);
 
         float wt = 1.0, angle, sump, distrh, distrv, dtssh, dtssv, elvn, elv, distk;
         double p;
@@ -952,14 +958,14 @@ int pdisttoridgegrd(char *angfile, char *felfile, char *rdgfile, char *wfile, ch
         write = writet - computet;
         total = writet - begint;
 
-        MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        dataRead = tempd / size;
-        MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        compute = tempd / size;
-        MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        write = tempd / size;
-        MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-        total = tempd / size;
+        MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+        dataRead = tempd;
+        MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+        compute = tempd;
+        MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+        write = tempd;
+        MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
+        total = tempd;
 
         if (rank == 0)
             printf("Processors: %d\nRead time: %f\nCompute time: %f\nWrite time: %f\nTotal time: %f\n",
@@ -986,7 +992,7 @@ int sdisttoridgegrd(char *angfile, char *felfile, char *rdgfile, char *wfile, ch
         int rank, size;
         MPI_Comm_rank(MCW, &rank);
         MPI_Comm_size(MCW, &size);
-        if (rank == 0)printf("DinfDistUp -s version %s\n", TDVERSION);
+        if (rank == 0)printf("DinfDistUpToRidge -s version %s\n", TDVERSION);
 
         float wt = 1.0, angle, sump, distr, dtss, elvn, elv, distk;
         double p;
@@ -1271,15 +1277,6 @@ int sdisttoridgegrd(char *angfile, char *felfile, char *rdgfile, char *wfile, ch
         compute = computet - readt;
         write = writet - computet;
         total = writet - begint;
-
-		//MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//dataRead = tempd / size;
-		//MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//compute = tempd / size;
-		//MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//write = tempd / size;
-		//MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//total = tempd / size;
 
 		MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
 		dataRead = tempd;

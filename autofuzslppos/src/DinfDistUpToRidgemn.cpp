@@ -8,14 +8,11 @@
   
 */
 
-//#include <time.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "commonLib.h"
-//#include "tardemlib.h"
 #include "DinfDistUpToRidge.h"
-//========================
 
 int main(int argc, char **argv)
 {

@@ -1,17 +1,3 @@
-/*!
- * \date 2016/11/21
- *
- * \author Liangjun Zhu
- * Contact: zlj@lreis.ac.cn
- *
- * \brief FuzzySlpPosInference is used to calculate similarity to a kind of slope position
-    according to several parameters grid, typical location, and fuzzy inference function.
-	Reference:
- *
- *
- * \note 
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
