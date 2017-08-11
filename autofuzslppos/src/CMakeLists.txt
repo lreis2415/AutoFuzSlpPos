@@ -64,7 +64,6 @@ set(TAUDEM_TARGETS aread8
         d8flowdir
         d8distdowntostream
         dinfdistdown
-        dinfdistuptoridge
         dinfflowdir
         peukerdouglas
         dropanalysis
@@ -76,6 +75,7 @@ set(TAUDEM_TARGETS aread8
 
 set(MY_TARGETS curvature
         d8distuptoridge
+        dinfdistuptoridge
         fuzzyslpposinference
         hardenslppos
         selecttyplocslppos
