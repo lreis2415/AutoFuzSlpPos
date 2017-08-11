@@ -1,11 +1,10 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """Utility Classes and Functions
-
-    author: Liangjun Zhu
-    changlog: 12-04-12 jz - origin version
-              16-07-01 lj - reorganized for pygeoc
-              17-06-25 lj - check by pylint and reformat by Google style
+    @author: Liangjun Zhu
+    @changlog: 12-04-12 jz - origin version
+               16-07-01 lj - reorganized for pygeoc
+               17-06-25 lj - check by pylint and reformat by Google style
 """
 
 import argparse
@@ -18,6 +17,7 @@ import sys
 import time
 from math import sqrt
 from shutil import copy, rmtree
+import re
 
 sysstr = platform.system()
 
@@ -133,6 +133,22 @@ class StringClass(object):
         pass
 
     @staticmethod
+    def convert_unicode2str(unicode_str):
+        """convert the input string or string list which is unicode to string."""
+        if isinstance(unicode_str, unicode):
+            return unicode_str.encode()
+        elif isinstance(unicode_str, tuple) or isinstance(unicode_str, list):
+            new_strs = list()
+            for u_str in unicode_str:
+                if isinstance(u_str, unicode):
+                    new_strs.append(u_str.encode())
+                else:
+                    new_strs.append(u_str)
+            return new_strs
+        else:  # if not supported, return what it is
+            return unicode_str
+
+    @staticmethod
     def string_match(str1, str2):
         """Compare two string regardless capital or not"""
         return str1.lower() == str2.lower()
@@ -170,6 +186,8 @@ class StringClass(object):
                     for temp_s in temp_strs:
                         temp_s = StringClass.strip_string(temp_s)
                         # if temp_s != '':
+                        if isinstance(temp_s, unicode):
+                            temp_s = temp_s.encode()
                         dest_strs.append(temp_s)
                 src_strs = dest_strs[:]
                 dest_strs = []
@@ -200,6 +218,30 @@ class StringClass(object):
         except Exception:
             return False
 
+    @staticmethod
+    def extract_numeric_values_from_string(str_contains_values):
+        """
+        Find numeric values from string, e.g., 1, .7, 1.2, 4e2, 3e-3, -9, etc.
+        reference: https://stackoverflow.com/questions/4703390/
+                           how-to-extract-a-floating-number-from-a-string-in-python/4703508#4703508
+        Examples:
+            ".1 .12 9.1 98.1 1. 12. 1 12" ==> [0.1, 0.12, 9.1, 98.1, 1.0, 12.0, 1.0, 12.0]
+            "-1 +1 2e9 +2E+09 -2e-9" ==> [-1.0, 1.0, 2000000000.0, 2000000000.0, -2e-09]
+            "current level: -2.03e+99db" ==> [-2.03e+99]
+        Args:
+            str_contains_values: string which may contains numeric values
+
+        Returns:
+            list of numeric values
+        """
+        numeric_const_pattern = r'[-+]?(?:(?:\d*\.\d+)|(?:\d+\.?))(?:[Ee][+-]?\d+)?'
+        rx = re.compile(numeric_const_pattern, re.VERBOSE)
+        value_strs = rx.findall(str_contains_values)
+        if len(value_strs) == 0:
+            return None
+        else:
+            return [float(v) for v in value_strs]
+
 
 class FileClass(object):
     """File IO related"""
@@ -210,8 +252,16 @@ class FileClass(object):
 
     @staticmethod
     def is_file_exists(filename):
-        """Check the existence of file or folder path"""
-        if filename is None or not os.path.exists(filename):
+        """Check the existence of file path."""
+        if filename is None or not os.path.exists(filename) or not os.path.isfile(filename):
+            return False
+        else:
+            return True
+
+    @staticmethod
+    def is_dir_exists(dirpath):
+        """Check the existence of folder path."""
+        if dirpath is None or not os.path.exists(dirpath) or not os.path.isdir(dirpath):
             return False
         else:
             return True
@@ -261,7 +311,10 @@ class FileClass(object):
         if findout == [] or len(findout) == 0:
             print ("%s is not included in the env path" % name)
             exit(-1)
-        return findout[0].split('\n')[0]
+        first_path = findout[0].split('\n')[0]
+        if os.path.exists(first_path):
+            return first_path
+        return None
 
     @staticmethod
     def get_filename_by_suffixes(dir_src, suffixes):
@@ -300,9 +353,9 @@ class FileClass(object):
     def get_core_name_without_suffix(file_path):
         """Return core file name without suffix.
         Examples:
-            /home/zhulj/1990.01.30/test.01.tif ==> test.01
-            C:\zhulj\igsnrr\lreis.txt ==> lreis
-            /home/zhulj/dta/taudem/area8 ==> area8
+            r'/home/zhulj/1990.01.30/test.01.tif' ==> test.01
+            r'C:\zhulj\igsnrr\lreis.txt' ==> lreis
+            r'/home/zhulj/dta/taudem/area8' ==> area8
         """
         file_name = os.path.basename(file_path)
         core_names = file_name.split('.')[:-1]
@@ -310,6 +363,18 @@ class FileClass(object):
             return '.'.join(core_names)
         else:
             return core_names
+
+    @staticmethod
+    def add_postfix(file_path, postfix):
+        """Add postfix for a full file path.
+
+        Examples:
+            input: '/home/zhulj/dem.tif', 'filled'
+            output: '/home/zhulj/dem_filled.tif'
+        """
+        corename = FileClass.get_core_name_without_suffix(file_path)
+        suffix = os.path.basename(file_path).split('.')[-1]
+        return os.path.dirname(file_path) + os.sep + corename + '_' + postfix + '.' + suffix
 
 
 class DateClass(object):
@@ -362,21 +427,37 @@ class UtilClass(object):
         Returns:
             output lines
         """
+        commands = StringClass.convert_unicode2str(commands)
         print (commands)
+
         use_shell = False
-        if isinstance(commands, list) or isinstance(commands, tuple):
-            use_shell = False
-            commands = ' '.join(c for c in commands)
+        subprocess_flags = 0
+        startupinfo = None
         if sysstr == 'Windows':
+            if isinstance(commands, list) or isinstance(commands, tuple):
+                commands = ' '.join(c for c in commands)
             import ctypes
             SEM_NOGPFAULTERRORBOX = 0x0002  # From MSDN
             ctypes.windll.kernel32.SetErrorMode(SEM_NOGPFAULTERRORBOX)
             subprocess_flags = 0x8000000  # win32con.CREATE_NO_WINDOW?
-        else:
-            subprocess_flags = 0
+            # this startupinfo structure prevents a console window from popping up on Windows
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            # not sure if node outputs on stderr or stdout so capture both
+        else:  # for Linux/Unix OS, commands is better to be a list.
+            if isinstance(commands, str):
+                use_shell = True
+                # https://docs.python.org/2/library/subprocess.html
+                #     Using shell=True can be a security hazard.
+            elif isinstance(commands, list) or isinstance(commands, tuple):
+                # the executable path may be enclosed with quotes, if not windows, delete the quotes
+                if commands[0][0] == commands[0][-1] == '"' or \
+                                        commands[0][0] == commands[0][-1] == "'":
+                    commands[0] = commands[0][1:-1]
         process = subprocess.Popen(commands, shell=use_shell, stdout=subprocess.PIPE,
                                    stdin=open(os.devnull),
                                    stderr=subprocess.STDOUT, universal_newlines=True,
+                                   startupinfo=startupinfo,
                                    creationflags=subprocess_flags)
 
         if process.stdout is None:
