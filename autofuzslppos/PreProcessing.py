@@ -18,19 +18,44 @@ from autofuzslppos.TauDEMExtension import TauDEMExtension
 from autofuzslppos.Util import slope_rad_to_deg
 from autofuzslppos.pygeoc.pygeoc.hydro.TauDEM import TauDEMWorkflow
 from autofuzslppos.pygeoc.pygeoc.utils.utils import FileClass
+from autofuzslppos.pygeoc.pygeoc.raster.raster import RasterUtilClass
+
+
+def check_watershed_delineation_results(cfg):
+    """Check if watershed_delineation is need to run."""
+    if not FileClass.is_file_exists(cfg.pretaudem.filldem):
+        return False
+    if not FileClass.is_file_exists(cfg.pretaudem.outlet_m):
+        return False
+    if cfg.d8_stream_thresh <= 0 and not FileClass.is_file_exists(cfg.pretaudem.drptxt):
+        return False
+    if not FileClass.is_file_exists(cfg.pretaudem.d8flow):
+        return False
+    if cfg.flow_model == 1:
+        if not FileClass.is_file_exists(cfg.pretaudem.dinf):
+            return False
+        if not FileClass.is_file_exists(cfg.pretaudem.dinf_slp):
+            return False
+        if not FileClass.is_file_exists(cfg.pretaudem.stream_pd):
+            return False
+    return True
 
 
 def pre_processing(cfg):
+    start_t = time.time()
     if not cfg.flag_preprocess:
         return 0
     single_basin = False
     if cfg.outlet is not None:
         single_basin = True
-    start_t = time.time()
-    # Watershed delineation based on D8 flow model.
-    TauDEMWorkflow.watershed_delineation(cfg.bin_dir, cfg.mpi_dir, cfg.proc, cfg.dem, cfg.outlet,
-                                         cfg.d8_stream_thresh, cfg.d8_down_method, cfg.pretaudem,
-                                         logfile=cfg.log.preproc, hostfile=cfg.hostfile)
+    pretaudem_done = check_watershed_delineation_results(cfg)
+    if cfg.valley is None or not FileClass.is_file_exists(cfg.valley) or not pretaudem_done:
+        cfg.valley = cfg.pretaudem.stream_raster
+        # Watershed delineation based on D8 flow model.
+        TauDEMWorkflow.watershed_delineation(cfg.bin_dir, cfg.mpi_dir, cfg.proc, cfg.dem,
+                                             cfg.outlet, cfg.d8_stream_thresh, cfg.d8_down_method,
+                                             cfg.pretaudem, logfile=cfg.log.preproc,
+                                             hostfile=cfg.hostfile, singlebasin=single_basin)
     # use outlet_m or not
     outlet_use = None
     if single_basin:
@@ -38,23 +63,22 @@ def pre_processing(cfg):
     log_status = open(cfg.log.preproc, 'a')
     log_status.write("Calculating RPI(Relative Position Index)...\n")
     log_status.flush()
-    if cfg.valley is None or not FileClass.is_file_exists(cfg.valley):
-        cfg.valley = cfg.pretaudem.stream_raster
     if cfg.flow_model == 1:  # Dinf model, extract stream using the D8 threshold
-        if cfg.d8_stream_thresh <= 0:
-            drpf = open(cfg.pretaudem.drptxt, "r")
-            temp_contents = drpf.read()
-            (beg, cfg.d8_stream_thresh) = temp_contents.rsplit(' ', 1)
-            drpf.close()
-        print (cfg.d8_stream_thresh)
-        TauDEMExtension.areadinf(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinf,
-                                 cfg.pretaudem.dinfacc_weight, outlet_use,
-                                 cfg.pretaudem.stream_pd, 'false',
-                                 cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
-        TauDEMExtension.threshold(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinfacc_weight,
-                                  cfg.pretaudem.stream_dinf, float(cfg.d8_stream_thresh),
-                                  cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
-        cfg.valley = cfg.pretaudem.stream_dinf
+        if cfg.valley is None or not FileClass.is_file_exists(cfg.valley):
+            if cfg.d8_stream_thresh <= 0:
+                drpf = open(cfg.pretaudem.drptxt, "r")
+                temp_contents = drpf.read()
+                (beg, cfg.d8_stream_thresh) = temp_contents.rsplit(' ', 1)
+                drpf.close()
+            print (cfg.d8_stream_thresh)
+            TauDEMExtension.areadinf(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinf,
+                                     cfg.pretaudem.dinfacc_weight, outlet_use,
+                                     cfg.pretaudem.stream_pd, 'false',
+                                     cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
+            TauDEMExtension.threshold(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinfacc_weight,
+                                      cfg.pretaudem.stream_dinf, float(cfg.d8_stream_thresh),
+                                      cfg.mpi_dir, cfg.bin_dir, cfg.log.preproc, cfg.hostfile)
+            cfg.valley = cfg.pretaudem.stream_dinf
         # calculate Height Above the Nearest Drainage (HAND)
         TauDEMExtension.dinfdistdown(cfg.proc, cfg.ws.pre_dir, cfg.pretaudem.dinf,
                                      cfg.pretaudem.filldem, cfg.pretaudem.dinf_slp, cfg.valley,
@@ -126,6 +150,9 @@ def pre_processing(cfg):
     copy2(cfg.pretaudem.dist2stream_v, cfg.topoparam.hand)
     copy2(cfg.pretaudem.filldem, cfg.topoparam.elev)
 
+    if single_basin:  # clip RPI
+        RasterUtilClass.mask_raster(cfg.topoparam.rpi, cfg.pretaudem.subbsn, cfg.topoparam.rpi)
+
     log_status.write("Preprocessing succeed!\n")
     end_t = time.time()
     cost = (end_t - start_t) / 60.
@@ -141,7 +168,6 @@ def main():
     """TEST CODE"""
     fuzslppos_cfg = get_input_cfgs()
     pre_processing(fuzslppos_cfg)
-
 
 if __name__ == '__main__':
     main()
