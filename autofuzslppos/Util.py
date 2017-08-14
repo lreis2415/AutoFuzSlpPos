@@ -82,7 +82,13 @@ def output_runtime_to_log(title, lines, logfile):
 
 def main():
     """TEST CODE"""
-    pass
+    inf = r'C:\z_data_m\SEIMS2017\fuzslppos_ywz10m\slope_position_units\SLOPPOSITION.tif'
+    # inr = RasterUtilClass.read_raster(inf)
+    # inr.data[inr.data > 0] = 1.
+    # RasterUtilClass.write_gtiff_file(inf, inr.nRows, inr.nCols, inr.data,
+    #                                  inr.geotrans, inr.srs, inr.noDataValue,
+    #                                  inr.dataType)
+    RasterUtilClass.raster_to_gtiff(inf, inf, True, True)
 
 
 if __name__ == '__main__':
