@@ -42,13 +42,17 @@ def fuzzy_inference(cfg):
             params_list = read_inf_param_from_file(cfg.singleslpposconf[slppos].infrecommend)
             for p in params_list:
                 cfg.inferparam[slppos][p[0]] = p[1:]
-        else:  # keep cfg.inferparam[slppos] as it is, and read infconfig as supplement
+        else:  # keep cfg.inferparam[slppos] as it is, and read infconfig for update
             params_list = read_inf_param_from_file(cfg.singleslpposconf[slppos].infconfig)
             for p in params_list:
-                if not p[0] in cfg.inferparam[slppos]:
-                    cfg.inferparam[slppos][p[0]] = p[1:]
-                if not p[0] in cfg.selectedtopo:
-                    cfg.selectedtopo[p[0]] = p[1]
+                # for update
+                cfg.inferparam[slppos][p[0]] = p[1:]
+                cfg.selectedtopo[p[0]] = p[1]
+                # # for supplement
+                # if not p[0] in cfg.inferparam[slppos]:
+                #     cfg.inferparam[slppos][p[0]] = p[1:]
+                # if not p[0] in cfg.selectedtopo:
+                #     cfg.selectedtopo[p[0]] = p[1]
 
     # In current version, all regional attribute named as 'rpi'
     # Set fuzzy inference parameters for 'rpi' if it does not existed.

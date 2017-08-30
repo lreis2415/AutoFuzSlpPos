@@ -14,8 +14,13 @@
 
 struct SourcePt
 {
-	int col,row;
+    int col;
+    int row;
 };
+inline bool operator==(const SourcePt& n1, const SourcePt& n2)
+{
+    return (n1.col == n2.col) && (n1.row == n2.row);
+}
 template<typename T>
 bool coorInList(T col, T row, T*  coors, int count)
 {

@@ -297,10 +297,30 @@ class RidgeSourceExtraction(object):
         RasterUtilClass.write_gtiff_file(self.boundsrcfilter, self.nrows, self.ncols, self.rdgpot,
                                          self.geotrans, self.srs, DEFAULT_NODATA, 6)
 
+    def filter_ridge_by_subbasin_boundary(self):
+        for row in range(self.nrows):
+            for col in range(self.ncols):
+                if MathClass.floatequal(self.rdgsrc_data[row][col], DEFAULT_NODATA):
+                    continue
+                if MathClass.floatequal(self.rdgpot[row][col], DEFAULT_NODATA):
+                    self.rdgsrc_data[row][col] = DEFAULT_NODATA
+        RasterUtilClass.write_gtiff_file(self.rdgsrc, self.nrows, self.ncols, self.rdgsrc_data,
+                                         self.geotrans, self.srs, DEFAULT_NODATA, 6)
+
     def run(self):
         """Entrance."""
         self.ridge_without_flowin_cell()
-        self.subbasin_boundary_cells(0.5)
+        self.subbasin_boundary_cells(0.6)
+        self.filter_ridge_by_subbasin_boundary()
+
+        # origin = RasterUtilClass.read_raster(self.rdgorg)
+        # temp = self.subbsn_data == self.nodata_subbsn
+        # masked = numpy.where(temp, origin.noDataValue, 0)
+        # temp2 = (origin.data >= 0) & (self.subbsn_data != self.nodata_subbsn)
+        # masked = numpy.where(temp2, origin.data, masked)
+        # RasterUtilClass.write_gtiff_file(self.rdgsrc, origin.nRows, origin.nCols, masked,
+        #                                  origin.geotrans, origin.srs,
+        #                                  origin.noDataValue, origin.dataType)
 
 
 def main():

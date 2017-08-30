@@ -11,7 +11,10 @@ import argparse
 import os
 from multiprocessing import cpu_count
 
-from configparser import ConfigParser
+try:
+    from ConfigParser import ConfigParser  # py2
+except ImportError:
+    from configparser import ConfigParser  # py3
 
 from autofuzslppos.Nomenclature import CreateWorkspace, PreProcessAttrNames, TopoAttrNames, LogNames
 from autofuzslppos.Nomenclature import FuzSlpPosFiles, SingleSlpPosFiles
