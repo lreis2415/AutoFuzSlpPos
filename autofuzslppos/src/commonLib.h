@@ -42,6 +42,7 @@ email:  dtarb@usu.edu
 
 #include <cmath>
 #include <float.h>
+#include <string>
 #include "mpi.h"
 #ifdef windows
 #define _WINSOCKAPI_    // stops windows.h including winsock.h
