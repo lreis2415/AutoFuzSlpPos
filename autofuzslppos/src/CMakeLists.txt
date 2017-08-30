@@ -45,7 +45,7 @@ add_executable(dinfdistuptoridge ${DINFDISTUP})
 add_executable(dinfflowdir ${DINF})
 add_executable(peukerdouglas ${PEUKERDOUGLAS})
 add_executable(dropanalysis ${DROPANALYSISFILES})
-add_executable(moveoutletstostreams ${MVOUTLETSTOSTRMFILES})
+add_executable(moveoutletstostrm ${MVOUTLETSTOSTRMFILES})
 add_executable(streamnet ${STREAMNET})
 add_executable(pitremove ${PITREMOVE})
 add_executable(threshold ${THRESHOLD})
@@ -64,11 +64,10 @@ set(TAUDEM_TARGETS aread8
         d8flowdir
         d8distdowntostream
         dinfdistdown
-        dinfdistuptoridge
         dinfflowdir
         peukerdouglas
         dropanalysis
-        moveoutletstostreams
+        moveoutletstostrm
         streamnet
         pitremove
         threshold
@@ -76,6 +75,7 @@ set(TAUDEM_TARGETS aread8
 
 set(MY_TARGETS curvature
         d8distuptoridge
+        dinfdistuptoridge
         fuzzyslpposinference
         hardenslppos
         selecttyplocslppos

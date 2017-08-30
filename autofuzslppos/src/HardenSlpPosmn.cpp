@@ -11,7 +11,12 @@
   Lreis, CAS  
   Apr 13, 2015 
   
+  changelog: 17-08-02 lj - chang the input parameters from fixed slope position types to one tag '-inf'
+  
 */
+#if (defined _DEBUG) && (defined MSVC) && (defined VLD)
+#include "vld.h"
+#endif /* Run Visual Leak Detector during Debug */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +29,8 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    char rdgfile[MAXLN], shdfile[MAXLN], bksfile[MAXLN], ftsfile[MAXLN], vlyfile[MAXLN]; // input
+    vector<string> infiles; // input
+    vector<int> tags; // input
     char hardfile[MAXLN], maxsimifile[MAXLN], sechardfile[MAXLN], secsimifile[MAXLN]; // output
     bool calSPSI = false;
     bool calSec = false;
@@ -37,60 +43,28 @@ int main(int argc, char **argv)
         printf("the Usage with Specific file names option\n");
         goto errexit;
     }
-    else if (argc > 12)  // at least, there should be 13 input parameters
+    else if (argc > 8)  // at least, there should be 9 input parameters
     {
         i = 1;
         while (argc > i)
         {
-            if (strcmp(argv[i], "-rdg") == 0)
+            if (strcmp(argv[i], "-inf") == 0)
             {
                 i++;
-                if (argc > i)
-                {
-                    strcpy(rdgfile, argv[i]);
+                if (argc > i) {
+                    int infnum = atoi(argv[i]);
+                    infiles.resize(infnum);
+                    tags.resize(infnum);
+                    for (int j = 0; j < infnum; j++) {
+                        i++;
+                        if (argc > i + 1) {
+                            tags[j] = atoi(argv[i]);
+                            infiles[j] = argv[++i];
+                        }
+                        else goto errexit;
+                    }
                     i++;
                 }
-                else goto errexit;
-            }
-            else if (strcmp(argv[i], "-shd") == 0)
-            {
-                i++;
-                if (argc > i)
-                {
-                    strcpy(shdfile, argv[i]);
-                    i++;
-                }
-                else goto errexit;
-            }
-            else if (strcmp(argv[i], "-bks") == 0)
-            {
-                i++;
-                if (argc > i)
-                {
-                    strcpy(bksfile, argv[i]);
-                    i++;
-                }
-                else goto errexit;
-            }
-            else if (strcmp(argv[i], "-fts") == 0)
-            {
-                i++;
-                if (argc > i)
-                {
-                    strcpy(ftsfile, argv[i]);
-                    i++;
-                }
-                else goto errexit;
-            }
-            else if (strcmp(argv[i], "-vly") == 0)
-            {
-                i++;
-                if (argc > i)
-                {
-                    strcpy(vlyfile, argv[i]);
-                    i++;
-                }
-                else goto errexit;
             }
             else if (strcmp(argv[i], "-maxS") == 0)
             {
@@ -148,39 +122,16 @@ int main(int argc, char **argv)
         goto errexit;
     }
 
-    // test if the input is correct!
-    //printf("RDG:%s\n",rdgfile);
-    //printf("SHD:%s\n",shdfile);
-    //printf("BKS:%s\n",bksfile);
-    //printf("FTS:%s\n",ftsfile);
-    //printf("VLY:%s\n",vlyfile);
-    //printf("Hard:%s\n",hardfile);
-    //printf("MaxSimi:%s\n",maxsimifile);
-    //if (calSec)
-    //{
-    //	printf("SecHard:%s\n",sechardfile);
-    //	printf("SecMaxSimi:%s\n",secsimifile);
-    //}
-    //if (calSPSI)
-    //{
-    //	printf("SPSI:%s\n",spsifile);
-    //}
-    // end test
-    if ((err = HardenSlpPos(rdgfile, shdfile, bksfile, ftsfile, vlyfile, hardfile, maxsimifile, calSec, sechardfile,
-                            secsimifile, calSPSI, SPSImodel, spsifile)) != 0)
+    if ((err = HardenSlpPos(infiles, tags, hardfile, maxsimifile, calSec, sechardfile, secsimifile, calSPSI,
+                            SPSImodel, spsifile)) != 0)
         printf("Error %d\n", err);
     //system("pause");
     return 0;
     errexit:
     printf("Usage with specific config file names:\n %s <configfile>\n", argv[0]);
-    printf("-rdg <rdgfile> -shd <shdfile> -bks <bksfile> -fts <ftsfile> -vly <vlyfile>\n");
+    printf("-inf <num> <similarity of each slope position, seperated by SPACE.>\n");
     printf("-maxS <hardfile> <maxsimifile> [-secS <sechardfile> <secsimifile>]\n");
     printf("[-m SPSImodel <SPSIfile>]\n");
-    printf("<rdgfile> is the similarity to ridge\n");
-    printf("<shdfile> is the similarity to shoulder slope\n");
-    printf("<bksfile> is the similarity to back slope\n");
-    printf("<ftsfile> is the similarity to foot slope\n");
-    printf("<vlyfile> is the similarity to valley\n");
     printf("<hardfile> is the hard slope position\n");
     printf("<maxsimifile> is the maximum similarity\n");
     printf("<sechardfile> is the second hard slope position\n");

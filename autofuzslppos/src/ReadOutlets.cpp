@@ -44,7 +44,6 @@ email:  dtarb@usu.edu
 #include <string.h>
 #include "shapelib/shapefil.h"
 #include "commonLib.h"
-
 //  Function to read outlets from a shapefile
 int readoutlets(char *outletsfile, int *noutlets, double *&x, double *&y)
 {

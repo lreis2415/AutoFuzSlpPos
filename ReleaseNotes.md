@@ -1,5 +1,6 @@
 # AutoFuzSlpPos-Releases notes
 
++ 2017-8-1: Refactor the entire python workflow based on pylint and Google style. In the meanwhile, releae the main page of AutoFuzSlpPos: http://lreis2415.github.io/AutoFuzSlpPos/
 + 2017-7-18: Compiled binaries
 
   From now on, each release will be attached the compiled binaries under selected environments automatically by [Travis CI](https://travis-ci.org/lreis2415/AutoFuzSlpPos) and [Appveyor](https://ci.appveyor.com/project/lreis-2415/autofuzslppos).
@@ -16,6 +17,5 @@
 
   [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.831377.svg)](https://doi.org/10.5281/zenodo.831377)
 
-​	Related identifiers:
-​	Supplement to:
-https://github.com/lreis2415/AutoFuzSlpPos/tree/v2017.1.16
+  Related identifiers:
+​	Supplement to: https://github.com/lreis2415/AutoFuzSlpPos/tree/v2017.1.16

@@ -1,129 +1,164 @@
 #! /usr/bin/env python
-# coding=utf-8
-# @Description: This file contains predefined file names.
-# @Author: Liang-Jun Zhu
-#
-from Config import *
-from Util import makeResultFolders
+# -*- coding: utf-8 -*-
+"""Predefined file names.
 
-####  Stage 0: Overall setting  ####
-PreDir, ParamDir, LogDir, TypLocDir, ConfDir, FSPDir = makeResultFolders(rootDir, FlowModel, preprocess)
-####  Stage 1: Preprocessing from DEMsrc  ####
-dem = PreDir + os.sep + 'dem.tif'
-demfilpre = PreDir + os.sep + 'demfilpre.tif'
-demfil = PreDir + os.sep + 'demfil.tif'
-log_preproc = LogDir + os.sep + 'log_preprocessing.txt'
-Log_all = LogDir + os.sep + 'log_all.txt'
-Log_runtime = LogDir + os.sep + 'log_runtime.txt'
+    @author   : Liangjun Zhu
 
-# D8 flow model nomenclature
-D8FlowDir = PreDir + os.sep + 'D8FlowDir.tif'
-D8Slp = PreDir + os.sep + 'D8Slp.tif'
-PkrDglStream = PreDir + os.sep + 'PkrDglStream.tif'
-outletpre = PreDir + os.sep + 'outlet.shp'
-outletM = PreDir + os.sep + 'outletM.shp'
-D8ContriArea = PreDir + os.sep + 'D8ContriArea.tif'
-drpFile = PreDir + os.sep + 'drpFile.txt'
-D8Stream = PreDir + os.sep + 'D8Stream.tif'
-D8DistDown = PreDir + os.sep + 'D8DistDown.tif'
-D8DistDown_V = PreDir + os.sep + 'D8DistDownElev.tif'
-D8DistUp = PreDir + os.sep + 'D8DistUp.tif'
-RPID8 = PreDir + os.sep + 'RPID8.tif'
-D8StreamOrd = PreDir + os.sep + 'D8Streamord.tif'
-NetTree = PreDir + os.sep + 'NetTree.txt'
-NetCoord = PreDir + os.sep + 'NetCoord.txt'
-D8StreamNet = PreDir + os.sep + 'D8StreamNet.shp'
-SubBasin = PreDir + os.sep + 'Subbasins.tif'
+    @changelog: 15-03-20  lj - initial implementation.\n
+                17-07-30  lj - reorganize and incorporate with pygeoc.
+"""
+import os
 
-# D-infinity flow model nomenclature
-DinfFlowDir = PreDir + os.sep + 'DinfFlowDir.tif'
-DinfSlp = PreDir + os.sep + 'DinfSlp.tif'
-DinfContriArea = PreDir + os.sep + 'DinfContriArea.tif'
-DinfStream = PreDir + os.sep + 'DinfStream.tif'
-DinfDistDown = PreDir + os.sep + 'DinfDistDown.tif'
-DinfDistUp = PreDir + os.sep + 'DinfDistUp.tif'
-RPIDinf = PreDir + os.sep + 'RPIDinf.tif'
-DinfDistDown_V = PreDir + os.sep + 'DinfDistDownElev.tif'
+from autofuzslppos.pygeoc.pygeoc.hydro.TauDEM import TauDEMFilesUtils
+from autofuzslppos.pygeoc.pygeoc.utils.utils import UtilClass, StringClass
 
-potRdgFromSubbsn = PreDir + os.sep + 'potrdg.tif'
-RdgOrgSrc = PreDir + os.sep + 'rdgorgsrc.tif'
-RdgSrcCal = PreDir + os.sep + 'rdgsrc.tif'
-VlySrcCal = PreDir + os.sep + 'vlysrc.tif'
-dist2Vly = PreDir + os.sep + 'dist2vly.tif'
-dist2Rdg = PreDir + os.sep + 'dist2rdg.tif'
-RPISkidmore = PreDir + os.sep + 'rpiSkidmore.tif'
-# Params files
-Slope = ParamDir + os.sep + 'Slp.tif'
-HorizC = ParamDir + os.sep + 'HorizC.tif'
-ProfC = ParamDir + os.sep + 'ProfC.tif'
-RPI = ParamDir + os.sep + 'RPI.tif'
-HAND = ParamDir + os.sep + 'HAND.tif'
 
-HANDDict = {'Name': 'HAND', 'Path': HAND, 'Min': 0.0, 'Ave': 0.0, 'Max': 0.0, 'STD': 0.0}
-# TerrainRestrict contains Name,Path,MinValue,MaxValue
-# for HANDDict, users can change 'Ave', 'Min', 'Max' to numbers.
-RdgTerrainRestrict = None  # [[HANDDict,'Name','Path','Ave','Max']]
-ShdTerrainRestrict = None  # [[HANDDict,'Name','Path','Ave','Max']]
-BksTerrainRestrict = None  # [[HANDDict,'Name','Path',5,'Max']]
-FtsTerrainRestrict = None
-VlyTerrainRestrict = None  # [[HANDDict,'Name','Path','Min','Ave']]
+class CreateWorkspace(object):
+    """Create workspace directories for outputs."""
 
-####   Stage 2: Selection of Typical Locations  ####
-DefaultFuzInfLog = ConfDir + os.sep + "DefaultFuzInfLog.dat"
-RdgExtConfig = ConfDir + os.sep + "RdgExtConfig.dat"
-ShdExtConfig = ConfDir + os.sep + "ShdExtConfig.dat"
-BksExtConfig = ConfDir + os.sep + "BksExtConfig.dat"
-FtsExtConfig = ConfDir + os.sep + "FtsExtConfig.dat"
-VlyExtConfig = ConfDir + os.sep + "VlyExtConfig.dat"
-ExtConfigDict = {"rdg": RdgExtConfig, "shd": ShdExtConfig, "bks": BksExtConfig, "fts": FtsExtConfig,
-                 "vly": VlyExtConfig}
-ExtLogDict = dict()
-if ExtLog:
-    RdgExtLog = LogDir + os.sep + "RdgExtLog.dat"
-    ShdExtLog = LogDir + os.sep + "ShdExtLog.dat"
-    BksExtLog = LogDir + os.sep + "BksExtLog.dat"
-    FtsExtLog = LogDir + os.sep + "FtsExtLog.dat"
-    VlyExtLog = LogDir + os.sep + "VlyExtLog.dat"
-    ExtLogDict = {"rdg": RdgExtLog, "shd": ShdExtLog, "bks": BksExtLog, "fts": FtsExtLog, "vly": VlyExtLog}
-else:
-    ExtLogDict = {"rdg": None, "shd": None, "bks": None, "fts": None, "vly": None}
+    def __init__(self, root_dir):
+        """Create workspace directories for outputs.
+        Args:
+            root_dir: Root directory
+        """
+        if not os.path.isdir(root_dir):
+            try:
+                os.makedirs(root_dir)
+            except Exception:  # failed of any types
+                root_dir = UtilClass.current_path() + os.sep + "FuzzySlpPos"
+                os.mkdir(root_dir)
+        self.root_dir = root_dir
 
-RdgTyp = TypLocDir + os.sep + "RdgTyp.tif"
-ShdTyp = TypLocDir + os.sep + "ShdTyp.tif"
-BksTyp = TypLocDir + os.sep + "BksTyp.tif"
-FtsTyp = TypLocDir + os.sep + "FtsTyp.tif"
-VlyTyp = TypLocDir + os.sep + "VlyTyp.tif"
-TypDict = {"rdg": RdgTyp, "shd": ShdTyp, "bks": BksTyp, "fts": FtsTyp, "vly": VlyTyp}
-RdgInfRecommend = ConfDir + os.sep + "RdgInfRecommend.dat"
-ShdInfRecommend = ConfDir + os.sep + "ShdInfRecommend.dat"
-BksInfRecommend = ConfDir + os.sep + "BksInfRecommend.dat"
-FtsInfRecommend = ConfDir + os.sep + "FtsInfRecommend.dat"
-VlyInfRecommend = ConfDir + os.sep + "VlyInfRecommend.dat"
-InfRecommendDict = {"rdg": RdgInfRecommend, "shd": ShdInfRecommend, "bks": BksInfRecommend, "fts": FtsInfRecommend,
-                    "vly": VlyInfRecommend}
-ExtConfig = ConfDir + os.sep + "ExtConfig.dat"
-####   Stage 3: Fuzzy slope position inference  ####
+        self.pre_dir = self.root_dir + os.sep + "PreDir"
+        self.param_dir = self.root_dir + os.sep + "Params"
+        self.log_dir = self.root_dir + os.sep + "Log"
+        self.output_dir = self.root_dir + os.sep + "FuzzySlpPos"
+        self.typloc_dir = self.root_dir + os.sep + "TypLoc"
+        self.conf_dir = self.root_dir + os.sep + "Config"
 
-RdgInfConfig = ConfDir + os.sep + "RdgInfConfig.dat"
-ShdInfConfig = ConfDir + os.sep + "ShdInfConfig.dat"
-BksInfConfig = ConfDir + os.sep + "BksInfConfig.dat"
-FtsInfConfig = ConfDir + os.sep + "FtsInfConfig.dat"
-VlyInfConfig = ConfDir + os.sep + "VlyInfConfig.dat"
-InfConfigDict = {"rdg": RdgInfConfig, "shd": ShdInfConfig, "bks": BksInfConfig, "fts": FtsInfConfig,
-                 "vly": VlyInfConfig}
-InfConfig = ConfDir + os.sep + "InfConfig.dat"
-RdgInf = FSPDir + os.sep + "RdgInf.tif"
-ShdInf = FSPDir + os.sep + "ShdInf.tif"
-BksInf = FSPDir + os.sep + "BksInf.tif"
-FtsInf = FSPDir + os.sep + "FtsInf.tif"
-VlyInf = FSPDir + os.sep + "VlyInf.tif"
-InfFileDict = {"rdg": RdgInf, "shd": ShdInf, "bks": BksInf, "fts": FtsInf, "vly": VlyInf}
-HardenSlpPos = FSPDir + os.sep + "HardenSlpPos.tif"
-MaxSimilarity = FSPDir + os.sep + "MaxSimilarity.tif"
+        UtilClass.mkdir(self.pre_dir)
+        UtilClass.mkdir(self.param_dir)
+        UtilClass.mkdir(self.output_dir)
+        UtilClass.mkdir(self.log_dir)
+        UtilClass.mkdir(self.typloc_dir)
+        UtilClass.mkdir(self.conf_dir)
 
-SecHardenSlpPos = FSPDir + os.sep + "SecHardenSlpPos.tif"
-SecMaxSimilarity = FSPDir + os.sep + "SecMaxSimilarity.tif"
 
-SPSIfile = FSPDir + os.sep + "SPSI.tif"
+class PreProcessAttrNames(TauDEMFilesUtils):
+    """File names derived in preprocessing based TauDEM."""
+    _DINFACCWITHWEIGHT = 'accTauDinfWithWeight.tif'
+    _DINFSTREAM = 'stream_dinf.tif'
+    _DIST2STREAM_V = 'dist2strm_v'
+    _DIST2STREAM = 'dist2strm'
+    _DIST2STREAM_ED = 'dist2strm_ed'
+    _DIST2RIDGE_ED = 'dist2rdg_ed'
+    _DISTUP2RDG = 'distup2ridge'
+    _RIDGESRC = 'rdgsrc'
+    _RPIHYDRO = 'rpi_hydro'
+    _RPISKIDMORE = 'rpi_skidmore'
 
-ProfileFuzSlpPos = FSPDir + os.sep + "ProfileFuzSlpPos.shp"
+    def __init__(self, pre_dir, flow_model):
+        """Initialize."""
+        TauDEMFilesUtils.__init__(self, pre_dir)
+        self.dinfacc_weight = pre_dir + os.sep + self._DINFACCWITHWEIGHT
+        self.stream_dinf = pre_dir + os.sep + self._DINFSTREAM
+        # File names dependent on flow model
+        suffix = '_dinf.tif'
+        if flow_model == 0:
+            suffix = '_d8.tif'
+        self.dist2stream_v = pre_dir + os.sep + self._DIST2STREAM_V + suffix
+        self.dist2stream = pre_dir + os.sep + self._DIST2STREAM + suffix
+        self.distup2rdg = pre_dir + os.sep + self._DISTUP2RDG + suffix
+        self.rdgsrc = pre_dir + os.sep + self._RIDGESRC + suffix
+        self.rpi_hydro = pre_dir + os.sep + self._RPIHYDRO + suffix
+        self.rpi_skidmore = pre_dir + os.sep + self._RPISKIDMORE + suffix
+        self.dist2stream_ed = pre_dir + os.sep + self._DIST2STREAM_ED + suffix
+        self.dist2rdg_ed = pre_dir + os.sep + self._DIST2RIDGE_ED + suffix
+
+
+class TopoAttrNames(object):
+    """Topographic attributes names."""
+
+    def __init__(self, ws):
+        """Initialization."""
+        self.rpi = ws.param_dir + os.sep + 'rpi.tif'
+        self.profc = ws.param_dir + os.sep + 'profc.tif'
+        self.horizc = ws.param_dir + os.sep + 'horizc.tif'
+        self.slope = ws.param_dir + os.sep + 'slp.tif'
+        self.hand = ws.param_dir + os.sep + 'hand.tif'
+        self.elev = ws.param_dir + os.sep + 'elev.tif'
+        self.pre_derived_terrain_attrs = {'rpi': self.rpi, 'profc': self.profc,
+                                          'horizc': self.horizc, 'slp': self.slope,
+                                          'hand': self.hand, 'elev': self.elev}
+        self.region_attrs = ['rpi']
+
+    def add_user_defined_attribute(self, toponame, topoattr_file, is_regional=True):
+        """Add regional attribute specified by user, and return the key value (i.e., filename)."""
+        if is_regional:
+            toponame = 'rpi'
+        self.pre_derived_terrain_attrs[toponame] = topoattr_file
+
+    def get_attr_file(self, attrname):
+        """Get the file path of pre-prepared topographic attribute."""
+        if StringClass.string_match(attrname, 'rpi'):
+            return self.rpi
+        elif StringClass.string_match(attrname, 'profc'):
+            return self.profc
+        elif StringClass.string_match(attrname, 'horizc'):
+            return self.horizc
+        elif StringClass.string_match(attrname, 'slp'):
+            return self.slope
+        elif StringClass.string_match(attrname, 'elev'):
+            return self.elev
+        elif StringClass.string_match(attrname, 'hand'):
+            return self.hand
+        else:
+            return None
+            # raise RuntimeError("%s is not prepared by default, please provided "
+            #                    "with it's filepath!" % attrname)
+
+
+class SingleSlpPosFiles(object):
+    """Predefined file names during deriving fuzzy slope position."""
+    _EXTINITIAL = 'ExtConfigInitial.dat'
+    _EXTCONFIG = 'ExtConfig.dat'
+    _EXTLOG = 'ExtLog.dat'
+    _TYPLOC = 'Typ.tif'
+    _INFRECOMMEND = 'InfRecommend.dat'
+    _INFCONFIG = 'InfConfig.dat'
+    _FUZSLPPOS = 'Inf.tif'
+
+    def __init__(self, ws, slppos_type):
+        """Initialize by slope position type"""
+        self.extinitial = ws.conf_dir + os.sep + slppos_type + self._EXTINITIAL
+        self.extconfig = ws.conf_dir + os.sep + slppos_type + self._EXTCONFIG
+        self.extlog = ws.log_dir + os.sep + slppos_type + self._EXTLOG
+        self.typloc = ws.typloc_dir + os.sep + slppos_type + self._TYPLOC
+        self.infrecommend = ws.conf_dir + os.sep + slppos_type + self._INFRECOMMEND
+        self.infconfig = ws.conf_dir + os.sep + slppos_type + self._INFCONFIG
+        self.fuzslppos = ws.output_dir + os.sep + slppos_type + self._FUZSLPPOS
+
+
+class FuzSlpPosFiles(object):
+    """Fuzzy slope position files."""
+
+    def __init__(self, ws):
+        """Initialization."""
+        self.extconfig = ws.conf_dir + os.sep + "ExtConfig.dat"
+        self.infconfig = ws.conf_dir + os.sep + "InfConfig.dat"
+        self.harden_slppos = ws.output_dir + os.sep + "HardenSlpPos.tif"
+        self.max_similarity = ws.output_dir + os.sep + "MaxSimilarity.tif"
+        self.secharden_slppos = ws.output_dir + os.sep + "SecHardenSlpPos.tif"
+        self.secmax_similarity = ws.output_dir + os.sep + "SecMaxSimilarity.tif"
+        self.spsi = ws.output_dir + os.sep + "SPSI.tif"
+        self.profiles = ws.output_dir + os.sep + "ProfileFuzSlpPos.shp"
+
+
+class LogNames(object):
+    """Runtime log file names."""
+
+    def __init__(self, log_dir):
+        """Initialize."""
+        self.preproc = log_dir + os.sep + 'log_preprocessing.txt'
+        self.all = log_dir + os.sep + 'log_all.txt'
+        self.runtime = log_dir + os.sep + 'log_runtime.txt'

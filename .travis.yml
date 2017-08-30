@@ -6,18 +6,20 @@ matrix:
   fast_finish: true
   include:
 # clang have bug in tiffIO module, add osx later when replace TauDEM v5.1.2 with v5.3.x
-#  - os: osx
-#    language: cpp
-#    compiler: clang
-#    sudo: required
-#    cache:
-#      apt: true
-#      directories:
-#      - $HOME/.ccache
-#    env:
+# currently, use gcc instead of clang
+  - os: osx
+    language: cpp
+    compiler: clang
+    sudo: required
+    cache:
+      apt: true
+      directories:
+      - $HOME/.ccache
+    env:
 #    - BUILD_NAME=osx_xcode
-#    - DETAILS="libtool"
-#    - ENABLE_CXX11=1
+    - BUILD_NAME=osx_gcc
+    - DETAILS="libtool"
+    - ENABLE_CXX11=1
   - os: linux
     dist: trusty
     compiler: gcc

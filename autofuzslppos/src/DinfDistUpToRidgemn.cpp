@@ -8,14 +8,11 @@
   
 */
 
-//#include <time.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "commonLib.h"
-//#include "tardemlib.h"
 #include "DinfDistUpToRidge.h"
-//========================
 
 int main(int argc, char **argv)
 {
@@ -137,7 +134,7 @@ int main(int argc, char **argv)
                     statmethod = 2;
                 }
                 i++;
-                if (strcmp(argv[i], "h") == 0)        //argv[15] == "h" or "v" or "p" or "s" or "ave" or "max" or "min"
+                if (strcmp(argv[i], "h") == 0)        //argv[15] == "h" or "v" or "p" or "s"
                 {
                     typemethod = 0;
                 }
@@ -218,7 +215,7 @@ int main(int argc, char **argv)
     printf("<rdgfile> is the ridge source grid input file.\n");
     printf("<wgfile> is the wighted grid input file.\n");
     printf("<rtrfile> is the D-infinity distance up to ridges output file.\n");
-    printf("[-m stats dist] is the optional method flag.\n");
+    printf("[-m dist] is the optional method flag.\n");
     printf("    dist  can be h, v, p and s, which means horizontal, vertical, Pythagoras and Surface respectively, the default is h\n");
     printf("[-thresh] is the proportion threshold, the default is 0\n");
     printf("The flag -nc overrides edge contamination checking\n");

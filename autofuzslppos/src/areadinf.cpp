@@ -47,7 +47,7 @@ email:  dtarb@usu.edu
 #include "createpart.h"
 #include "tiffIO.h"
 #include "initneighbor.h"
-
+#include <iostream>
 using namespace std;
 
 int area(char *angfile, char *scafile, char *shfile, char *wfile, int useOutlets, int usew, int contcheck)
@@ -144,7 +144,6 @@ int area(char *angfile, char *scafile, char *shfile, char *wfile, int useOutlets
             for (int i = 0; i < numOutlets; i++)
                 ang.geoToGlobalXY(x[i], y[i], outletsX[i], outletsY[i]);
         }
-
         //Create empty partition to store new information
         tdpartition *areadinf;
         areadinf = CreateNewPartition(FLOAT_TYPE, totalX, totalY, dx, dy, -1.0f);
@@ -282,15 +281,6 @@ int area(char *angfile, char *scafile, char *shfile, char *wfile, int useOutlets
         write = writet - computet;
         total = writet - begint;
 
-		//MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//dataRead = tempd / size;
-		//MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//compute = tempd / size;
-		//MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//write = tempd / size;
-		//MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//total = tempd / size;
-
 		MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
 		dataRead = tempd;
 		MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
@@ -309,7 +299,6 @@ int area(char *angfile, char *scafile, char *shfile, char *wfile, int useOutlets
         //Brackets force MPI-dependent objects to go out of scope before Finalize is called
     }
     MPI_Finalize();
-
 
     return 0;
 }

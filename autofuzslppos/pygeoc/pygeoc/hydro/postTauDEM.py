@@ -1,16 +1,18 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-"""post process of TauDEM
+"""post process of TauDEM.
+
     author: Liangjun Zhu
-    changlog: 12-04-12 jz - origin version
-              16-07-01 lj - reorganized for pygeoc
-              17-06-25 lj - check by pylint and reformat by Google style
+
+    changlog: 12-04-12 jz - origin version.\n
+              16-07-01 lj - reorganized for pygeoc.\n
+              17-06-25 lj - check by pylint and reformat by Google style.\n
 """
 from numpy import frompyfunc, ones, where
 from osgeo.gdal import GDT_Int16, GDT_Float32
 from osgeo.ogr import Open as ogr_Open
 
-from ..hydro.hydro import FlowModelConst
+from ..hydro.hydro import FlowModelConst, D8Util
 from ..raster.raster import RasterUtilClass
 from ..utils.utils import MathClass, FileClass, DEFAULT_NODATA, PI, DELTA
 
@@ -20,32 +22,6 @@ FLD_DSLINKNO = "DSLINKNO"
 REACH_WIDTH = "WIDTH"
 REACH_LENGTH = "LENGTH"
 REACH_DEPTH = "DEPTH"
-
-
-class D8Util(object):
-    """Utility functions based on D8 flow direction of TauDEM"""
-
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def convert_flowcode_td_to_ag(d8tau, d8esri):
-        """Convert D8 flow direction code to ArcGIS rule"""
-        dirconvertmap = {1.: 1.,
-                         2.: 128.,
-                         3.: 64.,
-                         4.: 32.,
-                         5.: 16.,
-                         6.: 8.,
-                         7.: 4.,
-                         8.: 2.}
-        RasterUtilClass.raster_reclassify(d8tau, dirconvertmap, d8esri)
-
-    @staticmethod
-    def downstream_index(dir_value, i, j):
-        """find downslope coordinate for D8 of TauDEM."""
-        drow, dcol = FlowModelConst.d8delta_td[dir_value]
-        return i + drow, j + dcol
 
 
 class DinfUtil(object):
@@ -61,19 +37,19 @@ class DinfUtil(object):
         if MathClass.floatequal(angle, FlowModelConst.e):
             flow_dir = 1  # 1
         elif MathClass.floatequal(angle, FlowModelConst.ne):
-            flow_dir = 128  # 2
+            flow_dir = 2  # 128
         elif MathClass.floatequal(angle, FlowModelConst.n):
-            flow_dir = 64  # 3
+            flow_dir = 3  # 64
         elif MathClass.floatequal(angle, FlowModelConst.nw):
-            flow_dir = 32  # 4
+            flow_dir = 4  # 32
         elif MathClass.floatequal(angle, FlowModelConst.w):
-            flow_dir = 16  # 5
+            flow_dir = 5  # 16
         elif MathClass.floatequal(angle, FlowModelConst.sw):
-            flow_dir = 8  # 6
+            flow_dir = 6  # 8
         elif MathClass.floatequal(angle, FlowModelConst.s):
-            flow_dir = 4  # 7
+            flow_dir = 7  # 4
         elif MathClass.floatequal(angle, FlowModelConst.se):
-            flow_dir = 2  # 8
+            flow_dir = 8  # 2
         return flow_dir
 
     @staticmethod
@@ -149,7 +125,7 @@ class DinfUtil(object):
             downslope directions
         """
         d = DinfUtil.check_orthogonal(a)
-        if d != 0:
+        if d != -1:
             down = [d]
             return down
         else:
@@ -287,8 +263,9 @@ class StreamnetUtil(object):
         ncols = stream_raster.nCols
         nodata = stream_raster.noDataValue
         subbain_data = RasterUtilClass.read_raster(subbasin_file).data
-        nodata_array = ones((nrows, ncols)) * nodata
-        newstream_data = where(stream_data > 0, subbain_data, nodata_array)
+        nodata_array = ones((nrows, ncols)) * DEFAULT_NODATA
+        newstream_data = where((stream_data > 0) & (stream_data != nodata),
+                               subbain_data, nodata_array)
         RasterUtilClass.write_gtiff_file(out_stream_file, nrows, ncols, newstream_data,
                                          stream_raster.geotrans, stream_raster.srs,
-                                         nodata, GDT_Int16)
+                                         DEFAULT_NODATA, GDT_Int16)

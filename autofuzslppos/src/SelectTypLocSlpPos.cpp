@@ -32,6 +32,9 @@
 
 using namespace std;
 
+/// sqrt(2*ln2), e.g., convertor from bi-Gaussion equation to fuzzy membership function
+const float shapeConvertor = 1.1774100225154747f;
+
 /*!
  * \brief Do not use this terrain attribute
  *
@@ -54,15 +57,15 @@ void dropParam(paramExtGRID &paramgrd)
  *
  */
 int SetFuzFuncShape(paramExtGRID &paramgrd, ExtInfo &paramExt, char shape, float fittedCenter, float *allvalues,
-                    float MIN_TYPLOC_NUM_PECENT, float MAX_TYPLOC_NUM_PECENT, int SELECTION_MODE,
-                    float DEFAULT_SIGMA_MULTIPLIER)
+                    float min_ratio, float max_ratio, int SELECTION_MODE, float w_expander)
 {
+    w_expander *= shapeConvertor;
     float maxx = fittedCenter;
     int i, defaultSelectNum;
     if (SELECTION_MODE)
-        defaultSelectNum = (int) round(paramExt.num * MAX_TYPLOC_NUM_PECENT * 2.5f);
+        defaultSelectNum = (int) round(paramExt.num * max_ratio * 2.5f);
     else
-        defaultSelectNum = (int) round(paramExt.num * MIN_TYPLOC_NUM_PECENT * 2.5f);
+        defaultSelectNum = (int) round(paramExt.num * min_ratio * 2.5f);
 	//cout<<defaultSelectNum<<endl;
     vector<float> valueVector;
     for (i = 0; i < paramExt.num; i++)
@@ -102,8 +105,8 @@ int SetFuzFuncShape(paramExtGRID &paramgrd, ExtInfo &paramExt, char shape, float
         /// Deprecated code.
         ///paramgrd.maxTyp = min((float)(maxx + (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO  * k2_2/(k1_2+k2_2)),paramExt.maxValue);
         ///paramgrd.minTyp = max((float)(maxx - (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO  * k1_2/(k1_2+k2_2)),paramExt.minValue);
-        paramgrd.w1 = DEFAULT_SIGMA_MULTIPLIER * STDcal(allvalues, paramExt.num, false, paramgrd.maxTyp);
-        paramgrd.w2 = DEFAULT_SIGMA_MULTIPLIER * STDcal(allvalues, paramExt.num, true, paramgrd.minTyp);
+        paramgrd.w1 = w_expander * STDcal(allvalues, paramExt.num, false, paramgrd.maxTyp);
+        paramgrd.w2 = w_expander * STDcal(allvalues, paramExt.num, true, paramgrd.minTyp);
 		//cout<<"w1: "<<paramgrd.w1<<", w2: "<<paramgrd.w2<<endl;
     }
     else if (shape == 'S')
@@ -120,7 +123,7 @@ int SetFuzFuncShape(paramExtGRID &paramgrd, ExtInfo &paramExt, char shape, float
         ///paramgrd.minTyp = min((float)(maxx + (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO),paramgrd.maxTyp);
         if (paramgrd.minTyp == paramgrd.maxTyp)
             paramgrd.minTyp = paramgrd.maxTyp - paramExt.interval;
-        paramgrd.w1 = DEFAULT_SIGMA_MULTIPLIER * STDcal(allvalues, paramExt.num, false, paramgrd.maxTyp);
+        paramgrd.w1 = w_expander * STDcal(allvalues, paramExt.num, false, paramgrd.maxTyp);
     }
     else if (shape == 'Z')
     {
@@ -135,7 +138,7 @@ int SetFuzFuncShape(paramExtGRID &paramgrd, ExtInfo &paramExt, char shape, float
         ///paramgrd.maxTyp = max((float)(maxx - (paramExt.maxValue - paramExt.minValue) * DEFAULT_SELECT_RATIO),paramgrd.minTyp);
         if (paramgrd.minTyp == paramgrd.maxTyp)
             paramgrd.maxTyp = paramgrd.minTyp + paramExt.interval;
-        paramgrd.w2 = DEFAULT_SIGMA_MULTIPLIER * STDcal(allvalues, paramExt.num, true, paramgrd.minTyp);
+        paramgrd.w2 = w_expander * STDcal(allvalues, paramExt.num, true, paramgrd.minTyp);
     }
     else{
 		dropParam(paramgrd);
@@ -172,7 +175,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
         float MIN_TYPLOC_NUM_PECENT = 0.f;
         float MAX_TYPLOC_NUM_PECENT = 0.f;
         int SELECTION_MODE = 1;
-        float DEFAULT_INCREMENT_RATIO = 0.1f, DEFAULT_SIGMA_MULTIPLIER = 1.414f, DEFAULT_BiGaussian_Ratio = 4.f;
+        float DEFAULT_INCREMENT_RATIO = 0.1f, DEFAULT_SIGMA_MULTIPLIER = 1.f, DEFAULT_BiGaussian_Ratio = 4.f;
         if (baseInputParameters != NULL)
         {
             MIN_FREQUENCY = int(baseInputParameters[0]);
@@ -452,6 +455,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                         paramsgrd[num].w2 = 6.f;
                         paramsgrd[num].k2 = 0.5f;
                         paramsgrd[num].r2 = 2.f;
+                        continue;
                     }
                     for (i = 0; i < FREQUENCY_GROUP; i++) /// initialize frequency distribution arrays
                     {
@@ -460,391 +464,376 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                         paramsExtInfo[num].XRange[i] = 0.f;
                     }
                     paramsExtInfo[num].XRange[FREQUENCY_GROUP] = 0.f;
-                    if (num != RPIindex)
+					int group = FREQUENCY_GROUP;
+					//cout<<paramsExtInfo[num].num<<endl;
+					if (paramsExtInfo[num].num < 2 * FREQUENCY_GROUP)
+						group /= 10;
+					else if (paramsExtInfo[num].num < 4 * FREQUENCY_GROUP)
+						group /= 5;
+					else if (paramsExtInfo[num].num < 10 * FREQUENCY_GROUP)
+						group /= 2;
+                    paramsExtInfo[num].interval =
+                            (paramsExtInfo[num].maxValue - paramsExtInfo[num].minValue) / (float)group;
+                    for (i = 0; i < FREQUENCY_GROUP; i++)
                     {
-						int group = FREQUENCY_GROUP;
-						//cout<<paramsExtInfo[num].num<<endl;
-						if (paramsExtInfo[num].num < 2 * FREQUENCY_GROUP)
-							group /= 10;
-						else if (paramsExtInfo[num].num < 4 * FREQUENCY_GROUP)
-							group /= 5;
-						else if (paramsExtInfo[num].num < 10 * FREQUENCY_GROUP)
-							group /= 2;
-                        paramsExtInfo[num].interval =
-                                (paramsExtInfo[num].maxValue - paramsExtInfo[num].minValue) / (float)group;
-                        for (i = 0; i < FREQUENCY_GROUP; i++)
-                        {
-                            paramsExtInfo[num].x[i] =
-                                    paramsExtInfo[num].minValue + paramsExtInfo[num].interval * (i + 0.5f);
-                            paramsExtInfo[num].XRange[i] =
-                                    paramsExtInfo[num].minValue + paramsExtInfo[num].interval * i;
-                        }
-                        paramsExtInfo[num].XRange[FREQUENCY_GROUP] = paramsExtInfo[num].maxValue;
-                        for (i = 0; i < paramsExtInfo[num].num; i++) /// calculate frequency
-                        {
-                            paramsExtInfo[num].y[(int) floor((AllCellValues[num][i] - paramsExtInfo[num].minValue) /
-                                                             paramsExtInfo[num].interval)]++;
-                        }
-						//printf("%s:%d,min:%f,max:%f,interval:%f\n",paramsgrd[num].name,paramsExtInfo[num].num,
-						//	paramsExtInfo[num].minValue,paramsExtInfo[num].maxValue,paramsExtInfo[num].interval);
-						//for (int k = 0; k<FREQUENCY_GROUP;k++)
-						//{
-						//	cout<<paramsExtInfo[num].y[k]<<",";
-						//}
-						//cout<<endl;
+                        paramsExtInfo[num].x[i] =
+                                paramsExtInfo[num].minValue + paramsExtInfo[num].interval * (i + 0.5f);
+                        paramsExtInfo[num].XRange[i] =
+                                paramsExtInfo[num].minValue + paramsExtInfo[num].interval * i;
+                    }
+                    paramsExtInfo[num].XRange[FREQUENCY_GROUP] = paramsExtInfo[num].maxValue;
+                    for (i = 0; i < paramsExtInfo[num].num; i++) /// calculate frequency
+                    {
+                        paramsExtInfo[num].y[(int) floor((AllCellValues[num][i] - paramsExtInfo[num].minValue) /
+                                                            paramsExtInfo[num].interval)]++;
+                    }
+					//printf("%s:%d,min:%f,max:%f,interval:%f\n",paramsgrd[num].name,paramsExtInfo[num].num,
+					//	paramsExtInfo[num].minValue,paramsExtInfo[num].maxValue,paramsExtInfo[num].interval);
+					//for (int k = 0; k<FREQUENCY_GROUP;k++)
+					//{
+					//	cout<<paramsExtInfo[num].y[k]<<",";
+					//}
+					//cout<<endl;
 
-						// if MIN_FREQUENCY is greater than the 50% of the frequencies, then use the 70%
-						int gt = 0;
-						vector<float> tmpY;
-						for (j = 0; j < FREQUENCY_GROUP; j++)
-						{
-							 if (paramsExtInfo[num].y[j] >= MIN_FREQUENCY)
-								 gt++;
-							 tmpY.push_back(paramsExtInfo[num].y[j]);
-						}
-						vector<float>(tmpY).swap(tmpY);
-						//cout<<"there are "<<gt<<" greater than MIN_FREQUENCY: "<<MIN_FREQUENCY<<endl;
-						int newLowestFreq = MIN_FREQUENCY;
-						if (gt <= FREQUENCY_GROUP/2)
-						{
-							sort(tmpY.begin(), tmpY.end());
-							newLowestFreq = tmpY[round(FREQUENCY_GROUP * 0.3f)];
-							newLowestFreq = newLowestFreq <= 0 ? 1 : newLowestFreq;
-						}
-						//for(vector<float>::iterator it = tmpY.begin(); it != tmpY.end(); it++)
-						//	cout<<*it<<", ";
-						//cout<<endl;
-						//cout<<"MIN_FREQUENCY is: "<<newLowestFreq<<endl;
-                        vector<float> tempx, tempy;
-                        for (j = 0; j < FREQUENCY_GROUP; j++)
-                        {/// eliminate frequency which less than MIN_FREQUENCY
-                            if (paramsExtInfo[num].y[j] >= newLowestFreq) 
+					// if MIN_FREQUENCY is greater than the 50% of the frequencies, then use the 70%
+					int gt = 0;
+					vector<float> tmpY;
+					for (j = 0; j < FREQUENCY_GROUP; j++)
+					{
+                        if (paramsExtInfo[num].y[j] >= MIN_FREQUENCY)
+                            gt++;
+                        tmpY.push_back(paramsExtInfo[num].y[j]);
+					}
+					vector<float>(tmpY).swap(tmpY);
+					//cout<<"there are "<<gt<<" greater than MIN_FREQUENCY: "<<MIN_FREQUENCY<<endl;
+					int newLowestFreq = MIN_FREQUENCY;
+					if (gt <= FREQUENCY_GROUP/2)
+					{
+						sort(tmpY.begin(), tmpY.end());
+						newLowestFreq = tmpY[round(FREQUENCY_GROUP * 0.3f)];
+						newLowestFreq = newLowestFreq <= 0 ? 1 : newLowestFreq;
+					}
+					//for(vector<float>::iterator it = tmpY.begin(); it != tmpY.end(); it++)
+					//	cout<<*it<<", ";
+					//cout<<endl;
+					//cout<<"MIN_FREQUENCY is: "<<newLowestFreq<<endl;
+                    vector<float> tempx, tempy;
+                    for (j = 0; j < FREQUENCY_GROUP; j++)
+                    {/// eliminate frequency which less than MIN_FREQUENCY
+                        if (paramsExtInfo[num].y[j] >= newLowestFreq) 
+                        {
+                            tempx.push_back(paramsExtInfo[num].x[j]);
+                            tempy.push_back(paramsExtInfo[num].y[j]);
+                        }
+                    }
+                    vector<float>(tempy).swap(tempy); /// swap to save memory
+                    vector<float>(tempx).swap(tempx);
+                    if (writelog) /// append frequency distribution values to log file
+                    {
+                        ofstream logf;
+                        logf.open(logfile, ios_base::app | ios_base::out);
+                        logf << "Frequencies of " << paramsgrd[num].name << endl;
+                        for (j = 0; j < tempx.size(); j++)
+                            logf << tempx[j] << "," << tempy[j] << endl;
+                        logf.close();
+                    }
+                    /// update: 2015/5/14, use the prior defined shape of fuzzy membership function
+                    vector<char> priorShape;
+                    for (i = 0; i < fuzinf.size(); i++)
+                    {
+                        if (strcmp(fuzinf[i].param, paramsgrd[num].name) == 0)
+                        {
+                            for (j = 0; j < 4; j++)
                             {
-                                tempx.push_back(paramsExtInfo[num].x[j]);
-                                tempy.push_back(paramsExtInfo[num].y[j]);
+                                if (fuzinf[i].shape[j] != '\0')
+                                    priorShape.push_back(fuzinf[i].shape[j]);
+                                else
+                                    break;
                             }
                         }
-                        vector<float>(tempy).swap(tempy); /// swap to save memory
-                        vector<float>(tempx).swap(tempx);
-                        if (writelog) /// append frequency distribution values to log file
+                    }
+                    vector<float>::iterator max_freq_y = max_element(tempy.begin(), tempy.end());
+                    int max_freq_idx = distance(tempy.begin(), max_freq_y);
+                    int max_freq_idx_origin;  /// because of eliminate of zero, max_freq_idx may less than max_freq_idx_origin
+                    for (i = max_freq_idx; i < FREQUENCY_GROUP; i++)
+                    {
+                        if (paramsExtInfo[num].y[i] == tempy[max_freq_idx])
                         {
-                            ofstream logf;
-                            logf.open(logfile, ios_base::app | ios_base::out);
-                            logf << "Frequencies of " << paramsgrd[num].name << endl;
-                            for (j = 0; j < tempx.size(); j++)
-                                logf << tempx[j] << "," << tempy[j] << endl;
-                            logf.close();
+                            max_freq_idx_origin = i;
+                            break;
                         }
-                        /// update: 2015/5/14, use the prior defined shape of fuzzy membership function
-                        vector<char> priorShape;
-                        for (i = 0; i < fuzinf.size(); i++)
-                        {
-                            if (strcmp(fuzinf[i].param, paramsgrd[num].name) == 0)
-                            {
-                                for (j = 0; j < 4; j++)
-                                {
-                                    if (fuzinf[i].shape[j] != '\0')
-                                        priorShape.push_back(fuzinf[i].shape[j]);
-                                    else
-                                        break;
-                                }
-                            }
-                        }
-                        vector<float>::iterator max_freq_y = max_element(tempy.begin(), tempy.end());
-                        int max_freq_idx = distance(tempy.begin(), max_freq_y);
-                        int max_freq_idx_origin;  /// because of eliminate of zero, max_freq_idx may less than max_freq_idx_origin
-                        for (i = max_freq_idx; i < FREQUENCY_GROUP; i++)
-                        {
-                            if (paramsExtInfo[num].y[i] == tempy[max_freq_idx])
-                            {
-                                max_freq_idx_origin = i;
-                                break;
-                            }
-                        }
+                    }
 
-                        //printf("%f,%f\n",tempx[max_freq_idx],tempy[max_freq_idx]);
+                    //printf("%f,%f\n",tempx[max_freq_idx],tempy[max_freq_idx]);
 
-                        /// use BiGaussian Fitting to Select Parameters Automatically
-                        /// these settings are default, and it is good enough to run BiGaussian model. Rewrite from R version by Yu and Peng (2010)
-                        vector<float> sigma_ratio_limit;
-                        sigma_ratio_limit.push_back(0.1f);
-                        sigma_ratio_limit.push_back(1.f);
-                        float bandwidth = 0.5f;
-                        float power = 1.f;
-                        int esti_method = 1; /// Two possible values: 0:"moment" and 1:"em".
-                        float eliminate = 0.05f;
-                        float epsilon = 0.005f;
-                        int max_iter = 30;
-                        vector<vector<float> > bigauss_results;
+                    /// use BiGaussian Fitting to Select Parameters Automatically
+                    /// these settings are default, and it is good enough to run BiGaussian model. Rewrite from R version by Yu and Peng (2010)
+                    vector<float> sigma_ratio_limit;
+                    sigma_ratio_limit.push_back(0.1f);
+                    sigma_ratio_limit.push_back(1.f);
+                    float bandwidth = 0.5f;
+                    float power = 1.f;
+                    int esti_method = 1; /// Two possible values: 0:"moment" and 1:"em".
+                    float eliminate = 0.05f;
+                    float epsilon = 0.005f;
+                    int max_iter = 30;
+                    vector<vector<float> > bigauss_results;
 						
-                        /// Be sure that x are ascend
-                        int bigauss = BiGaussianMix(tempx, tempy, sigma_ratio_limit, bandwidth, power, esti_method,
-                                                    eliminate, epsilon, max_iter, bigauss_results);
-						//cout<<"bigaussian fitting done!"<<endl;
-                        /// End BiGaussian Fitting
-                        char fitShape[2];
-                        fitShape[0] = 'N';
-                        fitShape[1] = 'N'; /// Fuzzy inference function shape recommended by BiGaussian Fitting, 'N' means no recommendation.
-                        float centralValue[2];
-                        centralValue[0] = 0.f;
-                        centralValue[1] = 0.f;
-                        char finalShape = 'N';
-                        float finalCentralValue = 0.f;
-                        /// simple rules to figure out which curve shape should be
-                        float cum2maxFreq_default = 0.25f, dist2center_default = 0.05f, disthalf2end_default = 0.5f;
-                        float biRatio = 0.f; /// used to determine the curve shape of FMF
-                        if (bigauss == 1 && bigauss_results.size() == 1)  /// Only one fitted BiGaussian model returned
-                        {
-                            float peakCenter = bigauss_results[0][0]; /// fitted central value
-                            float sigmaLeftFitted = bigauss_results[0][1]; /// fitted left sigma
-                            float sigmaRightFitted = bigauss_results[0][2]; /// fitted right sigma
-                            float deltaFitted = bigauss_results[0][3]; /// fitted delta
-                            float nashCoefFitted = bigauss_results[0][4]; /// fitted nash-sutcliffe coefficient, -infinity ~ 1
-                            float max_freq_x; /// x value of maximum frequency
-                            float dist2center; /// distance from fitted central value to max_freq_x
+                    /// Be sure that x are ascend
+                    int bigauss = BiGaussianMix(tempx, tempy, sigma_ratio_limit, bandwidth, power, esti_method,
+                                                eliminate, epsilon, max_iter, bigauss_results);
+					//cout<<"bigaussian fitting done!"<<endl;
+                    /// End BiGaussian Fitting
+                    char fitShape[2];
+                    fitShape[0] = 'N';
+                    fitShape[1] = 'N'; /// Fuzzy inference function shape recommended by BiGaussian Fitting, 'N' means no recommendation.
+                    float centralValue[2];
+                    centralValue[0] = 0.f;
+                    centralValue[1] = 0.f;
+                    char finalShape = 'N';
+                    float finalCentralValue = 0.f;
+                    /// simple rules to figure out which curve shape should be
+                    float cum2maxFreq_default = 0.25f, dist2center_default = 0.05f, disthalf2end_default = 0.5f;
+                    float biRatio = 0.f; /// used to determine the curve shape of FMF
+                    if (bigauss == 1 && bigauss_results.size() == 1)  /// Only one fitted BiGaussian model returned
+                    {
+                        float peakCenter = bigauss_results[0][0]; /// fitted central value
+                        float sigmaLeftFitted = bigauss_results[0][1]; /// fitted left sigma
+                        float sigmaRightFitted = bigauss_results[0][2]; /// fitted right sigma
+                        float deltaFitted = bigauss_results[0][3]; /// fitted delta
+                        float nashCoefFitted = bigauss_results[0][4]; /// fitted nash-sutcliffe coefficient, -infinity ~ 1
+                        float max_freq_x; /// x value of maximum frequency
+                        float dist2center; /// distance from fitted central value to max_freq_x
 
-							//cout<<"  Only one fitted BiGaussian model returned"<<endl;
-							//cout<<"peak: "<<peakCenter<<", leftS: "<<sigmaLeftFitted<<", rightS: "<<sigmaRightFitted<<endl;
-                            max_freq_x = tempx[max_freq_idx];
-                            dist2center = abs(max_freq_x - peakCenter) / paramsExtInfo[num].interval; 
-							/// this means the fitted result is quite good
-                            if (dist2center < dist2center_default * FREQUENCY_GROUP) 
+						//cout<<"  Only one fitted BiGaussian model returned"<<endl;
+						//cout<<"peak: "<<peakCenter<<", leftS: "<<sigmaLeftFitted<<", rightS: "<<sigmaRightFitted<<endl;
+                        max_freq_x = tempx[max_freq_idx];
+                        dist2center = abs(max_freq_x - peakCenter) / paramsExtInfo[num].interval; 
+						/// this means the fitted result is quite good
+                        if (dist2center < dist2center_default * FREQUENCY_GROUP) 
+                        {
+							//cout<<"    the fitted result is quite good"<<endl;
+                            biRatio = sigmaLeftFitted / sigmaRightFitted;
+                            if (biRatio >= DEFAULT_BiGaussian_Ratio) /// regard as s-shaped
                             {
-								//cout<<"    the fitted result is quite good"<<endl;
-                                biRatio = sigmaLeftFitted / sigmaRightFitted;
+                                fitShape[0] = 'S';
+                            }
+							/// bell-shaped or s-shaped, and bell-shaped is prevail
+                            else if (biRatio > 1 && biRatio < DEFAULT_BiGaussian_Ratio) 
+                            {
+                                fitShape[0] = 'B';
+                                fitShape[1] = 'S';
+                            }
+                            else if (biRatio == 1)  /// regard as bell-shaped
+                            {
+                                fitShape[0] = 'B';
+                            }
+							/// bell-shaped or z-shaped, and bell-shaped is prevail
+                            else if (biRatio < 1 && biRatio > 1.f / DEFAULT_BiGaussian_Ratio) 
+                            {
+                                fitShape[0] = 'B';
+                                fitShape[1] = 'Z';
+                            }
+                            else /// biRatio <= 1.f / DEFAULT_BiGaussian_Ratio
+                                fitShape[0] = 'Z';
+                            centralValue[0] = peakCenter;
+                            centralValue[1] = peakCenter;
+                        }
+                        else /// it means that the fitted result is not satisfied, use simple rules to figure out fitShape
+                        {
+							//cout<<"    the fitted result is not satisfied, use simple rules instead"<<endl;
+                            int cumFreq = 0;  /// accumulative frequency
+                            int validNum = accumulate(tempy.begin(), tempy.end(), 0); /// all frequency number
+                            float cumFreqRatio = 0.f; /// accumulative frequency divided by validNum
+                            float cum1 = -9999.f, cum2 = -9999.f, cum3 = -9999.f; /// represent cum0.25, cum0.5, cum0.75, respectively
+
+                            //float cum2MaxFreq = 0.f; /// accumulative frequency to max_freq divided validNum
+                            //float disthalf2end; /// distance from accFreqRatio >= 0.5 to the maximum attribute value
+
+                            for (i = 0; i < tempx.size(); i++)
+                            {
+                                cumFreq += (int) tempy[i];
+                                cumFreqRatio = (float) cumFreq / validNum;
+                                if (cumFreqRatio >= 0.25f && cum1 == -9999.f)
+                                {
+                                    cum1 = tempx[i];
+                                }
+                                else if (cumFreqRatio >= 0.5f && cum2 == -9999.f)
+                                {
+                                    cum2 = tempx[i];
+                                }
+                                else if (cumFreqRatio >= 0.75f && cum3 == -9999.f)
+                                {
+                                    cum3 = tempx[i];
+                                    break;
+                                }
+                                /*if(i == max_freq_idx)
+                                    cum2MaxFreq = cumFreq / validNum;
+                                if(cumFreqRatio < 0.5){
+                                    cumFreqRatio = (float)cumFreq / validNum;
+                                    disthalf2end = abs(tempx[i] - paramsExtInfo[num].maxValue)/paramsExtInfo[num].interval;
+                                }*/
+                            }
+                            biRatio = (cum2 - cum1) / (cum3 - cum2);
+                            //cout<<cum1<<endl<<cum2<<endl<<cum3<<endl;
+                            //cout<<max_freq_x<<endl;
+                            if (cum1 >= max_freq_x)
+                            {
+                                fitShape[0] = 'Z';/// z-shaped, central value = max(cum2,max_freq_x)
+                                centralValue[0] = cum2 >= max_freq_x ? cum2 : max_freq_x;
+                            }
+                            else if (cum3 <= max_freq_x)
+                            {
+                                fitShape[0] = 'S';/// s-shaped, central value = min(cum2,max_freq_x)
+                                centralValue[0] = cum2 >= max_freq_x ? max_freq_x : cum2;
+                            }
+                            else
+                            {
                                 if (biRatio >= DEFAULT_BiGaussian_Ratio) /// regard as s-shaped
                                 {
                                     fitShape[0] = 'S';
+                                    centralValue[0] = cum2 >= max_freq_x ? max_freq_x : cum2;
                                 }
 								/// bell-shaped or s-shaped, and bell-shaped is prevail
                                 else if (biRatio > 1 && biRatio < DEFAULT_BiGaussian_Ratio) 
                                 {
                                     fitShape[0] = 'B';
                                     fitShape[1] = 'S';
+                                    centralValue[0] = cum2;
+                                    centralValue[1] = cum2 >= max_freq_x ? max_freq_x : cum2;
                                 }
                                 else if (biRatio == 1)  /// regard as bell-shaped
                                 {
                                     fitShape[0] = 'B';
+                                    centralValue[0] = cum2;
                                 }
 								/// bell-shaped or z-shaped, and bell-shaped is prevail
                                 else if (biRatio < 1 && biRatio > 1.f / DEFAULT_BiGaussian_Ratio) 
                                 {
                                     fitShape[0] = 'B';
                                     fitShape[1] = 'Z';
+                                    centralValue[0] = cum2;
+                                    /// z-shaped, central value = max(cum2,max_freq_x)
+                                    centralValue[1] = cum2 >= max_freq_x ? cum2 : max_freq_x;
                                 }
                                 else /// biRatio <= 1.f / DEFAULT_BiGaussian_Ratio
+                                {
                                     fitShape[0] = 'Z';
-                                centralValue[0] = peakCenter;
-                                centralValue[1] = peakCenter;
-                            }
-                            else /// it means that the fitted result is not satisfied, use simple rules to figure out fitShape
-                            {
-								//cout<<"    the fitted result is not satisfied, use simple rules instead"<<endl;
-                                int cumFreq = 0;  /// accumulative frequency
-                                int validNum = accumulate(tempy.begin(), tempy.end(), 0); /// all frequency number
-                                float cumFreqRatio = 0.f; /// accumulative frequency divided by validNum
-                                float cum1 = -9999.f, cum2 = -9999.f, cum3 = -9999.f; /// represent cum0.25, cum0.5, cum0.75, respectively
-
-                                //float cum2MaxFreq = 0.f; /// accumulative frequency to max_freq divided validNum
-                                //float disthalf2end; /// distance from accFreqRatio >= 0.5 to the maximum attribute value
-
-                                for (i = 0; i < tempx.size(); i++)
-                                {
-                                    cumFreq += (int) tempy[i];
-                                    cumFreqRatio = (float) cumFreq / validNum;
-                                    if (cumFreqRatio >= 0.25f && cum1 == -9999.f)
-                                    {
-                                        cum1 = tempx[i];
-                                    }
-                                    else if (cumFreqRatio >= 0.5f && cum2 == -9999.f)
-                                    {
-                                        cum2 = tempx[i];
-                                    }
-                                    else if (cumFreqRatio >= 0.75f && cum3 == -9999.f)
-                                    {
-                                        cum3 = tempx[i];
-                                        break;
-                                    }
-                                    /*if(i == max_freq_idx)
-                                        cum2MaxFreq = cumFreq / validNum;
-                                    if(cumFreqRatio < 0.5){
-                                        cumFreqRatio = (float)cumFreq / validNum;
-                                        disthalf2end = abs(tempx[i] - paramsExtInfo[num].maxValue)/paramsExtInfo[num].interval;
-                                    }*/
-                                }
-                                biRatio = (cum2 - cum1) / (cum3 - cum2);
-                                //cout<<cum1<<endl<<cum2<<endl<<cum3<<endl;
-                                //cout<<max_freq_x<<endl;
-                                if (cum1 >= max_freq_x)
-                                {
-                                    fitShape[0] = 'Z';/// z-shaped, central value = max(cum2,max_freq_x)
                                     centralValue[0] = cum2 >= max_freq_x ? cum2 : max_freq_x;
                                 }
-                                else if (cum3 <= max_freq_x)
-                                {
-                                    fitShape[0] = 'S';/// s-shaped, central value = min(cum2,max_freq_x)
-                                    centralValue[0] = cum2 >= max_freq_x ? max_freq_x : cum2;
-                                }
-                                else
-                                {
-                                    if (biRatio >= DEFAULT_BiGaussian_Ratio) /// regard as s-shaped
-                                    {
-                                        fitShape[0] = 'S';
-                                        centralValue[0] = cum2 >= max_freq_x ? max_freq_x : cum2;
-                                    }
-									/// bell-shaped or s-shaped, and bell-shaped is prevail
-                                    else if (biRatio > 1 && biRatio < DEFAULT_BiGaussian_Ratio) 
-                                    {
-                                        fitShape[0] = 'B';
-                                        fitShape[1] = 'S';
-                                        centralValue[0] = cum2;
-                                        centralValue[1] = cum2 >= max_freq_x ? max_freq_x : cum2;
-                                    }
-                                    else if (biRatio == 1)  /// regard as bell-shaped
-                                    {
-                                        fitShape[0] = 'B';
-                                        centralValue[0] = cum2;
-                                    }
-									/// bell-shaped or z-shaped, and bell-shaped is prevail
-                                    else if (biRatio < 1 && biRatio > 1.f / DEFAULT_BiGaussian_Ratio) 
-                                    {
-                                        fitShape[0] = 'B';
-                                        fitShape[1] = 'Z';
-                                        centralValue[0] = cum2;
-                                        /// z-shaped, central value = max(cum2,max_freq_x)
-                                        centralValue[1] = cum2 >= max_freq_x ? cum2 : max_freq_x;
-                                    }
-                                    else /// biRatio <= 1.f / DEFAULT_BiGaussian_Ratio
-                                    {
-                                        fitShape[0] = 'Z';
-                                        centralValue[0] = cum2 >= max_freq_x ? cum2 : max_freq_x;
-                                    }
-                                }
-                            }
-                            //cout<<priorShape.size()<<endl;
-                            if (priorShape.size() == 1) /// if defined only one shape
-                            {
-                                if (priorShape[0] != 'N')
-                                {
-                                    finalShape = priorShape[0];
-                                    if (fitShape[1] != 'N')  /// it means the fitShape has two possibility.
-                                    {
-                                        finalCentralValue = (fitShape[0] == finalShape) ? centralValue[0]
-                                                                                        : centralValue[1];
-                                    }
-                                    else /// it means the fitShape has one possibility.
-                                    {
-                                        finalCentralValue = centralValue[0];
-                                    }
-									//cout<<"set fuzzy membership function"<<", shape: "<<finalShape<<
-									//	", central value: "<<finalCentralValue<<endl;
-                                    if ((err = SetFuzFuncShape(paramsgrd[num], paramsExtInfo[num], finalShape,
-                                                               finalCentralValue, AllCellValues[num],
-                                                               MIN_TYPLOC_NUM_PECENT, MAX_TYPLOC_NUM_PECENT,
-                                                               SELECTION_MODE, DEFAULT_SIGMA_MULTIPLIER)) != 0)
-                                        return 1;
-                                }
-                                else
-                                {
-                                    finalShape = 'N';
-                                    dropParam(paramsgrd[num]);
-                                }
-                            }
-                            else if (priorShape.size() > 1) /// priorShape may be two or three possibility.
-                            {
-                                bool match = true;
-                                int matchIdx[2];
-                                matchIdx[0] = -9999;
-                                matchIdx[1] = -9999;
-                                for (i = 0; i < priorShape.size(); i++)
-                                {
-                                    for (j = 0; j < 2; j++)
-                                    {
-                                        if (priorShape[i] == fitShape[j])
-                                        {
-                                            matchIdx[j] = j;
-                                        }
-                                    }
-                                }
-
-                                if (matchIdx[0] == -9999 && matchIdx[1] == 1)
-                                {
-                                    finalShape = fitShape[1];
-                                    finalCentralValue = centralValue[1];
-                                }
-                                else if (!(matchIdx[0] == -9999 && matchIdx[1] == -9999))
-                                {
-                                    finalShape = fitShape[0];
-                                    finalCentralValue = centralValue[0];
-                                }
-                                else
-                                    match = false;
-                                if (match)
-                                {
-									cout<<"fitShape: "<<fitShape[0]<<", "<<fitShape[1]<<endl;
-									cout<<"fitShape matched with one of the priorShape: "<<finalShape<<endl;
-                                    if ((err = SetFuzFuncShape(paramsgrd[num], paramsExtInfo[num], finalShape,
-                                                               finalCentralValue, AllCellValues[num],
-                                                               MIN_TYPLOC_NUM_PECENT, MAX_TYPLOC_NUM_PECENT,
-                                                               SELECTION_MODE, DEFAULT_SIGMA_MULTIPLIER)) != 0)
-                                        return 1;
-                                }
-                                else /// if the fitted shapes are not coincident with prior shapes, take the first of prior shape as well
-                                {
-                                    //dropParam(paramsgrd[num]);
-                                    finalShape = priorShape[0];
-                                    if ((err = SetFuzFuncShape(paramsgrd[num], paramsExtInfo[num], finalShape,
-                                                               max_freq_x, AllCellValues[num], MIN_TYPLOC_NUM_PECENT,
-                                                               MAX_TYPLOC_NUM_PECENT, SELECTION_MODE,
-                                                               DEFAULT_SIGMA_MULTIPLIER)) != 0)
-                                        return 1;
-                                }
-                            }
-                            else
-                                dropParam(paramsgrd[num]);
-                            if (writelog) /// append fitting result to log file
-                            {
-                                ofstream logf;
-                                logf.open(logfile, ios_base::app | ios_base::out);
-                                logf << endl << endl;
-                                logf << "BiGaussian model Fitting result: " << endl;
-                                logf << "Peak Center: " << peakCenter << ",";
-                                logf << "Left Sigma: " << sigmaLeftFitted << ",";
-                                logf << "Right Sigma: " << sigmaRightFitted << ",";
-                                logf << "Delta: " << deltaFitted << ",";
-                                logf << "Nash Coef: " << nashCoefFitted << endl;
-
-                                if (fitShape[1] != 'N')
-                                    logf << "Fitted curve shape: " << fitShape[0] << ", " << fitShape[1] << endl;
-                                else
-                                    logf << "Fitted curve shape: " << fitShape[0] << endl;
-                                logf << "Final curve shape: " << finalShape << endl << endl;
-                                logf.close();
                             }
                         }
-                        else /// the bi-Gaussian fitted failed!
+                        //cout<<priorShape.size()<<endl;
+                        if (priorShape.size() == 1) /// if defined only one shape
                         {
-                            dropParam(paramsgrd[num]);
-                            //if(priorShape.size() >= 1)
-                            //{
-                            //	if(priorShape[0] != 'N')
-                            //	{
-                            //		if((err = SetFuzFuncShape(paramsgrd[num],paramsExtInfo[num],priorShape[0],tempx[max_freq_idx_origin],AllCellValues[num],MIN_TYPLOC_NUM_PECENT,MAX_TYPLOC_NUM_PECENT,SELECTION_MODE, DEFAULT_SIGMA_MULTIPLIER))!= 0)
-                            //			return 1;
-                            //	}
-                            //	else
-                            //		dropParam(paramsgrd[num]);
-                            //}
-                            //else
-                            //	dropParam(paramsgrd[num]);
-                            if (writelog)
+                            if (priorShape[0] != 'N')
                             {
-                                ofstream logf;
-                                logf.open(logfile, ios_base::app | ios_base::out);
-                                logf << endl << endl;
-                                logf << "BiGaussian model Fitting result indicates a mixture model! " << endl;
-                                logf.close();
+                                finalShape = priorShape[0];
+                                if (fitShape[1] != 'N')  /// it means the fitShape has two possibility.
+                                {
+                                    finalCentralValue = (fitShape[0] == finalShape) ? centralValue[0]
+                                                                                    : centralValue[1];
+                                }
+                                else /// it means the fitShape has one possibility.
+                                {
+                                    finalCentralValue = centralValue[0];
+                                }
+								//cout<<"set fuzzy membership function"<<", shape: "<<finalShape<<
+								//	", central value: "<<finalCentralValue<<endl;
+                                if ((err = SetFuzFuncShape(paramsgrd[num], paramsExtInfo[num], finalShape,
+                                                            finalCentralValue, AllCellValues[num],
+                                                            MIN_TYPLOC_NUM_PECENT, MAX_TYPLOC_NUM_PECENT,
+                                                            SELECTION_MODE, DEFAULT_SIGMA_MULTIPLIER)) != 0)
+                                    return 1;
                             }
+                            else
+                            {
+                                finalShape = 'N';
+                                dropParam(paramsgrd[num]);
+                            }
+                        }
+                        else if (priorShape.size() > 1) /// priorShape may be two or three possibility.
+                        {
+                            bool match = true;
+                            int matchIdx[2];
+                            matchIdx[0] = -9999;
+                            matchIdx[1] = -9999;
+                            for (i = 0; i < priorShape.size(); i++)
+                            {
+                                for (j = 0; j < 2; j++)
+                                {
+                                    if (priorShape[i] == fitShape[j])
+                                    {
+                                        matchIdx[j] = j;
+                                    }
+                                }
+                            }
+
+                            if (matchIdx[0] == -9999 && matchIdx[1] == 1)
+                            {
+                                finalShape = fitShape[1];
+                                finalCentralValue = centralValue[1];
+                            }
+                            else if (!(matchIdx[0] == -9999 && matchIdx[1] == -9999))
+                            {
+                                finalShape = fitShape[0];
+                                finalCentralValue = centralValue[0];
+                            }
+                            else
+                                match = false;
+                            if (match)
+                            {
+								cout<<"fitShape: "<<fitShape[0]<<", "<<fitShape[1]<<endl;
+								cout<<"fitShape matched with one of the priorShape: "<<finalShape<<endl;
+                                if ((err = SetFuzFuncShape(paramsgrd[num], paramsExtInfo[num], finalShape,
+                                                            finalCentralValue, AllCellValues[num],
+                                                            MIN_TYPLOC_NUM_PECENT, MAX_TYPLOC_NUM_PECENT,
+                                                            SELECTION_MODE, DEFAULT_SIGMA_MULTIPLIER)) != 0)
+                                    return 1;
+                            }
+                            else /// if the fitted shapes are not coincident with prior shapes, take the first of prior shape as well
+                            {
+                                //dropParam(paramsgrd[num]);
+                                finalShape = priorShape[0];
+                                if ((err = SetFuzFuncShape(paramsgrd[num], paramsExtInfo[num], finalShape,
+                                                            max_freq_x, AllCellValues[num], MIN_TYPLOC_NUM_PECENT,
+                                                            MAX_TYPLOC_NUM_PECENT, SELECTION_MODE,
+                                                            DEFAULT_SIGMA_MULTIPLIER)) != 0)
+                                    return 1;
+                            }
+                        }
+                        else
+                            dropParam(paramsgrd[num]);
+                        if (writelog) /// append fitting result to log file
+                        {
+                            ofstream logf;
+                            logf.open(logfile, ios_base::app | ios_base::out);
+                            logf << endl << endl;
+                            logf << "BiGaussian model Fitting result: " << endl;
+                            logf << "Peak Center: " << peakCenter << ",";
+                            logf << "Left Sigma: " << sigmaLeftFitted << ",";
+                            logf << "Right Sigma: " << sigmaRightFitted << ",";
+                            logf << "Delta: " << deltaFitted << ",";
+                            logf << "Nash Coef: " << nashCoefFitted << endl;
+
+                            if (fitShape[1] != 'N')
+                                logf << "Fitted curve shape: " << fitShape[0] << ", " << fitShape[1] << endl;
+                            else
+                                logf << "Fitted curve shape: " << fitShape[0] << endl;
+                            logf << "Final curve shape: " << finalShape << endl << endl;
+                            logf.close();
+                        }
+                    }
+                    else /// the bi-Gaussian fitted failed!
+                    {
+                        dropParam(paramsgrd[num]);
+                        if (writelog)
+                        {
+                            ofstream logf;
+                            logf.open(logfile, ios_base::app | ios_base::out);
+                            logf << endl << endl;
+                            logf << "BiGaussian model Fitting result indicates a mixture model! " << endl;
+                            logf.close();
                         }
                     }
                 }
@@ -865,13 +854,6 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
         }
 		
         /// Now extract typical location according to maxTyp and minTyp of each topographic attribute
-        /*if(rank == 2)
-        {
-        for(num = 0; num < paramsNum; num++)
-        cout<<"Init: "<<paramsgrd[num].name<<","<<paramsgrd[num].shape<<","<<paramsgrd[num].minTyp<<","<<paramsgrd[num].maxTyp<<","<<paramsgrd[num].w1<<","<<paramsgrd[num].w2<<endl;
-        cout<<"minNum:"<<MIN_TYPLOC_NUM<<", maxNum:"<<MAX_TYPLOC_NUM<<endl;
-        }*/
-
         tdpartition *typloc;
         typloc = CreateNewPartition(SHORT_TYPE, totalX, totalY, dx, dy, MISSINGSHORT);
 
@@ -1047,19 +1029,19 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                     {
                         if (paramsgrd[num].shape == 'B')
                         {
-                            paramsgrd[num].w1 = DEFAULT_SIGMA_MULTIPLIER *
+                            paramsgrd[num].w1 = DEFAULT_SIGMA_MULTIPLIER * shapeConvertor *
                                                 STDcal(AllCellValues[num], paramsExtInfo[num].num, false,
                                                        paramsgrd[num].maxTyp);
-                            paramsgrd[num].w2 = DEFAULT_SIGMA_MULTIPLIER *
+                            paramsgrd[num].w2 = DEFAULT_SIGMA_MULTIPLIER * shapeConvertor *
                                                 STDcal(AllCellValues[num], paramsExtInfo[num].num, true,
                                                        paramsgrd[num].minTyp);
                         }
                         else if (paramsgrd[num].shape == 'S')
-                            paramsgrd[num].w1 = DEFAULT_SIGMA_MULTIPLIER *
+                            paramsgrd[num].w1 = DEFAULT_SIGMA_MULTIPLIER * shapeConvertor *
                                                 STDcal(AllCellValues[num], paramsExtInfo[num].num, false,
                                                        paramsgrd[num].maxTyp);
                         else if (paramsgrd[num].shape == 'Z')
-                            paramsgrd[num].w2 = DEFAULT_SIGMA_MULTIPLIER *
+                            paramsgrd[num].w2 = DEFAULT_SIGMA_MULTIPLIER * shapeConvertor *
                                                 STDcal(AllCellValues[num], paramsExtInfo[num].num, true,
                                                        paramsgrd[num].minTyp);
                     }
@@ -1090,15 +1072,6 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                 MPI_Bcast(&paramsgrd[num].k2, 1, MPI_FLOAT, 0, MCW);
                 MPI_Bcast(&paramsgrd[num].r2, 1, MPI_FLOAT, 0, MCW);
             }
-            //Debug code block
-            /*if (rank == 2)
-            {
-            cout<<"Loop:"<<LoopNum<<","<<"SelectedNum:"<<TypLocCountAll<<endl;
-            for(num = 0; num < paramsNum; num++)
-            cout<<"Parameters"<<"\t"<<paramsgrd[num].name<<"\t"<<paramsgrd[num].shape<<"\t"<<paramsgrd[num].minTyp<<"\t"<<paramsgrd[num].maxTyp<<"\t"<<paramsgrd[num].w1<<"\t"<<paramsgrd[num].w2<<endl;
-            for(num = 0; num < addparamsNum; num++)
-            cout<<"Additional"<<"\t"<<addparamgrd[num].name<<"\t"<<addparamgrd[num].shape<<"\t"<<addparamgrd[num].minTyp<<"\t"<<addparamgrd[num].maxTyp<<endl;
-            }*/
         }
 		/// release temp variables to save memory 
 		Release2DArray(paramsNum, AllCellValues);
@@ -1122,8 +1095,13 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                 }
             }
             fs.close();
-
-            fs.open(inconfigfile, ios_base::out);
+            // if inconfigfile's name has 'Initial', then remove it
+            string inconf = inconfigfile;
+            int pos = inconf.find("Initial");
+            if (pos > -1) {
+                inconf.erase(pos, 7);
+            }
+            fs.open(inconf.c_str(), ios_base::out);
             fs << "ProtoTag" << "\t" << prototag << endl;
             fs << "ParametersNUM" << "\t" << selectedNum << endl;
             for (num = 0; num < paramsNum; num++)
@@ -1151,15 +1129,6 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
         compute = computet - readt;
         write = writet - computet;
         total = writet - begint;
-
-		//MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//dataRead = tempd / size;
-		//MPI_Allreduce(&compute, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//compute = tempd / size;
-		//MPI_Allreduce(&write, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//write = tempd / size;
-		//MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
-		//total = tempd / size;
 
 		MPI_Allreduce(&dataRead, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
 		dataRead = tempd;

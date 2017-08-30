@@ -80,8 +80,8 @@ int RPISkidmore(char *vlysrcfile,char *rdgsrcfile,int vlytag, int rdgtag, char *
 		{
 			for (i = 0; i < nx; i++) // cols
 			{
-				if (!vly->isNodata(i,j))
-				{
+				//if (!vly->isNodata(i,j))
+				//{
 					if(int(vly->getData(i,j,tempValue))==vlytag)
 					{
 						vly->localToGlobal(i,j,iAll,jAll);
@@ -96,7 +96,7 @@ int RPISkidmore(char *vlysrcfile,char *rdgsrcfile,int vlytag, int rdgtag, char *
 						tempPt.row = jAll;
 						localRdgPoints.push_back(tempPt);
 					}
-				}
+				//}
 			}
 		}
 		int vlyNumLocal = localVlyPoints.size();
@@ -116,7 +116,11 @@ int RPISkidmore(char *vlysrcfile,char *rdgsrcfile,int vlytag, int rdgtag, char *
 		int vlyNum, rdgNum;
 		MPI_Allreduce(&vlyNumLocal,&vlyNum,1,MPI_INT,MPI_SUM,MCW);
 		MPI_Allreduce(&rdgNumLocal,&rdgNum,1,MPI_INT,MPI_SUM,MCW);
-		//printf("Vly Num: %d\nRdg Num: %d\n",vlyNum,rdgNum);
+        if (vlyNum == 0 || rdgNum == 0) {
+            printf("Vly Num: %d\nRdg Num: %d\n", vlyNum, rdgNum);
+            cout << "Valley or ridge number MUST greater than zero!" << endl;
+            MPI_Abort(MCW, -1);
+        }
 		int *localvlyNumArray = new int[size];
 		int *localrdgNumArray = new int[size];
 		MPI_Allgather(&vlyNumLocal,1,MPI_INT,localvlyNumArray,1,MPI_INT,MCW);

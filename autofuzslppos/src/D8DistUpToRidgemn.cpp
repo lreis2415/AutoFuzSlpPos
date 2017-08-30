@@ -116,47 +116,8 @@ int main(int argc, char **argv)
                 {
                     typemethod = 3;
                 }
-                else if (strcmp(argv[i], "ave") == 0)
-                {
-                    statmethod = 0;
-                }
-                else if (strcmp(argv[i], "max") == 0)
-                {
-                    statmethod = 1;
-                }
-                else if (strcmp(argv[i], "min") == 0)
-                {
-                    statmethod = 2;
-                }
-                i++;
-                if (strcmp(argv[i], "h") == 0)       // "h" or "v" or "p" or "s" or "ave" or "max" or "min"
-                {
+                else
                     typemethod = 0;
-                }
-                else if (strcmp(argv[i], "v") == 0)
-                {
-                    typemethod = 1;
-                }
-                else if (strcmp(argv[i], "p") == 0)
-                {
-                    typemethod = 2;
-                }
-                else if (strcmp(argv[i], "s") == 0)
-                {
-                    typemethod = 3;
-                }
-                else if (strcmp(argv[i], "ave") == 0)
-                {
-                    statmethod = 0;
-                }
-                else if (strcmp(argv[i], "max") == 0)
-                {
-                    statmethod = 1;
-                }
-                else if (strcmp(argv[i], "min") == 0)
-                {
-                    statmethod = 2;
-                }
                 i++;
             }
             else goto errexit;
