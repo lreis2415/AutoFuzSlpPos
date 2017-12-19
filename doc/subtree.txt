@@ -1,5 +1,10 @@
-# push
-git subtree push --prefix=autofuzslppos/pygeoc pygeoc master
+# cmake
+# add
+git remote add -f cmake git@github.com:lreis2415/cmake.git
+git subtree add --prefix=cmake cmake master --squash
 # pull
-git fetch pygeoc master
-git subtree pull --prefix=autofuzslppos/pygeoc pygeoc master --squash
+# cmake
+git fetch cmake master
+git subtree pull --prefix=cmake cmake master --squash
+# push
+git subtree push --prefix=cmake cmake master
