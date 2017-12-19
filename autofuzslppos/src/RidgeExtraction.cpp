@@ -128,7 +128,7 @@ int ExtractRidges(char *dirsfile, char *felfile, float threshold, char *rdgsrcfi
 				rdg->setData(i, j, 1.f);
 			}
 		}
-		/// share up and bottom boders with the initialized value 1.f
+		/// share up and bottom borders with the initialized value 1.f
 		rdg->share();
 		//cout<<rank<<": create and initialize ridge partition done!"<<endl;
 		/// construct ridge source vector with elevation etc. attributes

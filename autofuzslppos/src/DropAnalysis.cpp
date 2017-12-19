@@ -43,7 +43,7 @@ email:  dtarb@usu.edu
  * MPI_Wtime() and TimeCounting() (defined in commonLib) may get negative
  *    time under linux, while under windows it is OK.
  * So, currently, I change the time counting function to clock(),
- *    although it measures cpu time, not real time/wall time, and is unprecise.
+ *    although it measures cpu time, not real time/wall time, and is imprecise.
  * Updated by Liangjun, 2016-11-24
  */
 
