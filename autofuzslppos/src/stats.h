@@ -224,3 +224,8 @@ string toString(T t)
 }
 
 float calNash(vector<float> &x, vector<float> &y, float *params);
+
+template<typename T>
+bool floatequal(T v1, T v2) {
+    return abs(v1 - v2) < ZERO;
+}
