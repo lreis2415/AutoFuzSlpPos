@@ -45,7 +45,24 @@ email:  dtarb@usu.edu
 #include "ogr_api.h"
 #include "mpi.h"
 #include <algorithm>
-
+/// added by liangjun
+#ifdef windows
+#define _WINSOCKAPI_    // stops windows.h including winsock.h
+#include <windows.h>
+//#include <winsock2.h>
+#include <direct.h>
+#include <time.h>
+#else
+#include <dirent.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdio.h>
+#include <dlfcn.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <fcntl.h>
+#endif /* windows */
 #define MCW MPI_COMM_WORLD
 #define MAX_STRING_LENGTH 255
 #define MAXLN 4096
