@@ -20,11 +20,7 @@ rm -rf ./_static
 rm -f *.html
 rm -f *.inv
 rm -f *.js
-# move new files to current branch
-mv ./doc/docstring/_build/html/* ./
-git status
-git add .
-# delete
+# delete irrelevant
 rm -rf ./idea
 rm -rf ./vscode
 rm -rf ./doc
@@ -34,6 +30,10 @@ rm -rf ./test
 rm -rf ./bin
 rm -rf ./cmake-build-debug
 rm -rf ./cmake-build-release
+# move new files to current branch
+mv ./doc/docstring/_build/html/* ./
+git status
+#git add .
 # add, commit, and push
 git add -A
 git commit -m "publishing updated docs..."
