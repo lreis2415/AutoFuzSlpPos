@@ -1,5 +1,0 @@
-python C:\z_code\DTA\AutoFuzSlpPos\py_main\main.py -ini C:\z_code\DTA\AutoFuzSlpPos\data\Jamaica\Jamaica.ini
-python C:\z_code\DTA\AutoFuzSlpPos\py_main\main.py -ini C:\z_code\DTA\AutoFuzSlpPos\data\ywz.ini
-python /home/zhulj/AutoFuzSlpPos/py_main/main.py -ini /home/zhulj/AutoFuzSlpPos/data/Jamaica/Jamaica_dgpm.ini
-python /home/zhulj/AutoFuzSlpPos/py_main/main.py -ini /home/zhulj/AutoFuzSlpPos/data/pv_dgpm.ini -proc 1 -root /home/zhulj/AutoFuzSlpPos/runtimeTest2/1
-python /home/zhulj/AutoFuzSlpPos/py_main/main.py -ini /home/zhulj/AutoFuzSlpPos/data/ywz_dgpm.ini
