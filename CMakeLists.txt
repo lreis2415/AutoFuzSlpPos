@@ -59,6 +59,7 @@ IF (OPENMP)
   SET(WITH_OPENMP 1)
 ENDIF()
 SET(WITH_MPI 1)
+SET(WITH_GDAL 1)
 
 ### Detect compiler and target platform architecture.
 INCLUDE(Utils)
@@ -87,8 +88,8 @@ else ()
   add_definitions(-Dlinux)
 endif ()
 
-SET(SLPPOS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/autofuzslppos/src)
-geo_include_directories(${SLPPOS_DIR} ${MPI_INCLUDE_PATH})
+SET(SLPPOS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/autofuzslppos/taudem_ext)
+geo_include_directories(${SLPPOS_DIR} ${GDAL_INCLUDE_DIR} ${MPI_INCLUDE_PATH})
 ADD_SUBDIRECTORY(${SLPPOS_DIR})
 ### For CLion to implement the "make install" command
 add_custom_target(Install_AutoFuzSlpPos
@@ -149,6 +150,7 @@ ELSE()
 ENDIF()
 
 ### Dependencies.
+STATUS("    GDAL: ${GDAL_LIBRARIES} ${GDAL_INCLUDE_DIR}")
 STATUS("    MPI: ${MPI_LIBRARIES} ${MPI_INCLUDE_PATH}")
 
 ### Auxiliary.
