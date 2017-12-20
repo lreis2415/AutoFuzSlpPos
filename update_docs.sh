@@ -23,7 +23,6 @@ rm -f *.js
 # delete irrelevant
 rm -rf ./idea
 rm -rf ./vscode
-rm -rf ./doc
 rm -rf ./data
 rm -rf ./autofuzslppos
 rm -rf ./test
@@ -32,6 +31,7 @@ rm -rf ./cmake-build-debug
 rm -rf ./cmake-build-release
 # move new files to current branch
 mv ./doc/docstring/_build/html/* ./
+rm -rf ./doc
 git status
 #git add .
 # add, commit, and push
