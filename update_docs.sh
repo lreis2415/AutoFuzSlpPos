@@ -25,10 +25,15 @@ mv ./doc/docstring/_build/html/* ./
 git status
 git add .
 # delete
+rm -rf ./idea
+rm -rf ./vscode
 rm -rf ./doc
 rm -rf ./data
 rm -rf ./autofuzslppos
 rm -rf ./test
+rm -rf ./bin
+rm -rf ./cmake-build-debug
+rm -rf ./cmake-build-release
 # add, commit, and push
 git add -A
 git commit -m "publishing updated docs..."
