@@ -88,6 +88,7 @@ else ()
 endif ()
 
 SET(SLPPOS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/autofuzslppos/src)
+geo_include_directories(${SLPPOS_DIR} ${MPI_INCLUDE_PATH})
 ADD_SUBDIRECTORY(${SLPPOS_DIR})
 ### For CLion to implement the "make install" command
 add_custom_target(Install_AutoFuzSlpPos
