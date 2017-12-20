@@ -9,8 +9,8 @@
 
 import os
 
-from autofuzslppos.pygeoc.pygeoc.hydro.TauDEM import TauDEM
-from autofuzslppos.pygeoc.pygeoc.utils.utils import StringClass
+from pygeoc.TauDEM import TauDEM
+from pygeoc.utils import StringClass
 
 
 class TauDEMExtension(TauDEM):

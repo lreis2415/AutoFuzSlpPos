@@ -9,8 +9,7 @@
 import os
 
 import numpy
-
-from autofuzslppos.pygeoc.pygeoc.raster.raster import RasterUtilClass
+from pygeoc.raster import RasterUtilClass
 
 
 def rpi_calculation(distdown, distup, rpi_outfile):

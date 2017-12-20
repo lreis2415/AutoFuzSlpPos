@@ -9,8 +9,8 @@
 """
 import os
 
-from autofuzslppos.pygeoc.pygeoc.hydro.TauDEM import TauDEMFilesUtils
-from autofuzslppos.pygeoc.pygeoc.utils.utils import UtilClass, StringClass
+from pygeoc.TauDEM import TauDEMFilesUtils
+from pygeoc.utils import UtilClass, StringClass
 
 
 class CreateWorkspace(object):

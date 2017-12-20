@@ -1,5 +1,6 @@
 GDAL > 1.9,<2.0
 numpy > 1.9.0
+pygeoc
 
 # Using pip to automatically install dependency packages
 # pip install -r requirements.txt

@@ -32,6 +32,4 @@
 """
 
 __author__ = "Liangjun Zhu"
-__version__ = "1.1.0"
-__revision__ = "1.1.0"
-__all__ = ["pygeoc"]
+__version__ = "1.2.0"

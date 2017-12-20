@@ -16,9 +16,10 @@ try:
 except ImportError:
     from configparser import ConfigParser  # py3
 
-from autofuzslppos.Nomenclature import CreateWorkspace, PreProcessAttrNames, TopoAttrNames, LogNames
-from autofuzslppos.Nomenclature import FuzSlpPosFiles, SingleSlpPosFiles
-from autofuzslppos.pygeoc.pygeoc.utils.utils import FileClass, StringClass
+from pygeoc.utils import FileClass, StringClass
+
+from Nomenclature import CreateWorkspace, PreProcessAttrNames, TopoAttrNames, LogNames
+from Nomenclature import FuzSlpPosFiles, SingleSlpPosFiles
 
 
 class C(object):
@@ -340,6 +341,7 @@ class AutoFuzSlpPosConfig(object):
             self.mpi_dir = os.path.dirname(mpipath)
         if self.mpi_dir is None:
             raise RuntimeError('Can not find mpiexec!')
+        self.hostfile = AutoFuzSlpPosConfig.check_file_available(self.hostfile)
         self.outlet = AutoFuzSlpPosConfig.check_file_available(self.outlet)
         self.valley = AutoFuzSlpPosConfig.check_file_available(self.valley)
         self.ridge = AutoFuzSlpPosConfig.check_file_available(self.ridge)

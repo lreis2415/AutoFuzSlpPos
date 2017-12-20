@@ -13,8 +13,9 @@
 """
 import os
 
-from autofuzslppos.Config import get_input_cfgs
-from autofuzslppos.pygeoc.pygeoc.raster.raster import RasterUtilClass
+from pygeoc.raster import RasterUtilClass
+
+from Config import get_input_cfgs
 
 
 def fuzslppos_profiles(rdgfile, flowdirfile, streamfile, attr_dict, outattrtxt, shpfile):

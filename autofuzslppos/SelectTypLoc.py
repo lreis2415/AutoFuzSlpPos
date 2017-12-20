@@ -10,10 +10,11 @@
 import os
 import time
 
-from autofuzslppos.Config import get_input_cfgs
-from autofuzslppos.ParasComb import combine_ext_conf_parameters
-from autofuzslppos.TauDEMExtension import TauDEMExtension
-from autofuzslppos.pygeoc.pygeoc.utils.utils import StringClass
+from pygeoc.utils import StringClass
+
+from Config import get_input_cfgs
+from ParasComb import combine_ext_conf_parameters
+from TauDEMExtension import TauDEMExtension
 
 
 def extract_typical_location(cfg):

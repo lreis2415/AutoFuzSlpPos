@@ -13,12 +13,13 @@
 import time
 from shutil import copy2
 
-from autofuzslppos.Config import get_input_cfgs
-from autofuzslppos.TauDEMExtension import TauDEMExtension
-from autofuzslppos.Util import slope_rad_to_deg
-from autofuzslppos.pygeoc.pygeoc.hydro.TauDEM import TauDEMWorkflow
-from autofuzslppos.pygeoc.pygeoc.utils.utils import FileClass
-from autofuzslppos.pygeoc.pygeoc.raster.raster import RasterUtilClass
+from pygeoc.TauDEM import TauDEMWorkflow
+from pygeoc.utils import FileClass
+from pygeoc.raster import RasterUtilClass
+
+from Config import get_input_cfgs
+from TauDEMExtension import TauDEMExtension
+from Util import slope_rad_to_deg
 
 
 def check_watershed_delineation_results(cfg):
@@ -52,10 +53,11 @@ def pre_processing(cfg):
     if cfg.valley is None or not FileClass.is_file_exists(cfg.valley) or not pretaudem_done:
         cfg.valley = cfg.pretaudem.stream_raster
         # Watershed delineation based on D8 flow model.
-        TauDEMWorkflow.watershed_delineation(cfg.bin_dir, cfg.mpi_dir, cfg.proc, cfg.dem,
-                                             cfg.outlet, cfg.d8_stream_thresh, cfg.d8_down_method,
-                                             cfg.pretaudem, logfile=cfg.log.preproc,
-                                             hostfile=cfg.hostfile, singlebasin=single_basin)
+        TauDEMWorkflow.watershed_delineation(cfg.proc, cfg.dem, cfg.outlet, cfg.d8_stream_thresh,
+                                             single_basin,
+                                             cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
+                                             logfile=cfg.log.preproc,
+                                             hostfile=cfg.hostfile)
     # use outlet_m or not
     outlet_use = None
     if single_basin:
@@ -168,6 +170,7 @@ def main():
     """TEST CODE"""
     fuzslppos_cfg = get_input_cfgs()
     pre_processing(fuzslppos_cfg)
+
 
 if __name__ == '__main__':
     main()
