@@ -1,5 +1,9 @@
 # AutoFuzSlpPos-Releases notes
 
++ 2017-12-20: 
+  + Using PyGeoC as 3rdparty libarary.
+  + Update TauDEM from 5.1.2 to 5.3.7. Use [TauDEM_ext](https://github.com/lreis2415/TauDEM_ext) as subtree.
+  + Add auto configured test script (`test/run_demo_data_bydefault.py`) with demo data.
 + 2017-8-1: Refactor the entire python workflow based on pylint and Google style. In the meanwhile, releae the main page of AutoFuzSlpPos: http://lreis2415.github.io/AutoFuzSlpPos/
 + 2017-7-18: Compiled binaries
 

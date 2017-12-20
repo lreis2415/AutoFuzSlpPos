@@ -8,14 +8,13 @@ cd build
 cmake .. -DOPENMP=1 -DCMAKE_BUILD_TYPE=Release -DINSTALL_PREFIX=/Users/travis/build/lreis2415/AutoFuzSlpPos/autofuzslppos_osx_clang/autofuzslppos/bin
 make -j4
 sudo make install
-cd ../..
+cd ..
 ls
 # copy python scripts
 cp autofuzslppos/*.py autofuzslppos_osx_clang/autofuzslppos
 # copy data, test, and manual to release directory
 cp -R data autofuzslppos_osx_clang/autofuzslppos/data
 cp -R test autofuzslppos_osx_clang/autofuzslppos/test
-cp *.pdf autofuzslppos_osx_clang/autofuzslppos
 # zip
 zip -r autofuzslppos_osx_clang.zip autofuzslppos_osx_clang
 # list release files

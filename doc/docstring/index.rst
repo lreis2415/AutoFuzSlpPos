@@ -6,7 +6,7 @@
 Welcome to AutoFuzSlpPos
 ========================
 
-Latest update: July. 31, 2017
+Latest update: Dec. 20, 2017
 
 AutoFuzSlpPos (short for "**Automated Fuzzy Slope Position**") is
 developed by PhD candidate Liang-Jun Zhu and **Prof.** Cheng-Zhi Qin in
@@ -41,7 +41,8 @@ positions <http://dx.doi.org/10.1016/j.geomorph.2009.04.003>`__.
 Geomorphology 110, 152-161.). AutoFuzSlpPos consists three major parts,
 i.e., preparing topographic attributes, extracting typical locations,
 and calculating similarity for each slope position. The preliminary
-implementation employs the system of five basic slope positions, i.e., ridge, shoulder slope, backslope, footslope, and valley.
+implementation employs the system of five basic slope positions,
+i.e., ridge, shoulder slope, backslope, footslope, and valley.
 
 Current version of AutoFuzSlpPos is developed under the `TauDEM
 parallelized
@@ -53,36 +54,32 @@ AutoFuzSlpPos is capable with Windows and Linux/Unix, e.g., Windows
 
 The prerequisites environment is as follows:
 
--  For users:
-
-   -  **MPI**, such as `Microsoft MS-MPI
-      V6 <https://www.microsoft.com/en-us/download/details.aspx?id=47259>`__\ +,
-      OpenMPI, MPICH2
-
-   -  Python 2.7.x packaged with Numpy 1.6+ and GDAL 1.9.x.
-
--  For developers (include the MPI and Python mentioned above):
-
    -  CMake 2.8.0+
 
    -  C/C++ compiler with C++11 support, such as Microsoft Visual Studio
-      2010+, GCC 4.7+.
+      2010+ (VS2013 are highly recommended) and GCC 4.7+.
+
+   -  GDAL library 1.11.x, for Windows users please download the compiled version from
+      `GIS Internals support site <http://www.gisinternals.com/release.php>`__
+
+   -  **MPI**, such as `Microsoft MS-MPI
+      V6 <https://www.microsoft.com/en-us/download/details.aspx?id=47259>`__\ +,
+      OpenMPI, and MPICH2
+
+   -  Python 2.7.x packaged with Numpy 1.6+, GDAL 1.11.x and `PyGeoC <https://github.com/lreis2415/PyGeoC>`__.
+
 
 2 Installation
 ==============
 
-If you want to install from source code, please follow `Compile on
-Windows <#compile-on-windows-using-msvc>`__ or `Compile on
-Linux/Unix <#compile-on-linux-unix-using-gcc>`__. If you want to use
-AutoFuzSlpPos directly with the compiled executable files, please refers
-to `Configuration <#configuration>`__.
-
 2.1 Code structure
 ------------------
 
-The source code consists of two parts: 1) the C++ source code located in
-``autofuzslppos/src``, and 2) python scripts located in
-``autofuzslppos/``.
+The source code consists of two parts:
+
+   - 1) the C++ source code located in ``autofuzslppos/src``
+
+   - 2) python scripts located in ``autofuzslppos/``
 
 C++ code will be compiled as separated executable files, such as
 "**SelectTypLocSlpPos**" which is used for extracting typical locations
@@ -131,17 +128,18 @@ administrator), and run the following commands:
 
 .. code:: 
 
-    cd <path to autofuzslopos>
+    cd <path to AutoFuzSlpPos>
     mkdir build
     cd build
-    # -DARCH: 64 is for compiling 64bit version
-    # -DINSTALL_PREFIX: the install directory
-    # An example: MSVC 2013, 64bit
-    cmake -G "Visual Studio 10 2010 Win64" .. -DARCH=64 -DINSTALL_PREFIX=<INSTALLDIR>
+    # -DINSTALL_PREFIX: the install directory, which is optional
+    # -DOPENMP: Add support to OpenMP
+    # An example: MSVC 2013, 64-bit
+    cmake -G "Visual Studio 10 2010 Win64" .. --DOPENMP=1
     msbuild.exe ALL_BUILD.vcxproj /p:Configuration=Release /maxcpucount:4
     msbuild.exe INSTALL.vcxproj /p:Configuration=Release
 
-The executable files will be compiled and saved in ``<INSTALLDIR>``.
+The executable files will be compiled and saved in ``<AutoFuzSlppos>/bin`` or the ``<INSTALLDIR>``
+specified.
 
 2.3 Compile on Linux/Unix using GCC
 -----------------------------------
@@ -154,17 +152,32 @@ The compilation steps are quite familiar:
 
 .. code:: 
 
-    cd <path to autofuzslopos>
+    cd <path to AutoFuzSlpPos>
     mkdir build
     cd build
-    cmake .. -DINSTALL_PREFIX=<INSTALLDIR>
+    cmake .. --DOPENMP=1 -DCMAKE_BUILD_TYPE=Release
     make -j4
     make install
 
-The executable files will be generated in ``INSTALLDIR``.
+The executable files will be generated in ``<AutoFuzSlppos>/bin`` or the ``<INSTALLDIR>``
+specified.
 
-2.4 Configuration
------------------
+3 Run AutoFuzSlpPos with Demo data
+==================================
+
+Use the following command to run AutoFuzSlpPos with demo data in a default configuration:
+
+.. code::
+
+    python <path to AutoFuzSlpPos>/test/run_demo_data_bydefault.py
+
+The result will be located in ``<path to AutoFuzSlpPos>/test/workspace``.
+
+4 Specific configuration
+========================
+
+4.1 Configuration script
+------------------------
 
 A script program of Python language is implemented to organize the
 work-flow of deriving fuzzy slope positions. User can configure the
@@ -177,7 +190,7 @@ Besides the required path of the DEM of the study area (i.e., rawdem),
 the paths of the compiled executable files of AutoFuzSlpPos and
 workspace to store the results should be given correctly, for instance:
 
-.. code:: 
+.. code::
 
     exeDir = /home/zhulj/AutoFuzSlpPos/exec
     rootDir = /home/zhulj/AutoFuzSlpPos/Demo
@@ -189,7 +202,7 @@ explicitly assigned, such as ``mpiexeDir = /home/zhulj/mpich/bin``. The
 submitted. If user does not know how to prepare the hostfile, just leave
 it as ``hostfile = None``. One possible example is as follows:
 
-.. code:: 
+.. code::
 
     hostfile = /home/zhulj/AutoFuzSlpPos/exec/dgpm
     dgpm-cluster.public:1
@@ -202,15 +215,12 @@ Next, the AutoFuzSlpPos with default parameter settings is ready to run
 for the specific study area. Other optional parameters are briefly
 introduced in the configuration file (\*.ini).
 
-3 Run AutoFuzSlpPos
-===================
-
-Use the following command to run AutoFuzSlpPos:
+4.2 Run AutoFuzSlpPos
+---------------------
 
 .. code:: 
 
-    cd <path to AutoFuzSlpPos>
-    python -m autofuzslppos/main.py -ini <configuration file path> [-proc <process number> -bin <binaries path> -root <workspace path>]
+    python <path to AutoFuzSlpPos>/autofuzslppos/main.py -ini <configuration file path> [-proc <process number> -bin <binaries path> -root <workspace path>]
 
 where: ``<configuration file path>`` is the full path of the \*ini file,
 e.g. ``/home/zhulj/AutoFuzSlpPos/data/Jamaica/Jamaica_dgpm.ini``
