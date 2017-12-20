@@ -42,11 +42,6 @@ build*/
 *.h~
 *.py~
 
-#PyCharm Project files
-.idea
-**.idea
-.idea/*
-
 # Visual Studio Code
 .vscode
 
@@ -61,3 +56,6 @@ build*/
 doc/docstring/_build/
 doc/docstring/_static
 doc/docstring/_templates
+
+# demo output
+test/workspace
