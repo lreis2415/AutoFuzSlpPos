@@ -26,9 +26,15 @@ Lreis, IGSNRR, CAS, China.
 
    -  `2.3 Compile on Linux/Unix <#compile-on-linux-unix-using-gcc>`__
 
-   -  `2.4 Configuration <#configuration>`__
-
 2. `Run AutoFuzSlpPos <#run-autofuzslppos>`__
+
+3. `Run AutoFuzSlpPos with Demo data <#run-autofuzslppos-with-demo-data>`__
+
+4. `Specific configuration <#specific-configuration>`__
+
+   -  `4.1 Configuration script <#configuration-script>`__
+
+   -  `4.2 Run AutoFuzSlpPos <#run-autofuzslppos>`__
 
 1 Introduction
 ==============
