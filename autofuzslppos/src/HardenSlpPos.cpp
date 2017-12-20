@@ -51,8 +51,8 @@ int HardenSlpPos(vector<string> infiles, vector<int> tags, char *hardfile, char 
         tiffIO rdgf(convertStringToCharPtr(infiles[0]), FLOAT_TYPE);
         long totalX = rdgf.getTotalX();
         long totalY = rdgf.getTotalY();
-        double dx = rdgf.getdx();
-        double dy = rdgf.getdy();
+        double dx = rdgf.getdxA();
+        double dy = rdgf.getdyA();
 
         // read ridge similarity data into partition
         tdpartition *rdg;

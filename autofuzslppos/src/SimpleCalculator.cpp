@@ -33,8 +33,8 @@ int SimpleCalc(char *Afile, char *Bfile, char *outfile, int op)
         tiffIO inputAf(Afile, FLOAT_TYPE);
         long totalX = inputAf.getTotalX();
         long totalY = inputAf.getTotalY();
-        double dx = inputAf.getdx();
-        double dy = inputAf.getdy();
+        double dx = inputAf.getdxA();
+        double dy = inputAf.getdyA();
 
         // read tiff data into partition
         tdpartition *inputa;

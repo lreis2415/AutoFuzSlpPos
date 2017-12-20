@@ -88,14 +88,19 @@ else ()
   add_definitions(-Dlinux)
 endif ()
 
-SET(SLPPOS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/autofuzslppos/taudem_ext)
-geo_include_directories(${SLPPOS_DIR} ${GDAL_INCLUDE_DIR} ${MPI_INCLUDE_PATH})
+SET(TAUDEM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/autofuzslppos/taudem_ext)
+SET(TAUDEM_SRC ${TAUDEM_ALL}/src)
+SET(SLPPOS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/autofuzslppos/src)
+
+geo_include_directories(${TAUDEM_SRC} ${GDAL_INCLUDE_DIR} ${MPI_INCLUDE_PATH})
+
+ADD_SUBDIRECTORY(${TAUDEM_ALL})
 ADD_SUBDIRECTORY(${SLPPOS_DIR})
 ### For CLion to implement the "make install" command
-add_custom_target(Install_AutoFuzSlpPos
+ADD_CUSTOM_TARGET(install_${PROJECT_NAME}
         $(MAKE) install
-        DEPENDS AutoFuzSlpPos
-        COMMENT "Installing ${PRJNAME}")
+        DEPENDS ${TAUDEM_EXT_APP} ${TAUDEM_APP} ${SLPPOS_APP}
+        COMMENT "Installing ${PROJECT_NAME}")
 ### Build platform.
 STATUS("")
 STATUS("  Platform:")

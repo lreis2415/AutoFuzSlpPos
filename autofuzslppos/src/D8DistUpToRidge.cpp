@@ -70,8 +70,8 @@ int hd8uptoridgegrd(char *pfile, char *rdgfile, char *dtsfile, int statmethod, i
         tiffIO pf(pfile, SHORT_TYPE);
         long totalX = pf.getTotalX();
         long totalY = pf.getTotalY();
-        double dx = pf.getdx();
-        double dy = pf.getdy();
+        double dx = pf.getdxA();
+        double dy = pf.getdyA();
         //if (rank == 0)
         //{
         //	//float timeestimate=(1.2e-6*totalX*totalY/pow((double) size,0.65))/60+1;  // Time estimate in minutes
@@ -279,8 +279,8 @@ int vrisetoridgegrd(char *pfile, char *felfile, char *rdgfile, char *dtsfile, in
         tiffIO pf(pfile, SHORT_TYPE);
         long totalX = pf.getTotalX();
         long totalY = pf.getTotalY();
-        double dx = pf.getdx();
-        double dy = pf.getdy();
+        double dx = pf.getdxA();
+        double dy = pf.getdyA();
         //if (rank == 0)
         //{
         //	//float timeestimate=(1.2e-6*totalX*totalY/pow((double) size,0.65))/60+1;  // Time estimate in minutes
@@ -491,8 +491,8 @@ int sdisttoridgegrd(char *pfile, char *felfile, char *rdgfile, char *dtsfile, in
         tiffIO pf(pfile, SHORT_TYPE);
         long totalX = pf.getTotalX();
         long totalY = pf.getTotalY();
-        double dx = pf.getdx();
-        double dy = pf.getdy();
+        double dx = pf.getdxA();
+        double dy = pf.getdyA();
         //if (rank == 0)
         //{
         //	//float timeestimate=(1.2e-6*totalX*totalY/pow((double) size,0.65))/60+1;  // Time estimate in minutes
@@ -708,8 +708,8 @@ int pdisttoridgegrd(char *pfile, char *felfile, char *rdgfile, char *dtsfile, in
         tiffIO pf(pfile, SHORT_TYPE);
         long totalX = pf.getTotalX();
         long totalY = pf.getTotalY();
-        double dx = pf.getdx();
-        double dy = pf.getdy();
+        double dx = pf.getdxA();
+        double dy = pf.getdyA();
         //if (rank == 0)
         //{
         //	//float timeestimate=(1.2e-6*totalX*totalY/pow((double) size,0.65))/60+1;  // Time estimate in minutes

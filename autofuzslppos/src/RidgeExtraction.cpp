@@ -88,8 +88,8 @@ int ExtractRidges(char *dirsfile, char *felfile, float threshold, char *rdgsrcfi
         tiffIO dirsf(dirsfile, FLOAT_TYPE);
         long totalX = dirsf.getTotalX();
         long totalY = dirsf.getTotalY();
-        double dx = dirsf.getdx();
-        double dy = dirsf.getdy();
+        double dx = dirsf.getdxA();
+        double dy = dirsf.getdyA();
 
         //!< read flow direction data into partition
         tdpartition *dirs;

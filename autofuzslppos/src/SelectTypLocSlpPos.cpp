@@ -250,8 +250,8 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
         tiffIO RPIf(paramsgrd[RPIindex].path, FLOAT_TYPE);
         long totalX = RPIf.getTotalX();
         long totalY = RPIf.getTotalY();
-        double dx = RPIf.getdx();
-        double dy = RPIf.getdy();
+        double dx = RPIf.getdxA();
+        double dy = RPIf.getdyA();
 
         /// read RPI data into partition
         tdpartition *rpi;

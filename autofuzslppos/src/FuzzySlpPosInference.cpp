@@ -66,8 +66,8 @@ int FuzzySlpPosInf(char *protofile, int prototag, int paramsNum, paramInfGRID *p
         tiffIO protof(protofile, FLOAT_TYPE);
         long totalX = protof.getTotalX();
         long totalY = protof.getTotalY();
-        double dx = protof.getdx();
-        double dy = protof.getdy();
+        double dx = protof.getdxA();
+        double dy = protof.getdyA();
 
         //!< read tiff data into partition
         tdpartition *proto;

@@ -44,8 +44,8 @@ int RPISkidmore(char *vlysrcfile,char *rdgsrcfile,int vlytag, int rdgtag, char *
 		tiffIO vlysrc(vlysrcfile,FLOAT_TYPE);
 		long totalX = vlysrc.getTotalX();
 		long totalY = vlysrc.getTotalY();
-		double dx = vlysrc.getdx();
-		double dy = vlysrc.getdy();
+		double dx = vlysrc.getdxA();
+		double dy = vlysrc.getdyA();
 
 		// read tiff data into partition
 		tdpartition *vly;

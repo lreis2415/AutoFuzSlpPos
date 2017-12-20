@@ -81,8 +81,8 @@ int hdisttoridgegrd(char *angfile, char *rdgfile, char *wfile, char *rtrfile, in
         tiffIO ang(angfile, FLOAT_TYPE);
         long totalX = ang.getTotalX();
         long totalY = ang.getTotalY();
-        double dx = ang.getdx();
-        double dy = ang.getdy();
+        double dx = ang.getdxA();
+        double dy = ang.getdyA();
         //if(rank==0)
         //{
         //	float timeestimate=(1.2e-6*totalX*totalY/pow((double) size,0.65))/60+1;  // Time estimate in minutes
@@ -196,7 +196,7 @@ int hdisttoridgegrd(char *angfile, char *rdgfile, char *wfile, char *rtrfile, in
                     else
                     {
                         flowData->getData(in, jn, angle);
-                        p = prop(angle, (k + 4) % 8);
+                        p = prop(angle, (k + 4) % 8, dx, dy);
                         if (p > 0. && p > thresh)
                         {
                             if (dts->isNodata(in, jn))con = true;
@@ -246,7 +246,7 @@ int hdisttoridgegrd(char *angfile, char *rdgfile, char *wfile, char *rtrfile, in
                 flowData->getData(i, j, angle);
                 for (k = 1; k <= 8; k++)
                 {
-                    p = prop(angle, k);
+                    p = prop(angle, k, dx, dy);
                     if (p > 0.0)
                     {
                         in = i + d1[k];
@@ -369,8 +369,8 @@ int vrisetoridgegrd(char *angfile, char *felfile, char *rdgfile, char *rtrfile, 
         tiffIO ang(angfile, FLOAT_TYPE);
         long totalX = ang.getTotalX();
         long totalY = ang.getTotalY();
-        double dx = ang.getdx();
-        double dy = ang.getdy();
+        double dx = ang.getdxA();
+        double dy = ang.getdyA();
         //if(rank==0)
         //{
         //	float timeestimate=(1.2e-6*totalX*totalY/pow((double) size,0.65))/60+1;  // Time estimate in minutes
@@ -474,7 +474,7 @@ int vrisetoridgegrd(char *angfile, char *felfile, char *rdgfile, char *rtrfile, 
                     else
                     {
                         flowData->getData(in, jn, angle);
-                        p = prop(angle, (k + 4) % 8);
+                        p = prop(angle, (k + 4) % 8, dx, dy);
                         if (p > 0. && p > thresh)
                         {
                             if (dts->isNodata(in, jn))con = true;
@@ -533,7 +533,7 @@ int vrisetoridgegrd(char *angfile, char *felfile, char *rdgfile, char *rtrfile, 
                 flowData->getData(i, j, angle);
                 for (k = 1; k <= 8; k++)
                 {
-                    p = prop(angle, k);
+                    p = prop(angle, k, dx, dy);
                     if (p > 0.0)
                     {
                         in = i + d1[k];
@@ -648,8 +648,8 @@ int pdisttoridgegrd(char *angfile, char *felfile, char *rdgfile, char *wfile, ch
         tiffIO ang(angfile, FLOAT_TYPE);
         long totalX = ang.getTotalX();
         long totalY = ang.getTotalY();
-        double dx = ang.getdx();
-        double dy = ang.getdy();
+        double dx = ang.getdxA();
+        double dy = ang.getdyA();
         //if(rank==0)
         //{
         //	float timeestimate=(1.2e-6*totalX*totalY/pow((double) size,0.65))/60+1;  // Time estimate in minutes
@@ -790,7 +790,7 @@ int pdisttoridgegrd(char *angfile, char *felfile, char *rdgfile, char *wfile, ch
                         else
                         {
                             flowData->getData(in, jn, angle);
-                            p = prop(angle, (k + 4) % 8);
+                            p = prop(angle, (k + 4) % 8, dx, dy);
                             if (p > 0. && p > thresh)
                             {
                                 if (dtsh->isNodata(in, jn))con = true;
@@ -869,7 +869,7 @@ int pdisttoridgegrd(char *angfile, char *felfile, char *rdgfile, char *wfile, ch
                 flowData->getData(i, j, angle);
                 for (k = 1; k <= 8; k++)
                 {
-                    p = prop(angle, k);
+                    p = prop(angle, k, dx, dy);
                     if (p > 0.0)
                     {
                         in = i + d1[k];
@@ -1004,8 +1004,8 @@ int sdisttoridgegrd(char *angfile, char *felfile, char *rdgfile, char *wfile, ch
         tiffIO ang(angfile, FLOAT_TYPE);
         long totalX = ang.getTotalX();
         long totalY = ang.getTotalY();
-        double dx = ang.getdx();
-        double dy = ang.getdy();
+        double dx = ang.getdxA();
+        double dy = ang.getdyA();
         //if(rank==0)
         //{
         //	float timeestimate=(1.2e-6*totalX*totalY/pow((double) size,0.65))/60+1;  // Time estimate in minutes
@@ -1138,7 +1138,7 @@ int sdisttoridgegrd(char *angfile, char *felfile, char *rdgfile, char *wfile, ch
                         else
                         {
                             flowData->getData(in, jn, angle);
-                            p = prop(angle, (k + 4) % 8);
+                            p = prop(angle, (k + 4) % 8, dx, dy);
                             if (p > 0. && p > thresh)
                             {
                                 if (dts->isNodata(in, jn))con = true;
@@ -1148,7 +1148,7 @@ int sdisttoridgegrd(char *angfile, char *felfile, char *rdgfile, char *wfile, ch
                                     sump += p;
                                     dts->getData(in, jn, dtss);
                                     felData->getData(in, jn, elvn);
-                                    wt = 1.;
+                                    wt = 1.f;
                                     if (usew == 1)
                                     {
                                         if (weightData->isNodata(in, jn))
@@ -1208,7 +1208,7 @@ int sdisttoridgegrd(char *angfile, char *felfile, char *rdgfile, char *wfile, ch
                 flowData->getData(i, j, angle);
                 for (k = 1; k <= 8; k++)
                 {
-                    p = prop(angle, k);
+                    p = prop(angle, k, dx, dy);
                     if (p > 0.0)
                     {
                         in = i + d1[k];
