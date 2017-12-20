@@ -55,6 +55,7 @@ int RPISkidmore(char *vlysrcfile,char *rdgsrcfile,int vlytag, int rdgtag, char *
 		int ny = vly->getny();
 		int xstart,ystart;
 		vly->localToGlobal(0,0,xstart,ystart); // calculate current partition's first cell's position
+		vly->savedxdyc(vlysrc);
 		vlysrc.read(xstart,ystart,ny,nx,vly->getGridPointer()); // get the current partition's pointer
 
 		// read parameters data into *partition

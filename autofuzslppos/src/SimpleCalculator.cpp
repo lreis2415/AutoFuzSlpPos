@@ -44,6 +44,7 @@ int SimpleCalc(char *Afile, char *Bfile, char *outfile, int op)
         int ny = inputa->getny();
         int xstart, ystart;
         inputa->localToGlobal(0, 0, xstart, ystart); // calculate current partition's first cell's position
+        inputa->savedxdyc(inputAf);
         inputAf.read(xstart, ystart, ny, nx, inputa->getGridPointer()); // get the current partition's pointer
 
         tiffIO inputBf(Bfile, FLOAT_TYPE);

@@ -1028,6 +1028,7 @@ int sdisttoridgegrd(char *angfile, char *felfile, char *rdgfile, char *wfile, ch
         int ny = flowData->getny();
         int xstart, ystart;
         flowData->localToGlobal(0, 0, xstart, ystart);
+        flowData->savedxdyc(ang);
         ang.read(xstart, ystart, ny, nx, flowData->getGridPointer());
 
         //if using ridgeData, get information from file, added by Zhu LJ, Apr 2,2015

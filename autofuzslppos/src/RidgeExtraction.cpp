@@ -34,7 +34,7 @@ vector<node> downstream_coors(float &dirv, int &col, int &row)
 	{
 		for (int i = 1; i <= 8; i++)
 		{
-			if(floatequal(dirv, dinfang[i]))
+			if(floatequal((double) dirv, dinfang[i]))
 				downdirs.push_back(i);
 		}
 		if (downdirs.empty())
@@ -99,7 +99,8 @@ int ExtractRidges(char *dirsfile, char *felfile, float threshold, char *rdgsrcfi
         int ny = dirs->getny();
         int xstart, ystart;
         dirs->localToGlobal(0, 0, xstart, ystart); //!< calculate current partition's first cell's position
-        dirsf.read(xstart, ystart, ny, nx, dirs->getGridPointer()); //!< get the current partition's pointer
+        dirs->savedxdyc(dirsf);
+		dirsf.read(xstart, ystart, ny, nx, dirs->getGridPointer()); //!< get the current partition's pointer
 		dirs->share(); //!< share border information
 
         //!< read filled elevation data into partition

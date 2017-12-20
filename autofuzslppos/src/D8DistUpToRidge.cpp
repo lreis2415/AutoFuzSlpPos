@@ -730,6 +730,7 @@ int pdisttoridgegrd(char *pfile, char *felfile, char *rdgfile, char *dtsfile, in
         int ny = flowdir->getny();
         int xstart, ystart;
         flowdir->localToGlobal(0, 0, xstart, ystart);
+        flowdir->savedxdyc(pf);
         pf.read(xstart, ystart, ny, nx, flowdir->getGridPointer());
 
         tdpartition *felData;

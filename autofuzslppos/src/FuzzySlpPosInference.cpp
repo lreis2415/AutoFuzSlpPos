@@ -77,6 +77,7 @@ int FuzzySlpPosInf(char *protofile, int prototag, int paramsNum, paramInfGRID *p
         int ny = proto->getny();
         int xstart, ystart;
         proto->localToGlobal(0, 0, xstart, ystart); //!< calculate current partition's first cell's position
+        proto->savedxdyc(protof);
         protof.read(xstart, ystart, ny, nx, proto->getGridPointer()); //!< get the current partition's pointer
 
         //!< read parameters data into *partition

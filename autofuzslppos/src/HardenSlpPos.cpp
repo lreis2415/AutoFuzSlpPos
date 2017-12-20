@@ -62,6 +62,7 @@ int HardenSlpPos(vector<string> infiles, vector<int> tags, char *hardfile, char 
         int ny = rdg->getny();
         int xstart, ystart;
         rdg->localToGlobal(0, 0, xstart, ystart); // calculate current partition's first cell's position
+        rdg->savedxdyc(rdgf);
         rdgf.read(xstart, ystart, ny, nx, rdg->getGridPointer()); // get the current partition's pointer
 
         // read the other slope position's similarity tiff data into a *linearpart...

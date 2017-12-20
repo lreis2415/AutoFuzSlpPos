@@ -261,6 +261,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
         int ny = rpi->getny();
         int xstart, ystart;
         rpi->localToGlobal(0, 0, xstart, ystart); /// calculate current partition's first cell's position
+        rpi->savedxdyc(RPIf);
         RPIf.read(xstart, ystart, ny, nx, rpi->getGridPointer()); /// get the current partition's pointer
 
         /// read parameters data into *partition
