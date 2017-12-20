@@ -128,5 +128,59 @@ bool pointsToMe(long col, long row, long ncol, long nrow, tdpartition *dirData);
 					  int nx,int ny,int useOutlets, int *outletsX,int *outletsY,long numOutlets);
 void initNeighborD8up(tdpartition* neighbor,tdpartition* flowData,queue<node> *que,
 					  int nx,int ny,int useOutlets, int *outletsX,int *outletsY,long numOutlets);  */
-#endif
 
+/// release 1-D and 2-D arrays, added by Liangjun Zhu
+/*!
+ * \brief Release DT_Array1D data
+ * \param[in] data
+ */
+template<typename T>
+void Release1DArray(T *&data)
+{
+    delete[] data;
+    data = NULL;
+}
+
+/*!
+ * \brief Release DT_Array2D data
+ *
+ * \param[in] row Row
+ * \param[in] col Column
+ * \param[in] data
+ */
+template<typename T>
+void Release2DArray(int row, T **&data)
+{
+#pragma omp parallel for
+    for (int i = 0; i < row; i++)
+    {
+        if (data[i] != NULL)
+            delete[] data[i];
+    }
+    delete[] data;
+    data = NULL;
+}
+/*
+ * \brief convert string to char*
+ */
+char* convertStringToCharPtr(string s);
+/*
+ *\brief Counting time for Cross-platform
+ * more precisely than time.clock()
+ * added by Liangjun Zhu
+ */
+double TimeCounting();
+// define some macro for string related built-in functions, by Liangjun
+#ifdef MSVC
+#define stringcat strcat_s
+#define stringcpy strcpy_s
+#define stringscan sscanf_s
+#define stringprintf sprintf_s
+#else
+#define stringcat strcat
+#define stringcpy strcpy
+#define stringscan sscanf
+#define stringprintf sprintf
+#endif /* MSVC */
+
+#endif /* COMMON_H */
