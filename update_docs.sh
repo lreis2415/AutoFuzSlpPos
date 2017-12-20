@@ -1,42 +1,32 @@
-#!/usr/bin/env bash
-# http://www.willmcginnis.com/2016/02/29/automating-documentation-workflow-with-sphinx-and-github-pages/
+#!/bin/bash -e
+# Settings
+REPO_PATH=git@github.com:lreis2415/AutoFuzSlpPos.git
+HTML_PATH=doc/docstring/_build/html
+CHANGESET=$(git rev-parse --verify HEAD)
+
+# Get a clean version of the HTML documentation repo.
+rm -rf ${HTML_PATH}
+mkdir -p ${HTML_PATH}
+git clone -b gh-pages "${REPO_PATH}" --single-branch ${HTML_PATH}
+
+# rm all the files through git to prevent stale files.
+cd ${HTML_PATH}
+git rm -rf .
+git add .
+git commit -m "Clean repo."
+git push origin gh-pages
+cd -
+
 # build the docs
 cd doc/docstring
-make clean
+#make clean
 make html
-cd ../..
-# commit and push
-git add -A
-git commit -m "building and pushing docs"
-# there is no need to push changes to master.
-#git push -u origin master
-# switch branches and pull the data we want
-git checkout gh-pages
+cd -
+
+# Create and commit the documentation repo.
+cd ${HTML_PATH}
 touch .nojekyll
-# delete older files
-rm -rf ./_modules
-rm -rf ./_sources
-rm -rf ./_static
-rm -f *.html
-rm -f *.inv
-rm -f *.js
-# delete irrelevant
-rm -rf ./idea
-rm -rf ./vscode
-rm -rf ./data
-rm -rf ./autofuzslppos
-rm -rf ./test
-rm -rf ./bin
-rm -rf ./cmake-build-debug
-rm -rf ./cmake-build-release
-# move new files to current branch
-mv ./doc/docstring/_build/html/* ./
-rm -rf ./doc
-git status
-#git add .
-# add, commit, and push
-git add -A
-git commit -m "publishing updated docs..."
-git push -u origin gh-pages
-# switch back
-git checkout master
+git add .
+git commit -m "Automated doc for changeset ${CHANGESET}."
+git push origin gh-pages
+cd -
