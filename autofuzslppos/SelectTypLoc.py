@@ -83,11 +83,11 @@ def extract_typical_location(cfg):
                 extconfig_info.write('OUTPUT\t%s\n' % cfg.singleslpposconf[slppos].typloc)
                 extconfig_info.close()
 
-        TauDEMExtension.selecttyplocslppos(cfg.proc, cfg.ws.typloc_dir,
-                                           cur_ext_conf,
+        TauDEMExtension.selecttyplocslppos(cfg.proc, cur_ext_conf,
                                            cfg.singleslpposconf[slppos].infrecommend,
                                            cfg.singleslpposconf[slppos].extlog,
-                                           cfg.mpi_dir, cfg.bin_dir, cfg.log.all, cfg.hostfile)
+                                           cfg.ws.typloc_dir,cfg.mpi_dir, cfg.bin_dir,
+                                           cfg.log.all, cfg.hostfile)
     print ('Typical Locations extracted done!')
     # Combine extraction parameters.
     combine_ext_conf_parameters(cfg.slppostype, cfg.singleslpposconf, cfg.slpposresult.extconfig)

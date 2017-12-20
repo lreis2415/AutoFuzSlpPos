@@ -94,16 +94,18 @@ def fuzzy_inference(cfg):
         config_info.write('OUTPUT\t%s\n' % cfg.singleslpposconf[slppos].fuzslppos)
         config_info.close()
 
-        TauDEMExtension.fuzzyslpposinference(cfg.proc, cfg.ws.output_dir,
+        TauDEMExtension.fuzzyslpposinference(cfg.proc,
                                              cfg.singleslpposconf[slppos].infconfig,
-                                             cfg.mpi_dir, cfg.bin_dir, cfg.log.all, cfg.hostfile)
+                                             cfg.ws.output_dir,cfg.mpi_dir, cfg.bin_dir,
+                                             cfg.log.all, cfg.hostfile)
 
-    TauDEMExtension.hardenslppos(cfg.proc, cfg.ws.output_dir, simif, cfg.slppostag,
+    TauDEMExtension.hardenslppos(cfg.proc, simif, cfg.slppostag,
                                  cfg.slpposresult.harden_slppos,
                                  cfg.slpposresult.max_similarity,
                                  cfg.slpposresult.secharden_slppos,
                                  cfg.slpposresult.secmax_similarity, None, None,
-                                 cfg.mpi_dir, cfg.bin_dir, cfg.log.all, cfg.hostfile)
+                                 cfg.ws.output_dir, cfg.mpi_dir, cfg.bin_dir,
+                                 cfg.log.all, cfg.hostfile)
     print ('Fuzzy slope position calculated done!')
     # Combine fuzzy inference parameters.
     combine_inf_conf_parameters(cfg.slppostype, cfg.singleslpposconf, cfg.slpposresult.infconfig)
