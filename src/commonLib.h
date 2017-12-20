@@ -87,8 +87,23 @@ const long MISSINGLONG = -2147483647;
 const float MISSINGFLOAT = -1 * FLT_MAX;
 const float MINEPS = 1E-5f;
 
+const float DEFAULTNODATA = -9999.f;  // added by Liangjun Zhu
+const int OMPTHREADS = 4;
+const float ZERO = 1.0e-12F;
+
+/// for D-8 flow model
 const int d1[9] = {0, 1, 1, 0, -1, -1, -1, 0, 1};
 const int d2[9] = {0, 0, -1, -1, -1, 0, 1, 1, 1};
+/// for D-inf flow model
+const double e = 0.;
+const double ne = PI * 0.25;
+const double n = PI * 0.5;
+const double nw = PI * 0.75;
+const double w = PI;
+const double sw = PI * 1.25;
+const double s = PI * 1.5;
+const double se = PI * 1.75;
+const double dinfang[9] = {0., e, ne, n, nw, w, sw, s, se};
 
 
 
