@@ -10,13 +10,32 @@ clone_folder: C:\zhulj\autofuzslppos
 build:
   parallel: true
   verbosity: minimal
+environment:
+  global:
+    GDAL_HOME: "C:\\gdal"
+    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
+    # /E:ON and /V:ON options are not enabled in the batch script intepreter
+    # See: http://stackoverflow.com/a/13751649/163740
+    WITH_ENV: "cmd /E:ON /V:ON /C .\\doc\\ci\\appveyor\\run_with_env.cmd"
 install:
+  # download compiled gdal and install it
+  - ps: mkdir C:\gdal | out-null
+  - appveyor DownloadFile http://download.gisinternals.com/sdk/downloads/release-1800-x64-gdal-1-11-4-mapserver-6-4-3.zip -FileName gdalbin.zip
+  - 7z x gdalbin.zip -oC:\gdal
+  - appveyor DownloadFile http://download.gisinternals.com/sdk/downloads/release-1800-x64-gdal-1-11-4-mapserver-6-4-3-libs.zip -FileName gdallibs.zip
+  - 7z x gdallibs.zip -oC:\gdal
+  - "SET PATH=C:\\gdal;C:\\gdal\\bin;C:\\gdal\\data;C:\\gdal\\bin\\gdal\\apps;%PATH%"
+  - "SET PATH=C:\\gdal\\bin\\ms\\apps;C:\\gdal\\bin\\curl;C:\\gdal\\bin\\proj\\apps;%PATH%"
+  - "SET GDAL_DATA=C:\\gdal\\bin\\gdal-data"
+  - "SET GDAL_DIR=C:\\gdal"
+  - ECHO "Filesystem C:/GDAL:"
+  - ps: "ls \"C:/GDAL\""
   # install MS-MPI
   - cd C:\zhulj\autofuzslppos
   - "powershell doc\\ci\\appveyor\\install-msmpi.ps1"
   - "doc\\ci\\appveyor\\SetEnvMPI.cmd"
 build_script:
-  # 1. compile the 64bit AutoFuzSlpPos programs
+  # Compile the 64bit AutoFuzSlpPos programs
   - cd C:\zhulj\autofuzslppos
   # make directory for release
   - mkdir autofuzslppos_win64bit\\autofuzslppos\\bin
@@ -24,7 +43,7 @@ build_script:
   - cd autofuzslppos
   - mkdir build_64bit
   - cd build_64bit
-  - cmake -G "Visual Studio 12 2013 Win64" .. -DARCH=64 -DINSTALL_PREFIX=C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit\\autofuzslppos\\bin
+  - cmake -G "Visual Studio 12 2013 Win64" .. -DOPENMP=1 -DINSTALL_PREFIX=C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit\\autofuzslppos\\bin
   - msbuild.exe ALL_BUILD.vcxproj /p:Configuration=Release /maxcpucount:4 /clp:Summary
   - msbuild.exe INSTALL.vcxproj /p:Configuration=Release /maxcpucount:4
   # copy python scripts
@@ -37,39 +56,15 @@ build_script:
   # check the structure
   - cd C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit
   - ps "ls"
-  # 2. compile the 64bit AutoFuzSlpPos programs
-  - cd C:\zhulj\autofuzslppos
-  # make directory for release
-  - mkdir autofuzslppos_win32bit\\autofuzslppos\\bin
-  - ps: "ls"
-  - cd autofuzslppos
-  - mkdir build_32bit
-  - cd build_32bit
-  - cmake -G "Visual Studio 12 2013" .. -DINSTALL_PREFIX=C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit\\autofuzslppos\\bin
-  - msbuild.exe ALL_BUILD.vcxproj /p:Configuration=Release /maxcpucount:4  /clp:Summary
-  - msbuild.exe INSTALL.vcxproj /p:Configuration=Release /maxcpucount:4
-  # copy python scripts
-  - copy C:\\zhulj\\autofuzslppos\\autofuzslppos\\*.py C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit\\autofuzslppos
-  # copy data, test, and manual to release directory
-  - xcopy C:\\zhulj\\autofuzslppos\\data C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit\\data /e /c /i /y
-  - xcopy C:\\zhulj\\autofuzslppos\\test C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit\\test /e /c /i /y
-  - copy C:\\zhulj\\autofuzslppos\\*.pdf C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit
-  - copy C:\\zhulj\\autofuzslppos\\*.md C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit
-  # check the structure
-  - cd C:\\zhulj\\autofuzslppos\\autofuzslppos_win32bit
-  - ps "ls"
 artifacts:
 - path: autofuzslppos_win64bit
   name: autofuzslppos_win64bit
-  type: zip
-- path: autofuzslppos_win32bit
-  name: autofuzslppos_win32bit
   type: zip
 deploy:
 - provider: GitHub
   auth_token:
     secure: t0PiVUFL0gHygmnrub8EpUIdVxsyDSVNPeY8qKbWwY65DuNwuUv3ystCZ465EObd
-  artifact: autofuzslppos_win64bit.zip,autofuzslppos_win32bit.zip
+  artifact: autofuzslppos_win64bit.zip
   force_update: true
   on:
     appveyor_repo_tag: true
