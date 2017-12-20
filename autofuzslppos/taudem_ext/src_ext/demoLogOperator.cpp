@@ -1,16 +1,12 @@
 // include TauDEM header files
-#include "tiffIO.h"
-#include "linearpart.h"
+#include "commonLib.h"
 #include "createpart.h"
 // include algorithm header file
 #include "demoLogOperator.h"
-// include fundamental libraries
-#include <iostream>
 
 using namespace std;
 
-int logOperator(char *srcfile, char *destfile)
-{
+int logOperator(char *srcfile, char *destfile) {
     // Initialize MPI
     MPI_Init(NULL, NULL);
     {
@@ -81,9 +77,10 @@ int logOperator(char *srcfile, char *destfile)
         MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_SUM, MCW);
         total = tempd / size;
 
-        if (rank == 0)
+        if (rank == 0) {
             printf("Processors: %d\nRead time: %f\nCompute time: %f\nWrite time: %f\nTotal time: %f\n",
-            size, dataRead, compute, write, total);
+                   size, dataRead, compute, write, total);
+        }
     }
     MPI_Finalize();
     return 0;

@@ -40,8 +40,8 @@ email:  dtarb@usu.edu
 #ifndef COMMON_H
 #define COMMON_H
 #include <cmath>
-#include <float.h>
-#include <stdint.h>
+#include <cfloat>
+#include <cstdint>
 #include "ogr_api.h"
 #include "mpi.h"
 #include <algorithm>
