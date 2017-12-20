@@ -2,7 +2,6 @@
 
 set -e
 mkdir -p autofuzslppos_linux_gcc48/autofuzslppos/bin
-cd autofuzslppos
 mkdir build
 cd build
 # Be caution, the absolute path should be used in INSTALL_PREFIX!

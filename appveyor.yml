@@ -40,7 +40,6 @@ build_script:
   # make directory for release
   - mkdir autofuzslppos_win64bit\\autofuzslppos\\bin
   - ps: "ls"
-  - cd autofuzslppos
   - mkdir build_64bit
   - cd build_64bit
   - cmake -G "Visual Studio 12 2013 Win64" .. -DOPENMP=1 -DINSTALL_PREFIX=C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit\\autofuzslppos\\bin
