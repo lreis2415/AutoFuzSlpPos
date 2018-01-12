@@ -12,7 +12,7 @@ AutoFuzSlpPos (short for "**Automated Fuzzy Slope Position**") is developed by P
 
 References:
 
-1. Zhu L-J, Zhu A-X, Qin C-Z*, Liu J-Z. 2018. [Automatic approach to deriving fuzzy slope positions](http://www.sciencedirect.com/science/article/pii/S0169555X17300612). _Geomorphology_, doi: 10.1016/j.geomorph.2017.12.024.
+1. Zhu L-J, Zhu A-X, Qin C-Z*, Liu J-Z. 2018. [Automatic approach to deriving fuzzy slope positions](http://www.sciencedirect.com/science/article/pii/S0169555X17300612). _Geomorphology_ 304, 173-183.
 2. Qin C-Z, A-X Zhu, W-L Qiu, et al. 2012.[Mapping soil organic matter in small low-relief catchments using fuzzy slope position information](http://www.sciencedirect.com/science/article/pii/S0016706111001753). _Geoderma_ 171-172: 64-74.
 3. Qin C-Z, A-X Zhu*, X Shi, et al. 2009. [Quantification of spatial gradation of slope positions](http://www.sciencedirect.com/science/article/pii/S0169555X0900155X). _Geomorphology_ 110: 152-161. 
 4. 秦承志, 卢岩君, 邱维理, 等. 2010. 模糊坡位信息在精细土壤属性空间推测中的应用. _地理研究 29(9): 1706-1714.
