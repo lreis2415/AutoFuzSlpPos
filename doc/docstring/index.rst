@@ -175,9 +175,9 @@ Use the following command to run AutoFuzSlpPos with demo data in a default confi
 
 .. code::
 
-    python <path to AutoFuzSlpPos>/test/run_demo_data_bydefault.py
+    python <path to AutoFuzSlpPos>/autofuzslopos/run_demo_data_bydefault.py
 
-The result will be located in ``<path to AutoFuzSlpPos>/test/workspace``.
+The result will be located in ``<path to AutoFuzSlpPos>/data/demo_data/workspace``.
 
 4 Specific configuration
 ========================
