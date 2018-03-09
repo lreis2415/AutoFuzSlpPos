@@ -7,6 +7,8 @@
     @changelog: 15-07-31  lj - initial implementation.\n
                 17-07-31  lj - reorganize as basic class, and incorporated with pygeoc.\n
 """
+from __future__ import absolute_import, division
+
 import argparse
 import os
 from multiprocessing import cpu_count
@@ -461,7 +463,7 @@ class AutoFuzSlpPosConfig(object):
                     raise RuntimeError("Each item of ValueRanges MUST contains three elements,"
                                        "i.e., Attributes No., Min, Max! Please check item: "
                                        "%s for %s." % (value_rng_types[i], slppos))
-                for j in range(len(value_rngs) / 3):
+                for j in range(int(len(value_rngs) / 3)):
                     attridx = int(value_rngs[j * 3]) - 1
                     attrname = self.selectedtopolist[attridx]
                     min_v = value_rngs[j * 3 + 1]
@@ -493,7 +495,7 @@ class AutoFuzSlpPosConfig(object):
                     raise RuntimeError("Each item of InferParams MUST contains four elements,"
                                        "i.e., Attribute No., FMF No., w1, w2! Please check item: "
                                        "%s for %s." % (fuzinf_types[i], slppos))
-                for j in range(len(infparams) / 4):
+                for j in range(int(len(infparams) / 4)):
                     attridx = int(infparams[j * 4]) - 1
                     attrname = self.selectedtopolist[attridx]
                     fmf = self._FMFTYPE[int(infparams[j * 4 + 1])]

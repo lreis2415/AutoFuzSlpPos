@@ -52,7 +52,7 @@ def combine_ext_conf_parameters(slppostypes, extconf_dict, combinedconf):
             temp_ext_conf_line[idx] = "[" + temp_ext_data[i + 1][1] + ", " + \
                                       temp_ext_data[i + 1][2] + "]"
         ext_conf_lines.append(temp_ext_conf_line)
-    # print extConfLines
+    # print(extConfLines)
     f = open(combinedconf, 'w')
     for line in ext_conf_lines:
         for elem in line:
@@ -113,7 +113,7 @@ def combine_inf_conf_parameters(slppostypes, infconf_dict, combinedconf):
                 temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ": w2 = " + \
                                           temp_inf_data[i + 1][3]
         inf_conf_lines.append(temp_inf_conf_line)
-    # print infConfLines
+    # print(infConfLines)
     f = open(combinedconf, 'w')
     for line in inf_conf_lines:
         for elem in line:

@@ -86,7 +86,7 @@ def fuzzy_inference(cfg):
         config_info.write('PrototypeGRID\t%s\n' % cfg.singleslpposconf[slppos].typloc)
         config_info.write('ProtoTag\t%d\n' % cfg.slppostag[i])
         config_info.write('ParametersNUM\t%d\n' % len(cfg.inferparam[slppos]))
-        for name, param in cfg.inferparam[slppos].iteritems():
+        for name, param in list(cfg.inferparam[slppos].items()):
             config_info.write('Parameters\t%s\t%s\t%s\t%f\t%f\t%f\t%f\t%f\t%f\n' % (
                 name, cfg.selectedtopo[name], param[0], param[1], param[2],
                 param[3], param[4], param[5], param[6]))
@@ -106,7 +106,7 @@ def fuzzy_inference(cfg):
                                  cfg.slpposresult.secmax_similarity, None, None,
                                  cfg.ws.output_dir, cfg.mpi_dir, cfg.bin_dir,
                                  cfg.log.all, cfg.hostfile)
-    print ('Fuzzy slope position calculated done!')
+    print('Fuzzy slope position calculated done!')
     # Combine fuzzy inference parameters.
     combine_inf_conf_parameters(cfg.slppostype, cfg.singleslpposconf, cfg.slpposresult.infconfig)
     end_t = time.time()

@@ -129,7 +129,7 @@ class RidgeSourceExtraction(object):
         RasterUtilClass.write_gtiff_file(self.boundsrc, self.nrows, self.ncols, self.rdgpot,
                                          self.geotrans, self.srs, DEFAULT_NODATA, 6)
         subbsn_elevs_thresh = dict()
-        for sid, elevs in subbsn_elevs.iteritems():
+        for sid, elevs in list(subbsn_elevs.items()):
             tmpelev = numpy.array(elevs)
             tmpelev.sort()
             subbsn_elevs_thresh[sid] = tmpelev[int(len(tmpelev) * subbsn_perc)]

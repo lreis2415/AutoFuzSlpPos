@@ -29,16 +29,16 @@ def extract_typical_location(cfg):
             extconfig_info = open(cur_ext_conf, 'w')
             extconfig_info.write('ProtoTag\t%d\n' % cfg.slppostag[i])
             abandon = list()  # abandoned terrain attributes (full file path)
-            for vname, inf in cfg.infshape[slppos].iteritems():
+            for vname, inf in list(cfg.infshape[slppos].items()):
                 if StringClass.string_match(inf, 'N'):
                     abandon.append(vname)
-            # print abandon
+            # print(abandon)
             param_num = 0
             for param in cfg.selectedtopo:
                 if param not in abandon:
                     param_num += 1
             extconfig_info.write('ParametersNUM\t%d\n' % param_num)
-            for vname, vpath in cfg.selectedtopo.iteritems():
+            for vname, vpath in list(cfg.selectedtopo.items()):
                 if vname in abandon:
                     continue
                 if vname in cfg.extractrange[slppos] and vname not in abandon:
@@ -49,7 +49,7 @@ def extract_typical_location(cfg):
                     extconfig_info.write('Parameters\t%s\t%s\t%f\t%f\n' %
                                          (vname, vpath, 0, 0))
             extconfig_info.write('OUTPUT\t%s\n' % cfg.singleslpposconf[slppos].typloc)
-            for vname, inf in cfg.infshape[slppos].iteritems():
+            for vname, inf in list(cfg.infshape[slppos].items()):
                 if not StringClass.string_match(inf, 'N'):
                     extconfig_info.write('FuzInfShp\t%s\t%s\n' % (vname, inf))
             base_input_param = 'BaseInput\t'
@@ -77,7 +77,7 @@ def extract_typical_location(cfg):
                 extconfig_info.write('ProtoTag\t%d\n' % cfg.slppostag[i])
                 param_num = len(cfg.extractrange[slppos])
                 extconfig_info.write('ParametersNUM\t%d\n' % param_num)
-                for vname, vrange in cfg.extractrange[slppos].iteritems():
+                for vname, vrange in list(cfg.extractrange[slppos].items()):
                     extconfig_info.write('Parameters\t%s\t%s\t%f\t%f\n' %
                                          (vname, cfg.selectedtopo[vname], vrange[0], vrange[1]))
                 extconfig_info.write('OUTPUT\t%s\n' % cfg.singleslpposconf[slppos].typloc)
@@ -88,7 +88,7 @@ def extract_typical_location(cfg):
                                            cfg.singleslpposconf[slppos].extlog,
                                            cfg.ws.typloc_dir,cfg.mpi_dir, cfg.bin_dir,
                                            cfg.log.all, cfg.hostfile)
-    print ('Typical Locations extracted done!')
+    print('Typical Locations extracted done!')
     # Combine extraction parameters.
     combine_ext_conf_parameters(cfg.slppostype, cfg.singleslpposconf, cfg.slpposresult.extconfig)
     end_t = time.time()

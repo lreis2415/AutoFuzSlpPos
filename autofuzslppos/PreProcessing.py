@@ -72,7 +72,7 @@ def pre_processing(cfg):
                 temp_contents = drpf.read()
                 (beg, cfg.d8_stream_thresh) = temp_contents.rsplit(' ', 1)
                 drpf.close()
-            print (cfg.d8_stream_thresh)
+            print(cfg.d8_stream_thresh)
             TauDEMExtension.areadinf(cfg.proc, cfg.pretaudem.dinf,
                                      cfg.pretaudem.dinfacc_weight, outlet_use,
                                      cfg.pretaudem.stream_pd, 'false',

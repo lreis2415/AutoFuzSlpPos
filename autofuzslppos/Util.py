@@ -67,7 +67,7 @@ def output_runtime_to_log(title, lines, logfile):
     content_list.append("#### %s ####" % title)
     for line in lines:
         content_list.append(line.split(os.linesep)[0])
-        # print line
+        # print(line)
         if line.find("Read time") >= 0:
             time_dict['readt'] = line.split(os.linesep)[0].split(':')[-1]
         elif line.find("Compute time") >= 0:
