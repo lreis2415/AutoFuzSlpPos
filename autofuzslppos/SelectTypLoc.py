@@ -56,6 +56,12 @@ def extract_typical_location(cfg):
             base_input_param += '\t'.join(str(p) for p in cfg.param4typloc[slppos])
             extconfig_info.write(base_input_param)
             extconfig_info.close()
+            # Run selecttyplocslppos
+            TauDEMExtension.selecttyplocslppos(cfg.proc, cur_ext_conf,
+                                               cfg.singleslpposconf[slppos].infrecommend,
+                                               cfg.singleslpposconf[slppos].extlog,
+                                               cfg.ws.typloc_dir, cfg.mpi_dir, cfg.bin_dir,
+                                               cfg.log.all, cfg.log.runtime, cfg.hostfile)
         else:
             # read from existed extconfig file
             cur_ext_conf = cfg.singleslpposconf[slppos].extconfig
@@ -69,33 +75,31 @@ def extract_typical_location(cfg):
                     splitstring = StringClass.split_string(line.split('\n')[0], '\t')
                     if StringClass.string_match(splitstring[0], 'Parameters') \
                             and len(splitstring) == 5 \
-                            and splitstring[2] not in cfg.extractrange[slppos]:
-                        cfg.extractrange[slppos][splitstring[2]] = [float(splitstring[3]),
+                            and splitstring[1] not in cfg.extractrange[slppos]:
+                        cfg.extractrange[slppos][splitstring[1]] = [float(splitstring[3]),
                                                                     float(splitstring[4])]
                 # rewrite extconfig file
-                extconfig_info = open(cur_ext_conf, 'w')
-                extconfig_info.write('ProtoTag\t%d\n' % cfg.slppostag[i])
-                param_num = len(cfg.extractrange[slppos])
-                extconfig_info.write('ParametersNUM\t%d\n' % param_num)
-                for vname, vrange in list(cfg.extractrange[slppos].items()):
-                    extconfig_info.write('Parameters\t%s\t%s\t%f\t%f\n' %
-                                         (vname, cfg.selectedtopo[vname], vrange[0], vrange[1]))
-                extconfig_info.write('OUTPUT\t%s\n' % cfg.singleslpposconf[slppos].typloc)
-                extconfig_info.close()
+                with open(cur_ext_conf, 'w') as extconfig_info:
+                    extconfig_info.write('ProtoTag\t%d\n' % cfg.slppostag[i])
+                    param_num = len(cfg.extractrange[slppos])
+                    extconfig_info.write('ParametersNUM\t%d\n' % param_num)
+                    for vname, vrange in list(cfg.extractrange[slppos].items()):
+                        extconfig_info.write('Parameters\t%s\t%s\t%f\t%f\n' %
+                                             (vname, cfg.selectedtopo[vname], vrange[0], vrange[1]))
+                    extconfig_info.write('OUTPUT\t%s\n' % cfg.singleslpposconf[slppos].typloc)
 
-        TauDEMExtension.selecttyplocslppos(cfg.proc, cur_ext_conf,
-                                           cfg.singleslpposconf[slppos].infrecommend,
-                                           cfg.singleslpposconf[slppos].extlog,
-                                           cfg.ws.typloc_dir,cfg.mpi_dir, cfg.bin_dir,
-                                           cfg.log.all, cfg.hostfile)
+            TauDEMExtension.selecttyplocslppos(cfg.proc, cur_ext_conf,
+                                               workingdir=cfg.ws.typloc_dir, mpiexedir=cfg.mpi_dir,
+                                               exedir=cfg.bin_dir,
+                                               log_file=cfg.log.all, runtime_file=cfg.log.runtime,
+                                               hostfile=cfg.hostfile)
     print('Typical Locations extracted done!')
     # Combine extraction parameters.
     combine_ext_conf_parameters(cfg.slppostype, cfg.singleslpposconf, cfg.slpposresult.extconfig)
     end_t = time.time()
     cost = (end_t - start_t) / 60.
-    logf = open(cfg.log.runtime, 'a')
-    logf.write('Selection of Typical Locations Time-consuming: ' + str(cost) + ' s\n')
-    logf.close()
+    with open(cfg.log.runtime, 'a') as logf:
+        logf.write('Selection of Typical Locations Time-consuming: ' + str(cost) + ' s\n')
     return cost
 
 

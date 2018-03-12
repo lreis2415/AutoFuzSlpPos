@@ -56,7 +56,7 @@ def pre_processing(cfg):
         TauDEMWorkflow.watershed_delineation(cfg.proc, cfg.dem, cfg.outlet, cfg.d8_stream_thresh,
                                              single_basin,
                                              cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
-                                             logfile=cfg.log.preproc,
+                                             logfile=cfg.log.preproc, runtime_file=cfg.log.runtime,
                                              hostfile=cfg.hostfile)
     # use outlet_m or not
     outlet_use = None
@@ -77,11 +77,11 @@ def pre_processing(cfg):
                                      cfg.pretaudem.dinfacc_weight, outlet_use,
                                      cfg.pretaudem.stream_pd, 'false',
                                      cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
-                                     cfg.log.preproc, cfg.hostfile)
+                                     cfg.log.preproc, cfg.log.runtime, cfg.hostfile)
             TauDEMExtension.threshold(cfg.proc, cfg.pretaudem.dinfacc_weight,
                                       cfg.pretaudem.stream_dinf, float(cfg.d8_stream_thresh),
                                       cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
-                                      cfg.log.preproc, cfg.hostfile)
+                                      cfg.log.preproc, cfg.log.runtime, cfg.hostfile)
             cfg.valley = cfg.pretaudem.stream_dinf
         # calculate Height Above the Nearest Drainage (HAND)
         TauDEMExtension.dinfdistdown(cfg.proc, cfg.pretaudem.dinf, cfg.pretaudem.filldem,
@@ -89,26 +89,26 @@ def pre_processing(cfg):
                                      cfg.dinf_down_stat, 'v', 'false',
                                      cfg.dinf_dist_down_wg, cfg.pretaudem.dist2stream_v,
                                      cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
-                                     cfg.log.preproc, cfg.hostfile)
+                                     cfg.log.preproc, cfg.log.runtime, cfg.hostfile)
     else:
         # calculate Height Above the Nearest Drainage (HAND)
         TauDEMExtension.d8distdowntostream(cfg.proc, cfg.pretaudem.d8flow,
                                            cfg.pretaudem.filldem, cfg.valley,
                                            cfg.pretaudem.dist2stream_v, 'v', 1,
                                            cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
-                                           cfg.log.preproc, cfg.hostfile)
+                                           cfg.log.preproc, cfg.log.runtime, cfg.hostfile)
     if cfg.rpi_method == 1:  # calculate RPI based on hydrological proximity measures (Default).
         if cfg.flow_model == 0:  # D8 model
             TauDEMExtension.d8distdowntostream(cfg.proc, cfg.pretaudem.d8flow,
                                                cfg.pretaudem.filldem, cfg.valley,
                                                cfg.pretaudem.dist2stream, cfg.d8_down_method, 1,
                                                cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
-                                               cfg.log.preproc, cfg.hostfile)
+                                               cfg.log.preproc, cfg.log.runtime, cfg.hostfile)
             TauDEMExtension.d8distuptoridge(cfg.proc, cfg.pretaudem.d8flow,
                                             cfg.pretaudem.filldem, cfg.ridge,
                                             cfg.pretaudem.distup2rdg, cfg.d8_up_method,
                                             cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
-                                            cfg.log.preproc, cfg.hostfile)
+                                            cfg.log.preproc, cfg.log.runtime, cfg.hostfile)
         elif cfg.flow_model == 1:  # Dinf model
             # Dinf distance down
             TauDEMExtension.dinfdistdown(cfg.proc, cfg.pretaudem.dinf, cfg.pretaudem.filldem,
@@ -116,18 +116,18 @@ def pre_processing(cfg):
                                          cfg.dinf_down_stat, cfg.dinf_down_method, 'false',
                                          cfg.dinf_dist_down_wg, cfg.pretaudem.dist2stream,
                                          cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
-                                         cfg.log.preproc, cfg.hostfile)
+                                         cfg.log.preproc, cfg.log.runtime, cfg.hostfile)
             TauDEMExtension.dinfdistuptoridge(cfg.proc, cfg.pretaudem.dinf,
                                               cfg.pretaudem.filldem, cfg.pretaudem.dinf_slp,
                                               cfg.propthresh, cfg.pretaudem.distup2rdg,
                                               cfg.dinf_up_stat, cfg.dinf_up_method, 'false',
                                               cfg.ridge,
                                               cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
-                                              cfg.log.preproc, cfg.hostfile)
+                                              cfg.log.preproc, cfg.log.runtime, cfg.hostfile)
         TauDEMExtension.simplecalculator(cfg.proc, cfg.pretaudem.dist2stream,
                                          cfg.pretaudem.distup2rdg, cfg.pretaudem.rpi_hydro, 4,
                                          cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
-                                         cfg.log.preproc, cfg.hostfile)
+                                         cfg.log.preproc, cfg.log.runtime, cfg.hostfile)
     if cfg.rpi_method == 0:  # calculate RPI based on Skidmore's method
         if cfg.ridge is None or not FileClass.is_file_exists(cfg.ridge):
             cfg.ridge = cfg.pretaudem.rdgsrc
@@ -138,18 +138,18 @@ def pre_processing(cfg):
                 elevfile = cfg.pretaudem.dist2stream_v
             TauDEMExtension.extractridge(cfg.proc, angfile, elevfile, cfg.ridge,
                                          cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
-                                         cfg.log.preproc, cfg.hostfile)
+                                         cfg.log.preproc, cfg.log.runtime, cfg.hostfile)
         TauDEMExtension.rpiskidmore(cfg.proc, cfg.valley, cfg.ridge,
                                     cfg.pretaudem.rpi_skidmore, 1, 1,
                                     cfg.pretaudem.dist2stream_ed, cfg.pretaudem.dist2rdg_ed,
                                     cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
-                                    cfg.log.preproc, cfg.hostfile)
+                                    cfg.log.preproc, cfg.log.runtime, cfg.hostfile)
     log_status.write("Calculating Horizontal Curvature and Profile Curvature...\n")
     TauDEMExtension.curvature(cfg.proc, cfg.pretaudem.filldem,
                               cfg.topoparam.profc, cfg.topoparam.horizc,
                               None, None, None, None, None,
                               cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
-                              cfg.log.preproc, cfg.hostfile)
+                              cfg.log.preproc, cfg.log.runtime, cfg.hostfile)
 
     if cfg.flow_model == 0:
         slope_rad_to_deg(cfg.pretaudem.slp, cfg.topoparam.slope)

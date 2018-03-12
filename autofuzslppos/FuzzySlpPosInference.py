@@ -48,7 +48,7 @@ def fuzzy_inference(cfg):
             for p in params_list:
                 # for update
                 cfg.inferparam[slppos][p[0]] = p[1:]
-                cfg.selectedtopo[p[0]] = p[1]
+                #cfg.selectedtopo[p[0]] = p[1]
                 # # for supplement
                 # if not p[0] in cfg.inferparam[slppos]:
                 #     cfg.inferparam[slppos][p[0]] = p[1:]
@@ -97,7 +97,7 @@ def fuzzy_inference(cfg):
         TauDEMExtension.fuzzyslpposinference(cfg.proc,
                                              cfg.singleslpposconf[slppos].infconfig,
                                              cfg.ws.output_dir,cfg.mpi_dir, cfg.bin_dir,
-                                             cfg.log.all, cfg.hostfile)
+                                             cfg.log.all, cfg.log.runtime, cfg.hostfile)
 
     TauDEMExtension.hardenslppos(cfg.proc, simif, cfg.slppostag,
                                  cfg.slpposresult.harden_slppos,
@@ -105,15 +105,14 @@ def fuzzy_inference(cfg):
                                  cfg.slpposresult.secharden_slppos,
                                  cfg.slpposresult.secmax_similarity, None, None,
                                  cfg.ws.output_dir, cfg.mpi_dir, cfg.bin_dir,
-                                 cfg.log.all, cfg.hostfile)
+                                 cfg.log.all, cfg.log.runtime, cfg.hostfile)
     print('Fuzzy slope position calculated done!')
     # Combine fuzzy inference parameters.
     combine_inf_conf_parameters(cfg.slppostype, cfg.singleslpposconf, cfg.slpposresult.infconfig)
     end_t = time.time()
     cost = (end_t - start_t) / 60.
-    logf = open(cfg.log.runtime, 'a')
-    logf.write('Fuzzy Slope Position Inference Time-consuming: ' + str(cost) + ' s\n')
-    logf.close()
+    with open(cfg.log.runtime, 'a') as logf:
+        logf.write('Fuzzy Slope Position Inference Time-consuming: ' + str(cost) + ' s\n')
     return cost
 
 

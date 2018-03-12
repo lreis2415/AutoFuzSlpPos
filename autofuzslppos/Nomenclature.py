@@ -160,5 +160,5 @@ class LogNames(object):
     def __init__(self, log_dir):
         """Initialize."""
         self.preproc = log_dir + os.sep + 'log_preprocessing.txt'
-        self.all = log_dir + os.sep + 'log_all.txt'
+        self.all = log_dir + os.sep + 'log_fuzzyslppos.txt'
         self.runtime = log_dir + os.sep + 'log_runtime.txt'

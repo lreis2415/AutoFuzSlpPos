@@ -234,14 +234,14 @@ class AutoFuzSlpPosConfig(object):
         if _require in self.cf.sections():
             if self.bin_dir is None:
                 self.bin_dir = self.cf.get(_require, 'exedir')
-            if self.cf.has_option(_require, 'rootdir') and self.root_dir is None:
+            if self.root_dir is None and self.cf.has_option(_require, 'rootdir'):
                 self.root_dir = self.cf.get(_require, 'rootdir')
-                self.ws = CreateWorkspace(self.root_dir)
-                self.log = LogNames(self.ws.log_dir)
-                self.topoparam = TopoAttrNames(self.ws)
-                self.slpposresult = FuzSlpPosFiles(self.ws)
-            else:
+            if self.root_dir is None:
                 raise IOError("Workspace must be defined!")
+            self.ws = CreateWorkspace(self.root_dir)
+            self.log = LogNames(self.ws.log_dir)
+            self.topoparam = TopoAttrNames(self.ws)
+            self.slpposresult = FuzSlpPosFiles(self.ws)
             if self.dem is None:
                 self.dem = self.cf.get(_require, 'rawdem')
                 self.dem = AutoFuzSlpPosConfig.check_file_available(self.dem)

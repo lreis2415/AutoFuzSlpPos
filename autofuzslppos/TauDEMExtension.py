@@ -22,7 +22,7 @@ class TauDEMExtension(TauDEM):
     @staticmethod
     def d8distuptoridge(np, p, fel, src, dist, distm,
                         workingdir=None, mpiexedir=None, exedir=None,
-                        log_file=None, hostfile=None):
+                        log_file=None, runtime_file=None, hostfile=None):
         """Run D8 distance to stream"""
         fname = TauDEM.func_name('d8distuptoridge')
         return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
@@ -31,13 +31,13 @@ class TauDEMExtension(TauDEM):
                           in_params={'-m': TauDEM.convertdistmethod(distm)},
                           out_files={'-du': dist},
                           mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
-                          log_params={'logfile': log_file})
+                          log_params={'logfile': log_file, 'runtimefile': runtime_file})
 
     @staticmethod
     def dinfdistuptoridge(np, ang, fel, slp, propthresh, dist, statsm, distm,
                           edgecontamination, rdg=None,
                           workingdir=None, mpiexedir=None, exedir=None,
-                          log_file=None, hostfile=None):
+                          log_file=None, runtime_file=None, hostfile=None):
         """Run Dinf distance to ridge."""
         fname = TauDEM.func_name('dinfdistuptoridge')
         in_params = {'-thresh': str(propthresh),
@@ -51,12 +51,12 @@ class TauDEMExtension(TauDEM):
                           in_params=in_params,
                           out_files={'-du': dist},
                           mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
-                          log_params={'logfile': log_file})
+                          log_params={'logfile': log_file, 'runtimefile': runtime_file})
 
     @staticmethod
     def extractridge(np, angfile, elevfile, rdgsrc,
                      workingdir=None, mpiexedir=None, exedir=None,
-                     log_file=None, hostfile=None):
+                     log_file=None, runtime_file=None, hostfile=None):
         """Extract ridge source."""
         fname = TauDEM.func_name('ridgeextraction')
         return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
@@ -65,12 +65,12 @@ class TauDEMExtension(TauDEM):
                           in_params=None,
                           out_files={'-src': rdgsrc},
                           mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
-                          log_params={'logfile': log_file})
+                          log_params={'logfile': log_file, 'runtimefile': runtime_file})
 
     @staticmethod
     def rpiskidmore(np, vlysrc, rdgsrc, rpi, vlytag=1, rdgtag=1, dist2vly=None, dist2rdg=None,
                     workingdir=None, mpiexedir=None, exedir=None,
-                    log_file=None, hostfile=None):
+                    log_file=None, runtime_file=None, hostfile=None):
         """Calculate RPI according to Skidmore (1990)."""
         fname = TauDEM.func_name('rpiskidmore')
         in_params = dict()
@@ -84,13 +84,13 @@ class TauDEMExtension(TauDEM):
                           in_params=in_params,
                           out_files={'-rpi': rpi, '-dist2vly': dist2vly, '-dist2rdg': dist2rdg},
                           mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
-                          log_params={'logfile': log_file})
+                          log_params={'logfile': log_file, 'runtimefile': runtime_file})
 
     @staticmethod
     def curvature(np, fel, profc,
                   horizc=None, planc=None, unspherc=None, avec=None, maxc=None, minc=None,
                   workingdir=None, mpiexedir=None, exedir=None,
-                  log_file=None, hostfile=None):
+                  log_file=None, runtime_file=None, hostfile=None):
         """Calculate various curvature."""
         fname = TauDEM.func_name('curvature')
         return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
@@ -101,12 +101,12 @@ class TauDEMExtension(TauDEM):
                                      '-unspher': unspherc, '-ave': avec, '-max': maxc,
                                      '-min': minc},
                           mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
-                          log_params={'logfile': log_file})
+                          log_params={'logfile': log_file, 'runtimefile': runtime_file})
 
     @staticmethod
     def simplecalculator(np, inputa, inputb, output, operator,
                          workingdir=None, mpiexedir=None, exedir=None,
-                         log_file=None, hostfile=None):
+                         log_file=None, runtime_file=None, hostfile=None):
         """Run simple calculator.
 
            operator = 0: add
@@ -123,12 +123,12 @@ class TauDEMExtension(TauDEM):
                           in_params={'-op': operator},
                           out_files={'-out': output},
                           mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
-                          log_params={'logfile': log_file})
+                          log_params={'logfile': log_file, 'runtimefile': runtime_file})
 
     @staticmethod
-    def selecttyplocslppos(np, inputconf, outputconf, extlog=None,
+    def selecttyplocslppos(np, inputconf, outputconf=None, extlog=None,
                            workingdir=None, mpiexedir=None, exedir=None,
-                           log_file=None, hostfile=None):
+                           log_file=None, runtime_file=None, hostfile=None):
         """Select typical locations."""
         fname = TauDEM.func_name('selecttyplocslppos')
         return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
@@ -137,11 +137,11 @@ class TauDEMExtension(TauDEM):
                           in_params=None,
                           out_files={'-out': outputconf, '-extlog': extlog},
                           mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
-                          log_params={'logfile': log_file})
+                          log_params={'logfile': log_file, 'runtimefile': runtime_file})
 
     @staticmethod
     def fuzzyslpposinference(np, config, workingdir=None, mpiexedir=None,
-                             exedir=None, log_file=None, hostfile=None):
+                             exedir=None, log_file=None, runtime_file=None, hostfile=None):
         """Run fuzzy inference."""
         fname = TauDEM.func_name('fuzzyslpposinference')
         return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
@@ -150,13 +150,13 @@ class TauDEMExtension(TauDEM):
                           in_params=None,
                           out_files=None,
                           mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
-                          log_params={'logfile': log_file})
+                          log_params={'logfile': log_file, 'runtimefile': runtime_file})
 
     @staticmethod
     def hardenslppos(np, simifiles, tags, hard, maxsimi,
                      sechard=None, secsimi=None, spsim=None, spsi=None,
                      workingdir=None, mpiexedir=None, exedir=None,
-                     log_file=None, hostfile=None):
+                     log_file=None, runtime_file=None, hostfile=None):
         """Select typical locations."""
         fname = TauDEM.func_name('hardenslppos')
         if len(simifiles) != len(tags):
@@ -173,4 +173,4 @@ class TauDEMExtension(TauDEM):
                           in_params=in_params,
                           out_files={'-maxS': [hard, maxsimi], '-secS': [sechard, secsimi]},
                           mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
-                          log_params={'logfile': log_file})
+                          log_params={'logfile': log_file, 'runtimefile': runtime_file})
