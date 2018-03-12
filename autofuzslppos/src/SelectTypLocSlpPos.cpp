@@ -9,6 +9,9 @@
  * Contact: zlj@lreis.ac.cn
  *
  */
+#if (defined _DEBUG) && (defined _MSC_VER) && (defined VLD)
+#include "vld.h"
+#endif /* Run Visual Leak Detector during Debug */
 // include fundamental libraries
 #include <stdlib.h>
 #include <iostream>
@@ -154,8 +157,7 @@ int SetFuzFuncShape(paramExtGRID &paramgrd, ExtInfo &paramExt, char shape, float
  */
 int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExtGRID *paramsgrd, int addparamsNum,
                        paramExtGRID *addparamgrd, vector<DefaultFuzInf> fuzinf, float *baseInputParameters,
-                       char *typlocfile, char *outconffile, bool writelog, char *logfile)
-{
+                       char *typlocfile, char *outconffile, bool writelog, char *logfile) {
     MPI_Init(NULL, NULL);
     {
         int rank, size;
@@ -176,8 +178,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
         float MAX_TYPLOC_NUM_PECENT = 0.f;
         int SELECTION_MODE = 1;
         float DEFAULT_INCREMENT_RATIO = 0.1f, DEFAULT_SIGMA_MULTIPLIER = 1.f, DEFAULT_BiGaussian_Ratio = 4.f;
-        if (baseInputParameters != NULL)
-        {
+        if (baseInputParameters != nullptr) {
             MIN_FREQUENCY = int(baseInputParameters[0]);
             MIN_TYPLOC_NUM_PECENT = baseInputParameters[1];
             MAX_TYPLOC_NUM_PECENT = baseInputParameters[2];
@@ -187,26 +188,20 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
             MAX_LOOP_NUM_TYPLOC_SELECTION = int(baseInputParameters[6]);
             DEFAULT_BiGaussian_Ratio = baseInputParameters[7];
         }
-        if (rank == 0)
-        {
+        if (rank == 0) {
             printf("SelectTypLocSlpPos -h version %s, added by Liangjun Zhu, Apr 24, 2015\n", TDVERSION);
             printf("ProtoTag: %d\n", prototag);
             printf("ParametersNum: %d\n", paramsNum);
-            for (num = 0; num < paramsNum; num++)
-            {
-                if (!(paramsgrd[num].minTyp == paramsgrd[num].maxTyp && paramsgrd[num].maxTyp == 0.f))
-                {
+            for (num = 0; num < paramsNum; num++) {
+                if (!(paramsgrd[num].minTyp == paramsgrd[num].maxTyp && paramsgrd[num].maxTyp == 0.f)) {
                     printf("TerrainAttri.No.%d: %s\n", num, paramsgrd[num].name);
                     printf("   Path: %s\n", paramsgrd[num].path);
                     printf("   min: %f\n   max: %f\n", paramsgrd[num].minTyp, paramsgrd[num].maxTyp);
                 }
             }
-            if (addparamsNum != 0)
-            {
-                for (num = 0; num < addparamsNum; num++)
-                {
-                    if (!(addparamgrd[num].minTyp == addparamgrd[num].maxTyp && addparamgrd[num].maxTyp == 0.f))
-                    {
+            if (addparamsNum != 0) {
+                for (num = 0; num < addparamsNum; num++) {
+                    if (!(addparamgrd[num].minTyp == addparamgrd[num].maxTyp && addparamgrd[num].maxTyp == 0.f)) {
                         printf("Additional TerrainAttri.No.%d: %s\n", num, addparamgrd[num].name);
                         printf("   Path: %s\n", addparamgrd[num].path);
                         printf("   min: %f\n   max: %f\n", addparamgrd[num].minTyp, addparamgrd[num].maxTyp);
@@ -215,23 +210,20 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
             }
             //printf("%d\n",RPIindex);
             printf("Typical Location Output: %s\n", typlocfile);
-            printf("Fuzzy Inference Configuration File: %s\n", outconffile);
+            //printf("Fuzzy Inference Configuration File: %s\n", outconffile);
             fflush(stdout);
             /// if logfile exists, delete and recreate it, else if logfile does not exist, create it.
-            if (autoSel && writelog)
-            {
+            if (autoSel && writelog) {
                 fstream tempf;
                 tempf.open(logfile);
-                if (!tempf)
-                {
+                if (!tempf) {
                     tempf.close();
                     FILE *fp;
                     fp = fopen(logfile, "w+");
                     if (fp == NULL) return 0;
                     fclose(fp);
                 }
-                else
-                {
+                else {
                     tempf.close();
                     remove(logfile);
                     FILE *fp;
@@ -241,9 +233,12 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                 }
             }
         }
-        for (num = 0; num < paramsNum; num++)
-            if (strcmp(paramsgrd[num].name, "rpi") == 0)
+        for (num = 0; num < paramsNum; num++) {
+            if (strcmp(paramsgrd[num].name, "rpi") == 0) {
                 RPIindex = num;
+                break;
+            }
+        }
         double begint = MPI_Wtime();  /// start time
 
         /// read tiff header information using tiffIO
@@ -266,11 +261,9 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
 
         /// read parameters data into *partition
         linearpart<float> *params = new linearpart<float>[paramsNum]; /// include RPI
-        for (num = 0; num < paramsNum; num++)
-        {
+        for (num = 0; num < paramsNum; num++) {
             tiffIO paramsf(paramsgrd[num].path, FLOAT_TYPE);
-            if (!RPIf.compareTiff(paramsf))
-            {
+            if (!RPIf.compareTiff(paramsf)) {
                 printf("File size do not match\n%s\n", paramsgrd[num].path);
                 MPI_Abort(MCW, 5);
                 return 1;
@@ -279,15 +272,12 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
             paramsf.read(xstart, ystart, ny, nx, params[num].getGridPointer());
         }
         /// read additional parameters data into *partition
-        linearpart<float> *addparams;
-        if (addparamsNum != 0)
-        {
+        linearpart<float> *addparams = nullptr;
+        if (addparamsNum != 0) {
             addparams = new linearpart<float>[addparamsNum];
-            for (num = 0; num < addparamsNum; num++)
-            {
+            for (num = 0; num < addparamsNum; num++) {
                 tiffIO paramsf(addparamgrd[num].path, FLOAT_TYPE);
-                if (!RPIf.compareTiff(paramsf))
-                {
+                if (!RPIf.compareTiff(paramsf)) {
                     printf("File size do not match\n%s\n", addparamgrd[num].path);
                     MPI_Abort(MCW, 5);
                     return 1;
@@ -306,8 +296,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
         int err;
         float **AllCellValues = new float *[paramsNum]; /// used to store all cell values from all processors selected of each topographic attributes
         ExtInfo *paramsExtInfo = new ExtInfo[paramsNum]; /// frequency distribution array, and store other statistics values
-        if (autoSel) /// determine the value range according to RPI and additional parameters
-        {
+        if (autoSel) { /// determine the value range according to RPI and additional parameters
             float *minTypValue = new float[addparamsNum +1];/// READ RPI value range and additional topographic attributes' value ranges
             float *maxTypValue = new float[addparamsNum + 1];/// update 2015/5/18
             int *CellCount = new int[paramsNum]; /// selected cell numbers
@@ -315,45 +304,35 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
             queue<float> *tempCellValues = new queue<float>[paramsNum]; /// dynamic queue to store temp cell values selected for current processor
             float *maxValue = new float[paramsNum]; /// maximum topographic attribute
             float *minValue = new float[paramsNum]; /// minimum topographic attribute
-            for (i = 0; i < addparamsNum; i++)
-            {
+            for (i = 0; i < addparamsNum; i++) {
                 minTypValue[i] = addparamgrd[i].minTyp;
                 maxTypValue[i] = addparamgrd[i].maxTyp;
             }
             minTypValue[addparamsNum] = paramsgrd[RPIindex].minTyp;
             maxTypValue[addparamsNum] = paramsgrd[RPIindex].maxTyp;
 
-            for (num = 0; num < paramsNum; num++)
-            {
-				if(num == RPIindex)
-				{
+            for (num = 0; num < paramsNum; num++) {
+				if(num == RPIindex) {
 					maxValue[num] = paramsgrd[RPIindex].maxTyp;;
 					minValue[num] = paramsgrd[RPIindex].minTyp;;
 				}
-				else
-				{
+				else {
 					maxValue[num] = MISSINGFLOAT;
 					minValue[num] = -1 * MISSINGFLOAT;
 				}
             }
             /// extract candidate attribute values according to RPI range and additional attribute
-            for (j = 0; j < ny; j++) /// rows
-            {
-                for (i = 0; i < nx; i++) /// cols
-                {
+            for (j = 0; j < ny; j++) { /// rows
+                for (i = 0; i < nx; i++) { /// cols
                     bool selected = true;
-                    if (!params[RPIindex].isNodata(i, j))
-                    {
+                    if (!params[RPIindex].isNodata(i, j)) {
                         params[RPIindex].getData(i, j, tempRPI);
                         if (tempRPI < minTypValue[addparamsNum] || tempRPI > maxTypValue[addparamsNum])
                             selected = false;
-                        else
-                        {
+                        else {
                             int tempAddParamCount;
-                            for (tempAddParamCount = 0; tempAddParamCount < addparamsNum; tempAddParamCount++)
-                            {
-                                if (!addparams[tempAddParamCount].isNodata(i, j))
-                                {
+                            for (tempAddParamCount = 0; tempAddParamCount < addparamsNum; tempAddParamCount++) {
+                                if (!addparams[tempAddParamCount].isNodata(i, j)) {
                                     float tempAddValue;
                                     addparams[tempAddParamCount].getData(i, j, tempAddValue);
                                     if (tempAddValue < minTypValue[tempAddParamCount] ||
@@ -362,14 +341,10 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                                 }
                             }
                         }
-                        if (selected)
-                        {
-                            for (num = 0; num < paramsNum; num++)
-                            {
-                                if (num != RPIindex)
-                                {
-                                    if (!params[num].isNodata(i, j))
-                                    {
+                        if (selected) {
+                            for (num = 0; num < paramsNum; num++) {
+                                if (num != RPIindex) {
+                                    if (!params[num].isNodata(i, j)) {
                                         params[num].getData(i, j, tempAttr);
                                         if (tempAttr < minValue[num])
                                             minValue[num] = tempAttr;
@@ -384,22 +359,18 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                 }
             }
             /// dump cell values from tempCellValues to CellValues
-            for (num = 0; num < paramsNum; num++)
-            {
-                if (num != RPIindex)
-                {
+            for (num = 0; num < paramsNum; num++) {
+                if (num != RPIindex) {
                     int tempCellCount = tempCellValues[num].size();
                     CellCount[num] = tempCellCount;
                     CellValues[num] = new float[tempCellCount];
-                    while (!tempCellValues[num].empty())
-                    {
+                    while (!tempCellValues[num].empty()) {
                         CellValues[num][tempCellCount - 1] = tempCellValues[num].front();
                         tempCellValues[num].pop();
                         tempCellCount--;
                     }
                 }
-                else /// special handing for RPI
-                {
+                else { /// special handing for RPI
                     CellCount[num] = 1;
                     CellValues[num] = new float[1];
                     CellValues[num][0] = 0.f;
@@ -408,8 +379,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
 			//for (int k = 0;k < paramsNum;k++)
 			//	printf("%s:%d,min:%f,max:%f\n",paramsgrd[k].name,CellCount[k],minValue[k],maxValue[k]);
             /// use host process(i.e., rank = 0) to gather all cell values and do Gaussian Fitting.
-            for (num = 0; num < paramsNum; num++)
-            {
+            for (num = 0; num < paramsNum; num++) {
                 int *localCellCount = new int[size]; /// cell numbers in each processor
                 MPI_Allreduce(&maxValue[num], &paramsExtInfo[num].maxValue, 1, MPI_FLOAT, MPI_MAX, MCW);
                 MPI_Allreduce(&minValue[num], &paramsExtInfo[num].minValue, 1, MPI_FLOAT, MPI_MIN, MCW);
@@ -436,19 +406,16 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
             MIN_TYPLOC_NUM = int(MIN_TYPLOC_NUM_PECENT * maxCellCount); /// update 2015/08/07
 			
             /// do Bi-Gaussian fitting model and set parameters for finding typical locations and fuzzy inference
-            if (rank == 0)
-            {
+            if (rank == 0) {
 				/// test code
 				//for (int i = 0;i < paramsNum;i++)
 				//	printf("%s:%d,min:%f,max:%f\n",paramsgrd[i].name,paramsExtInfo[i].num,paramsExtInfo[i].minValue,paramsExtInfo[i].maxValue);
 				//for(num = 0; num < paramsNum; num++)
 				//	cout<<paramsgrd[num].name<<","<<paramsgrd[num].shape<<","<<paramsgrd[num].minTyp<<","<<paramsgrd[num].maxTyp<<endl;
 				/// end test code
-                for (num = 0; num < paramsNum; num++)
-                {
+                for (num = 0; num < paramsNum; num++) {
                     paramsExtInfo[num].interval = 0.f;
-                    if (num == RPIindex) /// set default
-                    {
+                    if (num == RPIindex) { /// set default
                         paramsgrd[num].shape = 'B';
                         paramsgrd[num].w1 = 6.f;
                         paramsgrd[num].k1 = 0.5f;
@@ -458,8 +425,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                         paramsgrd[num].r2 = 2.f;
                         continue;
                     }
-                    for (i = 0; i < FREQUENCY_GROUP; i++) /// initialize frequency distribution arrays
-                    {
+                    for (i = 0; i < FREQUENCY_GROUP; i++) { /// initialize frequency distribution arrays
                         paramsExtInfo[num].x[i] = 0.f;
                         paramsExtInfo[num].y[i] = 0.f;
                         paramsExtInfo[num].XRange[i] = 0.f;
@@ -475,16 +441,14 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
 						group /= 2;
                     paramsExtInfo[num].interval =
                             (paramsExtInfo[num].maxValue - paramsExtInfo[num].minValue) / (float)group;
-                    for (i = 0; i < FREQUENCY_GROUP; i++)
-                    {
+                    for (i = 0; i < FREQUENCY_GROUP; i++) {
                         paramsExtInfo[num].x[i] =
                                 paramsExtInfo[num].minValue + paramsExtInfo[num].interval * (i + 0.5f);
                         paramsExtInfo[num].XRange[i] =
                                 paramsExtInfo[num].minValue + paramsExtInfo[num].interval * i;
                     }
                     paramsExtInfo[num].XRange[FREQUENCY_GROUP] = paramsExtInfo[num].maxValue;
-                    for (i = 0; i < paramsExtInfo[num].num; i++) /// calculate frequency
-                    {
+                    for (i = 0; i < paramsExtInfo[num].num; i++) { /// calculate frequency
                         paramsExtInfo[num].y[(int) floor((AllCellValues[num][i] - paramsExtInfo[num].minValue) /
                                                             paramsExtInfo[num].interval)]++;
                     }
@@ -499,8 +463,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
 					// if MIN_FREQUENCY is greater than the 50% of the frequencies, then use the 70%
 					int gt = 0;
 					vector<float> tmpY;
-					for (j = 0; j < FREQUENCY_GROUP; j++)
-					{
+					for (j = 0; j < FREQUENCY_GROUP; j++) {
                         if (paramsExtInfo[num].y[j] >= MIN_FREQUENCY)
                             gt++;
                         tmpY.push_back(paramsExtInfo[num].y[j]);
@@ -508,8 +471,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
 					vector<float>(tmpY).swap(tmpY);
 					//cout<<"there are "<<gt<<" greater than MIN_FREQUENCY: "<<MIN_FREQUENCY<<endl;
 					int newLowestFreq = MIN_FREQUENCY;
-					if (gt <= FREQUENCY_GROUP/2)
-					{
+					if (gt <= FREQUENCY_GROUP / 2) {
 						sort(tmpY.begin(), tmpY.end());
 						newLowestFreq = tmpY[round(FREQUENCY_GROUP * 0.3f)];
 						newLowestFreq = newLowestFreq <= 0 ? 1 : newLowestFreq;
@@ -519,18 +481,15 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
 					//cout<<endl;
 					//cout<<"MIN_FREQUENCY is: "<<newLowestFreq<<endl;
                     vector<float> tempx, tempy;
-                    for (j = 0; j < FREQUENCY_GROUP; j++)
-                    {/// eliminate frequency which less than MIN_FREQUENCY
-                        if (paramsExtInfo[num].y[j] >= newLowestFreq) 
-                        {
+                    for (j = 0; j < FREQUENCY_GROUP; j++) { /// eliminate frequency which less than MIN_FREQUENCY
+                        if (paramsExtInfo[num].y[j] >= newLowestFreq) {
                             tempx.push_back(paramsExtInfo[num].x[j]);
                             tempy.push_back(paramsExtInfo[num].y[j]);
                         }
                     }
                     vector<float>(tempy).swap(tempy); /// swap to save memory
                     vector<float>(tempx).swap(tempx);
-                    if (writelog) /// append frequency distribution values to log file
-                    {
+                    if (writelog) { /// append frequency distribution values to log file
                         ofstream logf;
                         logf.open(logfile, ios_base::app | ios_base::out);
                         logf << "Frequencies of " << paramsgrd[num].name << endl;
@@ -540,12 +499,9 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                     }
                     /// update: 2015/5/14, use the prior defined shape of fuzzy membership function
                     vector<char> priorShape;
-                    for (i = 0; i < fuzinf.size(); i++)
-                    {
-                        if (strcmp(fuzinf[i].param, paramsgrd[num].name) == 0)
-                        {
-                            for (j = 0; j < 4; j++)
-                            {
+                    for (i = 0; i < fuzinf.size(); i++) {
+                        if (strcmp(fuzinf[i].param, paramsgrd[num].name) == 0) {
+                            for (j = 0; j < 4; j++) {
                                 if (fuzinf[i].shape[j] != '\0')
                                     priorShape.push_back(fuzinf[i].shape[j]);
                                 else
@@ -556,10 +512,8 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                     vector<float>::iterator max_freq_y = max_element(tempy.begin(), tempy.end());
                     int max_freq_idx = distance(tempy.begin(), max_freq_y);
                     int max_freq_idx_origin;  /// because of eliminate of zero, max_freq_idx may less than max_freq_idx_origin
-                    for (i = max_freq_idx; i < FREQUENCY_GROUP; i++)
-                    {
-                        if (paramsExtInfo[num].y[i] == tempy[max_freq_idx])
-                        {
+                    for (i = max_freq_idx; i < FREQUENCY_GROUP; i++) {
+                        if (paramsExtInfo[num].y[i] == tempy[max_freq_idx]) {
                             max_freq_idx_origin = i;
                             break;
                         }
@@ -596,8 +550,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                     /// simple rules to figure out which curve shape should be
                     float cum2maxFreq_default = 0.25f, dist2center_default = 0.05f, disthalf2end_default = 0.5f;
                     float biRatio = 0.f; /// used to determine the curve shape of FMF
-                    if (bigauss == 1 && bigauss_results.size() == 1)  /// Only one fitted BiGaussian model returned
-                    {
+                    if (bigauss == 1 && bigauss_results.size() == 1) { /// Only one fitted BiGaussian model returned
                         float peakCenter = bigauss_results[0][0]; /// fitted central value
                         float sigmaLeftFitted = bigauss_results[0][1]; /// fitted left sigma
                         float sigmaRightFitted = bigauss_results[0][2]; /// fitted right sigma
@@ -611,27 +564,22 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                         max_freq_x = tempx[max_freq_idx];
                         dist2center = abs(max_freq_x - peakCenter) / paramsExtInfo[num].interval; 
 						/// this means the fitted result is quite good
-                        if (dist2center < dist2center_default * FREQUENCY_GROUP) 
-                        {
+                        if (dist2center < dist2center_default * FREQUENCY_GROUP) {
 							//cout<<"    the fitted result is quite good"<<endl;
                             biRatio = sigmaLeftFitted / sigmaRightFitted;
-                            if (biRatio >= DEFAULT_BiGaussian_Ratio) /// regard as s-shaped
-                            {
+                            if (biRatio >= DEFAULT_BiGaussian_Ratio) { /// regard as s-shaped
                                 fitShape[0] = 'S';
                             }
 							/// bell-shaped or s-shaped, and bell-shaped is prevail
-                            else if (biRatio > 1 && biRatio < DEFAULT_BiGaussian_Ratio) 
-                            {
+                            else if (biRatio > 1 && biRatio < DEFAULT_BiGaussian_Ratio) {
                                 fitShape[0] = 'B';
                                 fitShape[1] = 'S';
                             }
-                            else if (biRatio == 1)  /// regard as bell-shaped
-                            {
+                            else if (biRatio == 1) { /// regard as bell-shaped
                                 fitShape[0] = 'B';
                             }
 							/// bell-shaped or z-shaped, and bell-shaped is prevail
-                            else if (biRatio < 1 && biRatio > 1.f / DEFAULT_BiGaussian_Ratio) 
-                            {
+                            else if (biRatio < 1 && biRatio > 1.f / DEFAULT_BiGaussian_Ratio) {
                                 fitShape[0] = 'B';
                                 fitShape[1] = 'Z';
                             }
@@ -640,8 +588,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                             centralValue[0] = peakCenter;
                             centralValue[1] = peakCenter;
                         }
-                        else /// it means that the fitted result is not satisfied, use simple rules to figure out fitShape
-                        {
+                        else { /// it means that the fitted result is not satisfied, use simple rules to figure out fitShape
 							//cout<<"    the fitted result is not satisfied, use simple rules instead"<<endl;
                             int cumFreq = 0;  /// accumulative frequency
                             int validNum = accumulate(tempy.begin(), tempy.end(), 0); /// all frequency number
@@ -805,8 +752,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                         }
                         else
                             dropParam(paramsgrd[num]);
-                        if (writelog) /// append fitting result to log file
-                        {
+                        if (writelog) { /// append fitting result to log file
                             ofstream logf;
                             logf.open(logfile, ios_base::app | ios_base::out);
                             logf << endl << endl;
@@ -825,11 +771,9 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                             logf.close();
                         }
                     }
-                    else /// the bi-Gaussian fitted failed!
-                    {
+                    else { /// the bi-Gaussian fitted failed!
                         dropParam(paramsgrd[num]);
-                        if (writelog)
-                        {
+                        if (writelog) {
                             ofstream logf;
                             logf.open(logfile, ios_base::app | ios_base::out);
                             logf << endl << endl;
@@ -840,8 +784,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                 }
             }
             /// Broadcast the extracted parameters to all processors
-            for (num = 0; num < paramsNum; num++)
-            {
+            for (num = 0; num < paramsNum; num++) {
                 MPI_Bcast(&paramsgrd[num].shape, 1, MPI_CHAR, 0, MCW);
                 MPI_Bcast(&paramsgrd[num].maxTyp, 1, MPI_FLOAT, 0, MCW);
                 MPI_Bcast(&paramsgrd[num].minTyp, 1, MPI_FLOAT, 0, MCW);
@@ -866,48 +809,39 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
         int LoopNum = 0; /// record loop number to avoid endless loop
         int previousTypLocCountAll; /// cell number of typical locations from last loop, this is aimed to judge when to stop.
         selectedNum = 0;
-        for (num = 0; num < paramsNum; num++)
+        for (num = 0; num < paramsNum; num++) {
             if (paramsgrd[num].shape != 'D' && paramsgrd[num].maxTyp > paramsgrd[num].minTyp)
                 selectedNum++;
+        }
         while ((TypLocCountAll <= MIN_TYPLOC_NUM || TypLocCountAll >= MAX_TYPLOC_NUM) &&
-               LoopNum <= MAX_LOOP_NUM_TYPLOC_SELECTION)
-        {
+               LoopNum <= MAX_LOOP_NUM_TYPLOC_SELECTION) {
             TypLocCount = 0;
             previousTypLocCountAll = TypLocCountAll;
             TypLocCountAll = 0;
             typloc->init(totalX, totalY, dx, dy, MPI_SHORT, MISSINGSHORT);
-            for (j = 0; j < ny; j++) /// rows
-            {
-                for (i = 0; i < nx; i++) /// cols
-                {
+            for (j = 0; j < ny; j++) { /// rows
+                for (i = 0; i < nx; i++) { /// cols
                     validCount = 0;
                     validCountAdd = 0;
-                    for (num = 0; num < paramsNum; num++)
-                    {
-                        if (!params[num].isNodata(i, j))
-                        {
-                            if (paramsgrd[num].shape != 'D' && paramsgrd[num].maxTyp > paramsgrd[num].minTyp)
-                            {
+                    for (num = 0; num < paramsNum; num++) {
+                        if (!params[num].isNodata(i, j)) {
+                            if (paramsgrd[num].shape != 'D' && paramsgrd[num].maxTyp > paramsgrd[num].minTyp) {
                                 params[num].getData(i, j, tempAttr);
                                 if (tempAttr >= paramsgrd[num].minTyp && tempAttr <= paramsgrd[num].maxTyp)
                                     validCount++;
                             }
                         }
                     }
-                    for (num = 0; num < addparamsNum; num++)
-                    {
-                        if (!addparams[num].isNodata(i, j))
-                        {
-                            if (addparamgrd[num].maxTyp > addparamgrd[num].minTyp)
-                            {
+                    for (num = 0; num < addparamsNum; num++) {
+                        if (!addparams[num].isNodata(i, j)) {
+                            if (addparamgrd[num].maxTyp > addparamgrd[num].minTyp) {
                                 addparams[num].getData(i, j, tempAttr);
                                 if (tempAttr >= addparamgrd[num].minTyp && tempAttr <= addparamgrd[num].maxTyp)
                                     validCountAdd++;
                             }
                         }
                     }
-                    if (validCount == selectedNum && validCountAdd == addparamsNum)
-                    {
+                    if (validCount == selectedNum && validCountAdd == addparamsNum) {
                         typloc->setData(i, j, (short) prototag);
                         TypLocCount++;
                     }
@@ -918,21 +852,15 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
             //cout<<"rank:"<<rank<<",curNum: "<<TypLocCount<<endl;
             MPI_Allreduce(&TypLocCount, &TypLocCountAll, 1, MPI_INT, MPI_SUM, MCW);
             //printf("%d\n",TypLocCountAll);
-            if (rank == 0)
-            {
-                if (TypLocCountAll < MIN_TYPLOC_NUM) /// if selected cell number is less than MIN_TYPLOC_NUM
-                {
-                    for (num = 0; num < paramsNum; num++)
-                    {
+            if (rank == 0) {
+                if (TypLocCountAll < MIN_TYPLOC_NUM) { /// if selected cell number is less than MIN_TYPLOC_NUM
+                    for (num = 0; num < paramsNum; num++) {
                         if (paramsgrd[num].shape != 'D' && paramsgrd[num].maxTyp > paramsgrd[num].minTyp &&
-                            strcmp(paramsgrd[num].name, "rpi") != 0)
-                        {
+                            strcmp(paramsgrd[num].name, "rpi") != 0) {
                             float oldMaxTyp = paramsgrd[num].maxTyp;
                             float oldMinTyp = paramsgrd[num].minTyp;
-                            if (paramsgrd[num].shape == 'B')
-                            {
-                                if (autoSel && (paramsgrd[num].w1 + paramsgrd[num].w2) > ZERO)
-                                {
+                            if (paramsgrd[num].shape == 'B') {
+                                if (autoSel && (paramsgrd[num].w1 + paramsgrd[num].w2) > ZERO) {
                                     paramsgrd[num].maxTyp += abs(
                                             paramsgrd[num].maxTyp * DEFAULT_INCREMENT_RATIO * paramsgrd[num].w2 /
                                             (paramsgrd[num].w1 + paramsgrd[num].w2));
@@ -940,21 +868,18 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                                             paramsgrd[num].minTyp * DEFAULT_INCREMENT_RATIO * paramsgrd[num].w1 /
                                             (paramsgrd[num].w1 + paramsgrd[num].w2));
                                 }
-                                else
-                                {
+                                else {
                                     paramsgrd[num].maxTyp += abs(paramsgrd[num].maxTyp * DEFAULT_INCREMENT_RATIO / 2.f);
                                     paramsgrd[num].minTyp -= abs(paramsgrd[num].minTyp * DEFAULT_INCREMENT_RATIO / 2.f);
                                 }
                             }
-                            else if (paramsgrd[num].shape == 'S')
-                            {
+                            else if (paramsgrd[num].shape == 'S') {
                                 if (paramsgrd[num].minTyp < ZERO)
                                     paramsgrd[num].minTyp -= abs(paramsExtInfo[num].interval * DEFAULT_INCREMENT_RATIO);
                                 else
                                     paramsgrd[num].minTyp -= abs(paramsgrd[num].minTyp * DEFAULT_INCREMENT_RATIO);
                             }
-                            else if (paramsgrd[num].shape == 'Z')
-                            {
+                            else if (paramsgrd[num].shape == 'Z') {
                                 if (paramsgrd[num].maxTyp < ZERO)
                                     paramsgrd[num].maxTyp += abs(paramsExtInfo[num].interval * DEFAULT_INCREMENT_RATIO);
                                 else
@@ -962,8 +887,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                             }
                             paramsgrd[num].maxTyp = min(paramsgrd[num].maxTyp, paramsExtInfo[num].maxValue);
                             paramsgrd[num].minTyp = max(paramsgrd[num].minTyp, paramsExtInfo[num].minValue);
-                            if (paramsgrd[num].minTyp >= paramsgrd[num].maxTyp)
-                            {
+                            if (paramsgrd[num].minTyp >= paramsgrd[num].maxTyp) {
                                 paramsgrd[num].minTyp = oldMinTyp;
                                 paramsgrd[num].maxTyp = oldMaxTyp;
                             }
@@ -971,19 +895,14 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                     }
                     LoopNum++;
                 }
-                else if (TypLocCountAll > MAX_TYPLOC_NUM) /// if selected cell number is greater than MAX_TYPLOC_NUM
-                {
-                    for (num = 0; num < paramsNum; num++)
-                    {
+                else if (TypLocCountAll > MAX_TYPLOC_NUM) { /// if selected cell number is greater than MAX_TYPLOC_NUM
+                    for (num = 0; num < paramsNum; num++) {
                         if (paramsgrd[num].shape != 'D' && paramsgrd[num].maxTyp > paramsgrd[num].minTyp &&
-                            strcmp(paramsgrd[num].name, "rpi") != 0)
-                        {
+                            strcmp(paramsgrd[num].name, "rpi") != 0) {
                             float oldMaxTyp = paramsgrd[num].maxTyp;
                             float oldMinTyp = paramsgrd[num].minTyp;
-                            if (paramsgrd[num].shape == 'B')
-                            {
-                                if (autoSel && (abs(paramsgrd[num].w1) + abs(paramsgrd[num].w2)) > ZERO)
-                                {
+                            if (paramsgrd[num].shape == 'B') {
+                                if (autoSel && (abs(paramsgrd[num].w1) + abs(paramsgrd[num].w2)) > ZERO) {
                                     paramsgrd[num].maxTyp -= abs(
                                             paramsgrd[num].maxTyp * DEFAULT_INCREMENT_RATIO * paramsgrd[num].w2 /
                                             (paramsgrd[num].w1 + paramsgrd[num].w2));
@@ -991,22 +910,19 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                                             paramsgrd[num].minTyp * DEFAULT_INCREMENT_RATIO * paramsgrd[num].w1 /
                                             (paramsgrd[num].w1 + paramsgrd[num].w2));
                                 }
-                                else
-                                {
+                                else {
                                     paramsgrd[num].maxTyp -= abs(paramsgrd[num].maxTyp * DEFAULT_INCREMENT_RATIO / 2.f);
                                     paramsgrd[num].minTyp += abs(paramsgrd[num].minTyp * DEFAULT_INCREMENT_RATIO / 2.f);
                                 }
 
                             }
-                            else if (paramsgrd[num].shape == 'S')
-                            {
+                            else if (paramsgrd[num].shape == 'S') {
                                 if (paramsgrd[num].minTyp < ZERO)
                                     paramsgrd[num].minTyp += abs(paramsExtInfo[num].interval * DEFAULT_INCREMENT_RATIO);
                                 else
                                     paramsgrd[num].minTyp += abs(paramsgrd[num].minTyp * DEFAULT_INCREMENT_RATIO);
                             }
-                            else if (paramsgrd[num].shape == 'Z')
-                            {
+                            else if (paramsgrd[num].shape == 'Z') {
                                 if (paramsgrd[num].maxTyp < ZERO)
                                     paramsgrd[num].maxTyp -= abs(paramsExtInfo[num].interval * DEFAULT_INCREMENT_RATIO);
                                 else
@@ -1014,8 +930,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                             }
                             paramsgrd[num].maxTyp = min(paramsgrd[num].maxTyp, paramsExtInfo[num].maxValue);
                             paramsgrd[num].minTyp = max(paramsgrd[num].minTyp, paramsExtInfo[num].minValue);
-                            if (paramsgrd[num].minTyp >= paramsgrd[num].maxTyp)
-                            {
+                            if (paramsgrd[num].minTyp >= paramsgrd[num].maxTyp) {
                                 paramsgrd[num].minTyp = oldMinTyp;
                                 paramsgrd[num].maxTyp = oldMaxTyp;
                             }
@@ -1023,13 +938,10 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                     }
                     LoopNum++;
                 }
-                if (LoopNum >= 1)
-                {
+                if (LoopNum >= 1) {
                     /// ReCalculate Parameters of Fuzzy Membership Function
-                    for (num = 0; num < paramsNum; num++)
-                    {
-                        if (paramsgrd[num].shape == 'B')
-                        {
+                    for (num = 0; num < paramsNum; num++) {
+                        if (paramsgrd[num].shape == 'B') {
                             paramsgrd[num].w1 = DEFAULT_SIGMA_MULTIPLIER * shapeConvertor *
                                                 STDcal(AllCellValues[num], paramsExtInfo[num].num, false,
                                                        paramsgrd[num].maxTyp);
@@ -1047,22 +959,18 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                                                        paramsgrd[num].minTyp);
                     }
                 }
-                if (LoopNum >= 2 && LoopNum < MAX_LOOP_NUM_TYPLOC_SELECTION)
-                {
-                    if ((previousTypLocCountAll >= MAX_TYPLOC_NUM && TypLocCountAll <= MIN_TYPLOC_NUM))
-                    {
+                if (LoopNum >= 2 && LoopNum < MAX_LOOP_NUM_TYPLOC_SELECTION) {
+                    if ((previousTypLocCountAll >= MAX_TYPLOC_NUM && TypLocCountAll <= MIN_TYPLOC_NUM)) {
                         LoopNum = MAX_LOOP_NUM_TYPLOC_SELECTION; /// do another loop
                     }
                     if ((previousTypLocCountAll <= MIN_TYPLOC_NUM && TypLocCountAll >= MAX_TYPLOC_NUM) ||
-                        (previousTypLocCountAll == TypLocCountAll && TypLocCountAll != 0))
-                    {
+                        (previousTypLocCountAll == TypLocCountAll && TypLocCountAll != 0)) {
                         LoopNum = MAX_LOOP_NUM_TYPLOC_SELECTION + 1; /// do not do extra loop
                     }
                 }
             }
             MPI_Bcast(&LoopNum, 1, MPI_INT, 0, MCW);
-            for (num = 0; num < paramsNum; num++)
-            {
+            for (num = 0; num < paramsNum; num++) {
                 MPI_Bcast(&paramsgrd[num].shape, 1, MPI_CHAR, 0, MCW);
                 MPI_Bcast(&paramsgrd[num].maxTyp, 1, MPI_FLOAT, 0, MCW);
                 MPI_Bcast(&paramsgrd[num].minTyp, 1, MPI_FLOAT, 0, MCW);
@@ -1075,20 +983,17 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
             }
         }
 		/// release temp variables to save memory 
-		Release2DArray(paramsNum, AllCellValues);
+		if(autoSel) Release2DArray(paramsNum, AllCellValues);
         /// End Finding typical locations and determining the parameters for fuzzy inference
 
         double computet = MPI_Wtime(); /// record computing time
 		//printf("compute done.\n");
         /// write inference information into output configuration file, exclude RPI
-        if (rank == 0 && autoSel)
-        {
+        if (rank == 0 && autoSel) {
             fstream fs;
             fs.open(outconffile, ios_base::out);
-            for (num = 0; num < paramsNum; num++)
-            {
-                if (num != RPIindex && paramsgrd[num].shape != 'D')
-                {
+            for (num = 0; num < paramsNum; num++) {
+                if (num != RPIindex && paramsgrd[num].shape != 'D') {
                     fs << "Parameters\t" << paramsgrd[num].name << "\t" << paramsgrd[num].path << "\t" <<
                     paramsgrd[num].shape << "\t" << paramsgrd[num].w1 << "\t" << paramsgrd[num].r1 << "\t" <<
                     paramsgrd[num].k1 << "\t" << paramsgrd[num].w2 << "\t" << paramsgrd[num].r2 << "\t" <<
@@ -1109,8 +1014,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                 if (paramsgrd[num].shape != 'D' && paramsgrd[num].maxTyp > paramsgrd[num].minTyp)
                     fs << "Parameters" << "\t" << paramsgrd[num].name << "\t" << paramsgrd[num].path << "\t" <<
                     paramsgrd[num].minTyp << "\t" << paramsgrd[num].maxTyp << endl;
-            if (addparamsNum != 0)
-            {
+            if (addparamsNum != 0) {
                 fs << "AdditionalNUM" << "\t" << addparamsNum << endl;
                 for (num = 0; num < addparamsNum; num++)
                     fs << "Additional" << "\t" << addparamgrd[num].name << "\t" << addparamgrd[num].path << "\t" <<
@@ -1140,8 +1044,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
 		MPI_Allreduce(&total, &tempd, 1, MPI_DOUBLE, MPI_MAX, MCW);
 		total = tempd;
 
-        if (rank == 0)
-        {
+        if (rank == 0) {
             printf("Typical location number is: %d\n", TypLocCountAll);
             printf("Processor:%d\n    Read time:%f\n    Compute time:%f\n    Write time:%f\n    Total time:%f\n", size,
                    dataRead, compute, write, total);
@@ -1151,8 +1054,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
 
 		/// release memory
 		delete[] params;
-		if (addparamsNum != 0)
-			delete[] addparams;
+		if (addparams != nullptr) delete[] addparams;
 		delete typloc;
     }
     MPI_Finalize();

@@ -43,49 +43,41 @@ int main(int argc, char **argv)
     int prototag = 1; //!< by default, the tag of prototype GRID is 1, it can also be assigned by user.
     bool writeLog = false;
     int paramsNum = 0, lineNum = 0, i = 0, err = -1;
-    paramExtGRID *paramsgrd;
+    paramExtGRID *paramsgrd = nullptr;
     int addparamsNum = 0;
-    paramExtGRID *addparamgrd;
+    paramExtGRID *addparamgrd = nullptr;
     vector<DefaultFuzInf> fuzinf;  //!< Prior expert knowledge of curve shape of fuzzy inference model
-    float baseInputParameters[9];  //!< Base input parameters
+    float *baseInputParameters = nullptr;  //!< Base input parameters
+    
     char cfglines[30][MAXLN];
     int paramidx;
-    if (argc < 5)
-    {
+    if (argc < 3) {
         printf("Error: To run this program, use either the Simple Usage option or\n");
         printf("the Usage with Specific file names option\n");
         goto errexit;
     }
-    else
-    {
+    else {
         paramidx = 1;
-        while (argc > paramidx)
-        {
-            if ((argc > paramidx) && strcmp(argv[paramidx], "-in") == 0)
-            {
+        while (argc > paramidx) {
+            if ((argc > paramidx) && strcmp(argv[paramidx], "-in") == 0) {
                 paramidx++;
-                if (argc > paramidx)
-                {
+                if (argc > paramidx) {
                     strcpy(inconfigfile, argv[paramidx]);
                     paramidx++;
                 }
                 else goto errexit;
             }
-            if ((argc > paramidx) && strcmp(argv[paramidx], "-out") == 0)
-            {
+            if ((argc > paramidx) && strcmp(argv[paramidx], "-out") == 0) {
                 paramidx++;
-                if (argc > paramidx)
-                {
+                if (argc > paramidx) {
                     strcpy(outconfigfile, argv[paramidx]);
                     paramidx++;
                 }
                 else goto errexit;
             }
-            if ((argc > paramidx) && strcmp(argv[paramidx], "-extlog") == 0)
-            {
+            if ((argc > paramidx) && strcmp(argv[paramidx], "-extlog") == 0) {
                 paramidx++;
-                if (argc > paramidx)
-                {
+                if (argc > paramidx) {
                     strcpy(logfile, argv[paramidx]);
                     writeLog = true;
                     paramidx++;
@@ -93,20 +85,9 @@ int main(int argc, char **argv)
                 else goto errexit;
             }
         }
-        //else if (argc >= 5)
-        //{
-        //strcpy(inconfigfile, argv[1]);
-        //strcpy(outconfigfile, argv[2]);
-        //if (argc == 4)
-        //{
-        //    strcpy(logfile, argv[3]);
-        //    writeLog = true;
-        //}
-
         //printf("%s\n",configfile);
         ifstream cfg(inconfigfile, ios::in);
-        while (!cfg.eof())
-        {
+        while (!cfg.eof()) {
             cfg.getline(cfglines[lineNum], MAXLN, '\n');
             //printf("%s\n",cfglines[lineNum]);
             lineNum++;
@@ -114,51 +95,45 @@ int main(int argc, char **argv)
         cfg.close();
         char *dest[MAXLN];
         int num, paramline, row = 0, addparamline;
-        while (lineNum > row)
-        {
+        while (lineNum > row) {
             split(cfglines[row], "\t", dest, &num);
-            if (strcmp(dest[0], "ProtoTag") == 0 && num == 2)
-            {
+            if (strcmp(dest[0], "ProtoTag") == 0 && num == 2) {
                 sscanf(dest[1], "%d", &prototag);
                 row++;
             }
-            else if (strcmp(dest[0], "ParametersNUM") == 0 && num == 2)
-            {
+            else if (strcmp(dest[0], "ParametersNUM") == 0 && num == 2) {
                 sscanf(dest[1], "%d", &paramsNum);
                 paramline = row + 1;
                 row = row + paramsNum + 1;
             }
-            else if (strcmp(dest[0], "AdditionalNUM") == 0 && num == 2)
-            {
+            else if (strcmp(dest[0], "AdditionalNUM") == 0 && num == 2) {
                 sscanf(dest[1], "%d", &addparamsNum);
                 addparamline = row + 1;
                 row = row + addparamsNum + 1;
             }
-            else if (strcmp(dest[0], "OUTPUT") == 0 && num == 2)
-            {
+            else if (strcmp(dest[0], "OUTPUT") == 0 && num == 2) {
                 strcpy(typlocfile, dest[1]);
                 row++;
             }
-            else if (strcmp(dest[0], "FuzInfShp") == 0 && num == 3)
-            {
+            else if (strcmp(dest[0], "FuzInfShp") == 0 && num == 3) {
                 DefaultFuzInf tempFuzInf;
                 strcpy(tempFuzInf.param, dest[1]);
                 strcpy(tempFuzInf.shape, dest[2]);
                 fuzinf.push_back(tempFuzInf);
                 row++;
             }
-            else if (strcmp(dest[0], "BaseInput") == 0 && num == 9)
-            {
-                for (i = 0; i < 8; i++)
+            else if (strcmp(dest[0], "BaseInput") == 0 && num == 9) {
+                Initialize1DArray(8, baseInputParameters, -9999.f);
+                for (i = 0; i < 8; i++) {
                     sscanf(dest[i + 1], "%f", &baseInputParameters[i]);
+                }
                 row++;
             }
             else row++;
         }
         paramsgrd = new paramExtGRID[paramsNum];
         i = 0;
-        for (row = paramline; row < paramline + paramsNum; row++)
-        {
+        for (row = paramline; row < paramline + paramsNum; row++) {
             split(cfglines[row], "\t", dest, &num);
             strcpy(paramsgrd[i].name, dest[1]);
             strcpy(paramsgrd[i].path, dest[2]);
@@ -167,12 +142,10 @@ int main(int argc, char **argv)
             i++;
         }
 
-        if (addparamsNum != 0)
-        {
+        if (addparamsNum != 0) {
             i = 0;
             addparamgrd = new paramExtGRID[addparamsNum];
-            for (row = addparamline; row < addparamline + addparamsNum; row++)
-            {
+            for (row = addparamline; row < addparamline + addparamsNum; row++) {
                 split(cfglines[row], "\t", dest, &num);
                 strcpy(addparamgrd[i].name, dest[1]);
                 strcpy(addparamgrd[i].path, dest[2]);
@@ -206,11 +179,14 @@ int main(int argc, char **argv)
     if ((err = SelectTypLocSlpPos(inconfigfile, prototag, paramsNum, paramsgrd, addparamsNum, addparamgrd, fuzinf,
                                   baseInputParameters, typlocfile, outconfigfile, writeLog, logfile)) != 0)
         printf("Error %d\n", err);
-    //system("pause");
+    // clean up
+    delete[] paramsgrd;
+    if (baseInputParameters != nullptr) Release1DArray(baseInputParameters);
+
     return 0;
 
 errexit:
-    printf("Usage with specific config file names:\n %s -in <inconfigfile> -out <outconfigfile> [-extlog <logfile>]\n", argv[0]);
+    printf("Usage with specific config file names:\n %s -in <inconfigfile> [-out <outconfigfile> -extlog <logfile>]\n", argv[0]);
     printf("The inconfig file should contains context as below:\n");
     printf("	ProtoTag	<tag of prototype grid>\n");
     printf("	ParametersNUM	<number of parameters grid>\n");
