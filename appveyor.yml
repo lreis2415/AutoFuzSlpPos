@@ -49,7 +49,7 @@ build_script:
   - copy C:\\zhulj\\autofuzslppos\\autofuzslppos\\*.py C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit\\autofuzslppos
   # copy data, test, and manual to release directory
   - xcopy C:\\zhulj\\autofuzslppos\\data C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit\\data /e /c /i /y
-  - xcopy C:\\zhulj\\autofuzslppos\\test C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit\\test /e /c /i /y
+  #- xcopy C:\\zhulj\\autofuzslppos\\test C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit\\test /e /c /i /y
   - copy C:\\zhulj\\autofuzslppos\\*.md C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit
   # check the structure
   - cd C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit

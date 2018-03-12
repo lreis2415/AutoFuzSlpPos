@@ -14,7 +14,7 @@ ls
 cp autofuzslppos/*.py autofuzslppos_osx_clang/autofuzslppos
 # copy data, test, and manual to release directory
 cp -R data autofuzslppos_osx_clang/autofuzslppos/data
-cp -R test autofuzslppos_osx_clang/autofuzslppos/test
+#cp -R test autofuzslppos_osx_clang/autofuzslppos/test
 # zip
 zip -r autofuzslppos_osx_clang.zip autofuzslppos_osx_clang
 # list release files
