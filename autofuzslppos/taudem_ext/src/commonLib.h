@@ -162,15 +162,123 @@ void initNeighborD8up(tdpartition* neighbor,tdpartition* flowData,queue<node> *q
 					  int nx,int ny,int useOutlets, int *outletsX,int *outletsY,long numOutlets);  */
 
 /// release 1-D and 2-D arrays, added by Liangjun Zhu
+template<typename T>
+bool Initialize1DArray(int row, T *&data, T initialValue) {
+    if (nullptr != data) {
+        cout << "The input 1D array pointer is not nullptr, without initialized!" << endl;
+        return false;
+    }
+    data = new(nothrow)T[row];
+    if (nullptr == data) {
+        cout << "Bad memory allocated during 1D array initialization!" << endl;
+        return false;
+    }
+    for (int i = 0; i < row; i++) {
+        data[i] = initialValue;
+    }
+    return true;
+}
+
+template<typename T>
+bool Initialize1DArray(int row, T *&data, const T *iniData) {
+    if (nullptr != data) {
+        cout << "The input 1D array pointer is not nullptr, without initialized!" << endl;
+        return false;
+    }
+    data = new(nothrow)T[row];
+    if (nullptr == data) {
+        cout << "Bad memory allocated during 1D array initialization!" << endl;
+        return false;
+    }
+    if (nullptr == iniData) {
+        cout << "The input parameter iniData MUST NOT be nullptr!" << endl;
+        return false;
+    }
+    for (int i = 0; i < row; i++) {
+        data[i] = iniData[i];
+    }
+    return true;
+}
+
+template<typename T>
+bool Initialize2DArray(int row, int col, T **&data, T initialValue) {
+    if (nullptr != data) {
+        cout << "The input 2D array pointer is not nullptr, without initialized!" << endl;
+        return false;
+    }
+    data = new(nothrow)T *[row];
+    if (nullptr == data) {
+        cout << "Bad memory allocated during 2D array initialization!" << endl;
+        return false;
+    }
+    int badAlloc = 0;
+    for (int i = 0; i < row; i++) {
+        data[i] = new(nothrow)T[col];
+        if (nullptr == data[i]) {
+            badAlloc++;
+        }
+        for (int j = 0; j < col; j++) {
+            data[i][j] = initialValue;
+        }
+    }
+    if (badAlloc > 0) {
+        cout << "Bad memory allocated during 2D array initialization!" << endl;
+        Release2DArray(row, data);
+        return false;
+    }
+    return true;
+}
+
+template<typename T>
+bool Initialize2DArray(int row, int col, T **&data, const T *const *iniData) {
+    if (nullptr != data) {
+        cout << "The input 2D array pointer is not nullptr, without initialized!" << endl;
+        return false;
+    }
+    data = new(nothrow)T *[row];
+    if (nullptr == data) {
+        cout << "Bad memory allocated during 2D array initialization!" << endl;
+        return false;
+    }
+    int badAlloc = 0;
+    int errorAccess = 0;
+#pragma omp parallel for reduction(+:badAlloc, errorAccess)
+    for (int i = 0; i < row; i++) {
+        data[i] = new(nothrow)T[col];
+        if (nullptr == data[i]) {
+            badAlloc++;
+        }
+        if (nullptr == iniData[i]) {
+            errorAccess++;
+        }
+        else {
+            for (int j = 0; j < col; j++) {
+                data[i][j] = iniData[i][j];
+            }
+        }
+    }
+    if (badAlloc > 0) {
+        cout << "Bad memory allocated during 2D array initialization!" << endl;
+        utilsArray::Release2DArray(row, data);
+        return false;
+    }
+    if (errorAccess > 0) {
+        cout << "nullptr pointer existed in iniData during 2D array initialization!" << endl;
+        utilsArray::Release2DArray(row, data);
+        return false;
+    }
+    return true;
+}
 /*!
  * \brief Release DT_Array1D data
  * \param[in] data
  */
 template<typename T>
-void Release1DArray(T *&data)
-{
-    delete[] data;
-    data = NULL;
+void Release1DArray(T *&data) {
+    if (nullptr != data) {
+        delete[] data;
+        data = nullptr;
+    }
 }
 
 /*!
@@ -181,16 +289,18 @@ void Release1DArray(T *&data)
  * \param[in] data
  */
 template<typename T>
-void Release2DArray(int row, T **&data)
-{
-#pragma omp parallel for
-    for (int i = 0; i < row; i++)
-    {
-        if (data[i] != NULL)
+void Release2DArray(int row, T **&data) {
+    if (nullptr == data) {
+        return;
+    }
+    for (int i = 0; i < row; i++) {
+        if (data[i] != nullptr) {
             delete[] data[i];
+            data[i] = nullptr;
+        }
     }
     delete[] data;
-    data = NULL;
+    data = nullptr;
 }
 /*
  * \brief convert string to char*
