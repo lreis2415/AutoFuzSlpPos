@@ -45,6 +45,8 @@ email:  dtarb@usu.edu
 #include "ogr_api.h"
 #include "mpi.h"
 #include <algorithm>
+#include <iostream>
+
 /// added by liangjun
 #ifdef windows
 #define _WINSOCKAPI_    // stops windows.h including winsock.h
@@ -259,12 +261,12 @@ bool Initialize2DArray(int row, int col, T **&data, const T *const *iniData) {
     }
     if (badAlloc > 0) {
         cout << "Bad memory allocated during 2D array initialization!" << endl;
-        utilsArray::Release2DArray(row, data);
+        Release2DArray(row, data);
         return false;
     }
     if (errorAccess > 0) {
         cout << "nullptr pointer existed in iniData during 2D array initialization!" << endl;
-        utilsArray::Release2DArray(row, data);
+        Release2DArray(row, data);
         return false;
     }
     return true;
