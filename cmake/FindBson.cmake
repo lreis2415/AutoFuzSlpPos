@@ -1,3 +1,7 @@
+# This module accepts the following environment variables:
+#
+#   BSON_DIR, BSON_ROOT, or BSON_ROOT_DIR - Specify the location of BSON
+#
 # Read-Only variables:
 #  BSON_FOUND - system has the BSON library
 #  BSON_INCLUDE_DIR - the BSON include directory
@@ -15,13 +19,14 @@ find_path(BSON_INCLUDE_DIR
         libbson-1.0/bson.h
         HINTS
         CMAKE_PREFIX_PATH
-        $ENV{MONGOC_ROOT_DIR}
-        $ENV{BSON_ROOT_DIR}
-        ${_BSON_INCLUDEDIR}
+        ENV BSON_DIR
+        ENV BSON_ROOT
+        ENV BSON_ROOT_DIR
+        ENV MONGOC_ROOT
         PATH_SUFFIXES
         include
         )
-IF(NOT ${BSON_INCLUDE_DIR} MATCHES "libbson-1.0")
+IF(NOT ${BSON_INCLUDE_DIR} MATCHES "libbson-1.0" AND NOT ${BSON_INCLUDE_DIR} MATCHES "BSON_INCLUDE_DIR-NOTFOUND")
   set(BSON_INCLUDE_DIR "${BSON_INCLUDE_DIR}/libbson-1.0")
 ENDIF()
 
@@ -32,43 +37,52 @@ if (WIN32 AND NOT CYGWIN AND NOT MINGW)
                 "bson-1.0"
                 HINTS
                 CMAKE_PREFIX_PATH
-                $ENV{MONGOC_ROOT_DIR}
-                $ENV{BSON_ROOT_DIR}
+                ENV BSON_DIR
+                ENV BSON_ROOT
+                ENV BSON_ROOT_DIR
+                ENV MONGOC_ROOT
                 PATH_SUFFIXES
                 bin
                 lib
                 )
-        mark_as_advanced(BSON)
-        set(BSON_LIBRARIES ${BSON} ws2_32)
-        find_file(BSON_DLL
-                NAMES
-                "libbson-1.0.dll"
-                HINTS
-                $ENV{MONGOC_ROOT_DIR}
-                $ENV{BSON_ROOT_DIR}
-                PATH_SUFFIXES
-                bin
-                )
-        # message(${BSON_DLL})
+        if (NOT ${BSON} MATCHES "BSON-NOTFOUND")
+            mark_as_advanced(BSON)
+            set(BSON_LIBRARIES ${BSON} ws2_32)
+            find_file(BSON_DLL
+                    NAMES
+                    "libbson-1.0.dll"
+                    HINTS
+                    CMAKE_PREFIX_PATH
+                    ENV BSON_DIR
+                    ENV BSON_ROOT
+                    ENV BSON_ROOT_DIR
+                    ENV MONGOC_ROOT
+                    PATH_SUFFIXES
+                    bin
+                    )
+        endif ()
     else ()
         # bother supporting this?
     endif ()
 else ()
-
     find_library(BSON_LIBRARY
             NAMES
-            bson-1.0
+            "bson-1.0"
+            "libbson-1.0"
             HINTS
-            ${_BSON_LIBDIR}
+            CMAKE_PREFIX_PATH
+            ENV BSON_DIR
+            ENV BSON_ROOT
+            ENV BSON_ROOT_DIR
+            ENV MONGOC_ROOT
             PATH_SUFFIXES
             lib
             )
-
-    mark_as_advanced(BSON_LIBRARY)
-    find_package(Threads REQUIRED)
-
-    set(BSON_LIBRARIES ${BSON_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-
+    if (NOT ${BSON_LIBRARY} MATCHES "BSON_LIBRARY-NOTFOUND")
+        mark_as_advanced(BSON_LIBRARY)
+        find_package(Threads REQUIRED)
+        set(BSON_LIBRARIES ${BSON_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+    endif ()
 endif ()
 
 if (BSON_INCLUDE_DIR)
