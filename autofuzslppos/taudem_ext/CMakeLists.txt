@@ -5,14 +5,14 @@
 #       $ cmake <path/to/TauDEM_ext>
 #
 #  Routine testing platforms and compilers include:
-#     1. Windows 10 with Visual Studio 2013, MSMPI-v8, GDAL-1.11.4
-#     2. Windows 10 with mingw64 (GCC-4.9.3), MSMPI-v8, GDAL-1.11.5
+#     1. Windows 10 with Visual Studio 2010/2013, MSMPI-v8, GDAL-1.11.4
+#     2. Windows 10 with mingw64 (GCC-8.2.0), MSMPI-v8, GDAL-2.3.2
 #     3. CentOS 6.2 (cluster) with GCC-4.8.4, MPICH-3.1.4, GDAL-1.9.0
-#     4. Red Hat Server 6.2 (cluster) with ICC-12.1.0, Intel MPI 4.0, GDAL-1.11.5
+#     4. Red Hat Server 6.2 (cluster) with ICC-12.1.0, Intel MPI 4.0.3, GDAL-1.11.5
 #     5. macOS 10.12.6 with Clang-8.0 (or GCC-4.9.3), OpenMPI-1.10.4, GDAL-1.11.4 (Framework)
 #
 #  Created and maintained by Liang-Jun Zhu (zlj@lreis.ac.cn)
-#  Latest updated: Oct. 13, 2017
+#  Latest updated: Mar. 4, 2018
 # ----------------------------------------------------------------------------
 ### Disable in-source builds to prevent source tree corruption.
 IF(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
@@ -22,7 +22,24 @@ FATAL: In-source builds are not allowed.
 )
 ENDIF()
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1 FATAL_ERROR)
+
+if(POLICY CMP0015)
+  cmake_policy(SET CMP0015 NEW)
+endif()
+if(POLICY CMP0054)
+  cmake_policy(SET CMP0054 NEW)
+endif()
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
+
 PROJECT(TauDEM_ext CXX C)
+
+### Set cmake find path
+set(CMAKE_MODULE_PATH
+        ${CMAKE_CURRENT_SOURCE_DIR}/cmake
+        ${CMAKE_MODULE_PATH}
+   )
 
 ### Set default or specified installation directory.
 IF (INSTALL_PREFIX)
@@ -37,7 +54,7 @@ IF(CMAKE_GENERATOR MATCHES "Makefiles|Ninja" AND "${CMAKE_BUILD_TYPE}" STREQUAL 
   SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
 ### Allow project folders in MSVC.
-IF(MSVC)
+IF(MSVC OR XCODE)
   SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 ENDIF()
 
@@ -49,24 +66,48 @@ IF(NOT CMAKE_SIZEOF_VOID_P GREATER 0)
 ENDIF()
 
 ### Detect compiler and target platform architecture.
-INCLUDE(cmake/Utils.cmake)
+INCLUDE(Utils)
 SET(ENABLE_CXX11 1)
-INCLUDE(cmake/DetectCXXCompiler.cmake)
+INCLUDE(DetectCXXCompiler)
 
 ### Add standard paths or specified paths for Find libraries and headers.
-INCLUDE(cmake/AddFindPaths.cmake)
-#STATUS(${CMAKE_PREFIX_PATH})
+INCLUDE(AddFindPaths)
+
 ### Find packages.
-IF(OPENMP)
-  SET(WITH_OPENMP 1)
+
+### Find MPI which is required
+FIND_PACKAGE(MPI REQUIRED)
+IF(MPI_FOUND)
+  SET(WITH_MPI 1)
+  MESSAGE(STATUS "Compiling with MPI...")
+ELSE()
+  MESSAGE(FATAL_ERROR "FATAL: Could not find MPI, which is required for TauDEM and SEIMS!")
 ENDIF()
-SET(WITH_MPI 1)
-SET(WITH_GDAL 1)
-INCLUDE(cmake/FindPackages.cmake)
+
+### Find OMP which is optional
+FIND_PACKAGE(OpenMP)
+IF(OPENMP_FOUND)
+  SET(WITH_OPENMP 1)
+  ADD_DEFINITIONS(-DSUPPORT_OMP)
+  MESSAGE(STATUS "Compiling with OpenMP...")
+ENDIF()
+
+### Find GDAL which is required.
+FIND_PACKAGE(GDAL REQUIRED)
+IF (GDAL_FOUND)
+  SET(WITH_GDAL 1)
+ELSE ()
+  MESSAGE(FATAL_ERROR "FATAL: Could not find GDAL!")
+ENDIF ()
+
+### Set specific packages.
+INCLUDE(SetFlagMPI)
+INCLUDE(SetFlagOpenMP)
+INCLUDE(SetFlagGDAL)
 
 ### Use statically or dynamically linked CRT? Default: dynamic
 IF(MSVC)
-  INCLUDE(cmake/CRTLinkage.cmake)
+  INCLUDE(CRTLinkage)
 ENDIF(MSVC)
 ### OS platform.
 if (WIN32)
@@ -146,10 +187,12 @@ ELSE()
 ENDIF()
 
 ### Dependencies.
-STATUS("    GDAL: ${GDAL_LIBRARIES} ${GDAL_INCLUDE_DIR}")
-STATUS("    MPI: ${MPI_LIBRARIES} ${MPI_INCLUDE_PATH}")
+STATUS("")
+STATUS("    Use MPI:"     MPI_FOUND      THEN "YES (LIB: ${MPI_LIBRARIES}, INC: ${MPI_INCLUDE_PATH})" ELSE "NO")
+STATUS("    Use OpenMP:"  OPENMP_FOUND   THEN "YES" ELSE "NO")
+STATUS("    Use GDAL:"    GDAL_FOUND     THEN "YES (LIB: ${GDAL_LIBRARIES}, INC: ${GDAL_INCLUDE_DIR})" ELSE "NO")
 
 ### Auxiliary.
 STATUS("")
-STATUS("  Install path:" "${CMAKE_INSTALL_PREFIX}")
+STATUS("  Install path:" ${INSTALL_DIR})
 STATUS("")
