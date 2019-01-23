@@ -1,7 +1,21 @@
 # AutoFuzSlpPos-Releases notes
 
 + 2019-01-23: The C++ programs of AutoFuzSlpPos have been integrated into [TauDEM_ext](https://github.com/lreis2415/TauDEM_ext).
-+ 2017-12-20: 
+  + add TauDEM_ext as subtree
+    ```shell
+    git remote add -f taudem_ext git@github.com:lreis2415/TauDEM_ext.git -m master
+    git subtree add --prefix=autofuzslppos/taudem_ext taudem_ext master --squash
+    ```
+  + pull from TauDEM_ext
+    ```shell
+    git fetch taudem_ext master
+    git subtree pull --prefix=autofuzslppos/taudem_ext taudem_ext master --squash
+    ```
+   + push changes to TauDEM_ext
+    ```shell
+    git subtree push --prefix=autofuzslppos/taudem_ext taudem_ext master
+    ```
++ 2017-12-20:
   + Using PyGeoC as 3rdparty libarary.
   + Update TauDEM from 5.1.2 to 5.3.7. Use [TauDEM_ext](https://github.com/lreis2415/TauDEM_ext) as subtree.
   + Add auto configured test script (`test/run_demo_data_bydefault.py`) with demo data.
