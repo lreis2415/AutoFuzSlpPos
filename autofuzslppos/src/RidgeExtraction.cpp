@@ -233,7 +233,7 @@ int ExtractRidges(char *dirsfile, char *felfile, float threshold, char *rdgsrcfi
 				}
 			}
 			vector<float>(allRdgElevsVector).swap(allRdgElevsVector);
-			
+
 			//float *x = new float[100];
 			//float *y = new float[100];
 			//for(int i = 0; i < 100; i++) y[i] = 0;
@@ -343,7 +343,7 @@ int ExtractRidges(char *dirsfile, char *felfile, float threshold, char *rdgsrcfi
         double computet = MPI_Wtime(); //!< record computing time
         //!< create and write tiff
         float nodata = MISSINGFLOAT;
-        tiffIO rdgsrcf(rdgsrcfile, FLOAT_TYPE, &nodata, dirsf);
+        tiffIO rdgsrcf(rdgsrcfile, FLOAT_TYPE, nodata, dirsf);
         rdgsrcf.write(xstart, ystart, ny, nx, rdg->getGridPointer());
         double writet = MPI_Wtime(); //!< record writing time
 

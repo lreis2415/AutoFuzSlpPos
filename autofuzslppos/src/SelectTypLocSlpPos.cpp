@@ -268,7 +268,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                 MPI_Abort(MCW, 5);
                 return 1;
             }
-            params[num].init(totalX, totalY, dx, dy, MPI_FLOAT, *((float *) paramsf.getNodata()));
+            params[num].init(totalX, totalY, dx, dy, MPI_FLOAT, static_cast<float>(paramsf.getNodata()));
             paramsf.read(xstart, ystart, ny, nx, params[num].getGridPointer());
         }
         /// read additional parameters data into *partition
@@ -282,7 +282,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
                     MPI_Abort(MCW, 5);
                     return 1;
                 }
-                addparams[num].init(totalX, totalY, dx, dy, MPI_FLOAT, *((float *) paramsf.getNodata()));
+                addparams[num].init(totalX, totalY, dx, dy, MPI_FLOAT, static_cast<float>(paramsf.getNodata()));
                 paramsf.read(xstart, ystart, ny, nx, addparams[num].getGridPointer());
             }
         }
@@ -1025,7 +1025,7 @@ int SelectTypLocSlpPos(char *inconfigfile, int prototag, int paramsNum, paramExt
         }
         //// create and write tiff
         int nodata = MISSINGSHORT;
-        tiffIO typlocf(typlocfile, SHORT_TYPE, &nodata, RPIf);
+        tiffIO typlocf(typlocfile, SHORT_TYPE, nodata, RPIf);
         typlocf.write(xstart, ystart, ny, nx, typloc->getGridPointer());
         double writet = MPI_Wtime(); // record writing time
 		//printf("write data done.\n");

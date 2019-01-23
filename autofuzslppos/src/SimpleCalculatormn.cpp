@@ -1,9 +1,9 @@
 /*  SimpleCalculator is used to conduct some simple algorithms like add, minus etc.
 
   Liangjun, Zhu
-  Lreis, CAS  
-  Apr 13, 2015 
-  
+  Lreis, CAS
+  Apr 13, 2015
+
 */
 #include <stdio.h>
 #include <stdlib.h>

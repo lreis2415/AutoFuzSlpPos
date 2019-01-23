@@ -8,8 +8,11 @@
  * \version 1.0
  * \date June 2015
  *
- * 
+ *
  */
+#ifndef RPI_SKIDMORE_H
+#define RPI_SKIDMORE_H
+
 #include "commonLib.h"
 
 struct SourcePt
@@ -32,3 +35,5 @@ bool coorInList(T col, T row, T*  coors, int count)
 	return false;
 };
 int RPISkidmore(char *vlysrcfile,char *rdgsrcfile,int vlytag, int rdgtag, char *rpifile,char *dist2vlyfile,char *dist2rdgfile,bool dist2vlyExport,bool dist2rdgExport);
+
+#endif /* RPI_SKIDMORE_H */

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <iostream>
 //#include <math.h>
-// include mpich and openmp 
+// include mpich and openmp
 #include <mpi.h>
 //#include <omp.h>
 // include TauDEM header files
@@ -140,7 +140,7 @@ int SimpleCalc(char *Afile, char *Bfile, char *outfile, int op)
         double computet = MPI_Wtime(); // record computing time
         // create and write TIFF file
         float nodata = MISSINGFLOAT;
-        tiffIO destTIFF(outfile, FLOAT_TYPE, &nodata, inputAf);
+        tiffIO destTIFF(outfile, FLOAT_TYPE, nodata, inputAf);
         destTIFF.write(xstart, ystart, ny, nx, dest->getGridPointer());
         double writet = MPI_Wtime(); // record writing time
 

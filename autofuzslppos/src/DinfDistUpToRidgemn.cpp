@@ -1,11 +1,11 @@
-/*  DinfDistUp function to compute distance to ridge in DEM 
+/*  DinfDistUp function to compute distance to ridge in DEM
     based on D-infinity flow direction model, ridge is
 	assigned by user.
-     
+
   Liangjun, Zhu
-  Lreis, CAS  
-  Apr 1, 2015 
-  
+  Lreis, CAS
+  Apr 1, 2015
+
 */
 
 #include <string.h>
@@ -228,4 +228,4 @@ int main(int argc, char **argv)
     printf("    wg    weight input file\n");
     printf("    du    distance to ridge output file\n");
     exit(0);
-} 
+}

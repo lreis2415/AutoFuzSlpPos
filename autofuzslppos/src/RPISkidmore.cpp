@@ -39,7 +39,7 @@ int RPISkidmore(char *vlysrcfile,char *rdgsrcfile,int vlytag, int rdgtag, char *
 				printf("Distance to Ridge File: %s\n",dist2rdgfile);
 		}
 		double begint = MPI_Wtime();  // start time
-		
+
 		// read vlysrc tiff header information using tiffIO
 		tiffIO vlysrc(vlysrcfile,FLOAT_TYPE);
 		long totalX = vlysrc.getTotalX();
@@ -194,7 +194,7 @@ int RPISkidmore(char *vlysrcfile,char *rdgsrcfile,int vlytag, int rdgtag, char *
 							if(DistRdg <= 2) break;
 						}
 					}
-					
+
 					dist2rdg->setData(i,j,sqrt(float(DistRdg)));
 					if (coorInList(iAll, jAll, vlyPointsAll, vlyNum))
 					{
@@ -209,7 +209,7 @@ int RPISkidmore(char *vlysrcfile,char *rdgsrcfile,int vlytag, int rdgtag, char *
 							if(DistVly <= 2) break;
 						}
 					}
-					
+
 					dist2vly->setData(i,j,sqrt(float(DistVly)));
 					if ((DistVly+DistRdg)==0)
 						rpi->setToNodata(i,j);
@@ -223,19 +223,19 @@ int RPISkidmore(char *vlysrcfile,char *rdgsrcfile,int vlytag, int rdgtag, char *
 			}
 		}
 		double computet = MPI_Wtime(); //! record computing time
-		
+
 		//! create and write tiff
 		float nodata = MISSINGFLOAT;
-		tiffIO rpiout(rpifile,FLOAT_TYPE,&nodata,vlysrc);
+		tiffIO rpiout(rpifile,FLOAT_TYPE,nodata,vlysrc);
 		rpiout.write(xstart,ystart,ny,nx,rpi->getGridPointer());
 		if(dist2rdgExport)
 		{
-			tiffIO dist2rdgout(dist2rdgfile,FLOAT_TYPE,&nodata,vlysrc);
+			tiffIO dist2rdgout(dist2rdgfile,FLOAT_TYPE,nodata,vlysrc);
 			dist2rdgout.write(xstart,ystart,ny,nx,dist2rdg->getGridPointer());
 		}
 		if(dist2vlyExport)
 		{
-			tiffIO dist2vlyout(dist2vlyfile,FLOAT_TYPE,&nodata,vlysrc);
+			tiffIO dist2vlyout(dist2vlyfile,FLOAT_TYPE,nodata,vlysrc);
 			dist2vlyout.write(xstart,ystart,ny,nx,dist2vly->getGridPointer());
 		}
 		double writet = MPI_Wtime(); // record writing time

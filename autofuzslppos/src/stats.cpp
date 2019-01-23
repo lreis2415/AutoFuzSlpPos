@@ -41,7 +41,7 @@ void BDRksmooth(float *x, float *y, int n, float *xp, float *yp, int np, int ker
                 den += w;
             }
         }
-        if (den > ZERO) yp[j] = num / den; 
+        if (den > ZERO) yp[j] = num / den;
 		else yp[j] = MISSINGFLOAT;
     }
 }
@@ -870,7 +870,7 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
 							for(k = tempxNum-1; k >= 0; k--)
 							{
 								sel[k] = tempIndex.top();
-								tempx[k] = x[sel[k]];							
+								tempx[k] = x[sel[k]];
 								tempIndex.pop();
 							}
 							/// tempIndex is empty now
@@ -949,7 +949,7 @@ int BiGaussianMix(vector<float> &x, vector<float> &y, vector<float> &sigma_ratio
 								to_erase_que.push_back(j);
 					}
 					int to_erase_que_size = 0;
-					if (!to_erase_que.empty()) 
+					if (!to_erase_que.empty())
 					{
 						for (j = fit2[0].size()-1; j >= 0; j--)
 						{

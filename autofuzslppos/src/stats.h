@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AUTOFUZSLPPOS_STATS_H
+#define AUTOFUZSLPPOS_STATS_H
 
 #include <stdio.h>
 #include <float.h>
@@ -57,7 +58,7 @@ template<typename T>
 float std_vector(vector<T> values, float mean = MISSINGFLOAT)
 {
 	if (mean == MISSINGFLOAT)
-		mean = mean_vector(values); 
+		mean = mean_vector(values);
 	float sigma = 0.f;
 	for (typename vector<T>::iterator iter = values.begin(); iter != values.end(); iter++)
 		sigma += (*iter - mean) * (*iter - mean);
@@ -158,8 +159,8 @@ void findTurnPoints(vector<float> &x, vector<int> &pks, vector<int> &vlys);
 //int BiGaussianMix(float *x, float *y,int num, float bandwidthIdx,float *sigma_ratio_limit, float power,float eliminate,int maxIter,int esti_method, float *results);
 // float *x = new float[num];
 // float *y = new float[num];
-// float *sigma_ratio_limit = new float[2]; // By default, the value is [0.1, 10]. It enforces the belief of the range of the ratio between the left-standard deviation and the righ-standard deviation of the bi-Gaussian fuction used to fit the data. 
-// float power; // 
+// float *sigma_ratio_limit = new float[2]; // By default, the value is [0.1, 10]. It enforces the belief of the range of the ratio between the left-standard deviation and the righ-standard deviation of the bi-Gaussian fuction used to fit the data.
+// float power; //
 // float eliminate; //
 // int maxIter; // Maximum iterator times.
 // int esti_method; // The estimation method for the bi-Gaussian peak model. Two possible values: 0:"moment" and 1:"EM".
@@ -229,3 +230,5 @@ template<typename T>
 bool floatequal(T v1, T v2) {
     return abs(v1 - v2) < ZERO;
 }
+
+#endif /* AUTOFUZSLPPOS_STATS_H */

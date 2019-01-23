@@ -1,11 +1,11 @@
-/*  DinfDistUp function to compute distance to ridge in DEM 
+/*  DinfDistUp function to compute distance to ridge in DEM
     based on D-infinity flow direction model, ridge is
 	assigned by user.
-     
+
   Liangjun, Zhu
-  Lreis, CAS  
-  Apr 2, 2015 
-  
+  Lreis, CAS
+  Apr 2, 2015
+
 */
 #include <mpi.h>
 #include <math.h>
@@ -232,7 +232,7 @@ int hd8uptoridgegrd(char *pfile, char *rdgfile, char *dtsfile, int statmethod, i
 
         //Create and write TIFF file
         float ddNodata = MISSINGFLOAT;
-        tiffIO dd(dtsfile, FLOAT_TYPE, &ddNodata, pf);
+        tiffIO dd(dtsfile, FLOAT_TYPE, ddNodata, pf);
         dd.write(xstart, ystart, ny, nx, dts->getGridPointer());
 
         double writet = MPI_Wtime();
@@ -449,7 +449,7 @@ int vrisetoridgegrd(char *pfile, char *felfile, char *rdgfile, char *dtsfile, in
 
         //Create and write TIFF file
         float ddNodata = MISSINGFLOAT;
-        tiffIO dd(dtsfile, FLOAT_TYPE, &ddNodata, pf);
+        tiffIO dd(dtsfile, FLOAT_TYPE, ddNodata, pf);
         dd.write(xstart, ystart, ny, nx, dts->getGridPointer());
 
         double writet = MPI_Wtime();
@@ -665,7 +665,7 @@ int sdisttoridgegrd(char *pfile, char *felfile, char *rdgfile, char *dtsfile, in
 
         //Create and write TIFF file
         float ddNodata = MISSINGFLOAT;
-        tiffIO dd(dtsfile, FLOAT_TYPE, &ddNodata, pf);
+        tiffIO dd(dtsfile, FLOAT_TYPE, ddNodata, pf);
         dd.write(xstart, ystart, ny, nx, dts->getGridPointer());
 
         double writet = MPI_Wtime();
@@ -935,7 +935,7 @@ int pdisttoridgegrd(char *pfile, char *felfile, char *rdgfile, char *dtsfile, in
 
         //Create and write TIFF file
         float ddNodata = MISSINGFLOAT;
-        tiffIO dd(dtsfile, FLOAT_TYPE, &ddNodata, pf);
+        tiffIO dd(dtsfile, FLOAT_TYPE, ddNodata, pf);
         dd.write(xstart, ystart, ny, nx, dts->getGridPointer());
 
         double writet = MPI_Wtime();

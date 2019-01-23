@@ -91,7 +91,7 @@ int FuzzySlpPosInf(char *protofile, int prototag, int paramsNum, paramInfGRID *p
                 MPI_Abort(MCW, 5);
                 return 1;
             }
-            params[num].init(totalX, totalY, dx, dy, MPI_FLOAT, *((float *) paramsf.getNodata()));
+            params[num].init(totalX, totalY, dx, dy, MPI_FLOAT, static_cast<float>(paramsf.getNodata()));
             paramsf.read(xstart, ystart, ny, nx, params[num].getGridPointer());
         }
         double readt = MPI_Wtime(); //!< record reading time
@@ -257,7 +257,7 @@ int FuzzySlpPosInf(char *protofile, int prototag, int paramsNum, paramInfGRID *p
         double computet = MPI_Wtime(); //!< record computing time
         //!< create and write tiff
         float nodata = MISSINGFLOAT;
-        tiffIO simif(simfile, FLOAT_TYPE, &nodata, protof);
+        tiffIO simif(simfile, FLOAT_TYPE, nodata, protof);
         simif.write(xstart, ystart, ny, nx, simi->getGridPointer());
         double writet = MPI_Wtime(); //!< record writing time
 

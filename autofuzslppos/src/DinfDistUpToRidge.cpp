@@ -1,18 +1,18 @@
-/*  DinfDistUpToRidge function to compute distance to ridge in DEM 
+/*  DinfDistUpToRidge function to compute distance to ridge in DEM
     based on D-infinity flow direction model, ridge is
 	assigned by user.
-     
+
   Liangjun, Zhu
-  Lreis, CAS  
-  Apr 2, 2015 
+  Lreis, CAS
+  Apr 2, 2015
 
     Changelog: 17-08-09  lj - There are two circumstances will end the search for upstream ridge
-                              for a cell: 
+                              for a cell:
                                 1) trace upstream and reach a ridge;
                                 2) trace upstream and the terminal cell is not flagged as a ridge,
                                    then find the nearest ridge around this cell. In this case, the
                                    distance (h, v, or s) are summed up by two distances.
-  
+
 */
 #include <mpi.h>
 #include <math.h>
@@ -307,7 +307,7 @@ int hdisttoridgegrd(char *angfile, char *rdgfile, char *wfile, char *rtrfile, in
 
         //Create and write TIFF file
         float ddNodata = MISSINGFLOAT;
-        tiffIO dd(rtrfile, FLOAT_TYPE, &ddNodata, ang);  // copy ang
+        tiffIO dd(rtrfile, FLOAT_TYPE, ddNodata, ang);  // copy ang
         dd.write(xstart, ystart, ny, nx, dts->getGridPointer());
 
         double writet = MPI_Wtime();
@@ -593,7 +593,7 @@ int vrisetoridgegrd(char *angfile, char *felfile, char *rdgfile, char *rtrfile, 
 
         //Create and write TIFF file
         float ddNodata = MISSINGFLOAT;
-        tiffIO dd(rtrfile, FLOAT_TYPE, &ddNodata, ang);
+        tiffIO dd(rtrfile, FLOAT_TYPE, ddNodata, ang);
         dd.write(xstart, ystart, ny, nx, dts->getGridPointer());
 
         double writet = MPI_Wtime();
@@ -948,7 +948,7 @@ int pdisttoridgegrd(char *angfile, char *felfile, char *rdgfile, char *wfile, ch
 
         //Create and write TIFF file
         float ddNodata = MISSINGFLOAT;
-        tiffIO dd(rtrfile, FLOAT_TYPE, &ddNodata, ang);
+        tiffIO dd(rtrfile, FLOAT_TYPE, ddNodata, ang);
         dd.write(xstart, ystart, ny, nx, dtsh->getGridPointer());
 
         double writet = MPI_Wtime();
@@ -1269,7 +1269,7 @@ int sdisttoridgegrd(char *angfile, char *felfile, char *rdgfile, char *wfile, ch
 
         //Create and write TIFF file
         float ddNodata = MISSINGFLOAT;
-        tiffIO dd(rtrfile, FLOAT_TYPE, &ddNodata, ang);
+        tiffIO dd(rtrfile, FLOAT_TYPE, ddNodata, ang);
         dd.write(xstart, ystart, ny, nx, dts->getGridPointer());
 
         double writet = MPI_Wtime();

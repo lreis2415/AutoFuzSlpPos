@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <math.h>
-// include mpich and openmp 
+// include mpich and openmp
 #include <mpi.h>
 // include TauDEM header files
 #include "commonLib.h"
@@ -76,7 +76,7 @@ int HardenSlpPos(vector<string> infiles, vector<int> tags, char *hardfile, char 
                 MPI_Abort(MCW, 5);
                 return 1;
             }
-            slpposSimi[num].init(totalX, totalY, dx, dy, MPI_FLOAT, *((float *)paramsf.getNodata()));
+            slpposSimi[num].init(totalX, totalY, dx, dy, MPI_FLOAT, static_cast<float>(paramsf.getNodata()));
             paramsf.read(xstart, ystart, ny, nx, slpposSimi[num].getGridPointer());
         }
         double readt = MPI_Wtime(); // record reading time
@@ -214,20 +214,20 @@ int HardenSlpPos(vector<string> infiles, vector<int> tags, char *hardfile, char 
         // create and write TIFF file
         float nodata = MISSINGFLOAT;
         int nodataShort = MISSINGSHORT;
-        tiffIO hardTIFF(hardfile, SHORT_TYPE, &nodataShort, rdgf);
+        tiffIO hardTIFF(hardfile, SHORT_TYPE, nodataShort, rdgf);
         hardTIFF.write(xstart, ystart, ny, nx, hard->getGridPointer());
-        tiffIO maxsimiTIFF(maxsimifile, FLOAT_TYPE, &nodata, rdgf);
+        tiffIO maxsimiTIFF(maxsimifile, FLOAT_TYPE, nodata, rdgf);
         maxsimiTIFF.write(xstart, ystart, ny, nx, maxsimi->getGridPointer());
         if (calsec)
         {
-            tiffIO sechardTIFF(sechardfile, SHORT_TYPE, &nodataShort, rdgf);
+            tiffIO sechardTIFF(sechardfile, SHORT_TYPE, nodataShort, rdgf);
             sechardTIFF.write(xstart, ystart, ny, nx, sechard->getGridPointer());
-            tiffIO secsimiTIFF(secsimifile, FLOAT_TYPE, &nodata, rdgf);
+            tiffIO secsimiTIFF(secsimifile, FLOAT_TYPE, nodata, rdgf);
             secsimiTIFF.write(xstart, ystart, ny, nx, secsimi->getGridPointer());
         }
         if (calspsi)
         {
-            tiffIO spsiTIFF(spsifile, FLOAT_TYPE, &nodata, rdgf);
+            tiffIO spsiTIFF(spsifile, FLOAT_TYPE, nodata, rdgf);
             spsiTIFF.write(xstart, ystart, ny, nx, spsi->getGridPointer());
         }
         double writet = MPI_Wtime(); // record writing time

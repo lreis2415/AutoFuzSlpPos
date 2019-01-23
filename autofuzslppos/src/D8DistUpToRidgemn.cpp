@@ -1,11 +1,11 @@
-/*  D8DistUpToRidge is used to compute distance to ridge in DEM 
+/*  D8DistUpToRidge is used to compute distance to ridge in DEM
     based on D8 flow direction model, ridge is assigned by user.
 	Also, cells without any sources are belong to ridge.
-     
+
   Liangjun, Zhu
-  Lreis, CAS  
-  Apr 1, 2015 
-  
+  Lreis, CAS
+  Apr 1, 2015
+
 */
 
 #include <time.h>
@@ -151,4 +151,4 @@ int main(int argc, char **argv)
     printf("    dist  can be h, v, p and s, which means horizontal, vertical, Pythagoras and Surface respectively, the default is h");
     printf("    stats can be ave,max and min, the default is ave\n");
     exit(0);
-} 
+}

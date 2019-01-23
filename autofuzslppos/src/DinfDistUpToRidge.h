@@ -1,3 +1,6 @@
+#ifndef DINFDISTUP_TO_RIDGE_H
+#define DINFDISTUP_TO_RIDGE_H
+
 int nameadd(char *full, char *arg, char *suff);
 
 int dinfdistup(char *angfile, char *felfile, char *slpfile, char *rdgfile, char *wfile,
@@ -17,3 +20,5 @@ int sdisttoridgegrd(char *angfile, char *slpfile, char *rdgfile, char *wfile, ch
                     int statmethod, int userdg, int useweight, int concheck, float thresh);
 
 #define MAXLN 4096
+
+#endif /* DINFDISTUP_TO_RIDGE_H */

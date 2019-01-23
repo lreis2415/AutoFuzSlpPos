@@ -8,11 +8,11 @@
 	[6] Qin C, Zhu A, Qiu W, et al. Mapping soil organic matter in small low-relief catchments using fuzzy slope position information[J]. Geoderma, 2012, 171: 64-74.
 
   Liangjun, Zhu
-  Lreis, CAS  
-  Apr 13, 2015 
-  
+  Lreis, CAS
+  Apr 13, 2015
+
   changelog: 17-08-02 lj - chang the input parameters from fixed slope position types to one tag '-inf'
-  
+
 */
 #if (defined _DEBUG) && (defined MSVC) && (defined VLD)
 #include "vld.h"

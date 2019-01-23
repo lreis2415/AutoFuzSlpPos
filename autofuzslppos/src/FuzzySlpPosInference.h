@@ -1,5 +1,5 @@
 /*!
- * \file SelectTypLocSlpPos.h
+ * \file FuzzySlpPosInference.h
  * \date 2015/04/09 14:12
  *
  * \author Liangjun Zhu
@@ -8,6 +8,8 @@
  * \brief Fuzzy slope position inference function header
  *
 */
+#ifndef FUZZYSLPPOS_INFERENCE_H
+#define FUZZYSLPPOS_INFERENCE_H
 #include "commonLib.h"
 
 /*!
@@ -39,3 +41,5 @@ typedef struct TypLocAttr
 
 int FuzzySlpPosInf(char *protofile, int prototag, int paramsnum, struct paramInfGRID *paramsgrd, float exponent,
                    char *simfile);
+
+#endif /* FUZZYSLPPOS_INFERENCE_H */
