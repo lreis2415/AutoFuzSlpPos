@@ -68,9 +68,20 @@ email:  dtarb@usu.edu
 #include <sys/time.h>
 #include <fcntl.h>
 #endif /* windows */
+
 #define MCW MPI_COMM_WORLD
 #define MAX_STRING_LENGTH 255
 #define MAXLN 4096
+
+using std::cout;
+using std::endl;
+using std::nothrow;
+
+using std::queue;
+using std::vector;
+
+using std::ifstream;
+using std::ios;
 
 //TODO: revisit these to see if they are used/needed
 //#define ABOVE 1

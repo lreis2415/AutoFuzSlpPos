@@ -33,7 +33,10 @@
 #include "SelectTypLocSlpPos.h"
 #include "stats.h"
 
-using namespace std;
+// using namespace std; // Avoid to using the entire namespace of std. Comment by Liangjun, 01/23/19
+using std::ios_base;
+using std::fstream;
+using std::ofstream;
 
 /// sqrt(2*ln2), e.g., convertor from bi-Gaussion equation to fuzzy membership function
 const float shapeConvertor = 1.1774100225154747f;

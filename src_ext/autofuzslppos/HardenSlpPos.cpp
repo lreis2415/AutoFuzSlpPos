@@ -10,7 +10,7 @@
 #include "tiffIO.h"
 #include "HardenSlpPos.h"
 
-using namespace std;
+// using namespace std; // Avoid to using the entire namespace of std. Comment by Liangjun, 01/23/19
 
 int HardenSlpPos(vector<string> infiles, vector<int> tags, char *hardfile, char *maxsimifile, bool calsec,
                  char *sechardfile, char *secsimifile, bool calspsi, int spsimodel, char *spsifile)

@@ -18,7 +18,7 @@
 #include "commonLib.h"
 #include "SelectTypLocSlpPos.h"
 
-using namespace std;
+// using namespace std; // Avoid to using the entire namespace of std. Comment by Liangjun, 01/23/19
 
 void split(char *src, const char *separator, char **dest, int *num)
 {
