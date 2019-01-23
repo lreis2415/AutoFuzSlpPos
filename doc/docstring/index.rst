@@ -6,10 +6,10 @@
 Welcome to AutoFuzSlpPos
 ========================
 
-Latest update: Dec. 20, 2017
+Latest update: Jan. 23, 2019
 
 AutoFuzSlpPos (short for "**Automated Fuzzy Slope Position**") is
-developed by PhD candidate Liang-Jun Zhu and **Prof.** Cheng-Zhi Qin in
+developed by Dr. Liang-Jun Zhu and Prof. Cheng-Zhi Qin in
 Lreis, IGSNRR, CAS, China.
 
 
@@ -48,7 +48,11 @@ Geomorphology 110, 152-161.). AutoFuzSlpPos consists three major parts,
 i.e., preparing topographic attributes, extracting typical locations,
 and calculating similarity for each slope position. The preliminary
 implementation employs the system of five basic slope positions,
-i.e., ridge, shoulder slope, backslope, footslope, and valley.
+i.e., ridge, shoulder slope, backslope, footslope, and valley. For more
+detailed information, please refers to Zhu *et al*. (2018.
+`Automatic approach to deriving fuzzy slope positions
+<http://www.sciencedirect.com/science/article/pii/S0169555X17300612>`__.
+Geomorphology 304, 173-183.)
 
 Current version of AutoFuzSlpPos is developed under the `TauDEM
 parallelized
@@ -72,7 +76,7 @@ The prerequisites environment is as follows:
       V6 <https://www.microsoft.com/en-us/download/details.aspx?id=47259>`__\ +,
       OpenMPI, and MPICH2
 
-   -  Python 2.7.x packaged with Numpy 1.6+, GDAL 1.11.x and `PyGeoC <https://github.com/lreis2415/PyGeoC>`__.
+   -  Python 2.7.x or 3.x packaged with Numpy 1.6+, GDAL 1.11.x or 2.x and `PyGeoC <https://github.com/lreis2415/PyGeoC>`__.
 
 
 2 Installation
@@ -83,9 +87,11 @@ The prerequisites environment is as follows:
 
 The source code consists of two parts:
 
-   - 1) the C++ source code located in ``autofuzslppos/src``
+   - the C++ source code. Since the core C++ programs of AutoFuzSlpPos
+     have been integrated in `TauDEM_ext <https://github.com/lreis2415/TauDEM_ext>`__,
+     and hence located in ``autofuzslppos/taudem_ext/src_ext/autofuzslppos``
 
-   - 2) python scripts located in ``autofuzslppos/``
+   - python scripts located in ``autofuzslppos/``
 
 C++ code will be compiled as separated executable files, such as
 "**SelectTypLocSlpPos**" which is used for extracting typical locations
@@ -122,7 +128,7 @@ V6 <https://www.microsoft.com/en-us/download/details.aspx?id=47259>`__
 or later. Install msmpisdk.msi, MSMpiSetup.exe. And then set the
 environment paths as follows:
 
-.. code:: 
+.. code::
 
     MSMPI_BIN=C:\Program Files\Microsoft MPI\Bin\
     MSMPI_INC=C:\Program Files (x86)\Microsoft SDKs\MPI\Include\
@@ -132,15 +138,14 @@ environment paths as follows:
 Then, open “\ **Visual Studio Command Prompt**\ ” from Start menu (as
 administrator), and run the following commands:
 
-.. code:: 
+.. code::
 
     cd <path to AutoFuzSlpPos>
     mkdir build
     cd build
     # -DINSTALL_PREFIX: the install directory, which is optional
-    # -DOPENMP: Add support to OpenMP
     # An example: MSVC 2013, 64-bit
-    cmake -G "Visual Studio 10 2010 Win64" .. --DOPENMP=1
+    cmake -G "Visual Studio 12 2013 Win64" ..
     msbuild.exe ALL_BUILD.vcxproj /p:Configuration=Release /maxcpucount:4
     msbuild.exe INSTALL.vcxproj /p:Configuration=Release
 
@@ -156,12 +161,12 @@ platform.
 
 The compilation steps are quite familiar:
 
-.. code:: 
+.. code::
 
     cd <path to AutoFuzSlpPos>
     mkdir build
     cd build
-    cmake .. --DOPENMP=1 -DCMAKE_BUILD_TYPE=Release
+    cmake .. -DCMAKE_BUILD_TYPE=Release
     make -j4
     make install
 
@@ -224,7 +229,7 @@ introduced in the configuration file (\*.ini).
 4.2 Run AutoFuzSlpPos
 ---------------------
 
-.. code:: 
+.. code::
 
     python <path to AutoFuzSlpPos>/autofuzslppos/main.py -ini <configuration file path> [-proc <process number> -bin <binaries path> -root <workspace path>]
 
