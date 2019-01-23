@@ -8,11 +8,16 @@
     - 15-03-20  lj - initial implementation.
     - 17-07-30  lj - reorganize and incorporate with pygeoc.
 """
+from __future__ import absolute_import, unicode_literals
+import os
+import sys
+if os.path.abspath(os.path.join(sys.path[0], '..')) not in sys.path:
+    sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '..')))
 
-from Config import get_input_cfgs
-from FuzzySlpPosInference import fuzzy_inference
-from PreProcessing import pre_processing
-from SelectTypLoc import extract_typical_location
+from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.FuzzySlpPosInference import fuzzy_inference
+from autofuzslppos.PreProcessing import pre_processing
+from autofuzslppos.SelectTypLoc import extract_typical_location
 
 
 def main():

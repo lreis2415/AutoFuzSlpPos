@@ -8,14 +8,20 @@
     - 15-09-08  lj - initial implementation.
     - 17-07-30  lj - reorganize and incorporate with pygeoc.
 """
+from __future__ import absolute_import, unicode_literals
+
 import os
+import sys
 import time
+from io import open
+if os.path.abspath(os.path.join(sys.path[0], '..')) not in sys.path:
+    sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '..')))
 
 from pygeoc.utils import StringClass
 
-from Config import get_input_cfgs
-from ParasComb import combine_ext_conf_parameters
-from TauDEMExtension import TauDEMExtension
+from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.ParasComb import combine_ext_conf_parameters
+from autofuzslppos.TauDEMExtension import TauDEMExtension
 
 
 def extract_typical_location(cfg):
@@ -27,7 +33,7 @@ def extract_typical_location(cfg):
         if cfg.flag_auto_typlocparams:  # automatically extract typical location
             # write extract ranges to initial configuration file
             cur_ext_conf = cfg.singleslpposconf[slppos].extinitial
-            extconfig_info = open(cur_ext_conf, 'w')
+            extconfig_info = open(cur_ext_conf, 'w', encoding='utf-8')
             extconfig_info.write('ProtoTag\t%d\n' % cfg.slppostag[i])
             abandon = list()  # abandoned terrain attributes (full file path)
             for vname, inf in list(cfg.infshape[slppos].items()):
@@ -70,17 +76,17 @@ def extract_typical_location(cfg):
                 raise RuntimeError('The input extract config file %s MUST existed when the '
                                    'value ranges setting are absent in *.ini!' % cur_ext_conf)
             else:
-                with open(cur_ext_conf, 'r') as extconfig_info:
+                with open(cur_ext_conf, 'r', encoding='utf-8') as extconfig_info:
                     infos = extconfig_info.readlines()
                 for line in infos:
                     splitstring = StringClass.split_string(line.split('\n')[0], '\t')
                     if StringClass.string_match(splitstring[0], 'Parameters') \
-                            and len(splitstring) == 5 \
-                            and splitstring[1] not in cfg.extractrange[slppos]:
+                        and len(splitstring) == 5 \
+                        and splitstring[1] not in cfg.extractrange[slppos]:
                         cfg.extractrange[slppos][splitstring[1]] = [float(splitstring[3]),
                                                                     float(splitstring[4])]
                 # rewrite extconfig file
-                with open(cur_ext_conf, 'w') as extconfig_info:
+                with open(cur_ext_conf, 'w', encoding='utf-8') as extconfig_info:
                     extconfig_info.write('ProtoTag\t%d\n' % cfg.slppostag[i])
                     param_num = len(cfg.extractrange[slppos])
                     extconfig_info.write('ParametersNUM\t%d\n' % param_num)
@@ -99,8 +105,8 @@ def extract_typical_location(cfg):
     combine_ext_conf_parameters(cfg.slppostype, cfg.singleslpposconf, cfg.slpposresult.extconfig)
     end_t = time.time()
     cost = (end_t - start_t) / 60.
-    with open(cfg.log.runtime, 'a') as logf:
-        logf.write('Selection of Typical Locations Time-consuming: ' + str(cost) + ' s\n')
+    with open(cfg.log.runtime, 'a', encoding='utf-8') as logf:
+        logf.write('Selection of Typical Locations Time-consuming: %s s\n' % repr(cost))
     return cost
 
 

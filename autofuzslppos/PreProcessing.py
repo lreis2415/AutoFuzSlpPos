@@ -10,17 +10,23 @@
     - 15-09-08  lj - initial implementation.
     - 17-07-31  lj - reorganize and incorporate with pygeoc.
 """
+from __future__ import absolute_import, unicode_literals
 
+from io import open
 import time
 from shutil import copy2
+import os
+import sys
+if os.path.abspath(os.path.join(sys.path[0], '..')) not in sys.path:
+    sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '..')))
 
 from pygeoc.TauDEM import TauDEMWorkflow
 from pygeoc.utils import FileClass
 from pygeoc.raster import RasterUtilClass
 
-from Config import get_input_cfgs
-from TauDEMExtension import TauDEMExtension
-from Util import slope_rad_to_deg
+from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.TauDEMExtension import TauDEMExtension
+from autofuzslppos.Util import slope_rad_to_deg
 
 
 def check_watershed_delineation_results(cfg):
@@ -63,16 +69,15 @@ def pre_processing(cfg):
     outlet_use = None
     if single_basin:
         outlet_use = cfg.pretaudem.outlet_m
-    log_status = open(cfg.log.preproc, 'a')
-    log_status.write("Calculating RPI(Relative Position Index)...\n")
+    log_status = open(cfg.log.preproc, 'a', encoding='utf-8')
+    log_status.write('Calculating RPI(Relative Position Index)...\n')
     log_status.flush()
     if cfg.flow_model == 1:  # Dinf model, extract stream using the D8 threshold
         if cfg.valley is None or not FileClass.is_file_exists(cfg.valley):
             if cfg.d8_stream_thresh <= 0:
-                drpf = open(cfg.pretaudem.drptxt, "r")
-                temp_contents = drpf.read()
-                (beg, cfg.d8_stream_thresh) = temp_contents.rsplit(' ', 1)
-                drpf.close()
+                with open(cfg.pretaudem.drptxt, 'r', encoding='utf-8') as drpf:
+                    temp_contents = drpf.read()
+                    (beg, cfg.d8_stream_thresh) = temp_contents.rsplit(' ', 1)
             print(cfg.d8_stream_thresh)
             TauDEMExtension.areadinf(cfg.proc, cfg.pretaudem.dinf,
                                      cfg.pretaudem.dinfacc_weight, outlet_use,
@@ -145,7 +150,7 @@ def pre_processing(cfg):
                                     cfg.pretaudem.dist2stream_ed, cfg.pretaudem.dist2rdg_ed,
                                     cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
                                     cfg.log.preproc, cfg.log.runtime, cfg.hostfile)
-    log_status.write("Calculating Horizontal Curvature and Profile Curvature...\n")
+    log_status.write('Calculating Horizontal Curvature and Profile Curvature...\n')
     TauDEMExtension.curvature(cfg.proc, cfg.pretaudem.filldem,
                               cfg.topoparam.profc, cfg.topoparam.horizc,
                               None, None, None, None, None,
@@ -166,14 +171,13 @@ def pre_processing(cfg):
     if single_basin:  # clip RPI
         RasterUtilClass.mask_raster(cfg.topoparam.rpi, cfg.pretaudem.subbsn, cfg.topoparam.rpi)
 
-    log_status.write("Preprocessing succeed!\n")
+    log_status.write('Preprocessing succeed!\n')
     end_t = time.time()
     cost = (end_t - start_t) / 60.
-    log_status.write("Time consuming: %.2f min.\n" % cost)
+    log_status.write('Time consuming: %.2f min.\n' % cost)
     log_status.close()
-    logf = open(cfg.log.runtime, 'a')
-    logf.write("Preprocessing Time-consuming: " + str(cost) + ' s\n')
-    logf.close()
+    with open(cfg.log.runtime, 'a', encoding='utf-8') as logf:
+        logf.write('Preprocessing Time-consuming: %s\n' % repr(cost))
     return cost
 
 

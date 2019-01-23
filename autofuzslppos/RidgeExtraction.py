@@ -16,7 +16,12 @@
     - 16-08-07  lj - initial implementation.
     - 17-08-09  lj - reorganize and incorporate with pygeoc.
 """
+from __future__ import absolute_import, unicode_literals
+
 import os
+import sys
+if os.path.abspath(os.path.join(sys.path[0], '..')) not in sys.path:
+    sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '..')))
 
 import numpy
 from pygeoc.hydro import FlowModelConst
@@ -24,7 +29,7 @@ from pygeoc.postTauDEM import D8Util, DinfUtil
 from pygeoc.raster import RasterUtilClass
 from pygeoc.utils import MathClass, FileClass, DEFAULT_NODATA
 
-from Config import get_input_cfgs
+from autofuzslppos.Config import get_input_cfgs
 
 
 class RidgeSourceExtraction(object):

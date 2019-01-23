@@ -8,20 +8,25 @@
     - 15-09-08  lj - initial implementation.
     - 17-07-30  lj - reorganize and incorporate with pygeoc.
 """
-
+from __future__ import absolute_import, unicode_literals
 import time
+from io import open
+import os
+import sys
+if os.path.abspath(os.path.join(sys.path[0], '..')) not in sys.path:
+    sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '..')))
 
 from pygeoc.utils import StringClass
 
-from Config import get_input_cfgs
-from ParasComb import combine_inf_conf_parameters
-from TauDEMExtension import TauDEMExtension
+from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.ParasComb import combine_inf_conf_parameters
+from autofuzslppos.TauDEMExtension import TauDEMExtension
 
 
 def read_inf_param_from_file(conf):
     """Read fuzzy inference parameters from file."""
     params_list = list()
-    with open(conf) as f:
+    with open(conf, 'r', encoding='utf-8') as f:
         for line in f.readlines():
             eles = line.split('\n')[0].split('\t')
             params = StringClass.extract_numeric_values_from_string(line.split('\n')[0])
@@ -83,7 +88,7 @@ def fuzzy_inference(cfg):
 
     # write fuzzy inference parameters to configuration file and run 'fuzzyslpposinference'
     for i, slppos in enumerate(cfg.slppostype):
-        config_info = open(cfg.singleslpposconf[slppos].infconfig, 'w')
+        config_info = open(cfg.singleslpposconf[slppos].infconfig, 'w', encoding='utf-8')
         config_info.write('PrototypeGRID\t%s\n' % cfg.singleslpposconf[slppos].typloc)
         config_info.write('ProtoTag\t%d\n' % cfg.slppostag[i])
         config_info.write('ParametersNUM\t%d\n' % len(cfg.inferparam[slppos]))
@@ -112,8 +117,8 @@ def fuzzy_inference(cfg):
     combine_inf_conf_parameters(cfg.slppostype, cfg.singleslpposconf, cfg.slpposresult.infconfig)
     end_t = time.time()
     cost = (end_t - start_t) / 60.
-    with open(cfg.log.runtime, 'a') as logf:
-        logf.write('Fuzzy Slope Position Inference Time-consuming: ' + str(cost) + ' s\n')
+    with open(cfg.log.runtime, 'a', encoding='utf-8') as logf:
+        logf.write('Fuzzy Slope Position Inference Time-consuming: %s\n' % repr(cost))
     return cost
 
 

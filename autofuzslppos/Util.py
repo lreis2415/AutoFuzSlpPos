@@ -8,8 +8,9 @@
     - 15-07-31  lj - initial implementation
     - 17-07-21  lj - reorganize and incorporate with pygeoc
 """
-
+from __future__ import absolute_import, unicode_literals
 import os
+from io import open
 
 import numpy
 from pygeoc.raster import RasterUtilClass
@@ -37,14 +38,14 @@ def slope_rad_to_deg(tanslp, slp):
 def write_log(logfile, contentlist):
     """Write string or string list to log file."""
     if os.path.exists(logfile):
-        log_status = open(logfile, 'a')
+        log_status = open(logfile, 'a', encoding='utf-8')
     else:
-        log_status = open(logfile, 'w')
+        log_status = open(logfile, 'w', encoding='utf-8')
     if isinstance(contentlist, list) or isinstance(contentlist, tuple):
         for content in contentlist:
-            log_status.write("%s\n" % content)
+            log_status.write('%s\n' % content)
     else:
-        log_status.write("%s\n" % contentlist)
+        log_status.write('%s\n' % contentlist)
     log_status.flush()
     log_status.close()
 

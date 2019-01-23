@@ -8,6 +8,7 @@
     - 17-08-01  lj - initial implementation based on pygeoc.
     - 17-12-20  lj - update code style
 """
+from __future__ import absolute_import, unicode_literals
 
 from pygeoc.TauDEM import TauDEM
 from pygeoc.utils import StringClass, FileClass

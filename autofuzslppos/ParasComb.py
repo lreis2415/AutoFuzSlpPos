@@ -8,16 +8,22 @@
     - 15-03-20  lj - initial implementation.
     - 17-07-30  lj - reorganize and incorporate with pygeoc.
 """
+from __future__ import absolute_import, unicode_literals
+from io import open
+import os
+import sys
+if os.path.abspath(os.path.join(sys.path[0], '..')) not in sys.path:
+    sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '..')))
+
 from pygeoc.utils import StringClass
 
-from Config import get_input_cfgs
+from autofuzslppos.Config import get_input_cfgs
 
 
 def read_ext_conf(ext_file):
     """Read extract typical location configuration file."""
-    f = open(ext_file)
-    lines = f.readlines()
-    f.close()
+    with open(ext_file, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
     ext_conf_data = list()
     # Read the number of records
     rec_num = int(lines[1].split('\n')[0].split('\t')[1])
@@ -50,16 +56,15 @@ def combine_ext_conf_parameters(slppostypes, extconf_dict, combinedconf):
             idx = ext_conf_lines[0].index(temp_ext_data[i + 1][0])
             if idx >= len(temp_ext_conf_line):
                 temp_ext_conf_line += [''] * (idx - len(temp_ext_conf_line) + 1)
-            temp_ext_conf_line[idx] = "[" + temp_ext_data[i + 1][1] + ", " + \
-                                      temp_ext_data[i + 1][2] + "]"
+            temp_ext_conf_line[idx] = '[%s, %s]' % (repr(temp_ext_data[i + 1][1]),
+                                                    repr(temp_ext_data[i + 1][2]))
         ext_conf_lines.append(temp_ext_conf_line)
     # print(extConfLines)
-    f = open(combinedconf, 'w')
-    for line in ext_conf_lines:
-        for elem in line:
-            f.write("%s\t" % elem)
-        f.write("\n")
-    f.close()
+    with open(combinedconf, 'w', encoding='utf-8') as f:
+        for line in ext_conf_lines:
+            for elem in line:
+                f.write('%s\t' % elem)
+            f.write('\n')
 
 
 def read_inf_conf(ext_file):
@@ -101,26 +106,25 @@ def combine_inf_conf_parameters(slppostypes, infconf_dict, combinedconf):
                 temp_inf_conf_line += [''] * (idx - len(temp_inf_conf_line) + 1)
             if temp_inf_data[i + 1][1] == 'B':
                 if temp_inf_data[i + 1][2] == temp_inf_data[i + 1][3]:
-                    temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ": w1 = w2 = " + \
+                    temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ': w1 = w2 = ' + \
                                               temp_inf_data[i + 1][2]
                 else:
-                    temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ": w1 = " + \
-                                              temp_inf_data[i + 1][2] + ", w2 = " + \
+                    temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ': w1 = ' + \
+                                              temp_inf_data[i + 1][2] + ', w2 = ' + \
                                               temp_inf_data[i + 1][3]
             elif temp_inf_data[i + 1][1] == 'S':
-                temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ": w1 = " + \
+                temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ': w1 = ' + \
                                           temp_inf_data[i + 1][2]
             else:
-                temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ": w2 = " + \
+                temp_inf_conf_line[idx] = temp_inf_data[i + 1][1] + ': w2 = ' + \
                                           temp_inf_data[i + 1][3]
         inf_conf_lines.append(temp_inf_conf_line)
     # print(infConfLines)
-    f = open(combinedconf, 'w')
-    for line in inf_conf_lines:
-        for elem in line:
-            f.write("%s\t" % elem)
-        f.write("\n")
-    f.close()
+    with open(combinedconf, 'w', encoding='utf-8') as f:
+        for line in inf_conf_lines:
+            for elem in line:
+                f.write('%s\t' % elem)
+            f.write('\n')
 
 
 def main():

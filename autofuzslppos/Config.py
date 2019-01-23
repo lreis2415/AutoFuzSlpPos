@@ -8,22 +8,21 @@
     - 15-07-31  lj - initial implementation.
     - 17-07-31  lj - reorganize as basic class, and incorporated with pygeoc.
 """
-from __future__ import absolute_import, division
+from __future__ import absolute_import, unicode_literals, division
 
 import argparse
 import os
+import sys
 from multiprocessing import cpu_count
 from configparser import ConfigParser
 
+if os.path.abspath(os.path.join(sys.path[0], '..')) not in sys.path:
+    sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '..')))
+
 from pygeoc.utils import FileClass, StringClass
 
-from Nomenclature import CreateWorkspace, PreProcessAttrNames, TopoAttrNames, LogNames
-from Nomenclature import FuzSlpPosFiles, SingleSlpPosFiles
-
-
-class C(object):
-    """Empty"""
-    pass
+from autofuzslppos.Nomenclature import CreateWorkspace, PreProcessAttrNames, TopoAttrNames, \
+    LogNames, FuzSlpPosFiles, SingleSlpPosFiles
 
 
 class AutoFuzSlpPosConfig(object):
