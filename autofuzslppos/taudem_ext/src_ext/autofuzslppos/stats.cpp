@@ -1,5 +1,5 @@
 #include "stats.h"
-using namespace std;
+// using namespace std; // Avoid to using the entire namespace of std. Comment by Liangjun, 01/23/19
 
 static float dokern(float x, int kern)
 {

@@ -25,7 +25,7 @@
 /// include FuzzySlpPosInference header
 #include "FuzzySlpPosInference.h"
 
-using namespace std;
+// using namespace std; // Avoid to using the entire namespace of std. Comment by Liangjun, 01/23/19
 
 /*!
  * \brief Calculate fuzzy slope position.

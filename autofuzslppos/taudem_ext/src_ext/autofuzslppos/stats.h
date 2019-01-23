@@ -11,7 +11,17 @@
 
 #include <numeric>
 #include <algorithm>
-using namespace std;
+// using namespace std; // Avoid to using the entire namespace of std. Comment by Liangjun, 01/23/19
+using std::pair;
+using std::make_pair;
+using std::priority_queue;
+
+using std::max;
+using std::min;
+
+using std::string;
+using std::stringstream;
+using std::ostringstream;
 
 //const float PI = 3.14159265359;
 //const float MISSINGFLOAT = -1*FLT_MAX;
