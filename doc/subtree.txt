@@ -1,14 +1,4 @@
-# 1.cmake
-# add
-git remote add -f cmake git@github.com:lreis2415/cmake.git
-git subtree add --prefix=cmake cmake master --squash
-# pull
-git fetch cmake master
-git subtree pull --prefix=cmake cmake master --squash
-# push
-git subtree push --prefix=cmake cmake master
-
-# 2. TauDEM_ext
+# 1. TauDEM_ext
 # add
 git remote add -f taudem_ext git@github.com:lreis2415/TauDEM_ext.git
 git subtree add --prefix=autofuzslppos/taudem_ext taudem_ext master --squash

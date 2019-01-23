@@ -42,9 +42,9 @@ build_script:
   - ps: "ls"
   - mkdir build_64bit
   - cd build_64bit
-  - cmake -G "Visual Studio 12 2013 Win64" .. -DOPENMP=1 -DINSTALL_PREFIX=C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit\\autofuzslppos\\bin
-  - msbuild.exe ALL_BUILD.vcxproj /p:Configuration=Release /maxcpucount:4 /clp:Summary
-  - msbuild.exe INSTALL.vcxproj /p:Configuration=Release /maxcpucount:4
+  - cmake -G "Visual Studio 12 2013 Win64" .. -DINSTALL_PREFIX=C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit\\autofuzslppos\\bin
+  - msbuild.exe ALL_BUILD.vcxproj /p:Configuration=Release /clp:Summary
+  - msbuild.exe INSTALL.vcxproj /p:Configuration=Release
   # copy python scripts
   - copy C:\\zhulj\\autofuzslppos\\autofuzslppos\\*.py C:\\zhulj\\autofuzslppos\\autofuzslppos_win64bit\\autofuzslppos
   # copy data, test, and manual to release directory

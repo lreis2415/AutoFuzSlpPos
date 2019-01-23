@@ -5,7 +5,7 @@ mkdir -p autofuzslppos_osx_clang/autofuzslppos/bin
 mkdir build
 cd build
 # Be caution, the absolute path should be used in INSTALL_PREFIX!
-cmake .. -DOPENMP=1 -DCMAKE_BUILD_TYPE=Release -DINSTALL_PREFIX=/Users/travis/build/lreis2415/AutoFuzSlpPos/autofuzslppos_osx_clang/autofuzslppos/bin
+cmake .. -DCMAKE_BUILD_TYPE=Release -DINSTALL_PREFIX=/Users/travis/build/lreis2415/AutoFuzSlpPos/autofuzslppos_osx_clang/autofuzslppos/bin
 make -j4
 sudo make install
 cd ..
