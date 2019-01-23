@@ -23,15 +23,6 @@ FATAL: In-source builds are not allowed.
 )
 ENDIF()
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1 FATAL_ERROR)
-if(POLICY CMP0015)
-    cmake_policy(SET CMP0015 NEW)
-endif()
-if(POLICY CMP0054)
-    cmake_policy(SET CMP0054 NEW)
-endif()
-if(POLICY CMP0074)
-    cmake_policy(SET CMP0074 NEW)
-endif()
 
 # Set initial project name with coding languages
 PROJECT(AutoFuzSlpPos CXX C)
@@ -63,8 +54,3 @@ ENDIF()
 
 SET(TAUDEM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/autofuzslppos/taudem_ext)
 ADD_SUBDIRECTORY(${TAUDEM_ALL})
-
-### Auxiliary.
-STATUS("")
-STATUS("  Install path:" ${CMAKE_INSTALL_PREFIX})
-STATUS("")
