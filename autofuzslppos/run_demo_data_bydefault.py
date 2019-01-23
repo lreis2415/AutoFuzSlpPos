@@ -5,15 +5,7 @@
     @author   : Liangjun Zhu
 """
 import os
-import sys
-
-# if os.path.abspath(os.path.join(sys.path[0], '..')) not in sys.path:
-#     sys.path.append(os.path.abspath(os.path.join(sys.path[0], '..')))
-
-try:
-    from ConfigParser import ConfigParser  # py2
-except ImportError:
-    from configparser import ConfigParser  # py3
+from configparser import ConfigParser
 
 from pygeoc.utils import UtilClass
 
@@ -53,7 +45,7 @@ def write_autofuzslppos_config_file(ini_name, bin, wp, data_path, dem_name):
 
 def main():
     """Main workflow."""
-    cur_path = UtilClass.current_path()
+    cur_path = UtilClass.current_path(lambda: 0)
     #print(cur_path)
     bin_dir = os.path.abspath(os.path.join(cur_path, '../bin'))
     #print(bin_dir)

@@ -4,8 +4,9 @@
 
     @author   : Liangjun Zhu
 
-    @changelog: 17-08-01  lj - initial implementation based on pygeoc.\n
-                17-12-20  lj - update code style
+    @changelog:
+    - 17-08-01  lj - initial implementation based on pygeoc.
+    - 17-12-20  lj - update code style
 """
 
 from pygeoc.TauDEM import TauDEM

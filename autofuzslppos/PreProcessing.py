@@ -6,8 +6,9 @@
 
     @author   : Liangjun Zhu
 
-    @changelog: 15-09-08  lj - initial implementation.\n
-                17-07-31  lj - reorganize and incorporate with pygeoc.\n
+    @changelog:
+    - 15-09-08  lj - initial implementation.
+    - 17-07-31  lj - reorganize and incorporate with pygeoc.
 """
 
 import time

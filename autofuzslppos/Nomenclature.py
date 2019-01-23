@@ -4,8 +4,9 @@
 
     @author   : Liangjun Zhu
 
-    @changelog: 15-03-20  lj - initial implementation.\n
-                17-07-30  lj - reorganize and incorporate with pygeoc.
+    @changelog:
+    - 15-03-20  lj - initial implementation.
+    - 17-07-30  lj - reorganize and incorporate with pygeoc.
 """
 import os
 
@@ -25,7 +26,7 @@ class CreateWorkspace(object):
             try:
                 os.makedirs(root_dir)
             except Exception:  # failed of any types
-                root_dir = UtilClass.current_path() + os.sep + "FuzzySlpPos"
+                root_dir = UtilClass.current_path(lambda: 0) + os.sep + "FuzzySlpPos"
                 os.mkdir(root_dir)
         self.root_dir = root_dir
 

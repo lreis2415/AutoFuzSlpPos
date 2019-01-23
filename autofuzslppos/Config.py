@@ -4,19 +4,16 @@
 
     @author: Liangjun Zhu
 
-    @changelog: 15-07-31  lj - initial implementation.\n
-                17-07-31  lj - reorganize as basic class, and incorporated with pygeoc.\n
+    @changelog:
+    - 15-07-31  lj - initial implementation.
+    - 17-07-31  lj - reorganize as basic class, and incorporated with pygeoc.
 """
 from __future__ import absolute_import, division
 
 import argparse
 import os
 from multiprocessing import cpu_count
-
-try:
-    from ConfigParser import ConfigParser  # py2
-except ImportError:
-    from configparser import ConfigParser  # py3
+from configparser import ConfigParser
 
 from pygeoc.utils import FileClass, StringClass
 
@@ -338,7 +335,7 @@ class AutoFuzSlpPosConfig(object):
                 self.proc = cpu_count() / 2
         # if mpi directory is not set
         if self.mpi_dir is None or StringClass.string_match(self.mpi_dir, 'none') \
-                or not os.path.isdir(self.mpi_dir):
+            or not os.path.isdir(self.mpi_dir):
             mpipath = FileClass.get_executable_fullpath('mpiexec')
             self.mpi_dir = os.path.dirname(mpipath)
         if self.mpi_dir is None:
@@ -511,7 +508,6 @@ def get_input_cfgs():
     Returns:
             InputArgs object.
     """
-    c = C()
     parser = argparse.ArgumentParser(description="Read AutoFuzSlpPos configurations.")
     parser.add_argument('-ini', help="Full path of configuration file.")
     parser.add_argument('-bin', help="Path of executable programs, which will override"
@@ -521,7 +517,7 @@ def get_input_cfgs():
     parser.add_argument('-dem', help="DEM of study area.")
     parser.add_argument('-root', help="Workspace to store results, which will override "
                                       "rootDir in *.ini file.")
-    args = parser.parse_args(namespace=c)
+    args = parser.parse_args()
 
     ini_file = args.ini
     bin_dir = args.bin

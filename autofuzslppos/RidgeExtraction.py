@@ -2,18 +2,19 @@
 # -*- coding: utf-8 -*-
 """Extract ridge sources using flow direction, subbasin, and elevation.
 
-    1. Identify original ridge sources (RdgOrgSrc), which are cells that have no flow-in cells
-       or have very few flow-in proportion for Dinf (TODO).\n
-    2. Read subbasin and identify the boundary grids as potential ridges (RdgPotSrc).\n
-    3. Sort each subbasin's boundary cells by elevation, filter by the a given percent, e.g. 70%.\n
-    4. Filter RdgOrgSrc by RdgPotSrc.
+    - 1. Identify original ridge sources (RdgOrgSrc), which are cells that have no flow-in cells
+         or have very few flow-in proportion for Dinf (TODO).
+    - 2. Read subbasin and identify the boundary grids as potential ridges (RdgPotSrc).
+    - 3. Sort each subbasin's boundary cells by elevation, filter by the a given percent, e.g. 70%.
+    - 4. Filter RdgOrgSrc by RdgPotSrc.
 
     Be caution, the derived ridge sources may need manually modification when further use.
 
     @author   : Liangjun Zhu
 
-    @changelog: 16-08-07  lj - initial implementation.\n
-                17-08-09  lj - reorganize and incorporate with pygeoc.\n
+    @changelog:
+    - 16-08-07  lj - initial implementation.
+    - 17-08-09  lj - reorganize and incorporate with pygeoc.
 """
 import os
 

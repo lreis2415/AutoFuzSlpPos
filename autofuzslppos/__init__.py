@@ -16,9 +16,13 @@
         Geomorphology 110, 152–161.
         doi:10.1016/j.geomorph.2009.04.003
 
+ [2] Zhu, L.-J., Zhu, A.-X., Qin, C.-Z., Liu, J.-Z., 2018.
+        Automatic approach to deriving fuzzy slope positions.
+        Geomorphology 304, 173-183.
+
                               -------------------
         author               : Liangjun Zhu, Chengzhi Qin
-        copyright            : (C) 2015 - 2017 by Lreis, IGSNRR, CAS
+        copyright            : (C) 2015 - 2019 Lreis, IGSNRR, CAS
         email                : zlj@lreis.ac.cn
  ******************************************************************************
  *                                                                            *
@@ -32,4 +36,4 @@
 """
 
 __author__ = "Liangjun Zhu"
-__version__ = "1.2.0"
+__version__ = "1.2.1"

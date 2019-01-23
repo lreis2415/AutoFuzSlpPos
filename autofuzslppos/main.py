@@ -4,8 +4,9 @@
 
     @author   : Liangjun Zhu
 
-    @changelog: 15-03-20  lj - initial implementation.\n
-                17-07-30  lj - reorganize and incorporate with pygeoc.
+    @changelog:
+    - 15-03-20  lj - initial implementation.
+    - 17-07-30  lj - reorganize and incorporate with pygeoc.
 """
 
 from Config import get_input_cfgs

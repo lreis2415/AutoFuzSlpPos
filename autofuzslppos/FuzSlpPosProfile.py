@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 """Extract fuzzy slope positions along flow path from ridge to valley.
 
-    1. Read ridge sources, by default, ridge means there are no cells flow in.
-    2. Trace down and extract the similarities of fuzzy slope positions.
-    3. Construct the output ESRI Shapefile.
+    - 1. Read ridge sources, by default, ridge means there are no cells flow in.
+    - 2. Trace down and extract the similarities of fuzzy slope positions.
+    - 3. Construct the output ESRI Shapefile.
 
     @author   : Liangjun Zhu
 
-    @changelog: 15-09-08  lj - initial implementation.\n
-                17-07-30  lj - reorganize and incorporate with pygeoc.\n
+    @changelog:
+    - 15-09-08  lj - initial implementation.
+    - 17-07-30  lj - reorganize and incorporate with pygeoc.
 """
 import os
 
