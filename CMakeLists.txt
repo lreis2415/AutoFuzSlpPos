@@ -4,15 +4,20 @@
 #     Please from the off-tree build directory, invoke:
 #       $ cmake <path/to/AutoFuzSlpPos>
 #
-#  Routine testing platforms and compilers include:
-#     1. Windows 10 with Visual Studio 2013, MSMPI-v8
-#     2. Windows 10 with mingw64 (GCC-4.9.3), MSMPI-v8
-#     3. CentOS 6.2 (cluster) with GCC-4.8.4, MPICH-3.1.4
-#     4. Red Hat Server 6.2 (cluster) with ICC-12.1.0, Intel MPI 4.0
-#     5. macOS 10.12.6 with Clang-8.0 (or GCC-4.9.3), OpenMPI-1.10.4
+#       Optional cmake options:
+#         -DINSTALL_PREFIX=<path/to/install>
+#         -DLLVM_ROOT_DIR Specific the root directory of brew installed LLVM, e.g., /usr/local/opt/llvm
 #
-#  Created and maintained by Liang-Jun Zhu (zlj@lreis.ac.cn)
-#  Latest updated: Jan. 22, 2019
+#  Routine testing platforms and compilers include:
+#     1. Windows 10 with Visual Studio 2010/2015, mongo-c-driver-1.5.5, GDAL-1.11.4/2.4.1
+#     2. Windows 10 with msys2/mingw64 (GCC-8.2.0), mongo-c-driver-1.6.1, GDAL-2.3.2
+#     3. CentOS 6.2 (cluster) with GCC-4.8.4, mongo-c-driver-1.5.5, GDAL-1.9.0
+#     4. Red Hat Server 6.2 (cluster) with ICC-12.1.0, mongo-c-driver-1.6.1, GDAL-1.11.5 (Without UnitTest)
+#     5. macOS 10.14.5 with Clang-10.0 with Xcode, mongo-c-driver-1.14.0, GDAL-2.4.2 (brew installed)
+#     6. Windows 10 with Visual Studio 2013+Intel C++ Compiler 17.0, mongo-c-driver-1.5.5, GDAL-1.11.4
+#
+#  Created and maintained by Liangjun Zhu (zlj@lreis.ac.cn)
+#  Latest updated: Jul. 20, 2019
 #  Copyright (C) 2015-2019 Lreis, IGSNRR, CAS
 # ----------------------------------------------------------------------------
 ### Disable in-source builds to prevent source tree corruption.
