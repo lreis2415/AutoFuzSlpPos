@@ -102,7 +102,7 @@ def fuzzy_inference(cfg):
 
         TauDEMExtension.fuzzyslpposinference(cfg.proc,
                                              cfg.singleslpposconf[slppos].infconfig,
-                                             cfg.ws.output_dir,cfg.mpi_dir, cfg.bin_dir,
+                                             cfg.ws.output_dir, cfg.mpi_dir, cfg.bin_dir,
                                              cfg.log.all, cfg.log.runtime, cfg.hostfile)
 
     TauDEMExtension.hardenslppos(cfg.proc, simif, cfg.slppostag,

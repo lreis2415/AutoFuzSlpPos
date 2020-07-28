@@ -403,6 +403,15 @@ class AutoFuzSlpPosConfig(object):
                         is_regional = True
                     self.topoparam.add_user_defined_attribute(attrname, attrp, is_regional)
         # handling several parameters used in extracting typical location
+        # Currently, 8 parameters are designed for all slppos types or set separately
+        #   MIN_FREQUENCY: (int) define min. frequency in divided groups to be considered
+        #   MIN_TYPLOC_NUM_PECENT: (float) min. percent of typloc candidate will be chosen
+        #   MAX_TYPLOC_NUM_PECENT: (float) max. percent of typloc candidate will be chosen
+        #   SELECTION_MODE: 1 means using max. percent for default typloc num, 0 use min.
+        #   DEFAULT_INCREMENT_RATIO: (float) increment ratio used when selected num. exceeds min. or max.
+        #   DEFAULT_SIGMA_MULTIPLIER: (float) multiplier of convertor from bi-Gaussion equation to fuzzy membership function
+        #   MAX_LOOP_NUM_TYPLOC_SELECTION: (int) max. loop number for finding proper typloc
+        #   DEFAULT_BiGaussian_Ratio: (float) default bi-gaussian ratio for identifying z- or s-shaped functions
         if self.cf.has_option(_opttyploc, 'typlocextractparam'):
             self.param4typloc = dict()
             base_param_str = self.cf.get(_opttyploc, 'typlocextractparam')
