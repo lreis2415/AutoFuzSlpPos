@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """Calculate terrain attributes from DEM and other optional inputs for deriving slope position.
 

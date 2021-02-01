@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """Extract fuzzy slope positions along flow path from ridge to valley.
 

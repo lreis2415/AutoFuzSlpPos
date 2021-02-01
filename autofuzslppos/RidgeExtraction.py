@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """Extract ridge sources using flow direction, subbasin, and elevation.
 
