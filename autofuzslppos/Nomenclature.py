@@ -47,6 +47,12 @@ class CreateWorkspace(object):
 
 class PreProcessAttrNames(TauDEMFilesUtils):
     """File names derived in preprocessing based TauDEM."""
+    _FLOWDIRDINF = 'flowDirDinfTau.tif'
+    # _DIRCODEDINF = 'dirCodeDinfTau.tif'
+    # _WEIGHTDINF = 'weightDinfTau.tif'
+    _SLOPEDINF = 'slopeDinfTau.tif'
+    # _DIRCODEMFDMD = 'dirCodeMFDmd.tif'
+    # _FLOWFRACTIONMFDMD = 'fractionsMFDmd.tif'
     _DINFACCWITHWEIGHT = 'accTauDinfWithWeight.tif'
     _DINFSTREAM = 'stream_dinf.tif'
     _DIST2STREAM_V = 'dist2strm_v'
@@ -61,6 +67,12 @@ class PreProcessAttrNames(TauDEMFilesUtils):
     def __init__(self, pre_dir, flow_model):
         """Initialize."""
         TauDEMFilesUtils.__init__(self, pre_dir)
+        self.dinf = pre_dir + os.sep + self._FLOWDIRDINF
+        # self.dinf_d8dir = pre_dir + os.sep + self._DIRCODEDINF
+        # self.dinf_weight = pre_dir + os.sep + self._WEIGHTDINF
+        self.dinf_slp = pre_dir + os.sep + self._SLOPEDINF
+        # self.mfdmd_dir = pre_dir + os.sep + self._DIRCODEMFDMD
+        # self.mfdmd_frac = pre_dir + os.sep + self._FLOWFRACTIONMFDMD
         self.dinfacc_weight = pre_dir + os.sep + self._DINFACCWITHWEIGHT
         self.stream_dinf = pre_dir + os.sep + self._DINFSTREAM
         # File names dependent on flow model
