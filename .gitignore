@@ -104,7 +104,7 @@ Desktop.ini
 *.egg
 *.egg-info
 dist
-build*
+build*/
 eggs
 parts
 bin
@@ -161,3 +161,6 @@ bin
 # Clion
 cmake-build*/
 .idea
+
+# tmp results of test data
+/data/result*
