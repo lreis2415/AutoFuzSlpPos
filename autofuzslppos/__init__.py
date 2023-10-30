@@ -35,6 +35,8 @@
  *                                                                            *
  ******************************************************************************/
 """
+from __future__ import absolute_import
+
 __author__ = 'Liangjun Zhu'
 __email__ = 'zlj@lreis.ac.cn'
 __version__ = '1.2.2'

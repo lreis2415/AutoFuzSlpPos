@@ -38,13 +38,9 @@ def check_watershed_delineation_results(cfg):
         return False
     if not FileClass.is_file_exists(cfg.pretaudem.d8flow):
         return False
-    if cfg.flow_model == 1:
-        if not FileClass.is_file_exists(cfg.pretaudem.dinf):
-            return False
-        if not FileClass.is_file_exists(cfg.pretaudem.dinf_slp):
-            return False
-        if not FileClass.is_file_exists(cfg.pretaudem.stream_pd):
-            return False
+    if not FileClass.is_file_exists(cfg.pretaudem.d8acc):
+        return False
+
     return True
 
 
@@ -56,18 +52,30 @@ def pre_processing(cfg):
     if cfg.outlet is not None:
         single_basin = True
     pretaudem_done = check_watershed_delineation_results(cfg)
-    if cfg.valley is None or not FileClass.is_file_exists(cfg.valley) or not pretaudem_done:
-        cfg.valley = cfg.pretaudem.stream_raster
-        # Watershed delineation based on D8 flow model.
-        TauDEMWorkflow.watershed_delineation(cfg.proc, cfg.dem, cfg.outlet, cfg.d8_stream_thresh,
-                                             single_basin,
-                                             cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
-                                             logfile=cfg.log.preproc, runtime_file=cfg.log.runtime,
-                                             hostfile=cfg.hostfile)
+    # Watershed delineation based on D8 flow model.
+    TauDEMWorkflow.watershed_delineation(cfg.proc, cfg.dem, cfg.outlet, cfg.d8_stream_thresh,
+                                         single_basin,
+                                         cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
+                                         logfile=cfg.log.preproc, runtime_file=cfg.log.runtime,
+                                         hostfile=cfg.hostfile,
+                                         avoid_redo=pretaudem_done)
     # use outlet_m or not
     outlet_use = None
     if single_basin:
         outlet_use = cfg.pretaudem.outlet_m
+    # D-inf related parameters
+    if cfg.flow_model == 1:
+        TauDEM.dinfflowdir(cfg.proc, cfg.pretaudem.filldem, cfg.pretaudem.dinf,
+                           cfg.pretaudem.dinf_slp,
+                           workingdir=cfg.ws.pre_dir, mpiexedir=cfg.mpi_dir, exedir=cfg.bin_dir,
+                           log_file=cfg.log.preproc, runtime_file=cfg.log.runtime,
+                           hostfile=cfg.hostfile)
+        TauDEM.areadinf(cfg.proc, cfg.pretaudem.dinf,
+                        cfg.pretaudem.dinfacc_weight, outlet_use,
+                        cfg.pretaudem.stream_pd, 'false',
+                        workingdir=cfg.ws.pre_dir, mpiexedir=cfg.mpi_dir, exedir=cfg.bin_dir,
+                        log_file=cfg.log.preproc, runtime_file=cfg.log.runtime,
+                        hostfile=cfg.hostfile)
     log_status = open(cfg.log.preproc, 'a', encoding='utf-8')
     log_status.write('Calculating RPI(Relative Position Index)...\n')
     log_status.flush()
@@ -135,6 +143,7 @@ def pre_processing(cfg):
                                     cfg.pretaudem.distup2rdg, cfg.pretaudem.rpi_hydro, 4,
                                     cfg.ws.pre_dir, cfg.mpi_dir, cfg.bin_dir,
                                     cfg.log.preproc, cfg.log.runtime, cfg.hostfile)
+
     if cfg.rpi_method == 0:  # calculate RPI based on Skidmore's method
         if cfg.ridge is None or not FileClass.is_file_exists(cfg.ridge):
             cfg.ridge = cfg.pretaudem.rdgsrc

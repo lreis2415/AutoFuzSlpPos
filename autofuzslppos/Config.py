@@ -335,6 +335,8 @@ class AutoFuzSlpPosConfig(object):
         if self.mpi_dir is None or StringClass.string_match(self.mpi_dir, 'none') \
             or not os.path.isdir(self.mpi_dir):
             mpipath = FileClass.get_executable_fullpath('mpiexec')
+            if mpipath[0] == mpipath[-1] == '"':
+                self.mpi_dir = '\"%s\"' % os.path.dirname(mpipath[1:-1])
             self.mpi_dir = os.path.dirname(mpipath)
         if self.mpi_dir is None:
             raise RuntimeError('Can not find mpiexec!')
