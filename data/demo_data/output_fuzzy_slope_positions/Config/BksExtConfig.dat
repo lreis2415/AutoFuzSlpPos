@@ -1,6 +1,0 @@
-ProtoTag	4
-ParametersNUM	3
-Parameters	rpi	C:\z_data_m\AutoFuzSlpPos\jamaica\Params\RPI.tif	0.5	0.6
-Parameters	profc	C:\z_data_m\AutoFuzSlpPos\jamaica\Params\ProfC.tif	-0.00259821	0.00484531
-Parameters	slp	C:\z_data_m\AutoFuzSlpPos\jamaica\Params\Slp.tif	30.0197	39.1946
-OUTPUT	C:\z_data_m\AutoFuzSlpPos\jamaica\TypLoc\BksTyp.tif

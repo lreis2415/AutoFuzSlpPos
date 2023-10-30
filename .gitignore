@@ -61,4 +61,4 @@ doc/docstring/_static
 doc/docstring/_templates
 
 # demo output
-data/demo_data/workspace
+workspace*

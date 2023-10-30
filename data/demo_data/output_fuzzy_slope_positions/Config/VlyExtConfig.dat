@@ -1,5 +1,0 @@
-ProtoTag	16
-ParametersNUM	2
-Parameters	rpi	C:\z_data_m\AutoFuzSlpPos\jamaica\Params\RPI.tif	0	0.1
-Parameters	profc	C:\z_data_m\AutoFuzSlpPos\jamaica\Params\ProfC.tif	-0.00323194	0.000923759
-OUTPUT	C:\z_data_m\AutoFuzSlpPos\jamaica\TypLoc\VlyTyp.tif

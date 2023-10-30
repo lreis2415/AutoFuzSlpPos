@@ -1,7 +1,0 @@
-PrototypeGRID	C:\z_data_m\AutoFuzSlpPos\jamaica\TypLoc\VlyTyp.tif
-ProtoTag	16
-ParametersNUM	2
-Parameters	rpi	C:\z_data_m\AutoFuzSlpPos\jamaica\Params\RPI.tif	Z	1	0	1	0.1	2	0.5
-Parameters	profc	C:\z_data_m\AutoFuzSlpPos\jamaica\Params\ProfC.tif	B	0.0102741	2	0.5	0.00412876	2	0.5
-DistanceExponentForIDW	8
-OUTPUT	C:\z_data_m\AutoFuzSlpPos\jamaica\FuzzySlpPos\VlyInf.tif
