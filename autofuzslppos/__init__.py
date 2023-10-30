@@ -23,7 +23,7 @@
 
                               -------------------
         author               : Liangjun Zhu, Chengzhi Qin
-        copyright            : (C) 2015 - 2019 Lreis, IGSNRR, CAS
+        copyright            : (C) 2015 - 2023 Lreis, IGSNRR, CAS
         email                : zlj@lreis.ac.cn
  ******************************************************************************
  *                                                                            *
@@ -37,4 +37,4 @@
 """
 __author__ = 'Liangjun Zhu'
 __email__ = 'zlj@lreis.ac.cn'
-__version__ = '1.2.1'
+__version__ = '1.2.2'

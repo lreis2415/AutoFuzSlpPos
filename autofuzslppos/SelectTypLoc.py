@@ -13,14 +13,15 @@ import os
 import sys
 import time
 from io import open
+
 if os.path.abspath(os.path.join(sys.path[0], '..')) not in sys.path:
     sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '..')))
 
 from pygeoc.utils import StringClass
+from pygeoc.TauDEM import TauDEM_Ext
 
 from autofuzslppos.Config import get_input_cfgs
 from autofuzslppos.ParasComb import combine_ext_conf_parameters
-from autofuzslppos.TauDEMExtension import TauDEMExtension
 
 
 def extract_typical_location(cfg):
@@ -63,11 +64,11 @@ def extract_typical_location(cfg):
             extconfig_info.write(base_input_param)
             extconfig_info.close()
             # Run selecttyplocslppos
-            TauDEMExtension.selecttyplocslppos(cfg.proc, cur_ext_conf,
-                                               cfg.singleslpposconf[slppos].infrecommend,
-                                               cfg.singleslpposconf[slppos].extlog,
-                                               cfg.ws.typloc_dir, cfg.mpi_dir, cfg.bin_dir,
-                                               cfg.log.all, cfg.log.runtime, cfg.hostfile)
+            TauDEM_Ext.selecttyplocslppos(cfg.proc, cur_ext_conf,
+                                          cfg.singleslpposconf[slppos].infrecommend,
+                                          cfg.singleslpposconf[slppos].extlog,
+                                          cfg.ws.typloc_dir, cfg.mpi_dir, cfg.bin_dir,
+                                          cfg.log.all, cfg.log.runtime, cfg.hostfile)
         else:
             # read from existed extconfig file
             cur_ext_conf = cfg.singleslpposconf[slppos].extconfig
@@ -94,11 +95,11 @@ def extract_typical_location(cfg):
                                              (vname, cfg.selectedtopo[vname], vrange[0], vrange[1]))
                     extconfig_info.write('OUTPUT\t%s\n' % cfg.singleslpposconf[slppos].typloc)
 
-            TauDEMExtension.selecttyplocslppos(cfg.proc, cur_ext_conf,
-                                               workingdir=cfg.ws.typloc_dir, mpiexedir=cfg.mpi_dir,
-                                               exedir=cfg.bin_dir,
-                                               log_file=cfg.log.all, runtime_file=cfg.log.runtime,
-                                               hostfile=cfg.hostfile)
+            TauDEM_Ext.selecttyplocslppos(cfg.proc, cur_ext_conf,
+                                          workingdir=cfg.ws.typloc_dir, mpiexedir=cfg.mpi_dir,
+                                          exedir=cfg.bin_dir,
+                                          log_file=cfg.log.all, runtime_file=cfg.log.runtime,
+                                          hostfile=cfg.hostfile)
     print('Typical Locations extracted done!')
     # Combine extraction parameters.
     combine_ext_conf_parameters(cfg.slppostype, cfg.singleslpposconf, cfg.slpposresult.extconfig)

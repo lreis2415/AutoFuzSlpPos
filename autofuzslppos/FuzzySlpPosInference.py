@@ -12,14 +12,15 @@ import time
 from io import open
 import os
 import sys
+
 if os.path.abspath(os.path.join(sys.path[0], '..')) not in sys.path:
     sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '..')))
 
 from pygeoc.utils import StringClass
+from pygeoc.TauDEM import TauDEM_Ext
 
 from autofuzslppos.Config import get_input_cfgs
 from autofuzslppos.ParasComb import combine_inf_conf_parameters
-from autofuzslppos.TauDEMExtension import TauDEMExtension
 
 
 def read_inf_param_from_file(conf):
@@ -53,7 +54,7 @@ def fuzzy_inference(cfg):
             for p in params_list:
                 # for update
                 cfg.inferparam[slppos][p[0]] = p[1:]
-                #cfg.selectedtopo[p[0]] = p[1]
+                # cfg.selectedtopo[p[0]] = p[1]
                 # # for supplement
                 # if not p[0] in cfg.inferparam[slppos]:
                 #     cfg.inferparam[slppos][p[0]] = p[1:]
@@ -99,18 +100,18 @@ def fuzzy_inference(cfg):
         config_info.write('OUTPUT\t%s\n' % cfg.singleslpposconf[slppos].fuzslppos)
         config_info.close()
 
-        TauDEMExtension.fuzzyslpposinference(cfg.proc,
-                                             cfg.singleslpposconf[slppos].infconfig,
-                                             cfg.ws.output_dir, cfg.mpi_dir, cfg.bin_dir,
-                                             cfg.log.all, cfg.log.runtime, cfg.hostfile)
+        TauDEM_Ext.fuzzyslpposinference(cfg.proc,
+                                        cfg.singleslpposconf[slppos].infconfig,
+                                        cfg.ws.output_dir, cfg.mpi_dir, cfg.bin_dir,
+                                        cfg.log.all, cfg.log.runtime, cfg.hostfile)
 
-    TauDEMExtension.hardenslppos(cfg.proc, simif, cfg.slppostag,
-                                 cfg.slpposresult.harden_slppos,
-                                 cfg.slpposresult.max_similarity,
-                                 cfg.slpposresult.secharden_slppos,
-                                 cfg.slpposresult.secmax_similarity, None, None,
-                                 cfg.ws.output_dir, cfg.mpi_dir, cfg.bin_dir,
-                                 cfg.log.all, cfg.log.runtime, cfg.hostfile)
+    TauDEM_Ext.hardenslppos(cfg.proc, simif, cfg.slppostag,
+                            cfg.slpposresult.harden_slppos,
+                            cfg.slpposresult.max_similarity,
+                            cfg.slpposresult.secharden_slppos,
+                            cfg.slpposresult.secmax_similarity, None, None,
+                            cfg.ws.output_dir, cfg.mpi_dir, cfg.bin_dir,
+                            cfg.log.all, cfg.log.runtime, cfg.hostfile)
     print('Fuzzy slope position calculated done!')
     # Combine fuzzy inference parameters.
     combine_inf_conf_parameters(cfg.slppostype, cfg.singleslpposconf, cfg.slpposresult.infconfig)
