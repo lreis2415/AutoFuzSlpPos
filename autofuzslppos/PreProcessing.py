@@ -65,17 +65,17 @@ def pre_processing(cfg):
         outlet_use = cfg.pretaudem.outlet_m
     # D-inf related parameters
     if cfg.flow_model == 1:
-        TauDEM.dinfflowdir(cfg.proc, cfg.pretaudem.filldem, cfg.pretaudem.dinf,
-                           cfg.pretaudem.dinf_slp,
-                           workingdir=cfg.ws.pre_dir, mpiexedir=cfg.mpi_dir, exedir=cfg.bin_dir,
-                           log_file=cfg.log.preproc, runtime_file=cfg.log.runtime,
-                           hostfile=cfg.hostfile)
-        TauDEM.areadinf(cfg.proc, cfg.pretaudem.dinf,
-                        cfg.pretaudem.dinfacc_weight, outlet_use,
-                        cfg.pretaudem.stream_pd, 'false',
-                        workingdir=cfg.ws.pre_dir, mpiexedir=cfg.mpi_dir, exedir=cfg.bin_dir,
-                        log_file=cfg.log.preproc, runtime_file=cfg.log.runtime,
-                        hostfile=cfg.hostfile)
+        TauDEM_Ext.dinfflowdir(cfg.proc, cfg.pretaudem.filldem, cfg.pretaudem.dinf,
+                               cfg.pretaudem.dinf_slp,
+                               workingdir=cfg.ws.pre_dir, mpiexedir=cfg.mpi_dir, exedir=cfg.bin_dir,
+                               log_file=cfg.log.preproc, runtime_file=cfg.log.runtime,
+                               hostfile=cfg.hostfile)
+        TauDEM_Ext.areadinf(cfg.proc, cfg.pretaudem.dinf,
+                            cfg.pretaudem.dinfacc_weight, outlet_use,
+                            cfg.pretaudem.stream_pd, 'false',
+                            workingdir=cfg.ws.pre_dir, mpiexedir=cfg.mpi_dir, exedir=cfg.bin_dir,
+                            log_file=cfg.log.preproc, runtime_file=cfg.log.runtime,
+                            hostfile=cfg.hostfile)
     log_status = open(cfg.log.preproc, 'a', encoding='utf-8')
     log_status.write('Calculating RPI(Relative Position Index)...\n')
     log_status.flush()
