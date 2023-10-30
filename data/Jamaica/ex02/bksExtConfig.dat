@@ -1,0 +1,6 @@
+ProtoTag	4
+ParametersNUM	3
+Parameters	rpi	C:\z_docs\course\DTA\autoFuzSlpPos-20180309\data\demo_data\workspace\Params\rpi.tif	0.5	0.6
+Parameters	profc	C:\z_docs\course\DTA\autoFuzSlpPos-20180309\data\demo_data\workspace\Params\profc.tif	-0.00133988	0.00147431
+Parameters	slp	C:\z_docs\course\DTA\autoFuzSlpPos-20180309\data\demo_data\workspace\Params\slp.tif	20	36
+OUTPUT	C:\z_docs\course\DTA\autoFuzSlpPos-20180309\data\demo_data\workspace\TypLoc\bksTyp.tif

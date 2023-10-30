@@ -1,0 +1,8 @@
+PrototypeGRID	C:\z_docs\course\DTA\autoFuzSlpPos-20180309\data\demo_data\workspace\TypLoc\vlyTyp.tif
+ProtoTag	16
+ParametersNUM	3
+Parameters	rpi	C:\z_docs\course\DTA\autoFuzSlpPos-20180309\data\demo_data\workspace\Params\rpi.tif	Z	1.000000	0.000000	1.000000	0.100000	2.000000	0.500000
+Parameters	profc	C:\z_docs\course\DTA\autoFuzSlpPos-20180309\data\demo_data\workspace\Params\profc.tif	B	0.01	2.000000	0.500000	0.01	2.000000	0.500000
+Parameters	slp	C:\z_docs\course\DTA\autoFuzSlpPos-20180309\data\demo_data\workspace\Params\slp.tif	Z	1.000000	0.000000	1.000000	7.283820	2.000000	0.500000
+DistanceExponentForIDW	8
+OUTPUT	C:\z_docs\course\DTA\autoFuzSlpPos-20180309\data\demo_data\workspace\FuzzySlpPos\vlyInf.tif

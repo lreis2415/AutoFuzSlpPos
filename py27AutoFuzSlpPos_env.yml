@@ -1,0 +1,27 @@
+# Use the following commands in conda shell to config python27 env for pyAutoFuzSlpPos.
+#   cd AutoFuzSlpPos
+#   conda env create -f py27AutoFuzSlpPos_env.yml
+#
+#   If errors occurred about pip installation, please use the following commands to manually
+#     install PyGeoC using pip.
+#
+#   conda activate py27_slppos
+#   pip install --timeout 1000 "https://github.com/lreis2415/PyGeoC/archive/master.zip"
+#
+#
+# Latest updated: 10/30/2023
+
+name: py27_slppos
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=2.7
+  - gdal
+  - future
+  - typing
+  - six
+  - configparser
+  - pip
+  - pip:
+    - -r requirements.txt

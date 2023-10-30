@@ -1,8 +1,0 @@
-PrototypeGRID	C:\z_data_m\AutoFuzSlpPos\jamaica\TypLoc\BksTyp.tif
-ProtoTag	4
-ParametersNUM	3
-Parameters	rpi	C:\z_data_m\AutoFuzSlpPos\jamaica\Params\RPI.tif	B	0.3	2	0.5	0.3	2	0.5
-Parameters	profc	C:\z_data_m\AutoFuzSlpPos\jamaica\Params\ProfC.tif	B	0.0046261	2	0.5	0.00501181	2	0.5
-Parameters	slp	C:\z_data_m\AutoFuzSlpPos\jamaica\Params\Slp.tif	S	11.0147	2	0.5	1	0	1
-DistanceExponentForIDW	8
-OUTPUT	C:\z_data_m\AutoFuzSlpPos\jamaica\FuzzySlpPos\BksInf.tif
