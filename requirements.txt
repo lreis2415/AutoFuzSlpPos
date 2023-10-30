@@ -1,0 +1,8 @@
+#
+# CAUTION:
+#         DO NOT RUN `pip install -r requirements.txt` BY YOURSELF!
+# Usage:
+#       conda env create -f pyAutoFuzSlpPos_env.yml
+#
+# PyGeoC, latest
+https://github.com/lreis2415/PyGeoC/archive/master.zip

@@ -1,0 +1,26 @@
+# Use the following commands in conda shell to config python env for pyAutoFuzSlpPos.
+#   cd AutoFuzSlpPos
+#   conda env create -f pyAutoFuzSlpPos_env.yml
+#
+#   If errors occurred about pip installation, please use the following commands to manually
+#     install PyGeoC using pip.
+#
+#   conda activate py39_slppos
+#   pip install --timeout 1000 "https://github.com/lreis2415/PyGeoC/archive/master.zip"
+#
+#
+# Latest updated: 10/30/2023
+
+name: py39_slppos
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - gdal<3.6
+  - future
+  - typing
+  - six
+  - pip
+  - pip:
+      - -r requirements.txt
