@@ -4,10 +4,10 @@ name: Build with OpenMPI and GDAL using AppleClang on macOS
 
 on:
   push:
-    paths-ignore: 
+    paths-ignore:
       - 'data'
   pull_request:
-      paths-ignore: 
+      paths-ignore:
         - 'data'
   workflow_dispatch:
 
@@ -21,8 +21,8 @@ jobs:
 
     steps:
     - name: Checkout TauDEM_ext
-      uses: actions/checkout@v3
-      
+      uses: actions/checkout@v4
+
     - name: Setup xcode
       uses: maxim-lobanov/setup-xcode@v1
 

@@ -4,10 +4,10 @@ name: Build with OpenMPI and GDAL using GCC on Ubuntu
 
 on:
     push:
-        paths-ignore: 
+        paths-ignore:
           - 'data'
     pull_request:
-        paths-ignore: 
+        paths-ignore:
           - 'data'
     workflow_dispatch:
 
@@ -24,7 +24,7 @@ jobs:
 
     steps:
     - name: Checkout TauDEM_ext
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install GDAL and OpenMPI
       run: sudo apt-get update && sudo apt-get install -qq gdal-bin libgdal-dev openmpi-bin libopenmpi-dev
