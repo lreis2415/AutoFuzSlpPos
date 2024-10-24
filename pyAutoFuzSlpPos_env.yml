@@ -5,19 +5,19 @@
 #   If errors occurred about pip installation, please use the following commands to manually
 #     install PyGeoC using pip.
 #
-#   conda activate py39_slppos
+#   conda activate pyslppos
 #   pip install --timeout 1000 "https://github.com/lreis2415/PyGeoC/archive/master.zip"
 #
 #
-# Latest updated: 10/30/2023
+# Latest updated: 10/24/2024
 
-name: py39_slppos
+name: pyslppos
 channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.9
-  - gdal<3.6
+  - python=3.12
+  - gdal<4
   - future
   - typing
   - six
