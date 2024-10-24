@@ -4,6 +4,9 @@ name: Build with OpenMPI and GDAL using AppleClang on macOS
 
 on:
   push:
+    branches:
+      - 'master'
+      - 'dev'
     paths-ignore:
       - 'data'
   pull_request:

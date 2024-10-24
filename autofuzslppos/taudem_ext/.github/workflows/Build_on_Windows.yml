@@ -4,6 +4,9 @@ name: Build with MSMPI and GDAL using MSVC on Windows
 
 on:
   push:
+    branches:
+      - 'master'
+      - 'dev'
     paths-ignore:
       - 'data'
   pull_request:
