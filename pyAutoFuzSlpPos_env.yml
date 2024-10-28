@@ -17,7 +17,7 @@ channels:
   - defaults
 dependencies:
   - python=3.12
-  - gdal<4
+  - gdal<3.6
   - future
   - typing
   - six
