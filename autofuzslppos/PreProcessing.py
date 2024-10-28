@@ -24,7 +24,7 @@ from pygeoc.TauDEM import TauDEMWorkflow, TauDEM_Ext
 from pygeoc.utils import FileClass
 from pygeoc.raster import RasterUtilClass
 
-from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.Config import AutoFuzSlpPosConfig, check_input_args, get_input_cfgs
 from autofuzslppos.Util import slope_rad_to_deg
 
 
@@ -193,7 +193,7 @@ def pre_processing(cfg):
 
 def main():
     """TEST CODE"""
-    fuzslppos_cfg = get_input_cfgs()
+    fuzslppos_cfg = AutoFuzSlpPosConfig(*check_input_args(*get_input_cfgs()))
     pre_processing(fuzslppos_cfg)
 
 

@@ -20,7 +20,7 @@ if os.path.abspath(os.path.join(sys.path[0], '..')) not in sys.path:
 from pygeoc.utils import StringClass
 from pygeoc.TauDEM import TauDEM_Ext
 
-from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.Config import AutoFuzSlpPosConfig, check_input_args, get_input_cfgs
 from autofuzslppos.ParasComb import combine_ext_conf_parameters
 
 
@@ -112,7 +112,7 @@ def extract_typical_location(cfg):
 
 def main():
     """TEST CODE"""
-    fuzslppos_cfg = get_input_cfgs()
+    fuzslppos_cfg = AutoFuzSlpPosConfig(*check_input_args(*get_input_cfgs()))
     extract_typical_location(fuzslppos_cfg)
 
 

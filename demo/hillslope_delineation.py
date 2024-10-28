@@ -9,15 +9,14 @@ from __future__ import absolute_import, unicode_literals
 
 import os
 import argparse
-from configparser import ConfigParser
-from datetime import datetime
+
 from pygeoc.TauDEM import TauDEMFilesUtils, TauDEMWorkflow
 from pygeoc.hydro import Hillslopes
 
 from pygeoc.utils import FileClass, UtilClass
 
 
-class parse_arguments(object):
+class ParseArguments(object):
     def __init__(self, in_dem='', in_wp='', in_cores=2, in_outlet=None, in_thresh=0,
                  in_singlebasin=False, in_streamvalue=-1):
         self.dem = in_dem
@@ -35,13 +34,13 @@ class parse_arguments(object):
         self.hs = ''
 
     def check(self):
-        if self.dem is '' or self.dem is None:
+        if self.dem == '' or self.dem is None:
             print('The input DEM cannot be empty!')
             return False
         if not os.path.exists(self.dem):
             print('The input DEM (%s) does not exist!' % self.dem)
             return False
-        if self.wp is not '' and self.wp is not None:
+        if self.wp != '' and self.wp is not None:
             UtilClass.mkdir(self.wp)
         else:
             core_name = FileClass.get_core_name_without_suffix(self.dem)
@@ -54,7 +53,7 @@ class parse_arguments(object):
         if self.n is None:
             self.n = 2
 
-        if self.outlet is not '' and self.outlet is not None:
+        if self.outlet != '' and self.outlet is not None:
             if not os.path.exists(self.outlet):
                 print('The input outlet (%s) file does not exist!' % self.outlet)
                 self.outlet = None
@@ -109,10 +108,10 @@ def get_arguments(desc='Automatic workflow to delineate hillslopes based on TauD
     #                        required=False)
     # parse arguments
     args = parser.parse_args()
-    arguments_obj = parse_arguments(in_dem=args.dem, in_wp=args.wp, in_cores=args.n,
-                                    in_outlet=args.outlet, in_thresh=args.thresh,
-                                    in_singlebasin=args.singlebasin,
-                                    in_streamvalue=args.streamvalue)
+    arguments_obj = ParseArguments(in_dem=args.dem, in_wp=args.wp, in_cores=args.n,
+                                   in_outlet=args.outlet, in_thresh=args.thresh,
+                                   in_singlebasin=args.singlebasin,
+                                   in_streamvalue=args.streamvalue)
     if not arguments_obj.check():
         return None
     return arguments_obj

@@ -28,7 +28,7 @@ from pygeoc.postTauDEM import D8Util, DinfUtil
 from pygeoc.raster import RasterUtilClass
 from pygeoc.utils import MathClass, FileClass, DEFAULT_NODATA
 
-from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.Config import AutoFuzSlpPosConfig, check_input_args, get_input_cfgs
 
 
 class RidgeSourceExtraction(object):
@@ -175,7 +175,7 @@ class RidgeSourceExtraction(object):
 
 def main():
     """Main workflow."""
-    cfg = get_input_cfgs()
+    cfg = AutoFuzSlpPosConfig(*check_input_args(*get_input_cfgs()))
     flowmodel = cfg.flow_model
     if flowmodel == 1:
         flowdir = cfg.pretaudem.dinf

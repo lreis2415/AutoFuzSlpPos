@@ -13,7 +13,7 @@ import sys
 if os.path.abspath(os.path.join(sys.path[0], '..')) not in sys.path:
     sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '..')))
 
-from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.Config import AutoFuzSlpPosConfig, check_input_args, get_input_cfgs
 from autofuzslppos.FuzzySlpPosInference import fuzzy_inference
 from autofuzslppos.PreProcessing import pre_processing
 from autofuzslppos.SelectTypLoc import extract_typical_location
@@ -21,7 +21,7 @@ from autofuzslppos.SelectTypLoc import extract_typical_location
 
 def main():
     """Main workflow."""
-    fuzslppos_cfg = get_input_cfgs()
+    fuzslppos_cfg = AutoFuzSlpPosConfig(*check_input_args(*get_input_cfgs()))
 
     pre_processing(fuzslppos_cfg)
     extract_typical_location(fuzslppos_cfg)

@@ -1,5 +1,7 @@
 # AutoFuzSlpPos-Releases notes
 
++ 2024-10-24: Build Docker image based on taudem_ext:debian.
+
 + 2019-01-23: The C++ programs of AutoFuzSlpPos have been integrated into [TauDEM_ext](https://github.com/lreis2415/TauDEM_ext).
   + add TauDEM_ext as subtree
     ```shell

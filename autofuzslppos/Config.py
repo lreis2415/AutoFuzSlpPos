@@ -24,6 +24,73 @@ from autofuzslppos.Nomenclature import CreateWorkspace, PreProcessAttrNames, Top
     LogNames, FuzSlpPosFiles, SingleSlpPosFiles
 
 
+def check_file_available(in_f):
+    """Check the input file is existed or not, and return None, if not."""
+    if StringClass.string_match(in_f, 'none') or in_f == '' or in_f is None:
+        return None
+    if not FileClass.is_file_exists(in_f):
+        raise ValueError("The %s is not existed or have no access permission!" % in_f)
+    else:
+        return in_f
+
+
+def get_option_value_exactly(cf, secname, optname, valtyp=str):
+    # type: (ConfigParser, AnyStr, AnyStr, type) -> Optional[AnyStr, int, float]
+    if valtyp == int:
+        return cf.getint(secname, optname)
+    elif valtyp == float:
+        return cf.getfloat(secname, optname)
+    elif valtyp == bool:
+        return cf.getboolean(secname, optname)
+    else:
+        return cf.get(secname, optname)
+
+
+def check_config_option(cf, secname, optnames, print_warn=False):
+    # type: (ConfigParser, AnyStr, Optional[AnyStr, List[AnyStr]], bool) -> (bool, AnyStr, AnyStr)
+    if not isinstance(cf, ConfigParser):
+        raise IOError('ErrorInput: The first argument cf MUST be the object of `ConfigParser`!')
+    if type(optnames) is not list:
+        optnames = [optnames]  # type: List[AnyStr]
+
+    if secname not in cf.sections():
+        if print_warn:
+            print('Warning: Section %s is NOT defined, try to find in DEFAULT section!' % secname)
+        for optname in optnames:  # For backward compatibility
+            if cf.has_option('', optname):  # May be in [DEFAULT] section
+                return True, '', optname
+        if print_warn:
+            print('Warning: Section %s is NOT defined, '
+                  'Option %s is NOT FOUND!' % (secname, ','.join(optnames)))
+        return False, '', ''
+    else:
+        for optname in optnames:  # For backward compatibility
+            if cf.has_option(secname, optname):
+                return True, secname, optname
+        if print_warn:
+            print('Warning: Option %s is NOT FOUND in Section %s!' % (','.join(optnames), secname))
+        return False, '', ''
+
+
+def get_option_value(cf,  # type: ConfigParser
+                     secname,  # type: AnyStr
+                     optnames,  # type: Optional[AnyStr, List[AnyStr]]
+                     valtyp=str,  # type: Optional[AnyStr, int, float, bool]
+                     defvalue='',  # type: Optional[AnyStr, int, float, bool]
+                     required=False,  # type: bool
+                     print_warn=False  # type: bool
+                     ):  # type: (...) -> Optional[AnyStr, int, float]
+    found, sname, oname = check_config_option(cf, secname, optnames, print_warn=print_warn)
+    if not found:
+        if required:
+            raise IOError('Error Input in configuration!')
+        else:
+            if defvalue == '' and (valtyp == int or valtyp == float):
+                return -9999  # int or float value type, but not set default value properly
+            return defvalue
+    return get_option_value_exactly(cf, sname, oname, valtyp=valtyp)
+
+
 class AutoFuzSlpPosConfig(object):
     """Get input arguments for pyAutoFuzSlpPos main program and
        parse configuration file (\*.ini file).
@@ -214,73 +281,62 @@ class AutoFuzSlpPosConfig(object):
             self.read_optiontyploc_section(_opttyploc)
             self.read_optionfuzinf_section(_optfuzinf)
 
-    @staticmethod
-    def check_file_available(in_f):
-        """Check the input file is existed or not, and return None, if not."""
-        if StringClass.string_match(in_f, 'none') or in_f == '' or in_f is None:
-            return None
-        if not FileClass.is_file_exists(in_f):
-            raise ValueError("The %s is not existed or have no access permission!" % in_f)
-        else:
-            return in_f
-
     def read_required_section(self, _require):
         """read and check required section"""
-        if _require in self.cf.sections():
-            if self.bin_dir is None:
-                self.bin_dir = self.cf.get(_require, 'exedir')
-            if self.root_dir is None and self.cf.has_option(_require, 'rootdir'):
-                self.root_dir = self.cf.get(_require, 'rootdir')
-            if self.root_dir is None:
-                raise IOError("Workspace must be defined!")
-            self.ws = CreateWorkspace(self.root_dir)
-            self.log = LogNames(self.ws.log_dir)
-            self.topoparam = TopoAttrNames(self.ws)
-            self.slpposresult = FuzSlpPosFiles(self.ws)
-            if self.dem is None:
-                self.dem = self.cf.get(_require, 'rawdem')
-                self.dem = AutoFuzSlpPosConfig.check_file_available(self.dem)
-            if self.dem is None:
-                raise ValueError("DEM can not be None!")
-        else:
+        if _require not in self.cf.sections():
             raise ValueError("[REQUIRED] section MUST be existed in *.ini file.")
+        if self.bin_dir is None:
+            self.bin_dir = self.cf.get(_require, 'exedir')
+        if self.root_dir is None and self.cf.has_option(_require, 'rootdir'):
+            self.root_dir = self.cf.get(_require, 'rootdir')
+        if self.root_dir is None:
+            raise IOError("Workspace must be defined!")
+        self.ws = CreateWorkspace(self.root_dir)
+        self.log = LogNames(self.ws.log_dir)
+        self.topoparam = TopoAttrNames(self.ws)
+        self.slpposresult = FuzSlpPosFiles(self.ws)
+        if self.dem is None:
+            self.dem = self.cf.get(_require, 'rawdem')
+            self.dem = check_file_available(self.dem)
+        if self.dem is None:
+            raise ValueError("DEM can not be None!")
 
         if not os.path.isdir(self.bin_dir):
             self.bin_dir = None
             if FileClass.get_executable_fullpath('fuzzyslpposinference') is None:
-                raise RuntimeError("exeDir is set to None, however the executable path are not "
-                                   "set in environment path!")
+                raise RuntimeError("exeDir is set to None, the executable path is not "
+                                   "set in environment path either!")
 
     def read_flag_section(self, _flag):
         """read executable flags"""
-        if _flag in self.cf.sections():
-            self.flag_preprocess = self.cf.getboolean(_flag, 'preprocess')
-            self.flag_selecttyploc = self.cf.getboolean(_flag, 'typlocselection')
-            self.flag_auto_typlocparams = self.cf.getboolean(_flag, 'autotyplocparams')
-            self.flag_fuzzyinference = self.cf.getboolean(_flag, 'fuzzyinference')
-            self.flag_auto_inferenceparams = self.cf.getboolean(_flag, 'autoinfparams')
-            self.flag_log = self.cf.getboolean(_flag, 'extlog')
+        if _flag not in self.cf.sections():
+            return
+        self.flag_preprocess = get_option_value(self.cf, _flag, 'preprocess', bool)
+        self.flag_selecttyploc = get_option_value(self.cf, _flag, 'typlocselection', bool)
+        self.flag_auto_typlocparams = get_option_value(self.cf, _flag, 'autotyplocparams', bool)
+        self.flag_fuzzyinference = get_option_value(self.cf, _flag, 'fuzzyinference', bool)
+        self.flag_auto_inferenceparams = get_option_value(self.cf, _flag, 'autoinfparams', bool)
+        self.flag_log = get_option_value(self.cf, _flag, 'extlog', bool)
 
     def read_optionaldta_section(self, _optdta):
         """Optional parameters settings of digital terrain analysis for topographic attributes"""
         if _optdta not in self.cf.sections():
             return
-        self.flow_model = self.cf.getint(_optdta, 'flowmodel')
-        self.rpi_method = self.cf.getint(_optdta, 'rpimethod')
-        self.dist_exp = self.cf.getint(_optdta, 'distanceexponentforidw')
-        self.max_move_dist = self.cf.getfloat(_optdta, 'maxmovedist')
-        self.numthresh = self.cf.getint(_optdta, 'numthresh')
-        self.d8_stream_thresh = self.cf.getint(_optdta, 'd8streamthreshold')
-        self.d8_down_method = self.cf.get(_optdta, 'd8downmethod')
-        self.d8_stream_tag = self.cf.getint(_optdta, 'd8streamtag')
-        self.d8_up_method = self.cf.get(_optdta, 'd8upmethod')
-        self.dinf_stream_thresh = self.cf.getint(_optdta, 'dinfstreamthreshold')
-        self.dinf_down_stat = self.cf.get(_optdta, 'dinfdownstat')
-        self.dinf_down_method = self.cf.get(_optdta, 'dinfdownmethod')
-        self.dinf_dist_down_wg = self.cf.get(_optdta, 'dinfdistdownwg')
-        self.propthresh = self.cf.getfloat(_optdta, 'propthresh')
-        self.dinf_up_stat = self.cf.get(_optdta, 'dinfupstat')
-        self.dinf_up_method = self.cf.get(_optdta, 'dinfupmethod')
+        self.rpi_method = get_option_value(self.cf, _optdta, 'rpimethod', int)
+        self.dist_exp = get_option_value(self.cf, _optdta, 'distanceexponentforidw', int)
+        self.max_move_dist = get_option_value(self.cf, _optdta, 'maxmovedist', float)
+        self.numthresh = get_option_value(self.cf, _optdta, 'numthresh', int)
+        self.d8_stream_thresh = get_option_value(self.cf, _optdta, 'd8streamthreshold', int)
+        self.d8_down_method = get_option_value(self.cf, _optdta, 'd8downmethod', str)
+        self.d8_stream_tag = get_option_value(self.cf, _optdta, 'd8streamtag', int)
+        self.d8_up_method = get_option_value(self.cf, _optdta, 'd8upmethod', str)
+        self.dinf_stream_thresh = get_option_value(self.cf, _optdta, 'dinfstreamthreshold', float)
+        self.dinf_down_stat = get_option_value(self.cf, _optdta, 'dinfdownstat', str)
+        self.dinf_down_method = get_option_value(self.cf, _optdta, 'dinfdownmethod', str)
+        self.dinf_dist_down_wg = get_option_value(self.cf, _optdta, 'dinfdistdownwg', str)
+        self.propthresh = get_option_value(self.cf, _optdta, 'propthresh', float)
+        self.dinf_up_stat = get_option_value(self.cf, _optdta, 'dinfupstat', str)
+        self.dinf_up_method = get_option_value(self.cf, _optdta, 'dinfupmethod', str)
         if self.flow_model != 0:
             self.flow_model = 1
         if self.rpi_method != 0:
@@ -307,7 +363,7 @@ class AutoFuzSlpPosConfig(object):
             self.dinf_down_stat = 'Average'
         if StringClass.string_in_list(self.dinf_down_method, distance_method):
             self.dinf_down_method = 'Surface'
-        self.dinf_dist_down_wg = AutoFuzSlpPosConfig.check_file_available(self.dinf_dist_down_wg)
+        self.dinf_dist_down_wg = check_file_available(self.dinf_dist_down_wg)
         if self.propthresh < 0:
             self.propthresh = 0.0
         if not StringClass.string_in_list(self.dinf_up_stat, stat_method):
@@ -320,12 +376,12 @@ class AutoFuzSlpPosConfig(object):
         """read and check OPTIONAL inputs."""
         if _opt not in self.cf.sections():
             return
-        self.mpi_dir = self.cf.get(_opt, 'mpiexedir')
-        self.hostfile = self.cf.get(_opt, 'hostfile')
-        self.outlet = self.cf.get(_opt, 'outlet')
-        self.valley = self.cf.get(_opt, 'vlysrc')
-        self.ridge = self.cf.get(_opt, 'rdgsrc')
-        self.regional_attr = self.cf.get(_opt, 'regionalattr')
+        self.mpi_dir = get_option_value(self.cf, _opt, 'mpiexedir')
+        self.hostfile = get_option_value(self.cf, _opt, 'hostfile')
+        self.outlet = get_option_value(self.cf, _opt, 'outlet')
+        self.valley = get_option_value(self.cf, _opt, 'vlysrc')
+        self.ridge = get_option_value(self.cf, _opt, 'rdgsrc')
+        self.regional_attr = get_option_value(self.cf, _opt, 'regionalattr')
         if self.proc <= 0 or self.proc is None:
             if self.cf.has_option(_opt, 'inputproc'):
                 self.proc = self.cf.getint(_opt, 'inputproc')
@@ -340,11 +396,11 @@ class AutoFuzSlpPosConfig(object):
             self.mpi_dir = os.path.dirname(mpipath)
         if self.mpi_dir is None:
             raise RuntimeError('Can not find mpiexec!')
-        self.hostfile = AutoFuzSlpPosConfig.check_file_available(self.hostfile)
-        self.outlet = AutoFuzSlpPosConfig.check_file_available(self.outlet)
-        self.valley = AutoFuzSlpPosConfig.check_file_available(self.valley)
-        self.ridge = AutoFuzSlpPosConfig.check_file_available(self.ridge)
-        self.regional_attr = AutoFuzSlpPosConfig.check_file_available(self.regional_attr)
+        self.hostfile = check_file_available(self.hostfile)
+        self.outlet = check_file_available(self.outlet)
+        self.valley = check_file_available(self.valley)
+        self.ridge = check_file_available(self.ridge)
+        self.regional_attr = check_file_available(self.regional_attr)
         if self.topoparam is None:
             self.topoparam = TopoAttrNames(self.ws)
         if self.regional_attr is not None:
@@ -394,7 +450,7 @@ class AutoFuzSlpPosConfig(object):
                     if len(ap) != 2:
                         raise RuntimeError("User defined topographic attribute (%s) MUST have "
                                            "an existed file path!" % singattr)
-                    attrp = AutoFuzSlpPosConfig.check_file_available(ap[1])
+                    attrp = check_file_available(ap[1])
                     if attrp is None:
                         raise RuntimeError("User defined topographic attribute (%s) MUST have "
                                            "an existed file path!" % singattr)
@@ -540,13 +596,19 @@ def get_input_cfgs():
         input_proc = int(xx[0])
     else:
         input_proc = -1
+    return ini_file, bin_dir, input_proc, rawdem, root_dir
+
+
+def check_input_args(ini_file, bin_dir=None, input_proc=None, rawdem=None, root_dir=None):
     if not FileClass.is_file_exists(ini_file):
         if FileClass.is_file_exists(rawdem) and os.path.isdir(bin_dir):
             # In this scenario, the script can be executed by default setting, i.e., the *.ini
             # file is not required.
             cf = None
             if input_proc < 0:
-                input_proc = cpu_count() / 2
+                input_proc = int((cpu_count() - 0.5) // 2)
+            if input_proc < 1:
+                input_proc = 1
         else:
             raise RuntimeError("*.ini file MUST be provided when '-dem', '-bin', "
                                "and '-root' are not provided!")
@@ -554,8 +616,8 @@ def get_input_cfgs():
         cf = ConfigParser()
         cf.read(ini_file)
 
-    return AutoFuzSlpPosConfig(cf, bin_dir, input_proc, rawdem, root_dir)
+    return cf, bin_dir, input_proc, rawdem, root_dir
 
 
 if __name__ == '__main__':
-    fuzslppos_cfg = get_input_cfgs()
+    fuzslppos_cfg = AutoFuzSlpPosConfig(*check_input_args(*get_input_cfgs()))

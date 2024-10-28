@@ -27,7 +27,8 @@ class CreateWorkspace(object):
                 os.makedirs(root_dir)
             except Exception:  # failed of any types
                 root_dir = UtilClass.current_path(lambda: 0) + os.sep + "FuzzySlpPos"
-                os.mkdir(root_dir)
+                if not os.path.exists(root_dir):
+                    os.mkdir(root_dir)
         self.root_dir = root_dir
 
         self.pre_dir = self.root_dir + os.sep + "PreDir"
