@@ -1,15 +1,25 @@
 # -*- coding: utf-8 -*-
 """Run demo data of Jamaica for comparison of multiple flow direction algorithms.
 
+    @revisions:
+      1. 2024-10-28 - lj - Support the ini configuration file as input
+
     @author: Liangjun Zhu (zlj@lreis.ac.cn)
     @date: 2022-03-08
 """
 from __future__ import absolute_import, unicode_literals
 
 import os
+import sys
+
+if os.path.abspath(os.path.join(sys.path[0], '..')) not in sys.path:
+    sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '..')))
+
 from pygeoc.utils import UtilClass
 from pygeoc.TauDEM import TauDEM, TauDEM_Ext, TauDEMFilesUtils
-from pygeoc.postTauDEM import D8Util, DinfUtil, StreamnetUtil
+from pygeoc.postTauDEM import D8Util, DinfUtil
+
+from autofuzslppos.Config import AutoFuzSlpPosConfig, check_input_args, get_input_cfgs
 
 
 class TauDEMExtFiles(TauDEMFilesUtils):
@@ -35,16 +45,24 @@ class TauDEMExtFiles(TauDEMFilesUtils):
 
 def main():
     """Main workflow."""
-    cur_path = UtilClass.current_path(lambda: 0)
-    bin_dir = os.path.abspath(os.path.join(cur_path, '../build/bin'))
-    demo_data_path = os.path.abspath(os.path.join(cur_path, '../data/Jamaica'))
-    # print(demo_data_path)
-    dem_name = 'Jamaica_dem'
-    workspace = demo_data_path + os.sep + 'workspace_flowdir_comp_%s' % dem_name
-    UtilClass.rmmkdir(workspace)
-    dem_path = demo_data_path + os.sep + dem_name + '.tif'
-    print(dem_path)
-    np = 2
+    ini_file, bin_dir, input_proc, rawdem, root_dir = get_input_cfgs()
+    if ini_file is None and bin_dir is None and input_proc < 0 and rawdem is None and root_dir is None:
+        cur_path = UtilClass.current_path(lambda: 0)
+        bin_dir = os.path.abspath(os.path.join(cur_path, '../build/bin'))
+        demo_data_path = os.path.abspath(os.path.join(cur_path, '../data/Jamaica'))
+        # print(demo_data_path)
+        dem_name = 'Jamaica_dem'
+        workspace = demo_data_path + os.sep + 'workspace_flowdir_comp_%s' % dem_name
+        UtilClass.rmmkdir(workspace)
+        dem_path = demo_data_path + os.sep + dem_name + '.tif'
+        print(dem_path)
+        np = 2
+    else:
+        cfg = AutoFuzSlpPosConfig(*check_input_args(ini_file, bin_dir, input_proc, rawdem, root_dir))
+        bin_dir = cfg.bin_dir
+        workspace = cfg.ws.pre_dir
+        dem_path = cfg.dem
+        np = cfg.proc
     min_frac = 0.0001
 
     nc = TauDEMExtFiles(workspace)
