@@ -21,7 +21,7 @@ from pygeoc.raster import RasterUtilClass
 from pygeoc.hydro import D8Util
 from pygeoc.vector import VectorUtilClass
 
-from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.Config import AutoFuzSlpPosConfig, check_input_args, get_input_cfgs
 
 
 def read_ridge_sources(rdgfile):
@@ -123,7 +123,7 @@ def read_attributes_along_flowpaths(flowpaths, pathlens, attrslist, profileattrc
 
 def main():
     """TEST CODE"""
-    fuzslppos_cfg = get_input_cfgs()
+    fuzslppos_cfg = AutoFuzSlpPosConfig(*check_input_args(*get_input_cfgs()))
 
     profileAttrCsv = fuzslppos_cfg.ws.pre_dir + os.sep + 'profiles_attributes_bothtyploc.csv'
     profileShp = fuzslppos_cfg.ws.pre_dir + os.sep + 'profiles_bothtyploc.shp'

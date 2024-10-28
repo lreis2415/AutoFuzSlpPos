@@ -16,7 +16,7 @@ if os.path.abspath(os.path.join(sys.path[0], '..')) not in sys.path:
 
 from pygeoc.utils import StringClass
 
-from autofuzslppos.Config import get_input_cfgs
+from autofuzslppos.Config import AutoFuzSlpPosConfig, check_input_args, get_input_cfgs
 
 
 def read_ext_conf(ext_file):
@@ -128,7 +128,7 @@ def combine_inf_conf_parameters(slppostypes, infconf_dict, combinedconf):
 
 def main():
     """TEST CODE."""
-    fuzslppos_cfg = get_input_cfgs()
+    fuzslppos_cfg = AutoFuzSlpPosConfig(*check_input_args(*get_input_cfgs()))
     types = fuzslppos_cfg.slppostype
     slpposconf = fuzslppos_cfg.singleslpposconf
     combinedextconf = fuzslppos_cfg.slpposresult.extconfig
