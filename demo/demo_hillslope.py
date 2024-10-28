@@ -38,7 +38,7 @@ def main():
     else:
         cfg = AutoFuzSlpPosConfig(*check_input_args(ini_file, bin_dir, input_proc, rawdem, root_dir))
         bin_dir = cfg.bin_dir
-        workspace = cfg.ws.pre_dir
+        workspace = cfg.ws
         dem_path = cfg.dem
 
     args_obj = ParseArguments(in_dem=dem_path, in_wp=workspace)
