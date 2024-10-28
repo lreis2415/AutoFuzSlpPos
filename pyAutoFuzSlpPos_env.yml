@@ -16,7 +16,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.12
+  - python>=3.9,<3.10
   - gdal<3.6
   - future
   - typing
